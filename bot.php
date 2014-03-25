@@ -13,8 +13,8 @@ set_time_limit(0);
 ini_set("display_errors","on");
 $joined=0;
 $fp=fsockopen("irc.sylnt.us",6667);
-send("NICK",$nick);
-send("USER","$nick * $nick :$nick");
+fputs($fp,"NICK $nick\r\n");
+fputs($fp,"USER $nick * $nick :$nick\r\n");
 main();
 
 function main()
@@ -31,40 +31,40 @@ function main()
     {
       if ($parts[0]=="PING")
       {
-        send("PONG",$parts[1]);
+        fputs($fp,"PONG ".$parts[1]."\r\n");
       }
       else
       {
         echo $data;
-        if ((trim($parts[1])=="PRIVMSG") and (count($parts)>3))
+      }
+      if ((trim($parts[1])=="PRIVMSG") and (count($parts)>3))
+      {
+        $pieces1=explode("!",$parts[0]);
+        $pieces2=explode("PRIVMSG $chan :",$data);
+        if ((count($pieces1)>1) and (count($pieces2)==2))
         {
-          $pieces1=explode("!",$parts[0]);
-          $pieces2=explode("PRIVMSG $chan :",$data);
-          if ((count($pieces1)>1) and (count($pieces2)==2))
+          $msg_nick=substr($pieces1[0],1);
+          $msg=trim($pieces2[1]);
+          if (strlen($msg)>0)
           {
-            $msg_nick=substr($pieces1[0],1);
-            $msg=trim($pieces2[1]);
-            if (strlen($msg)>0)
+            $i=strpos($msg," ");
+            if (($i!==False) and ($msg[0]=="!"))
             {
-              $i=strpos($msg," ");
-              if (($i!==False) and ($msg[0]=="!"))
+              $cmd=strtoupper(substr($msg,1,$i-1));
+              $content=substr($msg,$i+1);
+              switch ($cmd)
               {
-                $cmd=strtoupper(substr($msg,1,$i-1));
-                $content=substr($msg,$i+1);
-                switch ($cmd)
-                {
-                  case "WIKI":
-                    if (strtoupper(trim($content))=="QUIT")
-                    {
-                      send(":$nick QUIT");
-                      fclose($fp);
-                      echo "QUITTING SCRIPT\r\n";
-                      return;
-                    }
-                    send(":$nick PRIVMSG $chan :$msg_nick wants to send \"$content\" to the Soylent wiki.");
-                    wiki($msg_nick,$content);
-                    break;
-                }
+                case "WIKI":
+                  if (strtoupper(trim($content))=="QUIT")
+                  {
+                    fputs($fp,":$nick QUIT\r\n");
+                    fclose($fp);
+                    echo "QUITTING SCRIPT\r\n";
+                    return;
+                  }
+                  fputs($fp,":$nick PRIVMSG $chan :$msg_nick wants to send \"$content\" to the Soylent wiki.\r\n");
+                  wiki($msg_nick,$content);
+                  break;
               }
             }
           }
@@ -74,23 +74,10 @@ function main()
     if (($joined==0) and (strpos($data,"End of /MOTD command")!==False))
     {
       $joined=1;
-      send("JOIN",$chan);
+      fputs($fp,"JOIN $chan\r\n");
     }
   }
   main();
-}
-
-function send($cmd,$msg=null)
-{
-  global $fp;
-  if ($msg==null)
-  {
-    fputs($fp,"$cmd\r\n");
-  }
-  else
-  {
-    fputs($fp,"$cmd $msg\r\n");
-  }
 }
 
 function wiki($msg_nick,$content)
