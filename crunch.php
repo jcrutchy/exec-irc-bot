@@ -120,13 +120,13 @@ function find($logfile,$nick,$query="")
     {
       $lines=explode("\n",$data);
       $n=count($lines);
-      for ($i=$n-2;$i>=0;$i--)
+      for ($i=$n-1;$i>=0;$i--)
       {
         $test_nick="";
         $test_msg="";
         if (msg_nick($lines[$i],$test_nick,$test_msg)==True)
         {
-          if (strtoupper($test_nick)==strtoupper($nick))
+          if ((strtoupper($test_nick)==strtoupper($nick)) and (strtoupper($test_msg)<>(TRIGGER."FIND ".strtoupper($nick)." ".strtoupper($query))))
           {
             if (($query=="") or (($query<>"") and (strpos(strtoupper($test_msg),strtoupper($query))!==False)))
             {
