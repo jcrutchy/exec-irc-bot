@@ -2,7 +2,9 @@
 
 # gpl2
 # by crutchy
-# 29-march-2014
+# 30-march-2014
+
+# thanks to mrbluze for his guidance
 
 define("NICK","crunch");
 define("CHAN","##");
@@ -15,7 +17,12 @@ $fp=fsockopen("irc.sylnt.us",6667);
 fputs($fp,"NICK ".NICK."\r\n");
 fputs($fp,"USER ".NICK." * ".NICK." :".NICK."\r\n");
 $last="";
-$subject="a";
+$prefix="";
+$suffix="";
+$color=-1;
+$verb_to=array("bonking","trolling","farting","brooming","whacking","slurping","factoring","frogging","spanking");
+$noun_from=array("horse","dog","computer");
+$noun_to=array("Shrodinger's cat","brown puddle","sticky mess");
 main();
 
 function main()
@@ -24,6 +31,12 @@ function main()
   global $joined;
   global $last;
   global $subject;
+  global $prefix;
+  global $suffix;
+  global $color;
+  global $verb_to;
+  global $noun_from;
+  global $noun_to;
   $data=fgets($fp);
   if ($data!==False)
   {
@@ -57,19 +70,33 @@ function main()
         {
           if ($last<>"")
           {
-            privmsg(str_replace($subject,"bacon",$last));
+            $words=explode(" ",$last);
+            process($words,$verb_to,"","","ing");
+            process($words,$noun_to,$noun_from);
+            if ($color==-1)
+            {
+              privmsg(implode(" ",$words));
+            }
+            else
+            {
+              privmsg($prefix.$color.implode(" ",$words).$suffix);
+            }
           }
           else
           {
             privmsg("\"crunch\" by crutchy: https://github.com/crutchy-/test/blob/master/bacon.php");
           }
         }
-        elseif (strtoupper(substr($msg,0,strlen("SUBST ")))=="SUBST ")
+        elseif (strtoupper(substr($msg,0,strlen("COLOR ")))=="COLOR ")
         {
-          $new=substr($msg,strlen("SUBST "));
-          if ($new<>"")
+          $new=substr($msg,strlen("COLOR "));
+          if (($new>=0) and ($new<=15))
           {
-            $subject=$new;
+            $color=$new;
+          }
+          else
+          {
+            $color=-1;
           }
         }
       }
@@ -95,6 +122,7 @@ function privmsg($msg)
 {
   global $fp;
   fputs($fp,":".NICK." PRIVMSG ".CHAN." :$msg\r\n");
+  echo "$msg\r\n";
 }
 
 function msg_nick($data,&$nick,&$msg)
@@ -117,6 +145,47 @@ function msg_nick($data,&$nick,&$msg)
   $nick="";
   $msg="";
   return False;
+}
+
+function process(&$words,$to_lib,$from_lib="",$prefix="",$suffix="")
+{
+  for ($i=0;$i<count($words);$i++)
+  {
+    if (mt_rand(0,1)==1)
+    {
+      continue;
+    }
+    if ($suffix<>"")
+    {
+      if (substr(strtolower($words[$i]),strlen($words[$i])-strlen($suffix))==$suffix)
+      {
+        replace($words,$to_lib,$i);
+      }
+    }
+    elseif ($prefix<>"")
+    {
+      if (substr(strtolower($words[$i]),0,strlen($prefix))==$prefix)
+      {
+        replace($words,$to_lib,$i);
+      }
+    }
+    elseif (is_array($from_lib)==True)
+    {
+      if (in_array(strtolower($words[$i]),$from_lib)==True)
+      {
+        replace($words,$to_lib,$i);
+      }
+    }
+    else
+    {
+      replace($words,$to_lib,$i);
+    }
+  }
+}
+
+function replace(&$words,$to_lib,$i)
+{
+  $words[$i]=$to_lib[mt_rand(0,count($to_lib)-1)];
 }
 
 ?>
