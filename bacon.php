@@ -151,7 +151,7 @@ function process(&$words,$to_lib,$from_lib="",$prefix="",$suffix="")
 {
   for ($i=0;$i<count($words);$i++)
   {
-    if (mt_rand(0,1)==1)
+    if (mt_rand(0,3)==1)
     {
       continue;
     }
