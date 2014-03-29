@@ -61,7 +61,7 @@ function main()
           }
           else
           {
-            privmsg("\"crunch\" by crutchy");
+            privmsg("\"crunch\" by crutchy: https://github.com/crutchy-/test/blob/master/bacon.php");
           }
         }
         elseif (strtoupper(substr($msg,0,strlen("SUBST ")))=="SUBST ")
