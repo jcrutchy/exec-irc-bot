@@ -9,7 +9,6 @@
 # todo: add collective noun substitution
 # todo: add ability to append arrays from within irc
 # todo: use data file instead of arrays (required for dynamic changes)
-# todo: if nothing is substituted, replace random letters within string (not a single letter) with something like 'bacon' and allow setting of 'bacon' from within irc
 
 define("NICK","crunch");
 define("CHAN","##");
@@ -31,8 +30,6 @@ $color=-1;
 $verb_to=array("bonking","trolling","farting","brooming","whacking","slurping","factoring","frogging","spanking");
 $noun_from=array("horse","dog","computer","array","table","tabletop","timezone","thing");
 $noun_to=array("washing machine","Shrodinger's cat","brown puddle","sticky mess","stool");
-$subject="a";
-$enabled=1;
 $karma="";
 $karma_delay=0;
 while (True)
@@ -73,7 +70,10 @@ while (True)
       {
         if ($last<>"")
         {
-          privmsg(str_replace($subject,"bacon",$last));
+          $words=explode(" ",$last);
+          $j=mt_rand(0,count($words)-1);
+          $words[$j]="bacon";
+          privmsg(implode(" ",$words));
         }
         else
         {
