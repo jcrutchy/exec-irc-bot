@@ -6,6 +6,8 @@
 
 # thanks to mrbluze for his guidance
 
+# note: ping pong can trigger karma upping :-P
+
 # todo: add collective noun substitution
 # todo: add ability to append arrays from within irc
 # todo: use data file instead of arrays (required for dynamic changes)
