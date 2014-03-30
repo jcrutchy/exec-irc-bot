@@ -8,14 +8,15 @@
 
 # todo: add collective noun substitution
 # todo: add ability to append arrays from within irc
+# todo: use data file instead of arrays (required for dynamic changes)
 # todo: if nothing is substituted, replace random letters within string (not a single letter) with something like 'bacon' and allow setting of 'bacon' from within irc
-# todo: no duplicate substitutions
 
 define("NICK","crunch");
-define("CHAN","#test");
+define("CHAN","##");
 define("TRIGGER","~");
 define("CMD_COLOR","COLOR");
 define("CMD_SUBST","SUBST");
+define("CMD_KARMA","KARMA");
 define("ABOUT","\"crunch\" by crutchy: https://github.com/crutchy-/test/blob/master/bacon.php");
 set_time_limit(0);
 ini_set("display_errors","on");
@@ -28,104 +29,117 @@ $prefix="";
 $suffix="";
 $color=-1;
 $verb_to=array("bonking","trolling","farting","brooming","whacking","slurping","factoring","frogging","spanking");
-$noun_from=array("horse","dog","computer","array","table","tabletop","timezone");
+$noun_from=array("horse","dog","computer","array","table","tabletop","timezone","thing");
 $noun_to=array("washing machine","Shrodinger's cat","brown puddle","sticky mess","stool");
 $subject="a";
 $enabled=1;
+$karma="";
+$karma_delay=0;
 while ($data=fgets($fp))
 {
-  if ($data!==False)
+  $parts=explode(" ",$data);
+  if (count($parts)>1)
   {
-    $parts=explode(" ",$data);
-    if (count($parts)>1)
+    if ($parts[0]=="PING")
     {
-      if ($parts[0]=="PING")
-      {
-        fputs($fp,"PONG ".$parts[1]."\r\n");
-      }
-      else
-      {
-        echo $data;
-      }
+      fputs($fp,"PONG ".$parts[1]."\r\n");
     }
-    $nick="";
-    $msg="";
-    if (msg_nick($data,$nick,$msg)==True)
+    else
     {
-      if (strtoupper(substr($msg,0,strlen(TRIGGER)))==TRIGGER)
+      echo $data;
+    }
+  }
+  $nick="";
+  $msg="";
+  if (msg_nick($data,$nick,$msg)==True)
+  {
+    if (strtoupper(substr($msg,0,strlen(TRIGGER)))==TRIGGER)
+    {
+      $msg=substr($msg,strlen(TRIGGER));
+      $cmd_msg="";
+      if (strtoupper($msg)=="Q")
       {
-        $msg=substr($msg,strlen(TRIGGER));
-        $cmd_msg="";
-        if (strtoupper($msg)=="Q")
+        fputs($fp,":".NICK." QUIT\r\n");
+        fclose($fp);
+        echo "QUITTING SCRIPT\r\n";
+        return;
+      }
+      elseif ($msg=="")
+      {
+        if ($last<>"")
         {
-          fputs($fp,":".NICK." QUIT\r\n");
-          fclose($fp);
-          echo "QUITTING SCRIPT\r\n";
-          return;
-        }
-        elseif ($msg=="")
-        {
-          if ($last<>"")
-          {
-            privmsg(str_replace($subject,"bacon",$last));
-          }
-          else
-          {
-            privmsg(ABOUT);
-          }
-        }
-        elseif (iscmd($msg,$cmd_msg,CMD_COLOR)==True)
-        {
-          if (($cmd_msg>=0) and ($cmd_msg<=15))
-          {
-            $color=$cmd_msg;
-          }
-          else
-          {
-            $color=-1;
-          }
-        }
-        elseif (iscmd($msg,$cmd_msg,CMD_SUBST)==True)
-        {
-          if ($cmd_msg<>"")
-          {
-            $subject=$cmd_msg;
-          }
+          privmsg(str_replace($subject,"bacon",$last));
         }
         else
         {
           privmsg(ABOUT);
         }
       }
-      else
+      elseif (iscmd($msg,$cmd_msg,CMD_COLOR)==True)
       {
-        if ($msg<>"")
+        if (($cmd_msg>=0) and ($cmd_msg<=15))
         {
-          $words=explode(" ",$msg);
-          process($words,$verb_to,"","","ing");
-          process($words,$noun_to,$noun_from);
-          $new_msg=implode(" ",$words);
-          if ($new_msg<>$msg)
-          {
-            privmsg($new_msg);
-          }
+          $color=$cmd_msg;
+        }
+        else
+        {
+          $color=-1;
         }
       }
-    }
-    if ((strpos($msg,TRIGGER)===False) and ($nick<>NICK))
-    {
-      $last=$msg;
+      elseif (iscmd($msg,$cmd_msg,CMD_SUBST)==True)
+      {
+        if ($cmd_msg<>"")
+        {
+          $subject=$cmd_msg;
+        }
+      }
+      elseif (iscmd($msg,$cmd_msg,CMD_KARMA)==True)
+      {
+        $karma=$cmd_msg;
+      }
+      elseif (strtoupper($msg)==CMD_KARMA)
+      {
+        $karma="";
+      }
+      else
+      {
+        privmsg(ABOUT);
+      }
     }
     else
     {
-      $last="";
-    }
-    if (($joined==0) and (strpos($data,"End of /MOTD command")!==False))
-    {
-      $joined=1;
-      fputs($fp,"JOIN ".CHAN."\r\n");
+      if ($msg<>"")
+      {
+        $words=explode(" ",$msg);
+        process($words,$noun_to,$noun_from);
+        process($words,$verb_to,"","","ing");
+        $new_msg=implode(" ",$words);
+        if ($new_msg<>$msg)
+        {
+          privmsg($new_msg);
+        }
+      }
     }
   }
+  if ((strpos($msg,TRIGGER)===False) and ($nick<>NICK))
+  {
+    $last=$msg;
+  }
+  else
+  {
+    $last="";
+  }
+  if (($joined==0) and (strpos($data,"End of /MOTD command")!==False))
+  {
+    $joined=1;
+    fputs($fp,"JOIN ".CHAN."\r\n");
+  }
+  if (($karma<>"") and ($karma_delay>2))
+  {
+    privmsg($karma."++");
+    $karma_delay=0;
+  }
+  $karma_delay++;
 }
 
 function privmsg($msg)
