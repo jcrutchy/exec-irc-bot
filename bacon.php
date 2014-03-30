@@ -6,10 +6,17 @@
 
 # thanks to mrbluze for his guidance
 
-define("NICK","crunch");
-define("CHAN","##");
-define("TRIGGER","~");
+# todo: add collective noun substitution
+# todo: add ability to append arrays from within irc
+# todo: if nothing is substituted, replace random letters within string (not a single letter) with something like 'bacon' and allow setting of 'bacon' from within irc
+# todo: no duplicate substitutions
 
+define("NICK","crunch");
+define("CHAN","#test");
+define("TRIGGER","~");
+define("CMD_COLOR","COLOR");
+define("CMD_SUBST","SUBST");
+define("ABOUT","\"crunch\" by crutchy: https://github.com/crutchy-/test/blob/master/bacon.php");
 set_time_limit(0);
 ini_set("display_errors","on");
 $joined=0;
@@ -21,23 +28,12 @@ $prefix="";
 $suffix="";
 $color=-1;
 $verb_to=array("bonking","trolling","farting","brooming","whacking","slurping","factoring","frogging","spanking");
-$noun_from=array("horse","dog","computer");
-$noun_to=array("Shrodinger's cat","brown puddle","sticky mess");
-main();
-
-function main()
+$noun_from=array("horse","dog","computer","array","table","tabletop","timezone");
+$noun_to=array("washing machine","Shrodinger's cat","brown puddle","sticky mess","stool");
+$subject="a";
+$enabled=1;
+while ($data=fgets($fp))
 {
-  global $fp;
-  global $joined;
-  global $last;
-  global $subject;
-  global $prefix;
-  global $suffix;
-  global $color;
-  global $verb_to;
-  global $noun_from;
-  global $noun_to;
-  $data=fgets($fp);
   if ($data!==False)
   {
     $parts=explode(" ",$data);
@@ -59,6 +55,7 @@ function main()
       if (strtoupper(substr($msg,0,strlen(TRIGGER)))==TRIGGER)
       {
         $msg=substr($msg,strlen(TRIGGER));
+        $cmd_msg="";
         if (strtoupper($msg)=="Q")
         {
           fputs($fp,":".NICK." QUIT\r\n");
@@ -70,33 +67,47 @@ function main()
         {
           if ($last<>"")
           {
-            $words=explode(" ",$last);
-            process($words,$verb_to,"","","ing");
-            process($words,$noun_to,$noun_from);
-            if ($color==-1)
-            {
-              privmsg(implode(" ",$words));
-            }
-            else
-            {
-              privmsg($prefix.$color.implode(" ",$words).$suffix);
-            }
+            privmsg(str_replace($subject,"bacon",$last));
           }
           else
           {
-            privmsg("\"crunch\" by crutchy: https://github.com/crutchy-/test/blob/master/bacon.php");
+            privmsg(ABOUT);
           }
         }
-        elseif (strtoupper(substr($msg,0,strlen("COLOR ")))=="COLOR ")
+        elseif (iscmd($msg,$cmd_msg,CMD_COLOR)==True)
         {
-          $new=substr($msg,strlen("COLOR "));
-          if (($new>=0) and ($new<=15))
+          if (($cmd_msg>=0) and ($cmd_msg<=15))
           {
-            $color=$new;
+            $color=$cmd_msg;
           }
           else
           {
             $color=-1;
+          }
+        }
+        elseif (iscmd($msg,$cmd_msg,CMD_SUBST)==True)
+        {
+          if ($cmd_msg<>"")
+          {
+            $subject=$cmd_msg;
+          }
+        }
+        else
+        {
+          privmsg(ABOUT);
+        }
+      }
+      else
+      {
+        if ($msg<>"")
+        {
+          $words=explode(" ",$msg);
+          process($words,$verb_to,"","","ing");
+          process($words,$noun_to,$noun_from);
+          $new_msg=implode(" ",$words);
+          if ($new_msg<>$msg)
+          {
+            privmsg($new_msg);
           }
         }
       }
@@ -115,13 +126,23 @@ function main()
       fputs($fp,"JOIN ".CHAN."\r\n");
     }
   }
-  main();
 }
 
 function privmsg($msg)
 {
   global $fp;
-  fputs($fp,":".NICK." PRIVMSG ".CHAN." :$msg\r\n");
+  global $prefix;
+  global $suffix;
+  global $color;
+  if ($color==-1)
+  {
+    $out=$msg;
+  }
+  else
+  {
+    $out=$prefix.$color.$msg.$suffix;
+  }
+  fputs($fp,":".NICK." PRIVMSG ".CHAN." :$out\r\n");
   echo "$msg\r\n";
 }
 
@@ -147,11 +168,22 @@ function msg_nick($data,&$nick,&$msg)
   return False;
 }
 
-function process(&$words,$to_lib,$from_lib="",$prefix="",$suffix="")
+function iscmd($msg,&$cmd_msg,$cmd)
+{
+  if (strtoupper(substr($msg,0,strlen($cmd)+1))==($cmd." "))
+  {
+    $cmd_msg=substr($msg,strlen($cmd)+1);
+    return True;
+  }
+  $cmd_msg="";
+  return False;
+}
+
+function process(&$words,&$to_lib,$from_lib="",$prefix="",$suffix="")
 {
   for ($i=0;$i<count($words);$i++)
   {
-    if (mt_rand(0,3)==1)
+    if (mt_rand(0,10)==1)
     {
       continue;
     }
@@ -181,11 +213,42 @@ function process(&$words,$to_lib,$from_lib="",$prefix="",$suffix="")
       replace($words,$to_lib,$i);
     }
   }
+  reset_lib($to_lib);
 }
 
-function replace(&$words,$to_lib,$i)
+function replace(&$words,&$to_lib,$i)
 {
-  $words[$i]=$to_lib[mt_rand(0,count($to_lib)-1)];
+  do
+  {
+    $j=mt_rand(0,count($to_lib)-1);
+    check_all_used($to_lib);
+  }
+  while ($to_lib[$j][0]=="!");
+  $words[$i]=$to_lib[$j];
+  $to_lib[$j]="!".$to_lib[$j];
+}
+
+function reset_lib(&$lib)
+{
+  for ($i=0;$i<count($lib);$i++)
+  {
+    if ($lib[$i][0]=="!")
+    {
+      $lib[$i]=substr($lib[$i],1);
+    }
+  }
+}
+
+function check_all_used(&$lib)
+{
+  for ($i=0;$i<count($lib);$i++)
+  {
+    if ($lib[$i][0]<>"!")
+    {
+      return;
+    }
+  }
+  reset_lib($lib);
 }
 
 ?>
