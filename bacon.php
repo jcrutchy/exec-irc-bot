@@ -35,8 +35,13 @@ $subject="a";
 $enabled=1;
 $karma="";
 $karma_delay=0;
-while ($data=fgets($fp))
+while (True)
 {
+  $data=fgets($fp);
+  if ($data===False)
+  {
+    continue;
+  }
   $parts=explode(" ",$data);
   if (count($parts)>1)
   {
