@@ -12,12 +12,16 @@
 # todo: add ability to append arrays from within irc
 # todo: use data file instead of arrays (required for dynamic changes)
 
+# http://esl.about.com/library/vocabulary/bl1000_list_noun1.htm
+
 define("NICK","crunch");
 define("CHAN","##");
 define("TRIGGER","~");
 define("CMD_COLOR","COLOR");
 define("CMD_SUBST","SUBST");
 define("CMD_KARMA","KARMA");
+define("CMD_ACCOUNT","ACCOUNT");
+define("TRIGGER_WORD","bacon");
 define("ABOUT","\"crunch\" by crutchy: https://github.com/crutchy-/test/blob/master/bacon.php");
 set_time_limit(0);
 ini_set("display_errors","on");
@@ -31,8 +35,9 @@ $suffix="";
 $color=-1;
 $verb_to=array("bonking","trolling","farting","brooming","whacking","slurping","factoring","frogging","spanking");
 $noun_from=array("horse","dog","computer","array","table","tabletop","timezone","thing");
-$noun_to=array("washing machine","Shrodinger's cat","brown puddle","sticky mess","stool");
+$noun_to=array("washing machine","Schrodinger's cat","brown puddle","sticky mess","stool");
 $karma="";
+$account="";
 $karma_delay=0;
 while (True)
 {
@@ -51,6 +56,10 @@ while (True)
     else
     {
       echo $data;
+    }
+    if (($account<>"") and (strpos(strtoupper($data),strtoupper("330 ".NICK." $account "))!==False) and (strpos($data," :is logged in as")!==False) and (count($parts)>4))
+    {
+      $account=$account."/".$parts[4];
     }
   }
   $nick="";
@@ -74,7 +83,7 @@ while (True)
         {
           $words=explode(" ",$last);
           $j=mt_rand(0,count($words)-1);
-          $words[$j]="bacon";
+          $words[$j]=TRIGGER_WORD;
           privmsg(implode(" ",$words));
         }
         else
@@ -98,6 +107,18 @@ while (True)
         if ($cmd_msg<>"")
         {
           $subject=$cmd_msg;
+        }
+      }
+      elseif (iscmd($msg,$cmd_msg,CMD_ACCOUNT)==True)
+      {
+        if ($cmd_msg<>"")
+        {
+          $account=$cmd_msg;
+          fputs($fp,"WHOIS $account\r\n");
+        }
+        else
+        {
+          privmsg("Nick not specified");
         }
       }
       elseif (iscmd($msg,$cmd_msg,CMD_KARMA)==True)
@@ -140,6 +161,11 @@ while (True)
   {
     $joined=1;
     fputs($fp,"JOIN ".CHAN."\r\n");
+  }
+  if (strpos($account,"/")!==False)
+  {
+    privmsg($account);
+    $account="";
   }
   if (($karma<>"") and ($karma_delay>2))
   {
