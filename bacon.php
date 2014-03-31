@@ -2,25 +2,34 @@
 
 # gpl2
 # by crutchy
-# 30-march-2014
+# 31-march-2014
 
 # thanks to mrbluze for his guidance
 
 # note: ping pong can trigger karma upping :-P
 
 # todo: add collective noun substitution
+# todoL add verb_from array substitution
 # todo: add ability to append arrays from within irc
 # todo: use data file instead of arrays (required for dynamic changes)
 
+# your <random word here> are belong to us
+# "bacon is ftw" > "your bacon sucks cucumbers" (mrbluze)
+
+# todo: rainbow function (with colored backgrounds) 00,06D00,02I00,12C00,09K00,08S
+
 # http://esl.about.com/library/vocabulary/bl1000_list_noun1.htm
 
+# http://www.mirc.com/colors.html
+
 define("NICK","crunch");
-define("CHAN","##");
+define("CHAN","#test");
 define("TRIGGER","~");
 define("CMD_COLOR","COLOR");
 define("CMD_SUBST","SUBST");
 define("CMD_KARMA","KARMA");
 define("CMD_ACCOUNT","ACCOUNT");
+define("CMD_VOTE","VOTE");
 define("TRIGGER_WORD","bacon");
 define("ABOUT","\"crunch\" by crutchy: https://github.com/crutchy-/test/blob/master/bacon.php");
 set_time_limit(0);
@@ -108,6 +117,14 @@ while (True)
         {
           $subject=$cmd_msg;
         }
+      }
+      elseif (iscmd($msg,$cmd_msg,CMD_VOTE)==True)
+      {
+        /*if ($cmd_msg<>"")
+        {
+          $account=$cmd_msg;
+          fputs($fp,"WHOIS $nick\r\n");
+        }*/
       }
       elseif (iscmd($msg,$cmd_msg,CMD_ACCOUNT)==True)
       {
@@ -230,7 +247,7 @@ function process(&$words,&$to_lib,$from_lib="",$prefix="",$suffix="")
 {
   for ($i=0;$i<count($words);$i++)
   {
-    if (mt_rand(0,10)==1)
+    if (mt_rand(0,4)==1)
     {
       continue;
     }
@@ -297,5 +314,177 @@ function check_all_used(&$lib)
   }
   reset_lib($lib);
 }
+
+function vote_init($data)
+{
+
+}
+
+/*
+
+http://soylentnews.org/~prospectacle/journal/241
+
+<?php
+ 
+# How to use this script:
+ 
+# 1 - Ask people to write votes that look like this:
+#     some candidate name = 1
+#     some other = 2
+#     another_one = 4
+#     Any other text will just be ignored.
+#     Any invalid = votes will be ignored, too
+# 2 - Collect votes. e.g. via email, forum-comments, or a special web-form.
+# 3 - Put all the votes in an array. Each vote should contain its vote-text, and a User ID.
+# 4 - Run this script to filter, parse and count the votes.
+#  
+ 
+// Example candidates:
+$valid_candidates = array(
+    "candidateone",
+    "another candidate",
+    "yet another option",
+    "somethingelse");
+ 
+// Example votes:
+$votes_array = array(
+    // Upper case or lower case doesn't matter.
+    array(
+        "user_id"=>234,
+        "text"=>"
+            candidateOne = 1
+            Another Candidate = 2
+            SomethingElse = 3
+        "),
+    // Duplicate user. This will be handled properly.
+    array(
+        "user_id"=>234,
+        "text"=>"
+            Oops forgot one I like:
+            Yet Another Option = 4
+            Did I mention:
+            CandidateOne = 1
+        "
+        ),
+    // This one contains mostly invalid rankings, and one valid one.
+    array(
+        "user_id"=>345,
+        "text"=>"
+            // I hate CandidateOne
+            CandidateOne = 6
+            Another Candidate = 1
+            Yet Another Option = 1
+            My friend who's not listed = 3
+        ")
+    );
+ 
+// Some options on how the votes are counted.
+$allow_duplicate_ranks = false;
+$allow_write_in_candidates = false;
+ 
+// If you allow write-in candidates, specify a maximum possible rank.
+// Otherwise the maximum rank equals the number of candidates.
+if ($allow_write_in_candidates) $maximum_rank = 10;
+else $maximum_rank = count($valid_candidates);
+ 
+// put valid-user filter in here if necessary
+function valid_user($user_id){return true;}
+ 
+// Arrays to store the counted votes in:
+$votes_by_voter = array();
+$votes_by_candidate = array();
+ 
+// Process all votes
+foreach ($votes_array as $vote)
+{
+ 
+  // Is it a valid registered user?
+  if (valid_user($vote["user_id"]))
+  {
+ 
+    // Process each line of the vote
+    $vote_lines = explode("\n", trim($vote["text"]));
+    foreach ($vote_lines as $this_line)
+    {
+ 
+      // Does it have an equals sign
+      $equals_sign = strpos($this_line, "=");
+      if ($equals_sign !== false)
+      {
+ 
+        // Does it have only one equals sign?
+        $cleaned_up_line_text = trim($this_line, ";.!\t\n\r\0");
+        $parts_of_line = explode("=", $cleaned_up_line_text);
+        if (count($parts_of_line) == 2)
+        {
+ 
+          // Get the candidate and rank, make sure they're valid.
+          $candidate = strtolower(trim($parts_of_line[0]));
+          $candidate_is_valid = in_array($candidate, $valid_candidates);
+          $rank = intval(trim($parts_of_line[1]));
+          $rank_is_valid = ( ($rank > 0) && ($rank <= $maximum_rank) );
+ 
+          // Proceed if (it's a valid rank number) and
+          // (the candidate is valid, or we're allowing write-in candidates).
+          if (($rank_is_valid) && ($candidate_is_valid || $allow_write_in_candidates))
+          {
+            // Get the score for this candidate.
+            // The score is: maximum_rank - (this_rank - 1).
+            // For example:
+            // - Say there are 5 candidates and the maximum rank is 5
+            // - A rank of 1 give it a score of 5.
+            // - A rank of 2 gives it a score of 4.
+            // - A rank of 5 gives a score of 1.
+            // See "Borda Count".
+            $score = $maximum_rank - ($rank-1);
+ 
+            // If this is the voter's first vote, create a voting-record for them.
+            // This keeps track of which candidates and ranks they've already voted.
+            $voter = $vote["user_id"];
+            if (!isset($votes_by_voter[$voter]))
+            {
+              $votes_by_voter[$voter]["candidates"] = array();
+              $votes_by_voter[$voter]["ranks"] = array();
+            }
+ 
+            // Make sure this user hasn't already voted on this candidate
+            if (!isset($votes_by_voter[$voter]["candidates"][$can didate]))
+            {
+ 
+              // Make sure the user hasn't already assigned this rank number,
+              // or that we're allowing duplicate ranks.
+              if ($allow_duplicate_ranks || (!isset($votes_by_voter[$voter]["ranks"][$rank])))
+              {
+ 
+                // Remember that this voter has voted for this candidate,
+                // and has used up this rank.
+                $votes_by_voter[$voter]["candidates"][$candidate] = true;
+                $votes_by_voter[$voter]["ranks"][$rank] = true;
+ 
+                // Count the vote towards the total for this candidate.
+                if (!isset($votes_by_candidate[$candidate]))
+                  $votes_by_candidate[$candidate] = $score;
+                else $votes_by_candidate[$candidate] += $score;
+ 
+              } // End of checking if this rank is a duplicate for this voter.
+            } // End of check checking if candidate is a duplicate for this voter.
+          } // End of check for valid vote values.
+        } // End of check for correctly formatted vote
+      } // End of check for equals sign
+    } // End of for loop for lines of vote text.
+  } // of check for valid user.
+} // end of for loop for all votes.
+ 
+print "Who have voters voted for, and which ranks have they used?:<pre>";
+print_r($votes_by_voter);
+print "</pre><Br>";
+print "What score does each candidate end up with<pre>";
+// Sort the candidates from highest to lowest
+arsort($votes_by_candidate);
+print_r($vot es_by_candidate);
+print "</pre>";
+ 
+?>
+*/
 
 ?>
