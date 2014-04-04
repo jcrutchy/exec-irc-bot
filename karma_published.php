@@ -8,7 +8,7 @@
 
 define("PASSWORD",""); # obfuscate password for git push
 define("NICK","bacon"); # bacon/coffee
-define("CHAN","#test");
+define("CHAN","##");
 define("OPERATOR_UP","+");
 define("OPERATOR_DN","-");
 define("KARMA_FILE","karma_db");
@@ -291,7 +291,7 @@ function output_last($nick)
     return;
   }
   $sorted=$log;
-  asort($sorted);
+  arsort($sorted);
   foreach ($sorted as $index => $items)
   {
     if ($nick==$items["nick"])
