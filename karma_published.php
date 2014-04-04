@@ -2,10 +2,10 @@
 
 # gpl2
 # by crutchy
-# 3-april-2014
+# 4-april-2014
 
 define("PASSWORD",""); # obfuscate password for git push
-define("NICK","bacon"); # bacon/coffee
+define("NICK","coffee"); # bacon/coffee
 define("CHAN","##");
 define("OPERATOR_UP","+");
 define("OPERATOR_DN","-");
@@ -15,6 +15,7 @@ define("CMD_SAVE","~SAVE");
 define("CMD_EXEC","~");
 define("CMD_COLOR","~COLOR");
 define("CMD_KARMA","~KARMA");
+define("CMD_RAINBOW","~RAINBOW");
 define("SAVE_DELAY",10);
 define("COLOR_PREFIX","");
 define("COLOR_SUFFIX","");
@@ -106,6 +107,21 @@ while (feof($fp)===False)
         if (count($params)==2)
         {
           output_karma($params[1]);
+        }
+        break;
+      case CMD_RAINBOW: # ~rainbow pretty text
+        $out="";
+        for ($i=1;$i<count($params);$i++)
+        {
+          if ($out<>"")
+          {
+            $out=$out." ";
+          }
+          $out=$out.$params[$i];
+        }
+        if ($out<>"")
+        {
+          privmsg(rainbowize($out));
         }
         break;
       case CMD_COLOR:
