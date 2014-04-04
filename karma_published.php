@@ -291,7 +291,7 @@ function output_last($nick)
     return;
   }
   $sorted=$log;
-  arsort($sorted);
+  krsort($sorted);
   foreach ($sorted as $index => $items)
   {
     if ($nick==$items["nick"])
