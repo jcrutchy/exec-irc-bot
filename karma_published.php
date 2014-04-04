@@ -4,17 +4,21 @@
 # by crutchy
 # 4-april-2014
 
+# TODO: QUOTES
+
 define("PASSWORD",""); # obfuscate password for git push
-define("NICK","coffee"); # bacon/coffee
-define("CHAN","##");
+define("NICK","bacon"); # bacon/coffee
+define("CHAN","#test");
 define("OPERATOR_UP","+");
 define("OPERATOR_DN","-");
 define("KARMA_FILE","karma_db");
+define("LOG_FILE","log_db");
 define("CMD_QUIT","~Q");
 define("CMD_SAVE","~SAVE");
 define("CMD_EXEC","~");
 define("CMD_COLOR","~COLOR");
 define("CMD_KARMA","~KARMA");
+define("CMD_LAST","~LAST");
 define("CMD_RAINBOW","~RAINBOW");
 define("SAVE_DELAY",10);
 define("COLOR_PREFIX","");
@@ -26,6 +30,7 @@ set_time_limit(0);
 ini_set("display_errors","on");
 ini_set("allow_url_fopen",1);
 $rainbow_words=array("bacon","coffee","soylent");
+$self_quotes=array("Insufficient Vespene Gas.","Nuclear launch detected.","What the hell do you want?","This is very interesting... but stupid.","there is no cow level","I'm about to drop the hammer... and dispense some indiscriminate justice!","You ain't from around here, are you?","Do any of you fools know how to shut off this infernal contraption?","Prepped and ready.","I vote we frag this commander.","Oh my god, he's whacked!","F.D.I.C. approved.","I'm about to overload my aggression inhibitors!","You tryin' to get invited to my next barbecue?","To hurl chunks, please use the vomit bag in front of you.","We are getting way behind schedule.","Abandoning auxiliary structure.");
 $illegals=array(":",OPERATOR_UP,OPERATOR_DN,CMD_EXEC,"karma");
 $rainbow_colors=array(4,7,8,3,12,6,13);
 $fp=fsockopen("irc.sylnt.us",6667);
@@ -36,12 +41,36 @@ $save_tick=0;
 $color_fg=-1;
 $color_bg=-1;
 $time_deltas=array();
+$log=array();
+if (file_exists(LOG_FILE)==True)
+{
+  $data=file_get_contents(LOG_FILE);
+  if ($data===False)
+  {
+    term_echo("Error reading file \"".LOG_FILE."\".");
+    return;
+  }
+  else
+  {
+    $log=unserialize($data);
+    if ($log===False)
+    {
+      term_echo("Error unserializing log file content.");
+      return;
+    }
+  }
+}
+else
+{
+  term_echo("File \"".LOG_FILE."\" not found.");
+}
 if (file_exists(KARMA_FILE)==True)
 {
   $data=file_get_contents(KARMA_FILE);
   if ($data===False)
   {
     term_echo("Error reading file \"".KARMA_FILE."\".");
+    return;
   }
   else
   {
@@ -74,11 +103,13 @@ else
 while (feof($fp)===False)
 {
   $data=fgets($fp);
+  $t=microtime(True);
+  $ts=date("Y-m-d H:i:s",$t);
   if ($data===False)
   {
     continue;
   }
-  $logfile=date("Ymd").CHAN.".log";
+  $logfile=CHAN."_".date("Ymd").".log";
   $parts=explode(" ",$data);
   if (count($parts)>1)
   {
@@ -89,20 +120,25 @@ while (feof($fp)===False)
     else
     {
       echo $data;
-      if (file_put_contents($logfile,$data,FILE_APPEND)===False)
+      if (file_put_contents($logfile,$ts.">".$data,FILE_APPEND)===False)
       {
         term_echo("ERROR APPENDING LOG");
         return;
       }
     }
   }
-  $nick="";
-  $msg="";
-  if (msg_nick($data,$nick,$msg)==True)
+  $items=parse_data($data);
+  if ($items!==False)
   {
-    $params=explode(" ",$msg);
+    $params=explode(" ",$items["msg"]);
     switch (strtoupper($params[0]))
     {
+      case CMD_LAST: # ~last crutchy
+        if (count($params)==2)
+        {
+          output_last($params[1]);
+        }
+        break;
       case CMD_KARMA: # ~karma bacon
         if (count($params)==2)
         {
@@ -140,43 +176,46 @@ while (feof($fp)===False)
         save_db($karma);
         break;
       #case CMD_EXEC:
-        #$exec=substr($msg,strlen(CMD_EXEC));
+        #$exec=substr($items["msg"],strlen(CMD_EXEC));
         #fputs($fp,$exec."\r\n");
         #break;
       case CMD_QUIT:
+        save_log($log);
         save_db($karma);
         fputs($fp,":".NICK." QUIT\r\n");
         fclose($fp);
         term_echo("QUITTING SCRIPT");
         return;
       default:
-        $karma_up=parse_karma($msg,OPERATOR_UP);
-        $karma_dn=parse_karma($msg,OPERATOR_DN);
-        if (($karma_up!==False) and (check_nick($nick)==True))
+        $karma_up=parse_karma($items["msg"],OPERATOR_UP);
+        $karma_dn=parse_karma($items["msg"],OPERATOR_DN);
+        if (($karma_up!==False) and (check_nick($items["nick"])==True))
         {
-          if (isset($karma[$karma_up][$nick])==True)
+          if (isset($karma[$karma_up][$items["nick"]])==True)
           {
-            $karma[$karma_up][$nick]=$karma[$karma_up][$nick]+1;
+            $karma[$karma_up][$items["nick"]]=$karma[$karma_up][$items["nick"]]+1;
           }
           else
           {
-            $karma[$karma_up][$nick]=1;
+            $karma[$karma_up][$items["nick"]]=1;
           }
-          karma_privmsg($karma,rawurldecode($karma_up),$nick,OPERATOR_UP);
+          karma_privmsg($karma,rawurldecode($karma_up),$items["nick"],OPERATOR_UP);
         }
-        if (($karma_dn!==False) and (check_nick($nick)==True))
+        if (($karma_dn!==False) and (check_nick($items["nick"])==True))
         {
-          if (isset($karma[$karma_dn][$nick])==True)
+          if (isset($karma[$karma_dn][$items["nick"]])==True)
           {
-            $karma[$karma_dn][$nick]=$karma[$karma_dn][$nick]-1;
+            $karma[$karma_dn][$items["nick"]]=$karma[$karma_dn][$items["nick"]]-1;
           }
           else
           {
-            $karma[$karma_dn][$nick]=-1;
+            $karma[$karma_dn][$items["nick"]]=-1;
           }
-          karma_privmsg($karma,rawurldecode($karma_dn),$nick,OPERATOR_DN);
+          karma_privmsg($karma,rawurldecode($karma_dn),$items["nick"],OPERATOR_DN);
         }
     }
+    $items["time"]=$ts;
+    $log[sprintf("%.3f",$t)]=$items;
   }
   if (strpos($data,"End of /MOTD command")!==False)
   {
@@ -188,10 +227,81 @@ while (feof($fp)===False)
   }
   if ($save_tick>=SAVE_DELAY)
   {
+    save_log($log);
     save_db($karma);
     $save_tick=0;
   }
   $save_tick++;
+}
+
+function parse_data($data)
+{
+  # :nick!addr CMD chan :msg
+  $result=array();
+  if ($data=="")
+  {
+    return False;
+  }
+  if ($data[0]<>":")
+  {
+    return False;
+  }
+  $i=strpos($data," :");
+  $result["msg"]=trim(substr($data,$i+2));
+  if ($result["msg"]=="")
+  {
+    return False;
+  }
+  $sub=substr($data,1,$i-1);
+  $i=strpos($sub,"!");
+  $result["nick"]=substr($sub,0,$i);
+  if ($result["nick"]=="")
+  {
+    return False;
+  }
+  $sub=substr($sub,$i+1);
+  $i=strpos($sub," ");
+  $result["addr"]=substr($sub,0,$i);
+  if ($result["addr"]=="")
+  {
+    return False;
+  }
+  $sub=substr($sub,$i+1);
+  $i=strpos($sub," ");
+  $cmd=substr($sub,0,$i);
+  if ($cmd<>"PRIVMSG")
+  {
+    return False;
+  }
+  $chan=substr($sub,$i+1);
+  if ($chan<>CHAN)
+  {
+    return False;
+  }
+  return $result;
+}
+
+function output_last($nick)
+{
+  global $log;
+  global $self_quotes;
+  if ($nick==NICK)
+  {
+    privmsg("<$nick> ".$self_quotes[mt_rand(0,count($self_quotes)-1)]);
+    return;
+  }
+  $sorted=$log;
+  asort($sorted);
+  foreach ($sorted as $index => $items)
+  {
+    if ($nick==$items["nick"])
+    {
+      privmsg($items["time"]." <$nick> ".$items["msg"]);
+      return;
+    }
+    unset($items);
+  }
+  privmsg("Last quote by $nick not found.");
 }
 
 function output_karma($decoded_word)
@@ -314,7 +424,7 @@ function privmsg($msg)
   term_echo($msg);
 }
 
-function msg_nick($data,&$nick,&$msg)
+/*function msg_nick($data,&$nick,&$msg)
 {
   $parts=explode(" ",$data);
   if (count($parts)>1)
@@ -334,7 +444,7 @@ function msg_nick($data,&$nick,&$msg)
   $nick="";
   $msg="";
   return False;
-}
+}*/
 
 function parse_karma($msg,$operator)
 {
@@ -429,6 +539,24 @@ function save_db(&$karma)
   else
   {
     term_echo("Successfully saved file \"".KARMA_FILE."\".");
+  }
+}
+
+function save_log(&$log)
+{
+  $data=serialize($log);
+  if ($data===False)
+  {
+    term_echo("Error serializing log.");
+    return;
+  }
+  if (file_put_contents(LOG_FILE,$data)===False)
+  {
+    term_echo("Error saving file \"".LOG_FILE."\".");
+  }
+  else
+  {
+    term_echo("Successfully saved file \"".LOG_FILE."\".");
   }
 }
 
