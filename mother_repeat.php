@@ -14,6 +14,7 @@ if ($argv[1]<>"irc")
   echo "error 2";
   return;
 }
-echo unserialize($argv[2]);
+$items=unserialize($argv[2]);
+echo $items["msg"];
 
 ?>
