@@ -13,6 +13,7 @@ define("CMD_QUIT","~q");
 define("CMD_WEATHER","weather");
 define("CHAN_LIST","#test,##,#soylent");
 define("CHAN_TERM","##");
+define("SEDBOT_EXCLUDE_PREFIX","for ");
 set_time_limit(0);
 ini_set("display_errors","on");
 $fp=fsockopen("irc.sylnt.us",6667);
@@ -46,7 +47,7 @@ while (feof($fp)===False)
       case CMD_WEATHER:
         unset($params[0]);
         $location=trim(implode(" ",$params));
-        if ($location<>"")
+        if (($location<>"") and (strtolower(substr($location,0,strlen(SEDBOT_EXCLUDE_PREFIX)))<>SEDBOT_EXCLUDE_PREFIX))
         {
           process_weather($location,$items["chan"]);
         }
