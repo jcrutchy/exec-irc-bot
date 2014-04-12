@@ -240,6 +240,7 @@ function process_weather($location,$chan)
         privmsg($chan,"Weather for $name at ".$data[0]." (UTC):");
         privmsg($chan,"Temperature = ".$temp);
         privmsg($chan,"Barometric pressure = ".$press);
+        privmsg($chan,"  data courtesy of the APRS Citizen Weather Observer Program (CWOP) @ http://weather.gladstonefamily.net/");
         return;
       }
     }
