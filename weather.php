@@ -47,9 +47,12 @@ while (feof($fp)===False)
       case CMD_WEATHER:
         unset($params[0]);
         $location=trim(implode(" ",$params));
-        if (($location<>"") and (strtolower(substr($location,0,strlen(SEDBOT_EXCLUDE_PREFIX)))<>SEDBOT_EXCLUDE_PREFIX))
+        if ($location<>"")
         {
-          process_weather($location,$items["chan"]);
+          if (strtolower(substr($location,0,strlen(SEDBOT_EXCLUDE_PREFIX)))<>SEDBOT_EXCLUDE_PREFIX)
+          {
+            process_weather($location,$items["chan"]);
+          }
         }
         else
         {
