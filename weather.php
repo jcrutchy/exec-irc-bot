@@ -194,7 +194,7 @@ function process_weather($location,$chan)
 {
   # http://weather.gladstonefamily.net/site/search?site=melbourne&search=Search
   $search=wget("weather.gladstonefamily.net","/site/search?site=".urlencode($location)."&search=Search",80);
-  if (strpos($search,"Site $location not found.")!==False)
+  if (strpos($search,"Pick one of the following")===False)
   {
     privmsg($chan,"Weather for \"$location\" not found. Check spelling or try another nearby location.");
     return;
