@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 10-april-2014
+# 13-april-2014
 
 $pwd=file_get_contents("weather.pwd");
 define("NICK","weather");
@@ -11,8 +11,7 @@ unset($pwd);
 define("LOG_FILE","weather.log");
 define("CMD_QUIT","~q");
 define("CMD_WEATHER","weather");
-#define("CHAN_LIST","#test,##");
-define("CHAN_LIST","##");
+define("CHAN_LIST","#test,##,#soylent");
 define("CHAN_TERM","##");
 set_time_limit(0);
 ini_set("display_errors","on");
@@ -50,6 +49,13 @@ while (feof($fp)===False)
         if ($location<>"")
         {
           process_weather($location,$items["chan"]);
+        }
+        else
+        {
+          privmsg($items["chan"],"WEATHER INFORMATION BOT");
+          privmsg($items["chan"],"  Usage: \"weather location\"");
+          privmsg($items["chan"],"  Example usage: \"weather melbourne australia\"");
+          privmsg($items["chan"],"  by crutchy: https://github.com/crutchy-/test/blob/master/weather.php");
         }
         break;
       default:
@@ -188,6 +194,11 @@ function process_weather($location,$chan)
 {
   # http://weather.gladstonefamily.net/site/search?site=melbourne&search=Search
   $search=wget("weather.gladstonefamily.net","/site/search?site=".urlencode($location)."&search=Search",80);
+  if (strpos($search,"Site $location not found.")!==False)
+  {
+    privmsg($chan,"Weather for \"$location\" not found. Check spelling or try another nearby location.");
+    return;
+  }
   $parts=explode("<li>",$search);
   $delim1="/site/";
   $delim2="\">";
@@ -208,15 +219,32 @@ function process_weather($location,$chan)
         $last=$lines[count($lines)-1];
         term_echo($last);
         $data=explode(",",$last);
-        $tempF=round($data[2],1);
-        $tempC=round(($tempF-32)*5/9,1);
+        if ($data[2]=="")
+        {
+          $temp="(no data)";
+        }
+        else
+        {
+          $tempF=round($data[2],1);
+          $tempC=round(($tempF-32)*5/9,1);
+          $temp=$tempF."°F (".$tempC."°C)";
+        }
+        if ($data[1]=="")
+        {
+          $press="(no data)";
+        }
+        else
+        {
+          $press=round($data[2],1)." mb";
+        }
         privmsg($chan,"Weather for $name at ".$data[0]." (UTC):");
-        privmsg($chan,"Temperature = ".$tempF."°F (".$tempC."°C)");
-        privmsg($chan,"Barometric pressure = ".round($data[1],1)." mb");
-        break;
+        privmsg($chan,"Temperature = ".$temp);
+        privmsg($chan,"Barometric pressure = ".$press);
+        return;
       }
     }
   }
+  privmsg($chan,"All stations matching \"$location\" are either inactive or have no data. Check spelling or try another nearby location.");
 }
 
 ?>
