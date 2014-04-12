@@ -239,7 +239,7 @@ function process_weather($location,$chan)
         }
         else
         {
-          $press=round($data[2],1)." mb";
+          $press=round($data[1],1)." mb";
         }
         privmsg($chan,"Weather for $name at ".$data[0]." (UTC):");
         privmsg($chan,"Temperature = ".$temp);
