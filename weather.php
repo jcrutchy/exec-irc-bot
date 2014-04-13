@@ -230,12 +230,12 @@ function process_weather($location,$chan)
         term_echo($last);
         $data_first=explode(",",$first);
         $data_last=explode(",",$last);
-        if (($data_last[1]=="") and ($data_last[2]=="")) # change to 'or' to 'and' if doesn't return results often enough - one data point is better than none
+        if (($data_last[1]=="") or ($data_last[2]=="")) # change to 'or' to 'and' if doesn't return results often enough - one data point is better than none
         {
           continue;
         }
         $dt=0;
-        if (($data_first[0]<>"") or ($data_last[0]<>""))
+        if (($data_first[0]<>"") and ($data_last[0]<>""))
         {
           # 2014-04-12 23:00:00
           $date_arr1=date_parse_from_format("Y-m-d H:i:s",$data_first[0]);
