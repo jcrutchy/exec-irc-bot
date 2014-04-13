@@ -13,7 +13,6 @@ define("CMD_QUIT","~q");
 define("CMD_WEATHER","weather");
 define("CHAN_LIST","#test,##,#soylent");
 #define("CHAN_LIST","#test");
-define("CHAN_TERM","#test");
 define("SEDBOT_EXCLUDE_PREFIX","for ");
 set_time_limit(0);
 ini_set("display_errors","on");
@@ -211,17 +210,19 @@ function process_weather($location,$chan)
   $parts=explode("<li>",$search);
   $delim1="/site/";
   $delim2="\">";
+  $delim3="</a>";
   for ($i=0;$i<count($parts);$i++)
   {
     if ((strpos($parts[$i],"/site/")!==False) and (strpos($parts[$i],"[no data]")===False) and (strpos($parts[$i],"[inactive]")===False))
     {
       term_echo($parts[$i]);
-      $j=strpos($parts[$i],$delim1);
-      $k=strpos($parts[$i],$delim2);
-      if (($j!==False) and ($k!==False))
+      $j1=strpos($parts[$i],$delim1);
+      $j2=strpos($parts[$i],$delim2);
+      $j3=strpos($parts[$i],$delim3);
+      if (($j1!==False) and ($j2!==False) and ($j3!==False))
       {
-        $name=substr($parts[$i],$k+strlen($delim2),strlen($parts[$i])-$k-strlen($delim2)-strlen("</a>"));
-        $station=substr($parts[$i],$j+strlen($delim1),$k-$j-strlen($delim1));
+        $name=substr($parts[$i],$j2+strlen($delim2),$j3-$j2-strlen($delim2));
+        $station=substr($parts[$i],$j1+strlen($delim1),$j2-$j1-strlen($delim1));
         # http://weather.gladstonefamily.net/cgi-bin/wxobservations.pl?site=94868&days=7
         $csv=trim(wget("weather.gladstonefamily.net","/cgi-bin/wxobservations.pl?site=".urlencode($station)."&days=3",80));
         $lines=explode("\n",$csv);
