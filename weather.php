@@ -12,7 +12,8 @@ define("LOG_FILE","weather.log");
 define("CMD_QUIT","~q");
 define("CMD_WEATHER","weather");
 define("CHAN_LIST","#test,##,#soylent");
-define("CHAN_TERM","##");
+#define("CHAN_LIST","#test");
+define("CHAN_TERM","#test");
 define("SEDBOT_EXCLUDE_PREFIX","for ");
 set_time_limit(0);
 ini_set("display_errors","on");
@@ -40,10 +41,14 @@ while (feof($fp)===False)
     switch (strtolower($params[0]))
     {
       case CMD_QUIT:
-        fputs($fp,": QUIT\n");
-        fclose($fp);
-        term_echo("QUITTING SCRIPT");
-        return;
+        if ($items["nick"]=="crutchy")
+        {
+          fputs($fp,": QUIT\n");
+          fclose($fp);
+          term_echo("QUITTING SCRIPT");
+          return;
+        }
+        break;
       case CMD_WEATHER:
         unset($params[0]);
         $location=trim(implode(" ",$params));
@@ -218,32 +223,51 @@ function process_weather($location,$chan)
         $name=substr($parts[$i],$k+strlen($delim2),strlen($parts[$i])-$k-strlen($delim2)-strlen("</a>"));
         $station=substr($parts[$i],$j+strlen($delim1),$k-$j-strlen($delim1));
         # http://weather.gladstonefamily.net/cgi-bin/wxobservations.pl?site=94868&days=7
-        $csv=trim(wget("weather.gladstonefamily.net","/cgi-bin/wxobservations.pl?site=".urlencode($station)."&days=7",80));
+        $csv=trim(wget("weather.gladstonefamily.net","/cgi-bin/wxobservations.pl?site=".urlencode($station)."&days=3",80));
         $lines=explode("\n",$csv);
+        $first=$lines[count($lines)-2];
         $last=$lines[count($lines)-1];
         term_echo($last);
-        $data=explode(",",$last);
-        if ($data[2]=="")
+        $data_first=explode(",",$first);
+        $data_last=explode(",",$last);
+        $dt=0;
+        if (($data_first[0]<>"") and ($data_last[0]<>""))
+        {
+          # 2014-04-12 23:00:00
+          $date_arr1=date_parse_from_format("Y-m-d H:i:s",$data_first[0]);
+          $date_arr2=date_parse_from_format("Y-m-d H:i:s",$data_last[0]);
+          $ts1=mktime($date_arr1["hour"],$date_arr1["minute"],$date_arr1["second"],$date_arr1["month"],$date_arr1["day"],$date_arr1["year"]);
+          $ts2=mktime($date_arr2["hour"],$date_arr2["minute"],$date_arr2["second"],$date_arr2["month"],$date_arr2["day"],$date_arr2["year"]);
+          $dt=round(($ts2-$ts1)/60/60,1);
+        }
+        if ($data_last[2]=="")
         {
           $temp="(no data)";
         }
         else
         {
-          $tempF=round($data[2],1);
+          $tempF=round($data_last[2],1);
           $tempC=round(($tempF-32)*5/9,1);
-          $temp=$tempF."°F (".$tempC."°C)";
+          $temp=$tempF."°F ($tempC°C)";
         }
-        if ($data[1]=="")
+        if ($data_last[1]=="")
         {
           $press="(no data)";
         }
         else
         {
-          $press=round($data[1],1)." mb";
+          $delta_str="";
+          if (($dt>0) and ($data_first[1]<>""))
+          {
+            $d=round($data_first[1]-$data_last[1],1);
+            $delta_str=" ~ change of $d mb over past $dt hrs";
+          }
+          $pressmb=round($data_last[1],1);
+          $press="$pressmb mb".$delta_str;
         }
-        privmsg($chan,"Weather for $name at ".$data[0]." (UTC):");
-        privmsg($chan,"Temperature = ".$temp);
-        privmsg($chan,"Barometric pressure = ".$press);
+        privmsg($chan,"Weather for $name at ".$data_last[0]." (UTC):");
+        privmsg($chan,"Temperature = $temp");
+        privmsg($chan,"Barometric pressure = $press");
         privmsg($chan,"  data courtesy of the APRS Citizen Weather Observer Program (CWOP) @ http://weather.gladstonefamily.net/");
         return;
       }
