@@ -230,8 +230,12 @@ function process_weather($location,$chan)
         term_echo($last);
         $data_first=explode(",",$first);
         $data_last=explode(",",$last);
+        if (($data_last[1]=="") and ($data_last[2]=="")) # change to 'or' to 'and' if doesn't return results often enough - one data point is better than none
+        {
+          continue;
+        }
         $dt=0;
-        if (($data_first[0]<>"") and ($data_last[0]<>""))
+        if (($data_first[0]<>"") or ($data_last[0]<>""))
         {
           # 2014-04-12 23:00:00
           $date_arr1=date_parse_from_format("Y-m-d H:i:s",$data_first[0]);
@@ -248,7 +252,7 @@ function process_weather($location,$chan)
         {
           $tempF=round($data_last[2],1);
           $tempC=round(($tempF-32)*5/9,1);
-          $temp=$tempF."°F ($tempC°C)";
+          $temp=$tempF."°F (".$tempC."°C)";
         }
         if ($data_last[1]=="")
         {
@@ -263,7 +267,7 @@ function process_weather($location,$chan)
             $delta_str=" ~ change of $d mb over past $dt hrs";
           }
           $pressmb=round($data_last[1],1);
-          $press="$pressmb mb".$delta_str;
+          $press=$pressmb." mb".$delta_str;
         }
         privmsg($chan,"Weather for $name at ".$data_last[0]." (UTC):");
         privmsg($chan,"Temperature = $temp");
