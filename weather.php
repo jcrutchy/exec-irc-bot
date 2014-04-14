@@ -2,20 +2,23 @@
 
 # gpl2
 # by crutchy
-# 13-april-2014
+# 14-april-2014
 
 $pwd=file_get_contents("weather.pwd");
 define("NICK","weather");
 define("PASSWORD",$pwd);
 unset($pwd);
 define("LOG_FILE","weather.log");
+define("CODES_FILE","weather.codes");
 define("CMD_QUIT","~q");
 define("CMD_WEATHER","weather");
+define("CMD_ADDCODE","weather-add");
 define("CHAN_LIST","#test,##,#soylent");
 #define("CHAN_LIST","#test");
 define("SEDBOT_EXCLUDE_PREFIX","for ");
 set_time_limit(0);
 ini_set("display_errors","on");
+$codes=unserialize(file_get_contents(CODES_FILE));
 $fp=fsockopen("irc.sylnt.us",6667);
 stream_set_blocking($fp,False);
 fputs($fp,"NICK ".NICK."\n");
@@ -46,6 +49,23 @@ while (feof($fp)===False)
           fclose($fp);
           term_echo("QUITTING SCRIPT");
           return;
+        }
+        break;
+      case CMD_ADDCODE:
+        if (count($params)>2)
+        {
+          $code=$params[1];
+          unset($params[0]);
+          unset($params[1]);
+          $codes[$code]=trim(implode(" ",$params));
+          if (file_put_contents(CODES_FILE,serialize($codes))===False)
+          {
+            privmsg($items["chan"],"Code \"$code\" set for location \"".$codes[$code]."\" but there was an error writing the codes file.");
+          }
+          else
+          {
+            privmsg($items["chan"],"Code \"$code\" set for location \"".$codes[$code]."\".");
+          }
         }
         break;
       case CMD_WEATHER:
@@ -200,11 +220,20 @@ function wget($host,$uri,$port)
 
 function process_weather($location,$chan)
 {
+  global $codes;
+  if (isset($codes[$location])==True)
+  {
+    $loc=$codes[$location];
+  }
+  else
+  {
+    $loc=$location;
+  }
   # http://weather.gladstonefamily.net/site/search?site=melbourne&search=Search
-  $search=wget("weather.gladstonefamily.net","/site/search?site=".urlencode($location)."&search=Search",80);
+  $search=wget("weather.gladstonefamily.net","/site/search?site=".urlencode($loc)."&search=Search",80);
   if (strpos($search,"Pick one of the following")===False)
   {
-    privmsg($chan,"Weather for \"$location\" not found. Check spelling or try another nearby location.");
+    privmsg($chan,"Weather for \"$loc\" not found. Check spelling or try another nearby location.");
     return;
   }
   $parts=explode("<li>",$search);
@@ -278,7 +307,7 @@ function process_weather($location,$chan)
       }
     }
   }
-  privmsg($chan,"All stations matching \"$location\" are either inactive or have no data. Check spelling or try another nearby location.");
+  privmsg($chan,"All stations matching \"$loc\" are either inactive or have no data. Check spelling or try another nearby location.");
 }
 
 ?>
