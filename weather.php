@@ -60,11 +60,11 @@ while (feof($fp)===False)
           $codes[$code]=trim(implode(" ",$params));
           if (file_put_contents(CODES_FILE,serialize($codes))===False)
           {
-            privmsg($items["chan"],"Code \"$code\" set for location \"".$codes[$code]."\" but there was an error writing the codes file.");
+            privmsg($items["chan"],"code \"$code\" set for location \"".$codes[$code]."\" but there was an error writing the codes file");
           }
           else
           {
-            privmsg($items["chan"],"Code \"$code\" set for location \"".$codes[$code]."\".");
+            privmsg($items["chan"],"code \"$code\" set for location \"".$codes[$code]."\"");
           }
         }
         break;
@@ -80,9 +80,9 @@ while (feof($fp)===False)
         }
         else
         {
-          privmsg($items["chan"],"WEATHER INFORMATION BOT");
-          privmsg($items["chan"],"  Usage: \"weather location\"");
-          privmsg($items["chan"],"  Example usage: \"weather melbourne australia\"");
+          privmsg($items["chan"],"SOYLENT IRC WEATHER INFORMATION BOT");
+          privmsg($items["chan"],"  usage: \"weather location\" (visit http://wiki.soylentnews.org/wiki/IRC#weather for more info)");
+          privmsg($items["chan"],"  data courtesy of the APRS Citizen Weather Observer Program (CWOP) @ http://weather.gladstonefamily.net/");
           privmsg($items["chan"],"  by crutchy: https://github.com/crutchy-/test/blob/master/weather.php");
         }
         break;
@@ -255,12 +255,14 @@ function process_weather($location,$chan)
         # http://weather.gladstonefamily.net/cgi-bin/wxobservations.pl?site=94868&days=7
         $csv=trim(wget("weather.gladstonefamily.net","/cgi-bin/wxobservations.pl?site=".urlencode($station)."&days=3",80));
         $lines=explode("\n",$csv);
+        # UTC baro-mb temp°F dewpoint°F rel-humidity-% wind-mph wind-deg
+        # 2014-04-07 17:00:00,1020.01,54.1,53.6,98,0,0,,,,,,
         $first=$lines[count($lines)-2];
         $last=$lines[count($lines)-1];
         term_echo($last);
         $data_first=explode(",",$first);
         $data_last=explode(",",$last);
-        if (($data_last[1]=="") or ($data_last[2]=="")) # change to 'or' to 'and' if doesn't return results often enough - one data point is better than none
+        if (($data_last[1]=="") or ($data_last[2]=="") or (count($data_first)<7) or (count($data_last)<7))
         {
           continue;
         }
@@ -299,10 +301,56 @@ function process_weather($location,$chan)
           $pressmb=round($data_last[1],1);
           $press=$pressmb." mb".$delta_str;
         }
+        if ($data_last[3]=="")
+        {
+          $dewpoint="(no data)";
+        }
+        else
+        {
+          $tempF=round($data_last[3],1);
+          $tempC=round(($data_last[3]-32)*5/9,1);
+          $dewpoint=$tempF."°F (".$tempC."°C)";
+        }
+        if ($data_last[3]=="")
+        {
+          $dewpoint="(no data)";
+        }
+        else
+        {
+          $tempF=round($data_last[3],1);
+          $tempC=round(($tempF-32)*5/9,1);
+          $dewpoint=$tempF."°F (".$tempC."°C)";
+        }
+        if ($data_last[4]=="")
+        {
+          $relhumidity="(no data)";
+        }
+        else
+        {
+          $relhumidity=round($data_last[4],1)."%";
+        }
+        if ($data_last[5]=="")
+        {
+          $wind_speed="(no data)";
+        }
+        else
+        {
+          $wind_speed_mph=round($data_last[5],1);
+          $wind_speed_kph=round($data_last[5]*8/5,1);
+          $wind_speed=$wind_speed_mph." mph (".$wind_speed_kph." km/h)";
+        }
+        if ($data_last[6]=="")
+        {
+          $wind_direction="(no data)";
+        }
+        else
+        {
+          $wind_direction=round($data_last[6],1)."°";
+        }
         privmsg($chan,"Weather for $name at ".$data_last[0]." (UTC):");
-        privmsg($chan,"Temperature = $temp");
-        privmsg($chan,"Barometric pressure = $press");
-        privmsg($chan,"  data courtesy of the APRS Citizen Weather Observer Program (CWOP) @ http://weather.gladstonefamily.net/");
+        privmsg($chan,"    temperature = $temp    dewpoint = $dewpoint");
+        privmsg($chan,"    barometric pressure = $press    relative humdity = $relhumidity");
+        privmsg($chan,"    wind speed = $wind_speed    wind direction = $wind_direction");
         return;
       }
     }
