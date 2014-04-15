@@ -4,6 +4,10 @@
 # by crutchy
 # 15-april-2014
 
+# TODO: instead of PRIVMSG #channel :whatever; you do: PRIVMSG nickname :whatever (don't hardcode channels)
+# TODO: also filter nick and chan before passing to exec (need to figure out which chars a nick can have)
+# TODO: escapeshellarg (use base64_encode/decode for any serialized array strings used in future)
+
 define("NICK","bacon"); # bacon/coffee/mother
 define("PASSWORD",file_get_contents("test"));
 define("LOG_FILE","log");
@@ -13,8 +17,9 @@ define("TERM_PRIVMSG","privmsg");
 define("CMD_ABOUT","~");
 define("CMD_QUIT","~q");
 define("CMD_ADDEXEC","~add");
-define("CHAN_LIST","#test,#sublight");
-define("VALID_CHARS","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,#");
+#define("CHAN_LIST","#test,#sublight");
+define("CHAN_LIST","#test");
+define("VALID_CHARS","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,#_-");
 define("TEMPLATE_DELIM","%%");
 define("TEMPLATE_MSG","msg");
 define("TEMPLATE_NICK","nick");
@@ -69,7 +74,7 @@ while (feof($fp)===False)
   $n=count($handles);
   for ($i=0;$i<$n;$i++)
   {
-    while (feof($handles[$i]["pipe_stdout"])==False)
+    while (feof($handles[$i]["pipe_stdout"])==False) # TODO: put timeout in here (specify timeout in exec file)
     {
       $buf=fgets($handles[$i]["pipe_stdout"]);
       if ($buf!==False)
@@ -133,6 +138,10 @@ while (feof($fp)===False)
         {
           doquit($fp);
           return;
+        }
+        else
+        {
+          privmsg($items["chan"],"quit command not permitted by nick \"".$items["nick"]."\"");
         }
         break;
       case CMD_ADDEXEC:

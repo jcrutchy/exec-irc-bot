@@ -4,7 +4,7 @@
 # by crutchy
 # 15-april-2014
 
-# 0/test/php test.php "%%msg%%" "%%chan%%" "%%nick%%"
+# 0/0/test/php test.php "%%msg%%" "%%chan%%" "%%nick%%"
 
 /*
 array(4) {
