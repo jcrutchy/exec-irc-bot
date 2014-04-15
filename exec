@@ -3,6 +3,7 @@
 1/1/ps/ps
 1/1/moo/apt-get moo
 1/1/fortune/fortune
-1/1/cowsay-fortune/sh cowsay-fortune.sh
+#1/1/cowsay-fortune/sh cowsay-fortune.sh
+1/1/cowsay-fortune/cowsay `fortune`
 0/0/define/php definitions.php "%%msg%%" "%%chan%%" "%%nick%%"
 0/0/php/php php.php "%%msg%%"

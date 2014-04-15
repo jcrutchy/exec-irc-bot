@@ -17,8 +17,8 @@ define("TERM_PRIVMSG","privmsg");
 define("CMD_ABOUT","~");
 define("CMD_QUIT","~q");
 define("CMD_ADDEXEC","~add");
-#define("CHAN_LIST","#test,#sublight");
-define("CHAN_LIST","#test");
+define("CHAN_LIST","#test,#sublight");
+#define("CHAN_LIST","#test");
 define("VALID_CHARS","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,#_-");
 define("TEMPLATE_DELIM","%%");
 define("TEMPLATE_MSG","msg");
@@ -74,7 +74,7 @@ while (feof($fp)===False)
   $n=count($handles);
   for ($i=0;$i<$n;$i++)
   {
-    while (feof($handles[$i]["pipe_stdout"])==False) # TODO: put timeout in here (specify timeout in exec file)
+    while (feof($handles[$i]["pipe_stdout"])==False) # TODO: put timeout in here (specify timeout in exec file) ...OR MAYBE JUST TRY fgets ONCE!
     {
       $buf=fgets($handles[$i]["pipe_stdout"]);
       if ($buf!==False)
@@ -144,7 +144,7 @@ while (feof($fp)===False)
           privmsg($items["chan"],"quit command not permitted by nick \"".$items["nick"]."\"");
         }
         break;
-      case CMD_ADDEXEC:
+      /*case CMD_ADDEXEC: # LEAVE COMMENTED OUT UNTIL YOU CAN CHANGE TO CHECK FOR ACCOUNT NAME (USING WHOIS - REFER TO /var/www/slash/git/stuff/vote.php)
         if (in_array($items["nick"],$admin_nicks)==True)
         {
           array_shift($params);
@@ -181,7 +181,7 @@ while (feof($fp)===False)
             privmsg($items["chan"],"invalid exec line \"$line\"");
           }
         }
-        break;
+        break;*/
       default:
         process_scripts($items);
     }
