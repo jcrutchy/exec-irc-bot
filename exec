@@ -1,3 +1,6 @@
-1/cowsay/cowsay "%%msg%%"
-0/test/php test.php "%%msg%%" "%%chan%%" "%%nick%%"
-1/ps/ps
+1/0/cowsay/cowsay "%%msg%%"
+0/1/test/php test.php "%%msg%%" "%%chan%%" "%%nick%%"
+1/1/ps/ps
+1/1/moo/apt-get moo
+1/1/fortune/fortune
+1/1/cowsay-fortune/sh cowsay-fortune.sh

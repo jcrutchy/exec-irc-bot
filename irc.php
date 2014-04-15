@@ -37,11 +37,13 @@ for ($i=0;$i<count($data);$i++)
     continue;
   }
   $auto="";
+  $empty="";
   $alias="";
   $cmd="";
-  if (parse_exec($line,$auto,$alias,$cmd)==True)
+  if (parse_exec($line,$auto,$empty,$alias,$cmd)==True)
   {
     $exec_list[$alias]["auto"]=$auto;
+    $exec_list[$alias]["empty"]=$empty;
     $exec_list[$alias]["cmd"]=$cmd;
   }
 }
@@ -139,11 +141,13 @@ while (feof($fp)===False)
           array_shift($params);
           $line=implode(" ",$params);
           $auto="";
+          $empty="";
           $alias="";
           $cmd="";
-          if (parse_exec($line,$auto,$alias,$cmd)==True)
+          if (parse_exec($line,$auto,$empty,$alias,$cmd)==True)
           {
             $exec_list[$alias]["auto"]=$auto;
+            $exec_list[$alias]["empty"]=$auto;
             $exec_list[$alias]["cmd"]=$cmd;
             $out="";
             foreach ($exec_list as $alias => $arr)
@@ -152,7 +156,7 @@ while (feof($fp)===False)
               {
                 $out=$out."\n";
               }
-              $out=$out.$exec_list[$alias]["auto"].EXEC_DELIM.$alias.EXEC_DELIM.$exec_list[$alias]["cmd"];
+              $out=$out.$exec_list[$alias]["auto"].EXEC_DELIM.$exec_list[$alias]["empty"].EXEC_DELIM.$alias.EXEC_DELIM.$exec_list[$alias]["cmd"];
             }
             if (file_put_contents(EXEC_FILE,trim($out))!==False)
             {
@@ -214,20 +218,21 @@ function pingpong($fp,$data)
   return False;
 }
 
-function parse_exec($line,&$auto,&$alias,&$cmd)
+function parse_exec($line,&$auto,&$empty,&$alias,&$cmd)
 {
   $parts=explode(EXEC_DELIM,$line);
-  if (count($parts)<>3)
+  if (count($parts)<>4)
   {
     return False;
   }
-  if ((($parts[0]<>"0") and ($parts[0]<>"1")) or ($parts[1]=="") or ($parts[2]==""))
+  if ((($parts[0]<>"0") and ($parts[0]<>"1")) or (($parts[1]<>"0") and ($parts[1]<>"1")) or ($parts[2]=="") or ($parts[3]==""))
   {
     return False;
   }
   $auto=$parts[0];
-  $alias=$parts[1];
-  $cmd=$parts[2];
+  $empty=$parts[1];
+  $alias=$parts[2];
+  $cmd=$parts[3];
   return True;
 }
 
@@ -328,7 +333,11 @@ function process_scripts($items)
   }
   array_shift($parts);
   $msg=implode(" ",$parts);
-  $msg=filter_msg($msg);
+  $msg=trim(filter_msg($msg));
+  if (($exec_list[$alias]["empty"]==0) and ($msg==""))
+  {
+    return;
+  }
   $template=$exec_list[$alias]["cmd"];
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_MSG.TEMPLATE_DELIM,$msg,$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_NICK.TEMPLATE_DELIM,$items["nick"],$template);
@@ -339,7 +348,7 @@ function process_scripts($items)
   $descriptorspec=array(0=>array("pipe","r"),1=>array("pipe","w"),2=>array("pipe","w"));
   $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
   stream_set_blocking($pipes[0],0);
-  $handles[]=array("process"=>$process,"command"=>$command,"pipe_stdin"=>$pipes[0],"pipe_stdout"=>$pipes[1],"pipe_stderr"=>$pipes[2],"alias"=>$alias,"template"=>$exec_list[$alias]["cmd"],"auto_privmsg"=>$exec_list[$alias]["auto"],"nick"=>$items["nick"],"chan"=>$items["chan"]);
+  $handles[]=array("process"=>$process,"command"=>$command,"pipe_stdin"=>$pipes[0],"pipe_stdout"=>$pipes[1],"pipe_stderr"=>$pipes[2],"alias"=>$alias,"template"=>$exec_list[$alias]["cmd"],"allow_empty"=>$exec_list[$alias]["empty"],"auto_privmsg"=>$exec_list[$alias]["auto"],"nick"=>$items["nick"],"chan"=>$items["chan"]);
 }
 
 function filter_msg($msg)
