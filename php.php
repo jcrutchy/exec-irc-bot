@@ -50,7 +50,7 @@ function wget($host,$uri,$port)
     term_echo("Error connecting to \"$host\".");
     return;
   }
-  fwrite($fp,"GET $uri HTTP/1.1\r\nHost: $host\r\nUser-Agent: Mozilla/5.0 (X11; Linux i686; rv:27.0) Gecko/20100101 Firefox/27.0\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nAccept-Language: en-US,en;q=0.5\r\nConnection: close\r\n\r\n");
+  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
   $response="";
   while (!feof($fp))
   {
