@@ -17,9 +17,9 @@ define("TERM_PRIVMSG","privmsg");
 define("CMD_ABOUT","~");
 define("CMD_QUIT","~q");
 define("CMD_ADDEXEC","~add");
-define("CHAN_LIST","#test,#sublight");
-#define("CHAN_LIST","#test");
-define("VALID_CHARS","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,#_-");
+#define("CHAN_LIST","#test,#sublight,##");
+define("CHAN_LIST","#test");
+define("VALID_CHARS","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,#_-"); # don't accidentally add :;&/\|!
 define("TEMPLATE_DELIM","%%");
 define("TEMPLATE_MSG","msg");
 define("TEMPLATE_NICK","nick");
@@ -41,71 +41,89 @@ for ($i=0;$i<count($data);$i++)
   {
     continue;
   }
+  $timeout="";
   $auto="";
   $empty="";
   $alias="";
   $cmd="";
-  if (parse_exec($line,$auto,$empty,$alias,$cmd)==True)
+  if (parse_exec($line,$timeout,$auto,$empty,$alias,$cmd)==True)
   {
+    $exec_list[$alias]["timeout"]=$timeout;
     $exec_list[$alias]["auto"]=$auto;
     $exec_list[$alias]["empty"]=$empty;
     $exec_list[$alias]["cmd"]=$cmd;
   }
 }
-stream_set_blocking(STDIN,False);
 $fp=fsockopen("irc.sylnt.us",6667);
 fputs($fp,"NICK ".NICK."\n");
-# USER username hostname servername :realname
 fputs($fp,"USER ".NICK." hostname servername :".NICK."\n");
 $handles=array();
 while (feof($fp)===False)
 {
-  $in=fgets(STDIN);
-  if ($in!==False)
-  {
-    $tin=trim($in);
-    if (strtolower($tin)==CMD_QUIT)
-    {
-      doquit($fp);
-      return;
-    }
-  }
   $n=count($handles);
   for ($i=0;$i<$n;$i++)
   {
-    while (feof($handles[$i]["pipe_stdout"])==False) # TODO: put timeout in here (specify timeout in exec file) ...OR MAYBE JUST TRY fgets ONCE!
+    $terminated=False;
+    $start=microtime(True);
+    $timeout=$handles[$i]["timeout"];
+    while (True)
     {
       $buf=fgets($handles[$i]["pipe_stdout"]);
       if ($buf!==False)
       {
-        $pre=substr(strtolower($buf),0,strlen(TERM_PRIVMSG)+1);
-        if (($pre==(TERM_PRIVMSG." ")) or ($handles[$i]["auto_privmsg"]==1))
+        if (trim($buf)<>"")
         {
-          $msg=rtrim($buf);
-          if ($pre==(TERM_PRIVMSG." "))
+          $pre=substr(strtolower($buf),0,strlen(TERM_PRIVMSG)+1);
+          if (($pre==(TERM_PRIVMSG." ")) or ($handles[$i]["auto_privmsg"]==1))
           {
-            $msg=substr($msg,strlen(TERM_PRIVMSG)+1);
+            $msg=rtrim($buf);
+            if ($pre==(TERM_PRIVMSG." "))
+            {
+              $msg=substr($msg,strlen(TERM_PRIVMSG)+1);
+            }
+            privmsg($handles[$i]["chan"],$msg);
           }
-          privmsg($handles[$i]["chan"],$msg);
+          else
+          {
+            term_echo(rtrim($buf));
+          }
         }
-        else
+      }
+      else
+      {
+        $proc_info=proc_get_status($handles[$i]["process"]);
+        if ($proc_info["running"]==False)
+        {
+          $terminated=True;
+          $return_value=proc_close($handles[$i]["process"]);
+          term_echo("process terminated normally");
+          break;
+        }
+        if ((microtime(True)-$start)>$timeout)
+        {
+          $terminated=True;
+          $return_value=proc_close($handles[$i]["process"]);
+          privmsg($handles[$i]["chan"],"error: command timed out");
+          break;
+        }
+      }
+    }
+    if ($terminated==False)
+    {
+      while (feof($handles[$i]["pipe_stderr"])==False)
+      {
+        $buf=fgets($handles[$i]["pipe_stderr"]);
+        if ($buf!==False)
         {
           term_echo(rtrim($buf));
         }
+        sleep(1);
       }
-    }
-    while (feof($handles[$i]["pipe_stderr"])==False)
-    {
-      $buf=fgets($handles[$i]["pipe_stderr"]);
-      if ($buf!==False)
+      $proc_info=proc_get_status($handles[$i]["process"]);
+      if ($proc_info["running"]==False)
       {
-        term_echo(rtrim($buf));
+        $return_value=proc_close($handles[$i]["process"]);
       }
-    }
-    $proc_info=proc_get_status($handles[$i]["process"]);
-    if ($proc_info["running"]==False)
-    {
-      $return_value=proc_close($handles[$i]["process"]);
     }
     unset($handles[$i]);
   }
@@ -144,7 +162,7 @@ while (feof($fp)===False)
         }
         break;
       /*case CMD_ADDEXEC: # LEAVE COMMENTED OUT UNTIL YOU CAN CHANGE TO CHECK FOR ACCOUNT NAME (USING WHOIS - REFER TO /var/www/slash/git/stuff/vote.php)
-        if (in_array($items["nick"],$admin_nicks)==True)
+        if (in_array($items["nick"],$admin_nicks)==True) # ADD TIMEOUT
         {
           array_shift($params);
           $line=implode(" ",$params);
@@ -193,7 +211,6 @@ while (feof($fp)===False)
   {
     fputs($fp,"NICKSERV identify ".PASSWORD."\n");
   }
-  usleep(10000); # 0.01 second
 }
 
 function doquit($fp)
@@ -227,21 +244,23 @@ function pingpong($fp,$data)
   return False;
 }
 
-function parse_exec($line,&$auto,&$empty,&$alias,&$cmd)
+function parse_exec($line,&$timeout,&$auto,&$empty,&$alias,&$cmd)
 {
   $parts=explode(EXEC_DELIM,$line);
-  if (count($parts)<>4)
+  if (count($parts)<>5)
   {
     return False;
   }
-  if ((($parts[0]<>"0") and ($parts[0]<>"1")) or (($parts[1]<>"0") and ($parts[1]<>"1")) or ($parts[2]=="") or ($parts[3]==""))
+  if ((($parts[1]<>"0") and ($parts[1]<>"1")) or (($parts[2]<>"0") and ($parts[2]<>"1")) or ($parts[3]=="") or ($parts[4]==""))
   {
     return False;
   }
-  $auto=$parts[0];
-  $empty=$parts[1];
-  $alias=$parts[2];
-  $cmd=$parts[3];
+  # validate timeout
+  $timeout=$parts[0]; # seconds
+  $auto=$parts[1];
+  $empty=$parts[2];
+  $alias=$parts[3];
+  $cmd=$parts[4];
   return True;
 }
 
@@ -356,8 +375,8 @@ function process_scripts($items)
   $env=NULL;
   $descriptorspec=array(0=>array("pipe","r"),1=>array("pipe","w"),2=>array("pipe","w"));
   $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
-  stream_set_blocking($pipes[0],0);
-  $handles[]=array("process"=>$process,"command"=>$command,"pipe_stdin"=>$pipes[0],"pipe_stdout"=>$pipes[1],"pipe_stderr"=>$pipes[2],"alias"=>$alias,"template"=>$exec_list[$alias]["cmd"],"allow_empty"=>$exec_list[$alias]["empty"],"auto_privmsg"=>$exec_list[$alias]["auto"],"nick"=>$items["nick"],"chan"=>$items["chan"]);
+  stream_set_blocking($pipes[1],0);
+  $handles[]=array("process"=>$process,"command"=>$command,"pipe_stdin"=>$pipes[0],"pipe_stdout"=>$pipes[1],"pipe_stderr"=>$pipes[2],"alias"=>$alias,"template"=>$exec_list[$alias]["cmd"],"allow_empty"=>$exec_list[$alias]["empty"],"timeout"=>$exec_list[$alias]["timeout"],"auto_privmsg"=>$exec_list[$alias]["auto"],"nick"=>$items["nick"],"chan"=>$items["chan"]);
 }
 
 function filter_msg($msg)
