@@ -4,13 +4,29 @@
 # by crutchy
 # 14-april-2014
 
+# weather request, Spirit Of Saint Louis, Missouri (38.7°N/90.7°W), Updated: 1:54 PM CST (December 23, 2013), Conditions: Mostly Cloudy, Temperature: 26°F (-3.3°C), Windchill: 16°F (-9°C), High/Low: 26/9°F (-3.3/-12.8°C), UV: 1/16, Humidity: 66%, Dew Point: 16°F (-8.9°C), Pressure: 30.51 in/1033 hPa, Wind: WNW at 10 MPH (17 KPH)
+
+# http://wxqa.com/APRSWXNETStation.txt
+# EW4841|E4841|EW4841 Murrumbena                    AU|45|  -37.90783|145.07217|GMT|||1||||
+# http://www.wxqa.com/cgi-bin/search1.cgi?keyword=EW4841
+# http://www.findu.com/cgi-bin/wx.cgi?call=EW4841&units=metric
+
+# http://www.worldweather.org/
+# http://www.wmo.int/pages/prog/www/index_en.html
+# http://www.wmo.int/pages/prog/www/ois/ois-home.html
+
+# TODO: registered nick personalised settings (units, default location, private msg, formatting, etc)
+# TODO: delete codes
+
+# TODO: get registered nicks through mother, pass privmsgs and termmsgs to mother, and remove all irc-related stuff
+
 $pwd=file_get_contents("weather.pwd");
 define("NICK","weather");
 define("PASSWORD",$pwd);
 unset($pwd);
 define("LOG_FILE","weather.log");
 define("CODES_FILE","weather.codes");
-define("CMD_QUIT","~q");
+define("CMD_QUIT","~quit");
 define("CMD_WEATHER","weather");
 define("CMD_ADDCODE","weather-add");
 define("CHAN_LIST","#test,##,#soylent");
@@ -20,7 +36,6 @@ set_time_limit(0);
 ini_set("display_errors","on");
 $codes=unserialize(file_get_contents(CODES_FILE));
 $fp=fsockopen("irc.sylnt.us",6667);
-stream_set_blocking($fp,False);
 fputs($fp,"NICK ".NICK."\n");
 fputs($fp,"USER ".NICK." * ".NICK." :".NICK."\n");
 while (feof($fp)===False)
@@ -99,6 +114,7 @@ while (feof($fp)===False)
   {
     fputs($fp,"NICKSERV identify ".PASSWORD."\n");
   }
+  usleep(10000); # 0.01 second
 }
 
 function pingpong($fp,$data)
@@ -267,6 +283,7 @@ function process_weather($location,$chan)
           continue;
         }
         $dt=0;
+        $age=-1;
         if (($data_first[0]<>"") and ($data_last[0]<>""))
         {
           # 2014-04-12 23:00:00
@@ -275,6 +292,9 @@ function process_weather($location,$chan)
           $ts1=mktime($date_arr1["hour"],$date_arr1["minute"],$date_arr1["second"],$date_arr1["month"],$date_arr1["day"],$date_arr1["year"]);
           $ts2=mktime($date_arr2["hour"],$date_arr2["minute"],$date_arr2["second"],$date_arr2["month"],$date_arr2["day"],$date_arr2["year"]);
           $dt=round(($ts2-$ts1)/60/60,1);
+          $utc_str=gmdate("M d Y H:i:s",time());
+          $utc=strtotime($utc_str);
+          $age=round(($utc-$ts2)/60/60,1);
         }
         if ($data_last[2]=="")
         {
@@ -296,7 +316,7 @@ function process_weather($location,$chan)
           if (($dt>0) and ($data_first[1]<>""))
           {
             $d=round($data_first[1]-$data_last[1],1);
-            $delta_str=" ~ change of $d mb over past $dt hrs";
+            $delta_str=" ~ change of $d mb over past $dt hrs"; # TODO: remove "past"
           }
           $pressmb=round($data_last[1],1);
           $press=$pressmb." mb".$delta_str;
@@ -345,9 +365,14 @@ function process_weather($location,$chan)
         }
         else
         {
-          $wind_direction=round($data_last[6],1)."°";
+          $wind_direction=round($data_last[6],1)."°"; # include N/S/E/W/NE/SE/NW/SW/NNE/ENE/SSE/ESE/etc
         }
-        privmsg($chan,"Weather for $name at ".$data_last[0]." (UTC):");
+        $agestr=":";
+        if ($age>=0)
+        {
+          $agestr=" ~ $age hrs ago:";
+        }
+        privmsg($chan,"Weather for $name at ".$data_last[0]." (UTC)$agestr");
         privmsg($chan,"    temperature = $temp    dewpoint = $dewpoint");
         privmsg($chan,"    barometric pressure = $press    relative humdity = $relhumidity");
         privmsg($chan,"    wind speed = $wind_speed    wind direction = $wind_direction");

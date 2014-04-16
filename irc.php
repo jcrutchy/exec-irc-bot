@@ -54,7 +54,6 @@ for ($i=0;$i<count($data);$i++)
 }
 stream_set_blocking(STDIN,False);
 $fp=fsockopen("irc.sylnt.us",6667);
-stream_set_blocking($fp,False);
 fputs($fp,"NICK ".NICK."\n");
 # USER username hostname servername :realname
 fputs($fp,"USER ".NICK." hostname servername :".NICK."\n");
@@ -194,6 +193,7 @@ while (feof($fp)===False)
   {
     fputs($fp,"NICKSERV identify ".PASSWORD."\n");
   }
+  usleep(10000); # 0.01 second
 }
 
 function doquit($fp)
