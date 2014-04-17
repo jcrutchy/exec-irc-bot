@@ -11,7 +11,7 @@ define("NICK","bacon"); # bacon/coffee/mother
 define("PASSWORD",file_get_contents("test"));
 define("LOG_FILE","log");
 define("EXEC_FILE","exec");
-define("EXEC_DELIM","/");
+define("EXEC_DELIM","|");
 define("TERM_PRIVMSG","privmsg");
 define("CMD_ABOUT","~");
 define("CMD_QUIT","~q");
