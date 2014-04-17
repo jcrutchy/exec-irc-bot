@@ -15,7 +15,6 @@ define("TERM_PRIVMSG","privmsg");
 define("CMD_ABOUT","~");
 define("CMD_QUIT","~q");
 define("CMD_JOIN","~join");
-define("CMD_ADDEXEC","~add");
 define("CMD_RELOADEXEC","~reload");
 define("CHAN_LIST","#test");
 define("VALID_CHARS","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,#_-");
