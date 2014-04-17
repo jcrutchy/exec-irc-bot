@@ -4,7 +4,6 @@
 # by crutchy
 # 17-april-2014
 
-# TODO: allow privmsg to nicks
 # TODO: add script line output limiter
 
 define("NICK","bacon"); # bacon/coffee/mother
@@ -170,47 +169,10 @@ while (feof($fp)===False)
           privmsg($items["chan"],"quit command not permitted by nick \"".$items["nick"]."\"");
         }
         break;
-      /*case CMD_ADDEXEC: # LEAVE COMMENTED OUT UNTIL YOU CAN CHANGE TO CHECK FOR ACCOUNT NAME (USING WHOIS - REFER TO /var/www/slash/git/stuff/vote.php)
-        if (in_array($items["nick"],$admin_nicks)==True) # ADD TIMEOUT
-        {
-          array_shift($params);
-          $line=implode(" ",$params);
-          $auto="";
-          $empty="";
-          $alias="";
-          $cmd="";
-          if (parse_exec($line,$auto,$empty,$alias,$cmd)==True)
-          {
-            $exec_list[$alias]["auto"]=$auto;
-            $exec_list[$alias]["empty"]=$auto;
-            $exec_list[$alias]["cmd"]=$cmd;
-            $out="";
-            foreach ($exec_list as $alias => $arr)
-            {
-              if ($out<>"")
-              {
-                $out=$out."\n";
-              }
-              $out=$out.$exec_list[$alias]["auto"].EXEC_DELIM.$exec_list[$alias]["empty"].EXEC_DELIM.$alias.EXEC_DELIM.$exec_list[$alias]["cmd"];
-            }
-            if (file_put_contents(EXEC_FILE,trim($out))!==False)
-            {
-              privmsg($items["chan"],"exec file successfully saved");
-            }
-            else
-            {
-              privmsg($items["chan"],"error saving exec file");
-            }
-          }
-          else
-          {
-            privmsg($items["chan"],"invalid exec line \"$line\"");
-          }
-        }
-        break;*/
       default:
         process_scripts($items);
     }
+    handle_stdin($items);
   }
   if (strpos($data,"End of /MOTD command")!==False)
   {
@@ -220,6 +182,12 @@ while (feof($fp)===False)
   {
     fputs($fp,"NICKSERV identify ".PASSWORD."\n");
   }
+}
+
+function handle_stdin($items)
+{
+  global $handles;
+  # not sure if i wanna use this
 }
 
 function exec_load(&$exec_list)
@@ -305,7 +273,6 @@ function parse_exec($line,&$timeout,&$auto,&$empty,&$alias,&$cmd)
   {
     return False;
   }
-  # validate timeout
   $timeout=$parts[0]; # seconds
   $auto=$parts[1];
   $empty=$parts[2];
@@ -434,7 +401,8 @@ function process_scripts($items)
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_NICK.TEMPLATE_DELIM,$items["nick"],$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_CHAN.TEMPLATE_DELIM,$items["chan"],$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_START.TEMPLATE_DELIM,START_TIME,$template);
-  $command="exec ".$template;
+  #$command="exec ".$template;
+  $command=$template;
   $cwd=NULL;
   $env=NULL;
   $descriptorspec=array(0=>array("pipe","r"),1=>array("pipe","w"),2=>array("pipe","w"));
