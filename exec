@@ -19,5 +19,3 @@
 
 5|1|1|haskell|runhaskell haskell.hs
 5|1|1|perl|perl perl.pl
-
-10|1|1|echo|php echo.php

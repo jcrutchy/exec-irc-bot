@@ -21,15 +21,15 @@ $i=strpos($html,$delim2);
 
 $def=trim(substr($html,0,$i));
 
-if (strlen($def)<500)
+if (strlen($def)<700)
 {
   if ($def=="")
   {
-    echo "privmsg unable to find definition\n";
+    echo "privmsg $msg: unable to find definition\n";
   }
   else
   {
-    echo "privmsg $def\n";
+    echo "privmsg $msg: $def\n";
   }
 }
 else
