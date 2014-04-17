@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 15-april-2014
+# 17-april-2014
 
 # TODO: instead of PRIVMSG #channel :whatever; you do: PRIVMSG nickname :whatever (don't hardcode channels)
 # TODO: also filter nick and chan before passing to exec (need to figure out which chars a nick can have)
@@ -16,7 +16,9 @@ define("EXEC_DELIM","/");
 define("TERM_PRIVMSG","privmsg");
 define("CMD_ABOUT","~");
 define("CMD_QUIT","~q");
+define("CMD_UPTIME","~up");
 define("CMD_ADDEXEC","~add");
+define("CMD_RELOADEXEC","~reload");
 #define("CHAN_LIST","#test,#sublight,##");
 define("CHAN_LIST","#test");
 define("VALID_CHARS","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,#_-"); # don't accidentally add :;&/\|!
@@ -24,35 +26,15 @@ define("TEMPLATE_DELIM","%%");
 define("TEMPLATE_MSG","msg");
 define("TEMPLATE_NICK","nick");
 define("TEMPLATE_CHAN","chan");
+define("START_TIME",microtime(True));
 set_time_limit(0);
 ini_set("display_errors","on");
 $admin_nicks=array("crutchy");
 $exec_list=array();
-$data=file_get_contents(EXEC_FILE);
-$data=explode("\n",$data);
-for ($i=0;$i<count($data);$i++)
+if (exec_load($exec_list)==False)
 {
-  $line=trim($data[$i]);
-  if ($line=="")
-  {
-    continue;
-  }
-  if (substr($line,0,1)=="#")
-  {
-    continue;
-  }
-  $timeout="";
-  $auto="";
-  $empty="";
-  $alias="";
-  $cmd="";
-  if (parse_exec($line,$timeout,$auto,$empty,$alias,$cmd)==True)
-  {
-    $exec_list[$alias]["timeout"]=$timeout;
-    $exec_list[$alias]["auto"]=$auto;
-    $exec_list[$alias]["empty"]=$empty;
-    $exec_list[$alias]["cmd"]=$cmd;
-  }
+  term_echo("error loading exec");
+  return;
 }
 $fp=fsockopen("irc.sylnt.us",6667);
 fputs($fp,"NICK ".NICK."\n");
@@ -150,11 +132,32 @@ while (feof($fp)===False)
         privmsg($items["chan"],"  by crutchy: https://github.com/crutchy-/test/blob/master/irc.php");
         privmsg($items["chan"],"  visit http://wiki.soylentnews.org/wiki/IRC#bacon.2Fcoffee.2Fmother for more info");
         break;
+      case CMD_UPTIME:
+        $uptime=microtime(True)-START_TIME;
+        privmsg($items["chan"],NICK." uptime: ".round($uptime,1)." sec");
+        break;
       case CMD_QUIT:
         if (in_array($items["nick"],$admin_nicks)==True)
         {
           doquit($fp);
           return;
+        }
+        else
+        {
+          privmsg($items["chan"],"quit command not permitted by nick \"".$items["nick"]."\"");
+        }
+        break;
+      case CMD_RELOADEXEC:
+        if (in_array($items["nick"],$admin_nicks)==True)
+        {
+          if (exec_load($exec_list)==True)
+          {
+            privmsg($items["chan"],"successfully reloaded exec");
+          }
+          else
+          {
+            privmsg($items["chan"],"error reloading exec");
+          }
         }
         else
         {
@@ -211,6 +214,42 @@ while (feof($fp)===False)
   {
     fputs($fp,"NICKSERV identify ".PASSWORD."\n");
   }
+}
+
+function exec_load(&$exec_list)
+{
+  $exec_list=array();
+  $data=file_get_contents(EXEC_FILE);
+  if ($data===False)
+  {
+    return False;
+  }
+  $data=explode("\n",$data);
+  for ($i=0;$i<count($data);$i++)
+  {
+    $line=trim($data[$i]);
+    if ($line=="")
+    {
+      continue;
+    }
+    if (substr($line,0,1)=="#")
+    {
+      continue;
+    }
+    $timeout="";
+    $auto="";
+    $empty="";
+    $alias="";
+    $cmd="";
+    if (parse_exec($line,$timeout,$auto,$empty,$alias,$cmd)==True)
+    {
+      $exec_list[$alias]["timeout"]=$timeout;
+      $exec_list[$alias]["auto"]=$auto;
+      $exec_list[$alias]["empty"]=$empty;
+      $exec_list[$alias]["cmd"]=$cmd;
+    }
+  }
+  return True;
 }
 
 function doquit($fp)
