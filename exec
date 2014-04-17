@@ -8,9 +8,9 @@
 5/0/0/define/php definitions.php "%%msg%%" "%%chan%%" "%%nick%%"
 5/0/0/php/php php.php "%%msg%%"
 5/1/0/smile/php smile.php "%%msg%%"
-5/1/1/lol/fortune -s
-5/1/1/lol-o/fortune -o -s
-5/1/1/lol-a/fortune -a -s
+#5/1/1/lol/fortune -s
+#5/1/1/lol-o/fortune -o -s
+#5/1/1/lol-a/fortune -a -s
 5/1/1/uptime/uptime
 5/1/1/rofl/fortune -o -s
 5/0/1/~up/php up.php "%%start%%"
