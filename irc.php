@@ -4,9 +4,7 @@
 # by crutchy
 # 17-april-2014
 
-# TODO: instead of PRIVMSG #channel :whatever; you do: PRIVMSG nickname :whatever (don't hardcode channels)
-# TODO: also filter nick and chan before passing to exec (need to figure out which chars a nick can have)
-# TODO: escapeshellarg (use base64_encode/decode for any serialized array strings used in future)
+# TODO: allow privmsg to nicks
 
 define("NICK","bacon"); # bacon/coffee/mother
 define("PASSWORD",file_get_contents("test"));
@@ -16,16 +14,16 @@ define("EXEC_DELIM","/");
 define("TERM_PRIVMSG","privmsg");
 define("CMD_ABOUT","~");
 define("CMD_QUIT","~q");
-define("CMD_UPTIME","~up");
+define("CMD_JOIN","~join");
 define("CMD_ADDEXEC","~add");
 define("CMD_RELOADEXEC","~reload");
-#define("CHAN_LIST","#test,#sublight,##");
 define("CHAN_LIST","#test");
-define("VALID_CHARS","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,#_-"); # don't accidentally add :;&/\|!
+define("VALID_CHARS","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,#_-");
 define("TEMPLATE_DELIM","%%");
 define("TEMPLATE_MSG","msg");
 define("TEMPLATE_NICK","nick");
 define("TEMPLATE_CHAN","chan");
+define("TEMPLATE_START","start");
 define("START_TIME",microtime(True));
 set_time_limit(0);
 ini_set("display_errors","on");
@@ -132,10 +130,6 @@ while (feof($fp)===False)
         privmsg($items["chan"],"  by crutchy: https://github.com/crutchy-/test/blob/master/irc.php");
         privmsg($items["chan"],"  visit http://wiki.soylentnews.org/wiki/IRC#bacon.2Fcoffee.2Fmother for more info");
         break;
-      case CMD_UPTIME:
-        $uptime=microtime(True)-START_TIME;
-        privmsg($items["chan"],NICK." uptime: ".round($uptime,1)." sec");
-        break;
       case CMD_QUIT:
         if (in_array($items["nick"],$admin_nicks)==True)
         {
@@ -144,7 +138,18 @@ while (feof($fp)===False)
         }
         else
         {
-          privmsg($items["chan"],"quit command not permitted by nick \"".$items["nick"]."\"");
+          privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
+        }
+        break;
+      case CMD_JOIN:
+        if (in_array($items["nick"],$admin_nicks)==True)
+        {
+          array_shift($params);
+          dojoin($fp,implode(" ",$params));
+        }
+        else
+        {
+          privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
         }
         break;
       case CMD_RELOADEXEC:
@@ -208,7 +213,7 @@ while (feof($fp)===False)
   }
   if (strpos($data,"End of /MOTD command")!==False)
   {
-    fputs($fp,"JOIN ".CHAN_LIST."\n");
+    dojoin($fp,CHAN_LIST);
   }
   if (strpos($data,"You have 60 seconds to identify to your nickname before it is changed.")!==False)
   {
@@ -267,6 +272,11 @@ function doquit($fp)
   fputs($fp,": QUIT\n");
   fclose($fp);
   term_echo("QUITTING SCRIPT");
+}
+
+function dojoin($fp,$chanlist)
+{
+  fputs($fp,"JOIN $chanlist\n");
 }
 
 function pingpong($fp,$data)
@@ -400,25 +410,40 @@ function process_scripts($items)
   }
   array_shift($parts);
   $msg=implode(" ",$parts);
-  $msg=trim(filter_msg($msg));
+  $msg=trim(filter($msg));
+  $nick=trim(filter($items["nick"]));
+  if ($nick<>$items["nick"])
+  {
+    privmsg($items["chan"],"nick contains illegal chars");
+    return;
+  }
+  $chan=trim(filter($items["chan"]));
+  if ($chan<>$items["chan"])
+  {
+    privmsg($items["chan"],"chan contains illegal chars");
+    return;
+  }
   if (($exec_list[$alias]["empty"]==0) and ($msg==""))
   {
+    privmsg($items["chan"],"alias requires additional argument");
     return;
   }
   $template=$exec_list[$alias]["cmd"];
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_MSG.TEMPLATE_DELIM,$msg,$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_NICK.TEMPLATE_DELIM,$items["nick"],$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_CHAN.TEMPLATE_DELIM,$items["chan"],$template);
+  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_START.TEMPLATE_DELIM,START_TIME,$template);
   $command="exec ".$template;
   $cwd=NULL;
   $env=NULL;
   $descriptorspec=array(0=>array("pipe","r"),1=>array("pipe","w"),2=>array("pipe","w"));
+  term_echo($command);
   $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
   stream_set_blocking($pipes[1],0);
   $handles[]=array("process"=>$process,"command"=>$command,"pipe_stdin"=>$pipes[0],"pipe_stdout"=>$pipes[1],"pipe_stderr"=>$pipes[2],"alias"=>$alias,"template"=>$exec_list[$alias]["cmd"],"allow_empty"=>$exec_list[$alias]["empty"],"timeout"=>$exec_list[$alias]["timeout"],"auto_privmsg"=>$exec_list[$alias]["auto"],"nick"=>$items["nick"],"chan"=>$items["chan"]);
 }
 
-function filter_msg($msg)
+function filter($msg)
 {
   $result="";
   for ($i=0;$i<strlen($msg);$i++)
