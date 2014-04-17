@@ -5,6 +5,7 @@
 # 17-april-2014
 
 # TODO: allow privmsg to nicks
+# TODO: add script line output limiter
 
 define("NICK","bacon"); # bacon/coffee/mother
 define("PASSWORD",file_get_contents("test"));
