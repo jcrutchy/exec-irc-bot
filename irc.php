@@ -4,8 +4,8 @@
 # by crutchy
 # 18-april-2014
 
-define("NICK","bacon"); # bacon/coffee/mother/weather
-define("PASSWORD",file_get_contents("test"));
+define("NICK","bacon"); # bacon/coffee/mother/weather/IRCiv
+define("PASSWORD",file_get_contents("../pwd/test"));
 define("LOG_FILE","log");
 define("EXEC_FILE","exec");
 define("EXEC_DELIM","|");
@@ -13,6 +13,7 @@ define("TERM_PRIVMSG","privmsg");
 define("CMD_ABOUT","~");
 define("CMD_QUIT","~q");
 define("CMD_JOIN","~join");
+define("CMD_PART","~part");
 define("CMD_RELOADEXEC","~reload");
 define("CHAN_LIST","#test");
 define("VALID_UPPERCASE","ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -144,6 +145,16 @@ while (feof($fp)===False)
         {
           doquit($fp);
           return;
+        }
+        else
+        {
+          privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
+        }
+        break;
+      case CMD_PART:
+        if (in_array($items["nick"],$admin_nicks)==True)
+        {
+          fputs($fp,"PART ".$items["chan"]."\n");
         }
         else
         {
