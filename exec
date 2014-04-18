@@ -23,3 +23,6 @@
 
 10|0|1|weather|php weather.php %%alias%% %%msg%%
 10|0|1|weather-add|php weather.php %%alias%% %%msg%%
+
+5|0|1|civ|php irciv.php %%alias%% %%nick%% %%msg%%
+5|0|1|civ-add|php irciv.php %%alias%% %%nick%% %%msg%%
