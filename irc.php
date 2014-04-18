@@ -2,11 +2,9 @@
 
 # gpl2
 # by crutchy
-# 17-april-2014
+# 18-april-2014
 
-# TODO: add script line output limiter
-
-define("NICK","bacon"); # bacon/coffee/mother
+define("NICK","bacon"); # bacon/coffee/mother/weather
 define("PASSWORD",file_get_contents("test"));
 define("LOG_FILE","log");
 define("EXEC_FILE","exec");
@@ -17,12 +15,22 @@ define("CMD_QUIT","~q");
 define("CMD_JOIN","~join");
 define("CMD_RELOADEXEC","~reload");
 define("CHAN_LIST","#test");
-define("VALID_CHARS","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,#_");
+define("VALID_UPPERCASE","ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+define("VALID_LOWERCASE","abcdefghijklmnopqrstuvwxyz");
+define("VALID_NUMERIC","0123456789");
+define("VALID_SPECIAL_MSG"," .,#_'");
+define("VALID_SPECIAL_ALIAS","-");
+define("VALID_NICK",VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC.VALID_SPECIAL_MSG);
+define("VALID_CHAN",VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC.VALID_SPECIAL_MSG);
+define("VALID_MSG",VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC.VALID_SPECIAL_MSG);
+define("VALID_ALIAS",VALID_LOWERCASE.VALID_SPECIAL_ALIAS);
 define("TEMPLATE_DELIM","%%");
 define("TEMPLATE_MSG","msg");
 define("TEMPLATE_NICK","nick");
 define("TEMPLATE_CHAN","chan");
 define("TEMPLATE_START","start");
+define("TEMPLATE_ALIAS","alias");
+define("MAX_PRIVMSG_LENGTH",500);
 define("START_TIME",microtime(True));
 set_time_limit(0);
 ini_set("display_errors","on");
@@ -361,6 +369,7 @@ function privmsg($chan,$msg)
     term_echo("No text to send.");
     return;
   }
+  $msg=substr($msg,0,MAX_PRIVMSG_LENGTH);
   fputs($fp,":".NICK." PRIVMSG $chan :$msg\r\n");
   term_echo($msg);
 }
@@ -370,21 +379,20 @@ function process_scripts($items)
   global $handles;
   global $exec_list;
   $parts=explode(" ",$items["msg"]);
-  $alias=$parts[0];
+  $alias=filter_alias(trim($parts[0]));
   if (isset($exec_list[$alias])==False)
   {
     return;
   }
   array_shift($parts);
-  $msg=implode(" ",$parts);
-  $msg=trim(filter($msg));
-  $nick=trim(filter($items["nick"]));
+  $msg=filter_msg(trim(implode(" ",$parts)));
+  $nick=filter_nick(trim($items["nick"]));
+  $chan=filter_chan(trim($items["chan"]));
   if ($nick<>$items["nick"])
   {
     privmsg($items["chan"],"nick contains illegal chars");
     return;
   }
-  $chan=trim(filter($items["chan"]));
   if ($chan<>$items["chan"])
   {
     privmsg($items["chan"],"chan contains illegal chars");
@@ -396,11 +404,12 @@ function process_scripts($items)
     return;
   }
   $template=$exec_list[$alias]["cmd"];
-  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_MSG.TEMPLATE_DELIM,$msg,$template);
-  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_NICK.TEMPLATE_DELIM,$items["nick"],$template);
-  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_CHAN.TEMPLATE_DELIM,$items["chan"],$template);
-  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_START.TEMPLATE_DELIM,START_TIME,$template);
-  #$command="exec ".$template;
+  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_MSG.TEMPLATE_DELIM,escapeshellarg($msg),$template);
+  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_NICK.TEMPLATE_DELIM,escapeshellarg($nick),$template);
+  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_CHAN.TEMPLATE_DELIM,escapeshellarg($chan),$template);
+  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_START.TEMPLATE_DELIM,escapeshellarg(START_TIME),$template);
+  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_ALIAS.TEMPLATE_DELIM,escapeshellarg($alias),$template);
+  $command="exec ".$template;
   $command=$template;
   $cwd=NULL;
   $env=NULL;
@@ -411,12 +420,32 @@ function process_scripts($items)
   $handles[]=array("process"=>$process,"command"=>$command,"pipe_stdin"=>$pipes[0],"pipe_stdout"=>$pipes[1],"pipe_stderr"=>$pipes[2],"alias"=>$alias,"template"=>$exec_list[$alias]["cmd"],"allow_empty"=>$exec_list[$alias]["empty"],"timeout"=>$exec_list[$alias]["timeout"],"auto_privmsg"=>$exec_list[$alias]["auto"],"nick"=>$items["nick"],"chan"=>$items["chan"]);
 }
 
-function filter($msg)
+function filter_nick($nick)
+{
+  return filter($nick,VALID_NICK);
+}
+
+function filter_chan($chan)
+{
+  return filter($chan,VALID_CHAN);
+}
+
+function filter_msg($msg)
+{
+  return filter($msg,VALID_MSG);
+}
+
+function filter_alias($alias)
+{
+  return filter($alias,VALID_ALIAS);
+}
+
+function filter($msg,$whitelist)
 {
   $result="";
   for ($i=0;$i<strlen($msg);$i++)
   {
-    if (strpos(VALID_CHARS,$msg[$i])!==False)
+    if (strpos($whitelist,$msg[$i])!==False)
     {
       $result=$result.$msg[$i];
     }

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 14-april-2014
+# 18-april-2014
 
 # weather request, Spirit Of Saint Louis, Missouri (38.7°N/90.7°W), Updated: 1:54 PM CST (December 23, 2013), Conditions: Mostly Cloudy, Temperature: 26°F (-3.3°C), Windchill: 16°F (-9°C), High/Low: 26/9°F (-3.3/-12.8°C), UV: 1/16, Humidity: 66%, Dew Point: 16°F (-8.9°C), Pressure: 30.51 in/1033 hPa, Wind: WNW at 10 MPH (17 KPH)
 
@@ -18,202 +18,57 @@
 # TODO: registered nick personalised settings (units, default location, private msg, formatting, etc)
 # TODO: delete codes
 
-# TODO: get registered nicks through mother, pass privmsgs and termmsgs to mother, and remove all irc-related stuff
-
-$pwd=file_get_contents("weather.pwd");
-define("NICK","weather");
-define("PASSWORD",$pwd);
-unset($pwd);
-define("LOG_FILE","weather.log");
 define("CODES_FILE","weather.codes");
-define("CMD_QUIT","~quit");
-define("CMD_WEATHER","weather");
-define("CMD_ADDCODE","weather-add");
-define("CHAN_LIST","#test,##,#soylent");
-#define("CHAN_LIST","#test");
 define("SEDBOT_EXCLUDE_PREFIX","for ");
-set_time_limit(0);
 ini_set("display_errors","on");
 $codes=unserialize(file_get_contents(CODES_FILE));
-$fp=fsockopen("irc.sylnt.us",6667);
-fputs($fp,"NICK ".NICK."\n");
-fputs($fp,"USER ".NICK." * ".NICK." :".NICK."\n");
-while (feof($fp)===False)
+$parts=explode(" ",$argv[2]);
+switch ($argv[1])
 {
-  $data=fgets($fp);
-  if ($data===False)
-  {
-    continue;
-  }
-  if (pingpong($fp,$data)==True)
-  {
-    continue;
-  }
-  echo $data;
-  $items=parse_data($data);
-  if ($items!==False)
-  {
-    append_log($items);
-    $params=explode(" ",$items["msg"]);
-    switch (strtolower($params[0]))
+  case "weather-add":
+    if (count($parts)>1)
     {
-      case CMD_QUIT:
-        if ($items["nick"]=="crutchy")
-        {
-          fputs($fp,": QUIT\n");
-          fclose($fp);
-          term_echo("QUITTING SCRIPT");
-          return;
-        }
-        break;
-      case CMD_ADDCODE:
-        if (count($params)>2)
-        {
-          $code=$params[1];
-          unset($params[0]);
-          unset($params[1]);
-          $codes[$code]=trim(implode(" ",$params));
-          if (file_put_contents(CODES_FILE,serialize($codes))===False)
-          {
-            privmsg($items["chan"],"code \"$code\" set for location \"".$codes[$code]."\" but there was an error writing the codes file");
-          }
-          else
-          {
-            privmsg($items["chan"],"code \"$code\" set for location \"".$codes[$code]."\"");
-          }
-        }
-        break;
-      case CMD_WEATHER:
-        unset($params[0]);
-        $location=trim(implode(" ",$params));
-        if ($location<>"")
-        {
-          if (strtolower(substr($location,0,strlen(SEDBOT_EXCLUDE_PREFIX)))<>SEDBOT_EXCLUDE_PREFIX)
-          {
-            process_weather($location,$items["chan"]);
-          }
-        }
-        else
-        {
-          privmsg($items["chan"],"SOYLENT IRC WEATHER INFORMATION BOT");
-          privmsg($items["chan"],"  usage: \"weather location\" (visit http://wiki.soylentnews.org/wiki/IRC#weather for more info)");
-          privmsg($items["chan"],"  data courtesy of the APRS Citizen Weather Observer Program (CWOP) @ http://weather.gladstonefamily.net/");
-          privmsg($items["chan"],"  by crutchy: https://github.com/crutchy-/test/blob/master/weather.php");
-        }
-        break;
-      default:
-        {
-        }
+      $code=trim($parts[0]);
+      array_shift($parts);
+      $location=trim(implode(" ",$parts));
+      $codes[$code]=$location;
+      if (file_put_contents(CODES_FILE,serialize($codes))===False)
+      {
+        privmsg("code \"$code\" set for location \"".$codes[$code]."\" but there was an error writing the codes file");
+      }
+      else
+      {
+        privmsg("code \"$code\" set for location \"".$codes[$code]."\"");
+      }
     }
-  }
-  if (strpos($data,"End of /MOTD command")!==False)
-  {
-    fputs($fp,"JOIN ".CHAN_LIST."\n");
-  }
-  if (strpos($data,"You have 60 seconds to identify to your nickname before it is changed.")!==False)
-  {
-    fputs($fp,"NICKSERV identify ".PASSWORD."\n");
-  }
-  usleep(10000); # 0.01 second
-}
-
-function pingpong($fp,$data)
-{
-  $parts=explode(" ",$data);
-  if (count($parts)>1)
-  {
-    if ($parts[0]=="PING")
+    break;
+  case "weather":
+    $location=trim($argv[2]);
+    if ($location<>"")
     {
-      fputs($fp,"PONG ".$parts[1]."\n");
-      return True;
+      if (strtolower(substr($location,0,strlen(SEDBOT_EXCLUDE_PREFIX)))<>SEDBOT_EXCLUDE_PREFIX)
+      {
+        process_weather($location);
+      }
     }
-  }
-  return False;
-}
+    else
+    {
+      privmsg("SOYLENT IRC WEATHER INFORMATION BOT");
+      privmsg("  usage: \"weather location\" (visit http://wiki.soylentnews.org/wiki/IRC#weather for more info)");
+      privmsg("  data courtesy of the APRS Citizen Weather Observer Program (CWOP) @ http://weather.gladstonefamily.net/");
+      privmsg("  by crutchy: https://github.com/crutchy-/test/blob/master/weather.php");
+    }
+    break;
+ }
 
-function append_log($items)
+function privmsg($msg)
 {
-  $data=serialize($items);
-  if ($data===False)
-  {
-    term_echo("Error serializing log items.");
-    return;
-  }
-  if (file_put_contents(LOG_FILE,$data."\n",FILE_APPEND)===False)
-  {
-    term_echo("Error appending log file \"".LOG_FILE."\".");
-  }
+  echo "privmsg $msg\n";
 }
 
 function term_echo($msg)
 {
-  echo "\033[1;31m$msg\033[0m\n";
-}
-
-function parse_data($data)
-{
-  # :nick!addr PRIVMSG chan :msg
-  $result=array();
-  if ($data=="")
-  {
-    return False;
-  }
-  if ($data[0]<>":")
-  {
-    return False;
-  }
-  $i=strpos($data," :");
-  $result["msg"]=trim(substr($data,$i+2));
-  if ($result["msg"]=="")
-  {
-    return False;
-  }
-  $sub=substr($data,1,$i-1);
-  $i=strpos($sub,"!");
-  $result["nick"]=substr($sub,0,$i);
-  if (($result["nick"]=="") or ($result["nick"]==NICK))
-  {
-    return False;
-  }
-  $sub=substr($sub,$i+1);
-  $i=strpos($sub," ");
-  $result["addr"]=substr($sub,0,$i);
-  if ($result["addr"]=="")
-  {
-    return False;
-  }
-  $sub=substr($sub,$i+1);
-  $i=strpos($sub," ");
-  $cmd=substr($sub,0,$i);
-  if ($cmd<>"PRIVMSG")
-  {
-    return False;
-  }
-  $result["chan"]=substr($sub,$i+1);
-  if ($result["chan"]=="")
-  {
-    return False;
-  }
-  $result["microtime"]=microtime(True);
-  $result["time"]=date("Y-m-d H:i:s",$result["microtime"]);
-  return $result;
-}
-
-function privmsg($chan,$msg)
-{
-  global $fp;
-  if ($chan=="")
-  {
-    term_echo("Channel not specified.");
-    return;
-  }
-  if ($msg=="")
-  {
-    term_echo("No text to send.");
-    return;
-  }
-  fputs($fp,":".NICK." PRIVMSG $chan :$msg\r\n");
-  term_echo($msg);
+  echo "$msg\n";
 }
 
 function wget($host,$uri,$port)
@@ -234,7 +89,7 @@ function wget($host,$uri,$port)
   return $response;
 }
 
-function process_weather($location,$chan)
+function process_weather($location)
 {
   global $codes;
   if (isset($codes[$location])==True)
@@ -249,7 +104,7 @@ function process_weather($location,$chan)
   $search=wget("weather.gladstonefamily.net","/site/search?site=".urlencode($loc)."&search=Search",80);
   if (strpos($search,"Pick one of the following")===False)
   {
-    privmsg($chan,"Weather for \"$loc\" not found. Check spelling or try another nearby location.");
+    privmsg("Weather for \"$loc\" not found. Check spelling or try another nearby location.");
     return;
   }
   $parts=explode("<li>",$search);
@@ -372,15 +227,15 @@ function process_weather($location,$chan)
         {
           $agestr=" ~ $age hrs ago:";
         }
-        privmsg($chan,"Weather for $name at ".$data_last[0]." (UTC)$agestr");
-        privmsg($chan,"    temperature = $temp    dewpoint = $dewpoint");
-        privmsg($chan,"    barometric pressure = $press    relative humdity = $relhumidity");
-        privmsg($chan,"    wind speed = $wind_speed    wind direction = $wind_direction");
+        privmsg("Weather for $name at ".$data_last[0]." (UTC)$agestr");
+        privmsg("    temperature = $temp    dewpoint = $dewpoint");
+        privmsg("    barometric pressure = $press    relative humdity = $relhumidity");
+        privmsg("    wind speed = $wind_speed    wind direction = $wind_direction");
         return;
       }
     }
   }
-  privmsg($chan,"All stations matching \"$loc\" are either inactive or have no data. Check spelling or try another nearby location.");
+  privmsg("All stations matching \"$loc\" are either inactive or have no data. Check spelling or try another nearby location.");
 }
 
 ?>
