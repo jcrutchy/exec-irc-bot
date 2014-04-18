@@ -16,7 +16,7 @@
 #5|1|1|lol-a|fortune -a -s
 5|1|1|uptime|uptime
 5|1|1|rofl|fortune -o -s
-5|0|1|~up|php up.php %%start%%
+5|0|1|bacon-up|php up.php %%start%%
 
 5|1|1|haskell|runhaskell haskell.hs
 5|1|1|perl|perl perl.pl
