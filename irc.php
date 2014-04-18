@@ -17,7 +17,7 @@ define("CMD_QUIT","~q");
 define("CMD_JOIN","~join");
 define("CMD_RELOADEXEC","~reload");
 define("CHAN_LIST","#test");
-define("VALID_CHARS","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,#_-");
+define("VALID_CHARS","ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,#_");
 define("TEMPLATE_DELIM","%%");
 define("TEMPLATE_MSG","msg");
 define("TEMPLATE_NICK","nick");
