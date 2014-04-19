@@ -2,9 +2,9 @@
 
 # gpl2
 # by crutchy
-# 18-april-2014
+# 19-april-2014
 
-define("NICK","bacon"); # bacon/coffee/mother/weather/IRCiv
+define("NICK","coffee"); # bacon/coffee/mother/weather/IRCiv
 define("PASSWORD",file_get_contents("../pwd/test"));
 define("LOG_FILE","log");
 define("EXEC_FILE","exec");
@@ -37,6 +37,7 @@ define("MAX_PRIVMSG_LENGTH",500);
 define("START_TIME",microtime(True));
 set_time_limit(0);
 ini_set("display_errors","on");
+date_default_timezone_set("UTC");
 $admin_nicks=array("crutchy");
 $exec_list=array();
 if (exec_load($exec_list)==False)
@@ -71,7 +72,14 @@ while (feof($fp)===False)
             {
               $msg=substr($msg,strlen(TERM_PRIVMSG)+1);
             }
-            privmsg($handles[$i]["chan"],$msg);
+            if (substr($handles[$i]["chan"],0,1)=="#")
+            {
+              privmsg($handles[$i]["chan"],$msg);
+            }
+            else
+            {
+              privmsg($handles[$i]["nick"],$msg);
+            }
           }
           else
           {
@@ -86,7 +94,10 @@ while (feof($fp)===False)
         {
           $terminated=True;
           $return_value=proc_close($handles[$i]["process"]);
-          term_echo("process terminated normally");
+          if ($handles[$i]["alias"]<>"*")
+          {
+            term_echo("process terminated normally");
+          }
           break;
         }
         if ((microtime(True)-$start)>$timeout)
@@ -191,8 +202,8 @@ while (feof($fp)===False)
         break;
       default:
         process_scripts($items);
+        process_scripts($items,True);
     }
-    handle_stdin($items);
   }
   if (strpos($data,"End of /MOTD command")!==False)
   {
@@ -202,12 +213,6 @@ while (feof($fp)===False)
   {
     fputs($fp,"NICKSERV identify ".PASSWORD."\n");
   }
-}
-
-function handle_stdin($items)
-{
-  global $handles;
-  # not sure if i wanna use this
 }
 
 function exec_load(&$exec_list)
@@ -387,18 +392,26 @@ function privmsg($chan,$msg)
   term_echo($msg);
 }
 
-function process_scripts($items)
+function process_scripts($items,$doall=False)
 {
   global $handles;
   global $exec_list;
-  $parts=explode(" ",$items["msg"]);
-  $alias=filter_alias(trim($parts[0]));
-  if (isset($exec_list[$alias])==False)
+  if ($doall==False)
   {
-    return;
+    $parts=explode(" ",$items["msg"]);
+    $alias=filter_alias(trim($parts[0]));
+    if (isset($exec_list[$alias])==False)
+    {
+      return;
+    }
+    array_shift($parts);
+    $msg=filter_msg(trim(implode(" ",$parts)));
   }
-  array_shift($parts);
-  $msg=filter_msg(trim(implode(" ",$parts)));
+  else
+  {
+    $alias="*";
+    $msg=$items["msg"];
+  }
   $nick=filter_nick(trim($items["nick"]));
   $chan=filter_chan(trim($items["chan"]));
   if ($nick<>$items["nick"])
@@ -427,7 +440,10 @@ function process_scripts($items)
   $cwd=NULL;
   $env=NULL;
   $descriptorspec=array(0=>array("pipe","r"),1=>array("pipe","w"),2=>array("pipe","w"));
-  term_echo($command);
+  if ($alias<>"*")
+  {
+    term_echo($command);
+  }
   $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
   stream_set_blocking($pipes[1],0);
   $handles[]=array("process"=>$process,"command"=>$command,"pipe_stdin"=>$pipes[0],"pipe_stdout"=>$pipes[1],"pipe_stderr"=>$pipes[2],"alias"=>$alias,"template"=>$exec_list[$alias]["cmd"],"allow_empty"=>$exec_list[$alias]["empty"],"timeout"=>$exec_list[$alias]["timeout"],"auto_privmsg"=>$exec_list[$alias]["auto"],"nick"=>$items["nick"],"chan"=>$items["chan"]);

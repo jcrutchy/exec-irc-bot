@@ -8,14 +8,11 @@
 5|1|1|moo|apt-get moo
 5|1|1|fortune|fortune -s
 5|1|1|cowsay-fortune|sh cowsay-fortune.sh
-5|0|0|define|php definitions.php %%msg%%
+10|0|0|define|php definitions.php %%msg%%
 5|0|0|php|php php.php %%msg%%
 5|1|0|smile|php smile.php %%msg%%
-#5|1|1|lol|fortune -s
-#5|1|1|lol-o|fortune -o -s
-#5|1|1|lol-a|fortune -a -s
 5|1|1|uptime|uptime
-5|1|1|rofl|fortune -o -s
+5|1|1|rofl|fortune -s
 5|0|1|bacon-up|php up.php %%start%%
 
 5|1|1|haskell|runhaskell haskell.hs
@@ -24,5 +21,7 @@
 10|0|1|weather|php weather.php %%alias%% %%msg%%
 10|0|1|weather-add|php weather.php %%alias%% %%msg%%
 
-5|0|1|civ|php irciv.php %%alias%% %%nick%% %%msg%%
-5|0|1|civ-add|php irciv.php %%alias%% %%nick%% %%msg%%
+5|0|1|civ|php irciv/irciv.php %%nick%% %%msg%%
+
+# EXEC ON ALL LINES (ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
+5|0|0|*|php grab.php %%msg%% %%nick%%

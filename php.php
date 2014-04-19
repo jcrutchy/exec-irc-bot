@@ -2,13 +2,15 @@
 
 # gpl2
 # by crutchy
-# 16-april-2014
+# 18-april-2014
 
-# 0/0/php/php php.php "%%msg%%"
+# 5|0|0|php|php php.php %%msg%%
+
+# thanks to prospectacle for link to download doc files
 
 $msg=$argv[1];
 $msg=str_replace("_","-",$msg);
-$html=wget("www.php.net","/manual/en/function.$msg.php",80);
+$html=file_get_contents("/var/www/slash/git/test/php_manual/php-chunked-xhtml/function.".$msg.".html");
 $delim1="<div class=\"methodsynopsis dc-description\">";
 $delim2="<p class=\"para rdfs-comment\">";
 $i=strpos($html,$delim1);
@@ -40,24 +42,6 @@ if (strlen($syntax)<500)
   {
     echo "privmsg $syntax\n";
   }
-}
-
-function wget($host,$uri,$port)
-{
-  $fp=fsockopen($host,$port);
-  if ($fp===False)
-  {
-    term_echo("Error connecting to \"$host\".");
-    return;
-  }
-  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
-  $response="";
-  while (!feof($fp))
-  {
-    $response=$response.fgets($fp,1024);
-  }
-  fclose($fp);
-  return $response;
 }
 
 ?>

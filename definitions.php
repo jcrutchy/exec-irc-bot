@@ -2,9 +2,9 @@
 
 # gpl2
 # by crutchy
-# 15-april-2014
+# 20-april-2014
 
-# 0/0/define/php definitions.php "%%msg%%" "%%chan%%" "%%nick%%"
+# 10|0|0|define|php definitions.php %%msg%%
 
 $msg=$argv[1];
 
