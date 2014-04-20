@@ -6,7 +6,7 @@
 
 # dangerous shell arg characters:   ;&|><*?`$(){}[]!#
 
-define("NICK","exec"); # bacon/coffee/mother/weather/IRCiv/exec
+define("NICK","exec"); # bacon/weather/IRCiv/exec
 define("PASSWORD",file_get_contents("../pwd/".NICK));
 define("LOG_FILE","log");
 define("EXEC_FILE","exec");
