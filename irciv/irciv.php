@@ -21,7 +21,6 @@
 
 # TODO:
 # - put data files on web server (read-only) so that anyone can draw maps, display info, etc
-# - use password_hash function
 # - intended to use a query window (private message to server nick) to send commands, typing "password command", or from a public channel typing "/msg servernick password command"
 
 # /msg exec civ crutchy insert player test@test.com
@@ -78,6 +77,7 @@ if (isset($parts[1])==True)
             {
               $email=$parts[3];
               db_players__insert($nick,$pwd,$email);
+              irciv__privmsg("player \"$nick\" added");
             }
             break;
         }
