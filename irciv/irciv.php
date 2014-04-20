@@ -6,26 +6,7 @@
 
 # irciv.php
 
-#####################################################################################################
-
 # exec line: 5|0|1|civ|php irciv.php %%nick%% %%msg%%
-
-# messages are sent privately to irc bot (to avoid pwd visibility)
-# %%msg%%: pwd action (action operated on currently highlighted unit)
-# cmd: add|edit|delete|move
-
-# IRCiv
-# real-time play-by-irc civilization-building game
-# aim: to build a civilization, make money, fend off enemies to maintain borders, expand, etc
-# (similar to other civilization-branded games)
-
-# TODO:
-# - put data files on web server (read-only) so that anyone can draw maps, display info, etc
-# - intended to use a query window (private message to server nick) to send commands, typing "password command", or from a public channel typing "/msg servernick password command"
-
-# /msg exec civ crutchy insert player test@test.com
-
-# http://civ.dev/
 
 #####################################################################################################
 

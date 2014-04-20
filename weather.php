@@ -173,7 +173,7 @@ function process_weather($location)
           $delta_str="";
           if (($dt>0) and ($data_first[1]<>""))
           {
-            $d=round($data_first[1]-$data_last[1],1);
+            $d=round($data_last[1]-$data_first[1],1);
             $delta_str=" ~ change of $d mb over past $dt hrs"; # TODO: remove "past"
           }
           $pressmb=round($data_last[1],1);
