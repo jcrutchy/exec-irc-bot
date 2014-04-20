@@ -2,10 +2,10 @@
 
 # gpl2
 # by crutchy
-# 19-april-2014
+# 20-april-2014
 
-define("NICK","coffee"); # bacon/coffee/mother/weather/IRCiv
-define("PASSWORD",file_get_contents("../pwd/test"));
+define("NICK","exec"); # bacon/coffee/mother/weather/IRCiv/exec
+define("PASSWORD",file_get_contents("../pwd/".NICK));
 define("LOG_FILE","log");
 define("EXEC_FILE","exec");
 define("EXEC_DELIM","|");
@@ -14,6 +14,8 @@ define("CMD_ABOUT","~");
 define("CMD_QUIT","~q");
 define("CMD_JOIN","~join");
 define("CMD_PART","~part");
+define("CMD_HELP","~help");
+define("CMD_EXEC","~exec");
 define("CMD_RELOADEXEC","~reload");
 define("CHAN_LIST","#test");
 define("VALID_UPPERCASE","ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -34,6 +36,8 @@ define("TEMPLATE_CHAN","chan");
 define("TEMPLATE_START","start");
 define("TEMPLATE_ALIAS","alias");
 define("MAX_PRIVMSG_LENGTH",500);
+define("IGNORE_TIME",20); # seconds
+define("DELTA_TOLERANCE",0.5); # seconds
 define("START_TIME",microtime(True));
 set_time_limit(0);
 ini_set("display_errors","on");
@@ -49,6 +53,7 @@ $fp=fsockopen("irc.sylnt.us",6667);
 fputs($fp,"NICK ".NICK."\n");
 fputs($fp,"USER ".NICK." hostname servername :".NICK."\n");
 $handles=array();
+$time_deltas=array();
 while (feof($fp)===False)
 {
   $n=count($handles);
@@ -143,66 +148,87 @@ while (feof($fp)===False)
   if ($items!==False)
   {
     append_log($items);
-    $params=explode(" ",$items["msg"]);
-    switch (strtolower($params[0]))
+    if (check_nick($items["nick"])==True)
     {
-      case CMD_ABOUT:
-        privmsg($items["chan"],"IRC SCRIPT EXECUTIVE");
-        privmsg($items["chan"],"  by crutchy: https://github.com/crutchy-/test/blob/master/irc.php");
-        privmsg($items["chan"],"  visit http://wiki.soylentnews.org/wiki/IRC#bacon.2Fcoffee.2Fmother for more info");
-        break;
-      case CMD_QUIT:
-        if (in_array($items["nick"],$admin_nicks)==True)
-        {
-          doquit($fp);
-          return;
-        }
-        else
-        {
-          privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
-        }
-        break;
-      case CMD_PART:
-        if (in_array($items["nick"],$admin_nicks)==True)
-        {
-          fputs($fp,"PART ".$items["chan"]."\n");
-        }
-        else
-        {
-          privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
-        }
-        break;
-      case CMD_JOIN:
-        if (in_array($items["nick"],$admin_nicks)==True)
-        {
-          array_shift($params);
-          dojoin($fp,implode(" ",$params));
-        }
-        else
-        {
-          privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
-        }
-        break;
-      case CMD_RELOADEXEC:
-        if (in_array($items["nick"],$admin_nicks)==True)
-        {
-          if (exec_load($exec_list)==True)
+      $params=explode(" ",$items["msg"]);
+      switch (strtolower($params[0]))
+      {
+        case CMD_ABOUT:
+          if (count($params)==1)
           {
-            privmsg($items["chan"],"successfully reloaded exec");
+            about($items["chan"]);
+          }
+          break;
+        case CMD_HELP:
+          if (count($params)==1)
+          {
+            about($items["chan"]);
+          }
+          break;
+        case CMD_QUIT:
+          if (in_array($items["nick"],$admin_nicks)==True)
+          {
+            doquit($fp);
+            return;
           }
           else
           {
-            privmsg($items["chan"],"error reloading exec");
+            privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
           }
-        }
-        else
-        {
-          privmsg($items["chan"],"quit command not permitted by nick \"".$items["nick"]."\"");
-        }
-        break;
-      default:
-        process_scripts($items);
-        process_scripts($items,True);
+          break;
+        case CMD_PART:
+          if (in_array($items["nick"],$admin_nicks)==True)
+          {
+            fputs($fp,"PART ".$items["chan"]."\n");
+          }
+          else
+          {
+            privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
+          }
+          break;
+        case CMD_JOIN:
+          if (in_array($items["nick"],$admin_nicks)==True)
+          {
+            array_shift($params);
+            dojoin($fp,implode(" ",$params));
+          }
+          else
+          {
+            privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
+          }
+          break;
+        case CMD_RELOADEXEC:
+          if (in_array($items["nick"],$admin_nicks)==True)
+          {
+            if (exec_load($exec_list)==True)
+            {
+              privmsg($items["chan"],"successfully reloaded exec");
+            }
+            else
+            {
+              privmsg($items["chan"],"error reloading exec");
+            }
+          }
+          else
+          {
+            privmsg($items["chan"],"quit command not permitted by nick \"".$items["nick"]."\"");
+          }
+          break;
+        case CMD_EXEC:
+            privmsg($items["chan"],"timeout".EXEC_DELIM."auto-privmsg".EXEC_DELIM."empty-msg-allowed".EXEC_DELIM."alias".EXEC_DELIM."cmd");
+            if (isset($params[1])==True)
+            {
+              if (isset($exec_list[$params[1]])==True)
+              {
+                $exec=$exec_list[$params[1]];
+                privmsg($items["chan"],$exec["timeout"].EXEC_DELIM.$exec["auto"].EXEC_DELIM.$exec["empty"].EXEC_DELIM.$params[1].EXEC_DELIM.$exec["cmd"]);
+              }
+            }
+          break;
+        default:
+          process_scripts($items);
+          process_scripts($items,True);
+      }
     }
   }
   if (strpos($data,"End of /MOTD command")!==False)
@@ -213,6 +239,15 @@ while (feof($fp)===False)
   {
     fputs($fp,"NICKSERV identify ".PASSWORD."\n");
   }
+}
+
+function about($chan)
+{
+  privmsg($chan,"IRC SCRIPT EXECUTIVE");
+  usleep(0.3*1e6);
+  privmsg($chan,"  by crutchy: https://github.com/crutchy-/test/blob/master/irc.php");
+  usleep(0.3*1e6);
+  privmsg($chan,"  visit http://wiki.soylentnews.org/wiki/IRC#exec for more info");
 }
 
 function exec_load(&$exec_list)
@@ -480,6 +515,42 @@ function filter($msg,$whitelist)
     }
   }
   return $result;
+}
+
+function check_nick($nick)
+{
+  global $time_deltas;
+  $lnick=strtolower($nick);
+  if (isset($time_deltas[$lnick]["time"])==False)
+  {
+    $time_deltas[$lnick]["time"]=microtime(True);
+    $time_deltas[$lnick]["last_delta"]=0;
+    return True;
+  }
+  $last_delta=$time_deltas[$lnick]["last_delta"];
+  $this_delta=microtime(True)-$time_deltas[$lnick]["time"];
+  $time_deltas[$lnick]["last_delta"]=$this_delta;
+  if (abs($last_delta-$this_delta)<DELTA_TOLERANCE)
+  {
+    $time_deltas[$lnick]["last"]["ban_start"]=microtime(True);
+    term_echo("NICK \"$nick\" IGNORED FOR ".IGNORE_TIME." SECONDS");
+  }
+  else
+  {
+    if (isset($time_deltas[$lnick]["last"]["ban_start"])==True)
+    {
+      if ((microtime(True)-$time_deltas[$lnick]["last"]["ban_start"])>=IGNORE_TIME)
+      {
+        unset($time_deltas[$lnick]["last"]["ban_start"]);
+        term_echo("IGNORE CLEARED FOR NICK \"$nick\"");
+      }
+    }
+  }
+  if (isset($time_deltas[$lnick]["last"]["ban_start"])==True)
+  {
+    return False;
+  }
+  return True;
 }
 
 ?>
