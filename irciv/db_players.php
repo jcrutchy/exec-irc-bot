@@ -50,7 +50,7 @@ function db_players__update($nick,$pwd,$email)
 
 function db_players__delete($nick)
 {
-  db__delete("players","player_id","nick",$nick);
+  db__delete("players","nick",$nick);
 }
 
 #####################################################################################################

@@ -49,7 +49,7 @@ function db__get($table,$get_field,$unique_field,$unique_value)
 
 #####################################################################################################
 
-function db__delete($table,$id_field,$unique_field,$unique_value)
+function db__delete($table,$unique_field,$unique_value)
 {
   global $pdo;
   $sql="DELETE FROM ".DB_SCHEMA.".$table WHERE ($unique_field=:db_$unique_field)";

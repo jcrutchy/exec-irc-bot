@@ -28,7 +28,7 @@ function db_games__insert($name)
 
 function db_games__delete($name)
 {
-  db__delete("games","game_id","name",$name);
+  db__delete("games","name",$name);
 }
 
 #####################################################################################################
