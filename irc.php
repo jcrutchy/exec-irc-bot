@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 20-april-2014
+# 21-april-2014
 
 # dangerous shell arg characters:   ;&|><*?`$(){}[]!#
 
@@ -18,6 +18,8 @@ define("CMD_JOIN","~join");
 define("CMD_PART","~part");
 define("CMD_HELP","~help");
 define("CMD_EXEC","~exec");
+define("CMD_LOCK","~lock");
+define("CMD_UNLOCK","~unlock");
 define("CMD_RELOADEXEC","~reload");
 define("CHAN_LIST","#test");
 define("TEMPLATE_DELIM","%%");
@@ -28,13 +30,15 @@ define("TEMPLATE_START","start");
 define("TEMPLATE_ALIAS","alias");
 define("MAX_PRIVMSG_LENGTH",500);
 define("IGNORE_TIME",20); # seconds
-define("DELTA_TOLERANCE",0.5); # seconds
+define("DELTA_TOLERANCE",1.5); # seconds
 define("START_TIME",microtime(True));
 set_time_limit(0);
 ini_set("display_errors","on");
 date_default_timezone_set("UTC");
 $admin_nicks=array("crutchy");
+$cmd_list=array(CMD_ABOUT,CMD_QUIT,CMD_JOIN,CMD_PART,CMD_HELP,CMD_EXEC,CMD_RELOADEXEC);
 $exec_list=array();
+$alias_locks=array();
 if (exec_load($exec_list)==False)
 {
   term_echo("error loading exec");
@@ -139,24 +143,41 @@ while (feof($fp)===False)
   if ($items!==False)
   {
     append_log($items);
-    if (check_nick($items["nick"])==True)
+    $params=explode(" ",$items["msg"]);
+    switch (strtolower($params[0]))
     {
-      $params=explode(" ",$items["msg"]);
-      switch (strtolower($params[0]))
-      {
-        case CMD_ABOUT:
-          if (count($params)==1)
+      case CMD_ABOUT:
+        if ((count($params)==1) and (check_nick($items["nick"],CMD_ABOUT)==True))
+        {
+          about($items["chan"]);
+        }
+        break;
+      case CMD_HELP:
+        if ((count($params)==1) and (check_nick($items["nick"],CMD_HELP)==True))
+        {
+          about($items["chan"]);
+        }
+        break;
+      case CMD_UNLOCK:
+        if ((count($params)==1) and (check_nick($items["nick"],CMD_UNLOCK)==True))
+        {
+          if (isset($alias_locks[$items["nick"]])==True)
           {
-            about($items["chan"]);
+            privmsg($items["chan"],"alias \"".$alias_locks[$items["nick"]]."\" unlocked for nick \"".$items["nick"]."\"");
+            unset($alias_locks[$items["nick"]]);
           }
-          break;
-        case CMD_HELP:
-          if (count($params)==1)
-          {
-            about($items["chan"]);
-          }
-          break;
-        case CMD_QUIT:
+        }
+        break;
+      case CMD_LOCK:
+        if ((count($params)==2) and (check_nick($items["nick"],CMD_UNLOCK)==True))
+        {
+          $alias_locks[$items["nick"]]=$params[1];
+          privmsg($items["chan"],"alias \"".$alias_locks[$items["nick"]]."\" locked for nick \"".$items["nick"]."\"");
+        }
+        break;
+      case CMD_QUIT:
+        if ((count($params)==1) and (check_nick($items["nick"],CMD_QUIT)==True))
+        {
           if (in_array($items["nick"],$admin_nicks)==True)
           {
             doquit($fp);
@@ -166,8 +187,11 @@ while (feof($fp)===False)
           {
             privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
           }
-          break;
-        case CMD_PART:
+        }
+        break;
+      case CMD_PART:
+        if ((count($params)==1) and (check_nick($items["nick"],CMD_PART)==True))
+        {
           if (in_array($items["nick"],$admin_nicks)==True)
           {
             fputs($fp,"PART ".$items["chan"]."\n");
@@ -176,8 +200,11 @@ while (feof($fp)===False)
           {
             privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
           }
-          break;
-        case CMD_JOIN:
+        }
+        break;
+      case CMD_JOIN:
+        if ((count($params)==2) and (check_nick($items["nick"],CMD_JOIN)==True))
+        {
           if (in_array($items["nick"],$admin_nicks)==True)
           {
             array_shift($params);
@@ -187,8 +214,11 @@ while (feof($fp)===False)
           {
             privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
           }
-          break;
-        case CMD_RELOADEXEC:
+        }
+        break;
+      case CMD_RELOADEXEC:
+        if ((count($params)==1) and (check_nick($items["nick"],CMD_RELOADEXEC)==True))
+        {
           if (in_array($items["nick"],$admin_nicks)==True)
           {
             if (exec_load($exec_list)==True)
@@ -204,22 +234,25 @@ while (feof($fp)===False)
           {
             privmsg($items["chan"],"quit command not permitted by nick \"".$items["nick"]."\"");
           }
-          break;
-        case CMD_EXEC:
-            privmsg($items["chan"],"timeout".EXEC_DELIM."auto-privmsg".EXEC_DELIM."empty-msg-allowed".EXEC_DELIM."alias".EXEC_DELIM."cmd");
-            if (isset($params[1])==True)
+        }
+        break;
+      case CMD_EXEC:
+        if ((count($params)==2) and (check_nick($items["nick"],CMD_EXEC)==True))
+        {
+          privmsg($items["chan"],"timeout".EXEC_DELIM."auto-privmsg".EXEC_DELIM."empty-msg-allowed".EXEC_DELIM."alias".EXEC_DELIM."cmd");
+          if (isset($params[1])==True)
+          {
+            if (isset($exec_list[$params[1]])==True)
             {
-              if (isset($exec_list[$params[1]])==True)
-              {
-                $exec=$exec_list[$params[1]];
-                privmsg($items["chan"],$exec["timeout"].EXEC_DELIM.$exec["auto"].EXEC_DELIM.$exec["empty"].EXEC_DELIM.$params[1].EXEC_DELIM.$exec["cmd"]);
-              }
+              $exec=$exec_list[$params[1]];
+              privmsg($items["chan"],$exec["timeout"].EXEC_DELIM.$exec["auto"].EXEC_DELIM.$exec["empty"].EXEC_DELIM.$params[1].EXEC_DELIM.$exec["cmd"]);
             }
-          break;
-        default:
-          process_scripts($items);
-          process_scripts($items,True);
-      }
+          }
+        }
+        break;
+      default:
+        process_scripts($items);
+        process_scripts($items,True);
     }
   }
   if (strpos($data,"End of /MOTD command")!==False)
@@ -315,12 +348,17 @@ function pingpong($fp,$data)
 
 function parse_exec($line,&$timeout,&$auto,&$empty,&$alias,&$cmd)
 {
+  global $cmd_list;
   $parts=explode(EXEC_DELIM,$line);
   if (count($parts)<>5)
   {
     return False;
   }
   if ((($parts[1]<>"0") and ($parts[1]<>"1")) or (($parts[2]<>"0") and ($parts[2]<>"1")) or ($parts[3]=="") or ($parts[4]==""))
+  {
+    return False;
+  }
+  if (in_array(strtolower($parts[3]),$cmd_list)==True)
   {
     return False;
   }
@@ -422,24 +460,37 @@ function process_scripts($items,$doall=False)
 {
   global $handles;
   global $exec_list;
+  global $alias_locks;
+  $nick=trim($items["nick"]);
+  $chan=trim($items["chan"]);
   if ($doall==False)
   {
-    $parts=explode(" ",$items["msg"]);
-    $alias=trim($parts[0]);
-    if (isset($exec_list[$alias])==False)
+    if (isset($alias_locks[$nick])==True)
     {
-      return;
+      $alias=$alias_locks[$nick];
+      $msg=$items["msg"];
     }
-    array_shift($parts);
-    $msg=trim(implode(" ",$parts));
+    else
+    {
+      $parts=explode(" ",$items["msg"]);
+      $alias=trim($parts[0]);
+      if (isset($exec_list[$alias])==False)
+      {
+        return;
+      }
+      array_shift($parts);
+      $msg=trim(implode(" ",$parts));
+    }
   }
   else
   {
     $alias="*";
     $msg=$items["msg"];
   }
-  $nick=trim($items["nick"]);
-  $chan=trim($items["chan"]);
+  if (check_nick($items["nick"],$alias)==False)
+  {
+    return;
+  }
   if (($exec_list[$alias]["empty"]==0) and ($msg==""))
   {
     privmsg($items["chan"],"alias requires additional argument");
@@ -465,36 +516,36 @@ function process_scripts($items,$doall=False)
   $handles[]=array("process"=>$process,"command"=>$command,"pipe_stdin"=>$pipes[0],"pipe_stdout"=>$pipes[1],"pipe_stderr"=>$pipes[2],"alias"=>$alias,"template"=>$exec_list[$alias]["cmd"],"allow_empty"=>$exec_list[$alias]["empty"],"timeout"=>$exec_list[$alias]["timeout"],"auto_privmsg"=>$exec_list[$alias]["auto"],"nick"=>$items["nick"],"chan"=>$items["chan"]);
 }
 
-function check_nick($nick)
+function check_nick($nick,$alias)
 {
   global $time_deltas;
   $lnick=strtolower($nick);
-  if (isset($time_deltas[$lnick]["time"])==False)
+  if (isset($time_deltas[$lnick][$alias]["time"])==False)
   {
-    $time_deltas[$lnick]["time"]=microtime(True);
-    $time_deltas[$lnick]["last_delta"]=0;
+    $time_deltas[$lnick][$alias]["time"]=microtime(True);
+    $time_deltas[$lnick][$alias]["last_delta"]=0;
     return True;
   }
-  $last_delta=$time_deltas[$lnick]["last_delta"];
-  $this_delta=microtime(True)-$time_deltas[$lnick]["time"];
-  $time_deltas[$lnick]["last_delta"]=$this_delta;
+  $last_delta=$time_deltas[$lnick][$alias]["last_delta"];
+  $this_delta=microtime(True)-$time_deltas[$lnick][$alias]["time"];
+  $time_deltas[$lnick][$alias]["last_delta"]=$this_delta;
   if (abs($last_delta-$this_delta)<DELTA_TOLERANCE)
   {
-    $time_deltas[$lnick]["last"]["ban_start"]=microtime(True);
+    $time_deltas[$lnick][$alias]["last"]["ban_start"]=microtime(True);
     term_echo("NICK \"$nick\" IGNORED FOR ".IGNORE_TIME." SECONDS");
   }
   else
   {
-    if (isset($time_deltas[$lnick]["last"]["ban_start"])==True)
+    if (isset($time_deltas[$lnick][$alias]["last"]["ban_start"])==True)
     {
-      if ((microtime(True)-$time_deltas[$lnick]["last"]["ban_start"])>=IGNORE_TIME)
+      if ((microtime(True)-$time_deltas[$lnick][$alias]["last"]["ban_start"])>=IGNORE_TIME)
       {
-        unset($time_deltas[$lnick]["last"]["ban_start"]);
+        unset($time_deltas[$lnick][$alias]["last"]["ban_start"]);
         term_echo("IGNORE CLEARED FOR NICK \"$nick\"");
       }
     }
   }
-  if (isset($time_deltas[$lnick]["last"]["ban_start"])==True)
+  if (isset($time_deltas[$lnick][$alias]["last"]["ban_start"])==True)
   {
     return False;
   }
