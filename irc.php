@@ -72,14 +72,7 @@ while (feof($fp)===False)
             {
               $msg=substr($msg,strlen(TERM_PRIVMSG)+1);
             }
-            if (substr($handles[$i]["chan"],0,1)=="#")
-            {
-              privmsg($handles[$i]["chan"],$msg);
-            }
-            else
-            {
-              privmsg($handles[$i]["nick"],$msg);
-            }
+            privmsg($handles[$i]["chan"],$handles[$i]["nick"],$msg);
           }
           else
           {
@@ -104,7 +97,7 @@ while (feof($fp)===False)
         {
           $terminated=True;
           $return_value=proc_close($handles[$i]["process"]);
-          privmsg($handles[$i]["chan"],"error: command timed out");
+          privmsg($handles[$i]["chan"],$handles[$i]["nick"],"error: command timed out");
           break;
         }
       }
@@ -149,13 +142,13 @@ while (feof($fp)===False)
       case CMD_ABOUT:
         if ((count($params)==1) and (check_nick($items["nick"],CMD_ABOUT)==True))
         {
-          about($items["chan"]);
+          about($items["chan"],$items["nick"]);
         }
         break;
       case CMD_HELP:
         if ((count($params)==1) and (check_nick($items["nick"],CMD_HELP)==True))
         {
-          about($items["chan"]);
+          about($items["chan"],$items["nick"]);
         }
         break;
       case CMD_UNLOCK:
@@ -163,7 +156,7 @@ while (feof($fp)===False)
         {
           if (isset($alias_locks[$items["nick"]])==True)
           {
-            privmsg($items["chan"],"alias \"".$alias_locks[$items["nick"]]."\" unlocked for nick \"".$items["nick"]."\"");
+            privmsg($items["chan"],$items["nick"],"alias \"".$alias_locks[$items["nick"]]."\" unlocked for nick \"".$items["nick"]."\"");
             unset($alias_locks[$items["nick"]]);
           }
         }
@@ -172,7 +165,7 @@ while (feof($fp)===False)
         if ((count($params)==2) and (check_nick($items["nick"],CMD_UNLOCK)==True))
         {
           $alias_locks[$items["nick"]]=$params[1];
-          privmsg($items["chan"],"alias \"".$alias_locks[$items["nick"]]."\" locked for nick \"".$items["nick"]."\"");
+          privmsg($items["chan"],$items["nick"],"alias \"".$alias_locks[$items["nick"]]."\" locked for nick \"".$items["nick"]."\"");
         }
         break;
       case CMD_QUIT:
@@ -185,7 +178,7 @@ while (feof($fp)===False)
           }
           else
           {
-            privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
+            privmsg($items["chan"],$items["nick"],"command not permitted by nick \"".$items["nick"]."\"");
           }
         }
         break;
@@ -198,7 +191,7 @@ while (feof($fp)===False)
           }
           else
           {
-            privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
+            privmsg($items["chan"],$items["nick"],"command not permitted by nick \"".$items["nick"]."\"");
           }
         }
         break;
@@ -212,7 +205,7 @@ while (feof($fp)===False)
           }
           else
           {
-            privmsg($items["chan"],"command not permitted by nick \"".$items["nick"]."\"");
+            privmsg($items["chan"],$items["nick"],"command not permitted by nick \"".$items["nick"]."\"");
           }
         }
         break;
@@ -223,29 +216,29 @@ while (feof($fp)===False)
           {
             if (exec_load($exec_list)==True)
             {
-              privmsg($items["chan"],"successfully reloaded exec");
+              privmsg($items["chan"],$items["nick"],"successfully reloaded exec");
             }
             else
             {
-              privmsg($items["chan"],"error reloading exec");
+              privmsg($items["chan"],$items["nick"],"error reloading exec");
             }
           }
           else
           {
-            privmsg($items["chan"],"quit command not permitted by nick \"".$items["nick"]."\"");
+            privmsg($items["chan"],$items["nick"],"quit command not permitted by nick \"".$items["nick"]."\"");
           }
         }
         break;
       case CMD_EXEC:
         if ((count($params)==2) and (check_nick($items["nick"],CMD_EXEC)==True))
         {
-          privmsg($items["chan"],"timeout".EXEC_DELIM."auto-privmsg".EXEC_DELIM."empty-msg-allowed".EXEC_DELIM."alias".EXEC_DELIM."cmd");
+          privmsg($items["chan"],$items["nick"],"timeout".EXEC_DELIM."auto-privmsg".EXEC_DELIM."empty-msg-allowed".EXEC_DELIM."alias".EXEC_DELIM."cmd");
           if (isset($params[1])==True)
           {
             if (isset($exec_list[$params[1]])==True)
             {
               $exec=$exec_list[$params[1]];
-              privmsg($items["chan"],$exec["timeout"].EXEC_DELIM.$exec["auto"].EXEC_DELIM.$exec["empty"].EXEC_DELIM.$params[1].EXEC_DELIM.$exec["cmd"]);
+              privmsg($items["chan"],$items["nick"],$exec["timeout"].EXEC_DELIM.$exec["auto"].EXEC_DELIM.$exec["empty"].EXEC_DELIM.$params[1].EXEC_DELIM.$exec["cmd"]);
             }
           }
         }
@@ -265,13 +258,13 @@ while (feof($fp)===False)
   }
 }
 
-function about($chan)
+function about($chan,$nick)
 {
-  privmsg($chan,"IRC SCRIPT EXECUTIVE");
+  privmsg($chan,$nick,"IRC SCRIPT EXECUTIVE");
   usleep(0.3*1e6);
-  privmsg($chan,"  by crutchy: https://github.com/crutchy-/test/blob/master/irc.php");
+  privmsg($chan,$nick,"  by crutchy: https://github.com/crutchy-/test/blob/master/irc.php");
   usleep(0.3*1e6);
-  privmsg($chan,"  visit http://wiki.soylentnews.org/wiki/IRC#exec for more info");
+  privmsg($chan,$nick,"  visit http://wiki.soylentnews.org/wiki/IRC#exec for more info");
 }
 
 function exec_load(&$exec_list)
@@ -438,7 +431,7 @@ function parse_data($data)
   return $result;
 }
 
-function privmsg($chan,$msg)
+function privmsg($chan,$nick,$msg)
 {
   global $fp;
   if ($chan=="")
@@ -452,7 +445,14 @@ function privmsg($chan,$msg)
     return;
   }
   $msg=substr($msg,0,MAX_PRIVMSG_LENGTH);
-  fputs($fp,":".NICK." PRIVMSG $chan :$msg\r\n");
+  if (substr($chan,0,1)=="#")
+  {
+    fputs($fp,":".NICK." PRIVMSG $chan :$msg\r\n");
+  }
+  else
+  {
+    fputs($fp,":".NICK." PRIVMSG $nick :$msg\r\n");
+  }
   term_echo($msg);
 }
 
@@ -487,13 +487,13 @@ function process_scripts($items,$doall=False)
     $alias="*";
     $msg=$items["msg"];
   }
-  if (check_nick($items["nick"],$alias)==False)
+  if (check_nick($nick,$alias)==False)
   {
     return;
   }
   if (($exec_list[$alias]["empty"]==0) and ($msg==""))
   {
-    privmsg($items["chan"],"alias requires additional argument");
+    privmsg($chan,$nick,"alias requires additional argument");
     return;
   }
   $template=$exec_list[$alias]["cmd"];
