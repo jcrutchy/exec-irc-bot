@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 22-april-2014
+# 23-april-2014
 
 #####################################################################################################
 
@@ -11,7 +11,7 @@ define("PASSWORD",file_get_contents("../pwd/".NICK));
 define("EXEC_FILE","exec");
 define("EXEC_DELIM","|");
 define("STDOUT_IRC_PREFIX","IRC "); # if script stdout is prefixed with this, will be output to irc socket (raw)
-define("INIT_CHAN_LIST","#~");
+define("INIT_CHAN_LIST","#test");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6667");
@@ -54,93 +54,41 @@ if (exec_load($exec_list)==False)
 }
 
 # initialize socket
-$fp=fsockopen(IRC_HOST,IRC_PORT);
-fputs($fp,"NICK ".NICK."\n");
-fputs($fp,"USER ".NICK." hostname servername :".NICK."\n");
+$socket=fsockopen(IRC_HOST,IRC_PORT);
+fputs($socket,"NICK ".NICK."\n");
+fputs($socket,"USER ".NICK." hostname servername :".NICK."\n");
 
 # socket data loop
-while (feof($fp)===False)
+while (feof($socket)===False)
 {
   # process stdout & stderr from executed processes
   for ($i=0;$i<count($handles);$i++)
   {
-    $terminated=False;
     $start=microtime(True);
-    $timeout=$handles[$i]["timeout"];
-    while (True)
+    process_stdout($handles[$i],$start);
+    process_stderr($handles[$i],$start);
+    if (is_resource($handles[$i]["pipe_stdout"])==True)
     {
-      $buf=fgets($handles[$i]["pipe_stdout"]);
-      if ($buf!==False)
-      {
-        $msg=$buf;
-        if (substr($msg,strlen($msg)-1)=="\n")
-        {
-          $msg=substr($msg,0,strlen($msg)-1);
-        }
-        $prefix=substr($buf,0,strlen(STDOUT_IRC_PREFIX));
-        if ($handles[$i]["auto_privmsg"]==1)
-        {
-          privmsg($handles[$i]["destination"],$handles[$i]["nick"],$msg);
-        }
-        elseif ($prefix==STDOUT_IRC_PREFIX)
-        {
-          $msg=substr($buf,strlen(STDOUT_IRC_PREFIX));
-          fputs($fp,$msg);
-        }
-        else
-        {
-          term_echo($msg);
-        }
-      }
-      else
-      {
-        $proc_info=proc_get_status($handles[$i]["process"]);
-        if ($proc_info["running"]==False)
-        {
-          $terminated=True;
-          $return_value=proc_close($handles[$i]["process"]);
-          if ($handles[$i]["alias"]<>"*")
-          {
-            term_echo("process terminated normally");
-          }
-          break;
-        }
-        if ((microtime(True)-$start)>$timeout)
-        {
-          $terminated=True;
-          $return_value=proc_close($handles[$i]["process"]);
-          privmsg($handles[$i]["destination"],$handles[$i]["nick"],"error: command timed out");
-          break;
-        }
-      }
+      fclose($handles[$i]["pipe_stdout"]);
     }
-    if ($terminated==False)
+    if (is_resource($handles[$i]["pipe_stderr"])==True)
     {
-      while (feof($handles[$i]["pipe_stderr"])==False)
-      {
-        $buf=fgets($handles[$i]["pipe_stderr"]);
-        if ($buf!==False)
-        {
-          term_echo(rtrim($buf));
-        }
-        sleep(1);
-      }
-      $proc_info=proc_get_status($handles[$i]["process"]);
-      if ($proc_info["running"]==False)
-      {
-        $return_value=proc_close($handles[$i]["process"]);
-      }
+      fclose($handles[$i]["pipe_stderr"]);
+    }
+    if (is_resource($handles[$i]["process"])==True)
+    {
+      proc_close($handles[$i]["process"]);
     }
     unset($handles[$i]);
   }
   $handles=array_values($handles);
   # process incoming irc message
-  $data=fgets($fp);
+  $data=fgets($socket);
   if ($data===False)
   {
     continue;
   }
-  if (pingpong($fp,$data)==True)
+  if (pingpong($socket,$data)==True)
   {
     continue;
   }
@@ -151,7 +99,7 @@ while (feof($fp)===False)
     $args=explode(" ",$items["trailing"]);
     if (($items["trailing"]==CMD_QUIT) and (in_array($items["nick"],$admin_nicks)==True))
     {
-      doquit($fp);
+      doquit($socket);
     }
     elseif (($args[0]==CMD_LOCK) and (check_nick($items,CMD_LOCK)==True))
     {
@@ -189,11 +137,94 @@ while (feof($fp)===False)
   }
   if (strpos($data,"End of /MOTD command")!==False)
   {
-    dojoin($fp,INIT_CHAN_LIST);
+    dojoin($socket,INIT_CHAN_LIST);
   }
   if (strpos($data,"You have 60 seconds to identify to your nickname before it is changed.")!==False)
   {
-    fputs($fp,"NICKSERV identify ".PASSWORD."\n");
+    fputs($socket,"NICKSERV identify ".PASSWORD."\n");
+  }
+}
+
+#####################################################################################################
+
+function process_stdout($handle,$start)
+{
+  global $socket;
+  if (is_resource($handle["pipe_stdout"])==False)
+  {
+    return;
+  }
+  $timeout=$handle["timeout"];
+  while (True)
+  {
+    $buf=fgets($handle["pipe_stdout"]);
+    if ($buf!==False)
+    {
+      $msg=$buf;
+      if (substr($msg,strlen($msg)-1)=="\n")
+      {
+        $msg=substr($msg,0,strlen($msg)-1);
+      }
+      $prefix=substr($buf,0,strlen(STDOUT_IRC_PREFIX));
+      if ($handle["auto_privmsg"]==1)
+      {
+        privmsg($handle["destination"],$handle["nick"],$msg);
+      }
+      elseif ($prefix==STDOUT_IRC_PREFIX)
+      {
+        $msg=substr($buf,strlen(STDOUT_IRC_PREFIX));
+        fputs($socket,$msg);
+      }
+      else
+      {
+        term_echo($msg);
+      }
+    }
+    else
+    {
+      $proc_info=proc_get_status($handle["process"]);
+      if ($proc_info["running"]==False)
+      {
+        $return_value=proc_close($handle["process"]);
+        if ($handle["alias"]<>"*")
+        {
+          term_echo("process terminated normally");
+        }
+        return;
+      }
+      if ((microtime(True)-$start)>$timeout)
+      {
+        $return_value=proc_close($handle["process"]);
+        privmsg($handle["destination"],$handle["nick"],"error: command timed out");
+        return;
+      }
+    }
+  }
+}
+
+#####################################################################################################
+
+function process_stderr($handle,$start)
+{
+  if (is_resource($handle["pipe_stderr"])==False)
+  {
+    return;
+  }
+  $timeout=$handle["timeout"];
+  while (feof($handle["pipe_stderr"])==False)
+  {
+    $buf=fgets($handle["pipe_stderr"]);
+    if ($buf!==False)
+    {
+      term_echo(rtrim($buf));
+    }
+    usleep(0.2e6); # 0.2 seconds
+    if ((microtime(True)-$start)>$timeout)
+    {
+      $return_value=proc_close($handle["process"]);
+      privmsg($handle["destination"],$handle["nick"],"error: command timed out");
+      return;
+    }
   }
 }
 
@@ -255,7 +286,7 @@ function get_exec($alias)
 
 #####################################################################################################
 
-function doquit($fp)
+function doquit($socket)
 {
   global $handles;
   $n=count($handles);
@@ -267,29 +298,29 @@ function doquit($fp)
       $return_value=proc_close($handles[$i]["process"]);
     }
   }
-  fputs($fp,": QUIT\n");
-  fclose($fp);
+  fputs($socket,": QUIT\n");
+  fclose($socket);
   term_echo("QUITTING SCRIPT");
   die();
 }
 
 #####################################################################################################
 
-function dojoin($fp,$chanlist)
+function dojoin($socket,$chanlist)
 {
-  fputs($fp,"JOIN $chanlist\n");
+  fputs($socket,"JOIN $chanlist\n");
 }
 
 #####################################################################################################
 
-function pingpong($fp,$data)
+function pingpong($socket,$data)
 {
   $parts=explode(" ",$data);
   if (count($parts)>1)
   {
     if ($parts[0]=="PING")
     {
-      fputs($fp,"PONG ".$parts[1]."\n");
+      fputs($socket,"PONG ".$parts[1]."\n");
       return True;
     }
   }
@@ -370,7 +401,7 @@ function parse_data($data)
 
 function privmsg($destination,$nick,$msg)
 {
-  global $fp;
+  global $socket;
   if ($destination=="")
   {
     term_echo("PRIVMSG: DESTINATION NOT SPECIFIED");
@@ -384,11 +415,11 @@ function privmsg($destination,$nick,$msg)
   $msg=substr($msg,0,MAX_MSG_LENGTH);
   if (substr($destination,0,1)=="#")
   {
-    fputs($fp,":".NICK." PRIVMSG $destination :$msg\n");
+    fputs($socket,":".NICK." PRIVMSG $destination :$msg\n");
   }
   else
   {
-    fputs($fp,":".NICK." PRIVMSG $nick :$msg\n");
+    fputs($socket,":".NICK." PRIVMSG $nick :$msg\n");
   }
   term_echo($msg);
 }
