@@ -384,11 +384,11 @@ function privmsg($destination,$nick,$msg)
   $msg=substr($msg,0,MAX_MSG_LENGTH);
   if (substr($destination,0,1)=="#")
   {
-    fputs($fp,":".NICK." PRIVMSG $destination :$msg\r\n");
+    fputs($fp,":".NICK." PRIVMSG $destination :$msg\n");
   }
   else
   {
-    fputs($fp,":".NICK." PRIVMSG $nick :$msg\r\n");
+    fputs($fp,":".NICK." PRIVMSG $nick :$msg\n");
   }
   term_echo($msg);
 }
