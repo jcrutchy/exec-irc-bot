@@ -1,27 +1,33 @@
-# timeout(sec)|auto-privmsg(1|0)|empty-msg-allowed(1|0)|alias|cmd
-# available templates: %%msg%%, %%chan%%, %%nick%%, %%start%%, %%alias%%
-# %%msg%% excludes alias
-
-5|1|0|cowsay|cowsay %%msg%%
-5|0|0|test|php test.php %%msg%% %%chan%% %%nick%%
-5|1|1|ps|ps
-5|1|1|moo|apt-get moo
-5|1|1|fortune|fortune -s
-5|1|1|cowsay-fortune|sh cowsay-fortune.sh
-10|0|0|define|php definitions.php %%msg%%
-5|0|0|php|php php.php %%msg%%
-5|1|0|smile|php smile.php %%msg%%
-5|1|1|uptime|uptime
-5|1|1|rofl|fortune -s
-5|0|1|bacon-up|php up.php %%start%%
-
-5|1|1|haskell|runhaskell haskell.hs
-5|1|1|perl|perl perl.pl
-
-10|0|1|weather|php weather.php %%alias%% %%msg%%
-10|0|1|weather-add|php weather.php %%alias%% %%msg%%
-
-5|0|1|civ|php irciv/irciv.php %%nick%% %%msg%%
+# alias|timeout(sec)|auto-privmsg(1|0)|empty-trailing-allowed(1|0)|cmd
+# available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%exec%%
+# %%trailing%% excludes alias
 
 # EXEC ON ALL LINES (ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
-5|0|0|*|php grab.php %%msg%% %%nick%%
+#*|5|0|0|php grab.php %%trailing%% %%nick%%
+
+cowsay|5|1|0|cowsay %%trailing%%
+#test|5|0|0|php test.php %%trailing%% %%dest%% %%nick%%
+ps|5|1|1|ps
+moo|5|1|1|apt-get moo
+fortune|5|1|1|fortune -s
+cowsay-fortune|5|1|1|sh cowsay-fortune.sh
+#define|10|0|0|php definitions.php %%trailing%%
+#php|5|0|0|php php.php %%trailing%%
+#smile|5|1|0|php smile.php %%trailing%%
+uptime|5|1|1|uptime
+rofl|5|1|1|fortune -s
+#exec-up|5|0|1|php up.php %%start%%
+bsod|10|1|1|php bsod.php
+~join|5|0|0|php join.php %%trailing%%
+~part|5|0|1|php part.php %%dest%%
+
+~xlefay|5|0|1|php xlefay.php
+
+#weather|10|0|1|php weather.php %%alias%% %%trailing%%
+#weather-add|10|0|1|php weather.php %%alias%% %%trailing%%
+
+#civ|5|0|1|php irciv/irciv.php %%nick%% %%trailing%%
+
+# non-php scripts
+haskell|5|1|1|runhaskell haskell.hs
+perl|5|1|1|perl perl.pl
