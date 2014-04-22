@@ -21,8 +21,6 @@ bsod|10|1|1|php bsod.php
 ~join|5|0|0|php join.php %%trailing%%
 ~part|5|0|1|php part.php %%dest%%
 
-~xlefay|5|0|1|php xlefay.php
-
 #weather|10|0|1|php weather.php %%alias%% %%trailing%%
 #weather-add|10|0|1|php weather.php %%alias%% %%trailing%%
 
