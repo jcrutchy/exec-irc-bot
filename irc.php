@@ -130,19 +130,19 @@ while (feof($socket)===False)
         privmsg($items["destination"],$items["nick"],"error reloading exec");
       }
     }
+    elseif ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
+    {
+      dojoin($socket,INIT_CHAN_LIST);
+    }
+    elseif (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]=="You have 60 seconds to identify to your nickname before it is changed."))
+    {
+      fputs($socket,"NickServ IDENTIFY ".PASSWORD."\n");
+    }
     else
     {
       process_scripts($items); # execute scripts occurring for a specific alias
       process_scripts($items,True); # process scripts occuring for every line (* alias)
     }
-  }
-  if (strpos($data,"End of /MOTD command")!==False)
-  {
-    dojoin($socket,INIT_CHAN_LIST);
-  }
-  if (strpos($data,"You have 60 seconds to identify to your nickname before it is changed.")!==False)
-  {
-    fputs($socket,"NICKSERV identify ".PASSWORD."\n");
   }
 }
 
@@ -172,17 +172,17 @@ function process_stdout($handle,$start)
       }
       else
       {
-        $parts=explode(" ",$buf);
+        $parts=explode(" ",$msg);
         $prefix=$parts[0];
         array_shift($parts);
-        $msg=implode(" ",$parts);
+        $prefix_msg=implode(" ",$parts);
         if ($prefix==STDOUT_PREFIX_RAW)
         {
-          fputs($socket,$msg);
+          fputs($socket,$prefix_msg."\n");
         }
         elseif ($prefix==STDOUT_PREFIX_MSG)
         {
-          privmsg($handle["destination"],$handle["nick"],$msg);
+          privmsg($handle["destination"],$handle["nick"],$prefix_msg);
         }
         else
         {
@@ -226,7 +226,12 @@ function process_stderr($handle,$start)
     $buf=fgets($handle["pipe_stderr"]);
     if ($buf!==False)
     {
-      term_echo(rtrim($buf));
+      $msg=$buf;
+      if (substr($msg,strlen($msg)-1)=="\n")
+      {
+        $msg=substr($msg,0,strlen($msg)-1);
+      }
+      term_echo($msg);
     }
     usleep(0.2e6); # 0.2 seconds
     if ((microtime(True)-$start)>$timeout)
@@ -477,7 +482,7 @@ function process_scripts($items,$doall=False)
   {
     return;
   }
-  if (($exec_list[$alias]["empty"]==0) and ($trailing==""))
+  if (($exec_list[$alias]["empty"]==0) and ($trailing=="") and ($destination<>"") and ($nick<>""))
   {
     privmsg($destination,$nick,"alias requires additional trailing argument");
     return;
