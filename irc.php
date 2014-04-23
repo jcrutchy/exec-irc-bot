@@ -10,7 +10,8 @@ define("NICK","exec");
 define("PASSWORD",file_get_contents("../pwd/".NICK));
 define("EXEC_FILE","exec");
 define("EXEC_DELIM","|");
-define("STDOUT_IRC_PREFIX","IRC "); # if script stdout is prefixed with this, will be output to irc socket (raw)
+define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)
+define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("INIT_CHAN_LIST","#test");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
@@ -165,19 +166,28 @@ function process_stdout($handle,$start)
       {
         $msg=substr($msg,0,strlen($msg)-1);
       }
-      $prefix=substr($buf,0,strlen(STDOUT_IRC_PREFIX));
       if ($handle["auto_privmsg"]==1)
       {
         privmsg($handle["destination"],$handle["nick"],$msg);
       }
-      elseif ($prefix==STDOUT_IRC_PREFIX)
-      {
-        $msg=substr($buf,strlen(STDOUT_IRC_PREFIX));
-        fputs($socket,$msg);
-      }
       else
       {
-        term_echo($msg);
+        $parts=explode(" ",$buf);
+        $prefix=$parts[0];
+        array_shift($parts);
+        $msg=implode(" ",$parts);
+        if ($prefix==STDOUT_PREFIX_RAW)
+        {
+          fputs($socket,$msg);
+        }
+        elseif ($prefix==STDOUT_PREFIX_MSG)
+        {
+          privmsg($handle["destination"],$handle["nick"],$msg);
+        }
+        else
+        {
+          term_echo($msg);
+        }
       }
     }
     else
@@ -358,7 +368,7 @@ function parse_data($data)
   if ($sub[0]==":") # prefix found
   {
     $i=strpos($sub," ");
-    $result["prefix"]=substr($sub,1,$i);
+    $result["prefix"]=substr($sub,1,$i-1);
     $sub=substr($sub,$i+1);
   }
   $i=strpos($sub," :");
@@ -388,10 +398,10 @@ function parse_data($data)
     $prefix=$result["prefix"];
     $i=strpos($prefix,"!");
     $result["nick"]=substr($prefix,0,$i);
-    $prefix=substr($prefix,$i);
+    $prefix=substr($prefix,$i+1);
     $i=strpos($prefix,"@");
     $result["user"]=substr($prefix,0,$i);
-    $prefix=substr($prefix,$i);
+    $prefix=substr($prefix,$i+1);
     $result["hostname"]=$prefix;
   }
   return $result;
