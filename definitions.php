@@ -2,9 +2,7 @@
 
 # gpl2
 # by crutchy
-# 20-april-2014
-
-# 10|0|0|define|php definitions.php %%msg%%
+# 23-april-2014
 
 $msg=$argv[1];
 
@@ -25,52 +23,16 @@ if (strlen($def)<700)
 {
   if ($def=="")
   {
-    echo "privmsg $msg: unable to find definition\n";
+    echo "IRC_MSG $msg: unable to find definition\n";
   }
   else
   {
-    echo "privmsg $msg: $def\n";
+    echo "IRC_MSG $msg: $def\n";
   }
 }
 else
 { 
   echo "$def\n";
-}
-
-return;
-
-##################################################################################
-
-# old crap
-
-$chan=$argv[2];
-$nick=$argv[3];
-
-$data=file_get_contents("definitions");
-$lines=explode("\n",$data);
-for ($i=0;$i<count($lines);$i++)
-{
-  $line=trim($lines[$i]);
-  if ($line=="")
-  {
-    continue;
-  }
-  if (substr($line,0,1)=="#")
-  {
-    continue;
-  }
-  $parts=explode("|",$line);
-  if (count($parts)<>2)
-  {
-    continue;
-  }
-  if (strtolower($msg)<>strtolower($parts[0]))
-  {
-    continue;
-  }
-  $definition=$parts[1];
-  echo "privmsg $definition\n";
-  return;
 }
 
 function wget($host,$uri,$port)

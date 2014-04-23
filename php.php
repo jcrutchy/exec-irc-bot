@@ -2,9 +2,7 @@
 
 # gpl2
 # by crutchy
-# 18-april-2014
-
-# 5|0|0|php|php php.php %%msg%%
+# 23-april-2014
 
 # thanks to prospectacle for link to download doc files
 
@@ -17,7 +15,7 @@ $i=strpos($html,$delim1);
 if ($i===False)
 {
   echo "delim1 not found\n";
-  echo "privmsg script error\n";
+  echo "IRC_MSG script error\n";
   return;
 }
 $i=$i+strlen($delim1);
@@ -26,7 +24,7 @@ $i=strpos($html,$delim2);
 if ($i===False)
 {
   echo "delim2 not found\n";
-  echo "privmsg script error\n";
+  echo "IRC_MSG script error\n";
   return;
 }
 $syntax=trim(strip_tags(substr($html,0,$i)));
@@ -36,11 +34,11 @@ if (strlen($syntax)<500)
 {
   if ($syntax=="")
   {
-    echo "privmsg unable to find syntax\n";
+    echo "IRC_MSG unable to find syntax\n";
   }
   else
   {
-    echo "privmsg $syntax\n";
+    echo "IRC_MSG $syntax\n";
   }
 }
 

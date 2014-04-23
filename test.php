@@ -2,26 +2,11 @@
 
 # gpl2
 # by crutchy
-# 20-april-2014
-
-# 5|0|0|test|php test.php %%msg%% %%chan%% %%nick%%
-
-/*
-array(4) {
-  [0]=>
-  string(10) "script.php"
-  [1]=>
-  string(4) "arg1"
-  [2]=>
-  string(4) "arg2"
-  [3]=>
-  string(4) "arg3"
-}
-*/
+# 23-april-2014
 
 echo "this shows on term only\n";
-echo "privmsg msg=".$argv[1]."\n";
-echo "privmsg chan=".$argv[2]."\n";
-echo "privmsg nick=".$argv[3]."\n";
+echo "IRC_MSG msg=".$argv[1]."\n";
+echo "IRC_MSG chan=".$argv[2]."\n";
+echo "IRC_MSG nick=".$argv[3]."\n";
 
 ?>
