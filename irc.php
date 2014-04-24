@@ -6,6 +6,13 @@
 
 #####################################################################################################
 
+# TODO
+
+# 1. ANTI-RECURSION OF SCRIPTS
+# 2. EVENTS FOR COMMANDS (NUMERICS/PRIVMSG/NOTICE/NICK)
+
+#####################################################################################################
+
 define("NICK","exec");
 define("PASSWORD",file_get_contents("../pwd/".NICK));
 define("EXEC_FILE","exec");
@@ -59,6 +66,7 @@ stream_set_blocking($socket,0);
 rawmsg("NICK ".NICK);
 rawmsg("USER ".NICK." hostname servername :".NICK);
 
+# main program loop
 while (True)
 {
   for ($i=0;$i<count($handles);$i++)
@@ -70,7 +78,7 @@ while (True)
   }
   $handles=array_values($handles);
   process_socket($socket);
-  usleep(0.01e6); # 0.01 second
+  usleep(0.01e6); # 0.01 second to prevent cpu flogging
 }
 
 #####################################################################################################
