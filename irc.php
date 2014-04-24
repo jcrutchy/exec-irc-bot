@@ -70,21 +70,17 @@ while (True)
   }
   $handles=array_values($handles);
   process_socket($socket);
-  usleep(0.1e6); # 0.1 second
+  usleep(0.01e6); # 0.01 second
 }
 
 #####################################################################################################
 
 function handle_process($handle)
 {
-  if (is_resource($handle["process"])==False)
-  {
-    return False;
-  }
   process_stdout($handle);
   process_stderr($handle);
-  $proc_info=proc_get_status($handle["process"]);
-  if ($proc_info["running"]==False)
+  $meta=stream_get_meta_data($handle["pipe_stdout"]);
+  if ($meta["eof"]==True)
   {
     proc_close($handle["process"]);
     if ($handle["alias"]<>"*")
@@ -368,7 +364,7 @@ function parse_data($data)
   $result["user"]="";
   $result["hostname"]="";
   $result["destination"]=""; # for privmsg = <params>
-  if ($sub[0]==":") # prefix found
+  if (substr($sub,0,1)==":") # prefix found
   {
     $i=strpos($sub," ");
     $result["prefix"]=substr($sub,1,$i-1);
