@@ -2,7 +2,10 @@
 
 # gpl2
 # by crutchy
-# 23-april-2014
+# 25-april-2014
+
+define("PRIVMSG_CHAN","#~");
+define("NICK","exec");
 
 ini_set("display_errors","on");
 
@@ -10,47 +13,45 @@ $cmd=$argv[1];
 $trailing=$argv[2];
 $data=$argv[3];
 $dest=$argv[4];
-
-#echo "$cmd\n";
-#echo "$trailing\n";
+$params=$argv[5];
 
 /*
-ACC response:
-0 - no such user online or nickname not registered
-1 - user not recognized as nickname's owner
-2 - user recognized as owner via access list only
-3 - user recognized as owner via password identification
+:irc.sylnt.us 311 exec crutchy ~crutchy_ 724-640-25-593.cust.aussiebb.net * :crutchy
+:irc.sylnt.us 319 exec crutchy :@#~ #Soylent +#test #sublight 
+:irc.sylnt.us 312 exec crutchy irc.sylnt.us :It's all about the people!
+:irc.sylnt.us 317 exec crutchy 1 1397864053 :seconds idle, signon time
+:irc.sylnt.us 330 exec crutchy crutchy :is logged in as
+:irc.sylnt.us 318 exec crutchy :End of /WHOIS list.
 */
 
 switch ($cmd)
 {
+  case "330": # is logged in as
+    $parts=explode(" ",$params);
+    if ((count($parts)==3) and ($parts[0]==NICK))
+    {
+      $nick=$parts[1];
+      $account=$parts[2];
+      echo ":exec NOTICE ".PRIVMSG_CHAN." :civ login $nick $account\n";
+    }
+    break;
   case "PRIVMSG":
     $parts=explode(" ",$trailing);
     if (count($parts)==2)
     {
       switch ($parts[0])
       {
-        case "~acc":
+        case "~whois":
           $nick=$parts[1];
           if ($nick<>"")
           {
-            echo "IRC_RAW :exec PRIVMSG NickServ :acc $nick\n";
+            echo "IRC_RAW WHOIS $nick\n";
           }
           break;
       }
     }
     break;
   case "NOTICE":
-    $parts=explode(" ",$trailing);
-    if (count($parts)==3)
-    {
-      switch ($parts[1])
-      {
-        case "ACC":
-          echo "IRC_RAW :exec PRIVMSG #test :".$parts[0].": ".$parts[2]."\n";
-          break;
-      }
-    }
     break;
 }
 

@@ -18,9 +18,14 @@
 # TODO: registered nick personalised settings (units, default location, private msg, formatting, etc)
 # TODO: delete codes
 
-define("CODES_FILE","weather.codes");
+define("CODES_FILE","../data/weather.codes");
 define("SEDBOT_EXCLUDE_PREFIX","for ");
 ini_set("display_errors","on");
+if (file_exists(CODES_FILE)==False)
+{
+  term_echo("WEATHER: CODES FILE NOT FOUND");
+  return;
+}
 $codes=unserialize(file_get_contents(CODES_FILE));
 $parts=explode(" ",$argv[2]);
 switch ($argv[1])

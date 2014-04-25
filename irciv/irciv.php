@@ -2,11 +2,9 @@
 
 # gpl2
 # by crutchy
-# 20-april-2014
+# 25-april-2014
 
 # irciv.php
-
-# exec line: 5|0|1|civ|php irciv.php %%nick%% %%msg%%
 
 #####################################################################################################
 
@@ -14,27 +12,16 @@ ini_set("display_errors","on");
 date_default_timezone_set("UTC");
 
 define("GAME_NAME","IRCiv");
+define("NICK_LOGIN","exec");
 
-define("CMD_INSERT","insert");
-define("OBJ_PLAYER","player");
+define("ACTION_LOGIN","login");
 
 irciv__term_echo("running...");
 
-require_once(__DIR__."/db.php");
-require_once(__DIR__."/db_players.php");
-require_once(__DIR__."/db_games.php");
-
-if ((isset($argv[1])==False) or (isset($argv[2])==False))
-{
-  irciv__err("exec error");
-}
 $nick=$argv[1];
-$msg=$argv[2];
+$trailing=$argv[2];
 
-$parts=explode(" ",$msg);
-
-$salt=crypt($parts[0]);
-$pwd=crypt($parts[0],$salt);
+$parts=explode(" ",$trailing);
 
 if (count($parts)<=1)
 {
@@ -42,30 +29,31 @@ if (count($parts)<=1)
   return;
 }
 
-$pdo=db__connect();
+/*require_once(__DIR__."/db.php");
+require_once(__DIR__."/db_players.php");
+require_once(__DIR__."/db_games.php");
 
-if (isset($parts[1])==True)
+$pdo=db__connect();*/
+
+$action=$parts[0];
+
+switch ($action)
 {
-  switch (strtolower($parts[1]))
-  {
-    case CMD_INSERT:
-      if (isset($parts[2])==True)
-      {
-        switch (strtolower($parts[2]))
-        {
-          case OBJ_PLAYER:
-            if (isset($parts[3])==True)
-            {
-              $email=$parts[3];
-              db_players__insert($nick,$pwd,$email);
-              irciv__privmsg("player \"$nick\" added");
-            }
-            break;
-        }
-      }
-      break;
-  }
+  case ACTION_LOGIN:
+    if ((isset($parts[1])==True) and (isset($parts[2])==True) and ($nick==NICK_LOGIN))
+    {
+      $player_nick=$parts[1];
+      $player_account=$parts[2]; 
+      irciv__privmsg("player \"$player_nick\" logged in under account \"$player_account\"");
+    }
+    break;
 }
+
+/*
+$salt=crypt($parts[0]);
+$pwd=crypt($parts[0],$salt);
+db_players__insert($nick,$pwd,$email);
+*/
 
 #####################################################################################################
 
@@ -78,14 +66,14 @@ function irciv__term_echo($msg)
 
 function irciv__privmsg($msg)
 {
-  echo "privmsg ".GAME_NAME.": $msg\n";
+  echo "IRC_MSG ".GAME_NAME.": $msg\n";
 }
 
 #####################################################################################################
 
 function irciv__err($msg)
 {
-  echo "privmsg ".GAME_NAME." error: $msg\n";
+  echo "IRC_MSG ".GAME_NAME." error: $msg\n";
   die();
 }
 

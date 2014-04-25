@@ -8,7 +8,7 @@
 
 $msg=$argv[1];
 $msg=str_replace("_","-",$msg);
-$html=file_get_contents("/var/www/slash/git/test/php_manual/php-chunked-xhtml/function.".$msg.".html");
+$html=file_get_contents("/var/www/slash/git/data/php_manual/php-chunked-xhtml/function.".$msg.".html");
 $delim1="<div class=\"methodsynopsis dc-description\">";
 $delim2="<p class=\"para rdfs-comment\">";
 $i=strpos($html,$delim1);

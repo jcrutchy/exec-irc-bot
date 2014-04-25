@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cowsay `fortune`
+cowsay `fortune -s`
 
 exit 0

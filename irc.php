@@ -12,7 +12,7 @@ define("EXEC_FILE","exec");
 define("EXEC_DELIM","|");
 define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
-define("INIT_CHAN_LIST","#test");
+define("INIT_CHAN_LIST","#~");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6667");
@@ -34,7 +34,7 @@ define("TEMPLATE_START","start");
 define("TEMPLATE_ALIAS","alias");
 define("TEMPLATE_DATA","data");
 define("TEMPLATE_CMD","cmd");
-define("TEMPLATE_EXEC","exec");
+define("TEMPLATE_PARAMS","params");
 
 set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)
 ini_set("display_errors","on"); # output errors to stdout
@@ -140,6 +140,7 @@ function handle_stdout($handle)
       term_echo($msg);
     }
   }
+  handle_data($buf);
 }
 
 #####################################################################################################
@@ -389,7 +390,7 @@ function parse_data($data)
   {
     return False;
   }
-  if ($result["cmd"]=="PRIVMSG")
+  if (($result["cmd"]=="PRIVMSG") or ($result["cmd"]=="NOTICE"))
   {
     $result["destination"]=$result["params"];
   }
@@ -441,7 +442,6 @@ function privmsg($destination,$nick,$msg)
     rawmsg($data);
   }
   term_echo($msg);
-  handle_data($data."\n");
 }
 
 #####################################################################################################
@@ -500,6 +500,7 @@ function process_scripts($items,$doall=False)
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_ALIAS.TEMPLATE_DELIM,escapeshellarg($alias),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_DATA.TEMPLATE_DELIM,escapeshellarg($data),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_CMD.TEMPLATE_DELIM,escapeshellarg($cmd),$template);
+  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_PARAMS.TEMPLATE_DELIM,escapeshellarg($items["params"]),$template);
   $command="exec ".$template;
   $command=$template;
   $cwd=NULL;

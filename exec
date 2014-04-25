@@ -1,9 +1,9 @@
 # alias|timeout(sec)|auto-privmsg(1|0)|empty-trailing-allowed(1|0)|cmd
-# available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%exec%%
+# available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%exec%%, %%params%%
 # %%trailing%% excludes alias
 
 # EXEC ON ALL LINES (ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
-*|10|0|0|php grab.php %%trailing%% %%nick%% && php cmd.php %%cmd%% %%trailing%% %%data%% %%dest%%
+*|10|0|0|php grab.php %%trailing%% %%nick%% && php cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%%
 
 cowsay|5|1|0|cowsay %%trailing%%
 snake|5|1|1|echo %%trailing%% | cowsay -f elephant-in-snake
@@ -25,7 +25,7 @@ bsod|10|1|1|php bsod.php
 weather|10|0|1|php weather.php %%alias%% %%trailing%%
 weather-add|10|0|1|php weather.php %%alias%% %%trailing%%
 
-#civ|5|0|1|php irciv/irciv.php %%nick%% %%trailing%%
+civ|5|0|1|php irciv/irciv.php %%nick%% %%trailing%%
 
 # non-php scripts
 haskell|5|1|1|runhaskell haskell.hs
