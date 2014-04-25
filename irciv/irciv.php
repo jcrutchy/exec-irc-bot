@@ -15,6 +15,7 @@ define("GAME_NAME","IRCiv");
 define("NICK_LOGIN","exec");
 
 define("ACTION_LOGIN","login");
+define("ACTION_LOGOUT","logout");
 
 irciv__term_echo("running...");
 
@@ -45,6 +46,13 @@ switch ($action)
       $player_nick=$parts[1];
       $player_account=$parts[2]; 
       irciv__privmsg("player \"$player_nick\" logged in under account \"$player_account\"");
+    }
+    break;
+  case ACTION_LOGOUT:
+    if (isset($parts[1])==True)
+    {
+      $player_nick=$parts[1];
+      irciv__privmsg("player \"$player_nick\" logged out");
     }
     break;
 }

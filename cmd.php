@@ -14,6 +14,7 @@ $trailing=$argv[2];
 $data=$argv[3];
 $dest=$argv[4];
 $params=$argv[5];
+$nick=$argv[6];
 
 /*
 :irc.sylnt.us 311 exec crutchy ~crutchy_ 724-640-25-593.cust.aussiebb.net * :crutchy
@@ -22,6 +23,9 @@ $params=$argv[5];
 :irc.sylnt.us 317 exec crutchy 1 1397864053 :seconds idle, signon time
 :irc.sylnt.us 330 exec crutchy crutchy :is logged in as
 :irc.sylnt.us 318 exec crutchy :End of /WHOIS list.
+
+:crutchy!~crutchy_@724-640-25-593.cust.aussiebb.net PART #Soylent :Ex-Chat
+:crutchy!~crutchy_@724-640-25-593.cust.aussiebb.net JOIN #Soylent
 */
 
 switch ($cmd)
@@ -35,21 +39,13 @@ switch ($cmd)
       echo ":exec NOTICE ".PRIVMSG_CHAN." :civ login $nick $account\n";
     }
     break;
+  case "JOIN":
+    echo "IRC_RAW WHOIS $nick\n";
+    break;
+  case "PART":
+    echo ":exec NOTICE ".PRIVMSG_CHAN." :civ logout $nick\n";
+    break;
   case "PRIVMSG":
-    $parts=explode(" ",$trailing);
-    if (count($parts)==2)
-    {
-      switch ($parts[0])
-      {
-        case "~whois":
-          $nick=$parts[1];
-          if ($nick<>"")
-          {
-            echo "IRC_RAW WHOIS $nick\n";
-          }
-          break;
-      }
-    }
     break;
   case "NOTICE":
     break;
