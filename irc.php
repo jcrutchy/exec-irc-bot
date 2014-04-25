@@ -2,14 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-april-2014
-
-#####################################################################################################
-
-# TODO
-
-# 1. ANTI-RECURSION OF SCRIPTS
-# 2. EVENTS FOR COMMANDS (NUMERICS/PRIVMSG/NOTICE/NICK)
+# 25-april-2014
 
 #####################################################################################################
 
@@ -19,7 +12,7 @@ define("EXEC_FILE","exec");
 define("EXEC_DELIM","|");
 define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
-define("INIT_CHAN_LIST","#~");
+define("INIT_CHAN_LIST","#test");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6667");
@@ -48,14 +41,14 @@ ini_set("display_errors","on"); # output errors to stdout
 
 define("START_TIME",microtime(True)); # used for %%start%% template
 
-$exec_list=array(); # stores exec file data
 $alias_locks=array(); # optionally stores an alias for each nick, which then treats every privmsg by that nick as being prefixed by the set alias
 $handles=array(); # stores executed process information
 $time_deltas=array(); # keeps track of how often nicks call an alias (used for flood control)
 
 $admin_nicks=array("crutchy");
 
-if (exec_load($exec_list)==False)
+$exec_list=exec_load();
+if ($exec_list===False)
 {
   term_echo("error loading exec");
   return;
@@ -64,7 +57,7 @@ if (exec_load($exec_list)==False)
 $socket=fsockopen(IRC_HOST,IRC_PORT);
 stream_set_blocking($socket,0);
 rawmsg("NICK ".NICK);
-rawmsg("USER ".NICK." hostname servername :".NICK);
+rawmsg("USER ".NICK." hostname servername :".NICK.".bot");
 
 # main program loop
 while (True)
@@ -77,7 +70,7 @@ while (True)
     }
   }
   $handles=array_values($handles);
-  process_socket($socket);
+  handle_socket($socket);
   usleep(0.01e6); # 0.01 second to prevent cpu flogging
 }
 
@@ -85,8 +78,8 @@ while (True)
 
 function handle_process($handle)
 {
-  process_stdout($handle);
-  process_stderr($handle);
+  handle_stdout($handle);
+  handle_stderr($handle);
   $meta=stream_get_meta_data($handle["pipe_stdout"]);
   if ($meta["eof"]==True)
   {
@@ -108,7 +101,7 @@ function handle_process($handle)
 
 #####################################################################################################
 
-function process_stdout($handle)
+function handle_stdout($handle)
 {
   if (is_resource($handle["pipe_stdout"])==False)
   {
@@ -151,7 +144,7 @@ function process_stdout($handle)
 
 #####################################################################################################
 
-function process_stderr($handle)
+function handle_stderr($handle)
 {
   if (is_resource($handle["pipe_stderr"])==False)
   {
@@ -172,9 +165,8 @@ function process_stderr($handle)
 
 #####################################################################################################
 
-function process_socket($socket)
+function handle_socket($socket)
 {
-  global $admin_nicks;
   $data=fgets($socket);
   if ($data===False)
   {
@@ -184,6 +176,14 @@ function process_socket($socket)
   {
     return;
   }
+  handle_data($data);
+}
+
+#####################################################################################################
+
+function handle_data($data)
+{
+  global $admin_nicks;
   echo $data;
   $items=parse_data($data);
   if ($items!==False)
@@ -212,13 +212,14 @@ function process_socket($socket)
     }
     elseif (($items["trailing"]==CMD_RELOAD) and (check_nick($items["nick"],CMD_RELOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
-      if (exec_load($exec_list)==True)
+      if (exec_load()===False)
       {
-        privmsg($items["destination"],$items["nick"],"successfully reloaded exec");
+        privmsg($items["destination"],$items["nick"],"error reloading exec");
+        doquit();
       }
       else
       {
-        privmsg($items["destination"],$items["nick"],"error reloading exec");
+        privmsg($items["destination"],$items["nick"],"successfully reloaded exec");
       }
     }
     elseif ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
@@ -247,8 +248,9 @@ function rawmsg($msg)
 
 #####################################################################################################
 
-function exec_load(&$exec_list)
+function exec_load()
 {
+  global $exec_list;
   $exec_list=array();
   $data=file_get_contents(EXEC_FILE);
   if ($data===False)
@@ -268,37 +270,29 @@ function exec_load(&$exec_list)
       continue;
     }
     $parts=explode(EXEC_DELIM,$line);
-    if (count($parts)<>5)
+    if (count($parts)<5)
     {
       continue;
     }
-    if (($parts[0]=="") or (($parts[2]<>"0") and ($parts[2]<>"1")) or (($parts[3]<>"0") and ($parts[3]<>"1")) or ($parts[4]==""))
+    $alias=trim($parts[0]);
+    $timeout=trim($parts[1]); # seconds
+    $auto=trim($parts[2]); # auto privmsg (0 = no, 1 = yes)
+    $empty=trim($parts[3]); # empty msg permitted (0 = no, 1 = yes)
+    unset($parts[0]);
+    unset($parts[1]);
+    unset($parts[2]);
+    unset($parts[3]);
+    $cmd=trim(implode("|",$parts)); # shell command
+    if (($alias=="") or (is_numeric($timeout)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or ($cmd==""))
     {
       continue;
     }
-    $alias=$parts[0];
-    $exec_list[$alias]["timeout"]=$parts[1]; # seconds
-    $exec_list[$alias]["auto"]=$parts[2]; # auto privmsg (0 = no, 1 = yes)
-    $exec_list[$alias]["empty"]=$parts[3]; # empty msg permitted (0 = no, 1 = yes)
-    $exec_list[$alias]["cmd"]=$parts[4]; # shell command
+    $exec_list[$alias]["timeout"]=$timeout;
+    $exec_list[$alias]["auto"]=$auto;
+    $exec_list[$alias]["empty"]=$empty;
+    $exec_list[$alias]["cmd"]=$cmd;
   }
-  return True;
-}
-
-#####################################################################################################
-
-function get_exec($alias)
-{
-  global $exec_list;
-  if (isset($exec_list[$alias])==True)
-  {
-    $exec=$exec_list[$alias];
-    return $alias.EXEC_DELIM.$exec["timeout"].EXEC_DELIM.$exec["auto"].EXEC_DELIM.$exec["empty"].EXEC_DELIM.$exec["cmd"];
-  }
-  else
-  {
-    return "";
-  }
+  return $exec_list;
 }
 
 #####################################################################################################
@@ -404,12 +398,19 @@ function parse_data($data)
     # prefix format: nick!user@hostname
     $prefix=$result["prefix"];
     $i=strpos($prefix,"!");
-    $result["nick"]=substr($prefix,0,$i);
-    $prefix=substr($prefix,$i+1);
-    $i=strpos($prefix,"@");
-    $result["user"]=substr($prefix,0,$i);
-    $prefix=substr($prefix,$i+1);
-    $result["hostname"]=$prefix;
+    if ($i===False)
+    {
+      $result["nick"]=$prefix;
+    }
+    else
+    {
+      $result["nick"]=substr($prefix,0,$i);
+      $prefix=substr($prefix,$i+1);
+      $i=strpos($prefix,"@");
+      $result["user"]=substr($prefix,0,$i);
+      $prefix=substr($prefix,$i+1);
+      $result["hostname"]=$prefix;
+    }
   }
   return $result;
 }
@@ -431,13 +432,16 @@ function privmsg($destination,$nick,$msg)
   $msg=substr($msg,0,MAX_MSG_LENGTH);
   if (substr($destination,0,1)=="#")
   {
-    rawmsg(":".NICK." PRIVMSG $destination :$msg");
+    $data=":".NICK." PRIVMSG $destination :$msg";
+    rawmsg($data);
   }
   else
   {
-    rawmsg(":".NICK." PRIVMSG $nick :$msg");
+    $data=":".NICK." PRIVMSG $nick :$msg";
+    rawmsg($data);
   }
   term_echo($msg);
+  handle_data($data."\n");
 }
 
 #####################################################################################################
@@ -488,7 +492,6 @@ function process_scripts($items,$doall=False)
     privmsg($destination,$nick,"alias requires additional trailing argument");
     return;
   }
-  $exec=get_exec($alias);
   $template=$exec_list[$alias]["cmd"];
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_TRAILING.TEMPLATE_DELIM,escapeshellarg($trailing),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_NICK.TEMPLATE_DELIM,escapeshellarg($nick),$template);
@@ -497,7 +500,6 @@ function process_scripts($items,$doall=False)
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_ALIAS.TEMPLATE_DELIM,escapeshellarg($alias),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_DATA.TEMPLATE_DELIM,escapeshellarg($data),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_CMD.TEMPLATE_DELIM,escapeshellarg($cmd),$template);
-  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_EXEC.TEMPLATE_DELIM,escapeshellarg($exec),$template);
   $command="exec ".$template;
   $command=$template;
   $cwd=NULL;
@@ -533,11 +535,11 @@ function process_scripts($items,$doall=False)
 function check_nick($items,$alias)
 {
   global $time_deltas;
-  if ($items["nick"]==NICK)
+  if ($items["cmd"]<>"PRIVMSG")
   {
     return True;
   }
-  if ($items["cmd"]<>"PRIVMSG")
+  if (($items["nick"]==NICK) and ($alias=="*"))
   {
     return True;
   }
