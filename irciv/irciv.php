@@ -12,10 +12,11 @@ ini_set("display_errors","on");
 date_default_timezone_set("UTC");
 
 define("GAME_NAME","IRCiv");
-define("NICK_LOGIN","exec");
+define("NICK_EXEC","exec");
 
 define("ACTION_LOGIN","login");
 define("ACTION_LOGOUT","logout");
+define("ACTION_RENAME","rename");
 
 irciv__term_echo("running...");
 
@@ -30,38 +31,63 @@ if (count($parts)<=1)
   return;
 }
 
-/*require_once(__DIR__."/db.php");
+require_once(__DIR__."/db.php");
 require_once(__DIR__."/db_players.php");
 require_once(__DIR__."/db_games.php");
 
-$pdo=db__connect();*/
+$pdo=db__connect();
 
 $action=$parts[0];
 
 switch ($action)
 {
   case ACTION_LOGIN:
-    if ((isset($parts[1])==True) and (isset($parts[2])==True) and ($nick==NICK_LOGIN))
+    if ((isset($parts[1])==True) and (isset($parts[2])==True) and ($nick==NICK_EXEC))
     {
-      $player_nick=$parts[1];
-      $player_account=$parts[2]; 
-      irciv__privmsg("player \"$player_nick\" logged in under account \"$player_account\"");
+      $player=$parts[1];
+      $account=$parts[2];
+      if (isset($players[$player])==False)
+      {
+        $players[$player]["account"]=$account;
+        irciv__privmsg("player \"$player\" is now logged in");
+      }
+      else
+      {
+        irciv__privmsg("player \"$player\" already logged in");
+      }
+    }
+    break;
+  case ACTION_RENAME:
+    if ((isset($parts[1])==True) and (isset($parts[2])==True) and ($nick==NICK_EXEC))
+    {
+      $old=$parts[1];
+      $new=$parts[2];
+      if (isset($players[$old])==True)
+      {
+        irciv__privmsg("player \"$old\" is now known as \"$new\"");
+      }
+      else
+      {
+        irciv__privmsg("there is no player logged in as \"$old\"");
+      }
     }
     break;
   case ACTION_LOGOUT:
     if (isset($parts[1])==True)
     {
-      $player_nick=$parts[1];
-      irciv__privmsg("player \"$player_nick\" logged out");
+      $player=$parts[1];
+      if (isset($players[$player])==True)
+      {
+        unset($players[$player]);
+        irciv__privmsg("player \"$player\" logged out");
+      }
+      else
+      {
+        irciv__privmsg("there is no player logged in as \"$player\"");
+      }
     }
     break;
 }
-
-/*
-$salt=crypt($parts[0]);
-$pwd=crypt($parts[0],$salt);
-db_players__insert($nick,$pwd,$email);
-*/
 
 #####################################################################################################
 

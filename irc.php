@@ -12,12 +12,12 @@ define("EXEC_FILE","exec");
 define("EXEC_DELIM","|");
 define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
-define("INIT_CHAN_LIST","#~");
+define("INIT_CHAN_LIST","#civ");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6667");
-define("IGNORE_TIME",20); # seconds
-define("DELTA_TOLERANCE",1.5); # seconds
+define("IGNORE_TIME",20); # seconds (flood control)
+define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
 
 # internal command aliases (can't use in exec file)
