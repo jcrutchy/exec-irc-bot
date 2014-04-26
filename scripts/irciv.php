@@ -124,7 +124,7 @@ function get_bucket()
   else
   {
     $line=trim($line);
-    if (($line<>"") and ($line<>"NO BUCKET DATA FOR WRITING TO STDIN") and ($line<>"BUCKET EVAL ERROR"))
+    if (($line<>"") and ($line<>"NO BUCKET DATA FOR WRITING TO STDIN") and ($line<>"BUCKET EVAL ERjROR"))
     {
       $result=unserialize($line);
       irciv__term_echo("successfully loaded bucket data");
