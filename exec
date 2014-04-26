@@ -3,7 +3,7 @@
 # %%trailing%% excludes alias
 
 # EXEC ON ALL LINES (ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
-*|5|0|0|php scripts/grab.php %%trailing%% %%nick%% && php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
+*|5|0|1|php scripts/grab.php %%trailing%% %%nick%% && php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
 
 ~|5|1|1|php scripts/about.php
 cowsay|5|1|0|cowsay %%trailing%%
@@ -22,6 +22,8 @@ exec-up|5|0|1|php scripts/up.php %%start%%
 bsod|10|1|1|php scripts/bsod.php
 ~join|5|0|0|php scripts/join.php %%trailing%%
 ~part|5|0|1|php scripts/part.php %%dest%% %%trailing%%
+~recurse|5|0|1|php scripts/recurse.php
+~bucket|5|0|1|php scripts/buckets.php
 
 weather|10|0|1|php scripts/weather.php %%alias%% %%trailing%%
 weather-add|10|0|1|php scripts/weather.php %%alias%% %%trailing%%
@@ -31,8 +33,3 @@ civ|5|0|1|php scripts/irciv.php %%nick%% %%trailing%% %%dest%%
 # non-php scripts
 haskell|5|1|1|runhaskell scripts/haskell.hs
 perl|5|1|1|perl scripts/perl.pl
-
-~recurse|5|0|1|php scripts/recurse.php
-
-
-~bucket|5|0|1|php scripts/buckets.php

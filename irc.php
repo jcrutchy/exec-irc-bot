@@ -243,7 +243,9 @@ function handle_buckets($data,$handle)
 function bucket_dump()
 {
   global $buckets;
+  term_echo("############ BEGIN BUCKET DUMP ############");
   var_dump($buckets);
+  term_echo("###########################################");
 }
 
 #####################################################################################################
@@ -500,10 +502,7 @@ function parse_data($data)
   {
     return False;
   }
-  if (($result["cmd"]=="PRIVMSG") or ($result["cmd"]=="NOTICE"))
-  {
-    $result["destination"]=$result["params"];
-  }
+  $result["destination"]=$result["params"];
   if ($result["prefix"]<>"")
   {
     # prefix format: nick!user@hostname
@@ -599,7 +598,7 @@ function process_scripts($items,$doall=False)
   }
   if (($exec_list[$alias]["empty"]==0) and ($trailing=="") and ($destination<>"") and ($nick<>""))
   {
-    privmsg($destination,$nick,"alias requires additional trailing argument");
+    privmsg($destination,$nick,"alias \"$alias\" requires additional trailing argument");
     return;
   }
   $template=$exec_list[$alias]["cmd"];
