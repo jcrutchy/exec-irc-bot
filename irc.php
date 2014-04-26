@@ -187,15 +187,35 @@ function handle_buckets($data,$handle)
     return False;
   }
   $trailing=$items["trailing"];
+  $buf="";
+  $eval="if(isset($trailing)==True){\$buf=serialize($trailing);}";
   switch ($items["cmd"])
   {
     case BUCKET_GET:
-      if ((is_resource($handle["pipe_stdin"])==True) and (eval("\$buf=serialize($trailing);")!==False))
+      if (is_resource($handle["pipe_stdin"])==True)
       {
-        $result=fwrite($handle["pipe_stdin"],"$buf\n");
-        if ($result===False)
+        if (eval($eval)!==False)
         {
-          term_echo("ERROR WRITING BUCKET DATA TO STDIN");
+          if ($buf<>"")
+          {
+            $result=fwrite($handle["pipe_stdin"],"$buf\n");
+            if ($result===False)
+            {
+              term_echo("ERROR WRITING BUCKET DATA TO STDIN");
+            }
+          }
+          else
+          {
+            $msg="NO BUCKET DATA FOR WRITING TO STDIN";
+            term_echo($msg);
+            fwrite($handle["pipe_stdin"],"$msg\n");
+          }
+        }
+        else
+        {
+          $msg="BUCKET EVAL ERROR";
+          term_echo($msg);
+          fwrite($handle["pipe_stdin"],"$msg\n");
         }
       }
       return True;
