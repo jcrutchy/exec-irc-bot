@@ -123,8 +123,16 @@ function get_bucket()
   }
   else
   {
-    $result=unserialize($line);
-    irciv__term_echo("successfully loaded bucket data");
+    $line=trim($line);
+    if (($line<>"") and ($line<>"NO BUCKET DATA FOR WRITING TO STDIN") and ($line<>"BUCKET EVAL ERROR"))
+    {
+      $result=unserialize($line);
+      irciv__term_echo("successfully loaded bucket data");
+    }
+    else
+    {
+      irciv__term_echo("no bucket data to load");
+    }
   }
   fclose($f);
 }
