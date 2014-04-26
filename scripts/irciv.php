@@ -20,6 +20,7 @@ define("ACTION_RENAME","rename");
 irciv__term_echo("running...");
 
 $buckets["civ"]["players"]=array();
+$players=&$buckets["civ"]["players"];
 get_bucket();
 
 $nick=$argv[1];
@@ -113,7 +114,7 @@ function irciv__err($msg)
 
 function get_bucket()
 {
-  global $players;
+  global $buckets;
   echo ":".NICK_EXEC." BUCKET_GET :\$buckets[\"civ\"]\n";
   $f=fopen("php://stdin","r");
   $line=fgets($f);
@@ -126,7 +127,7 @@ function get_bucket()
     $line=trim($line);
     if (($line<>"") and ($line<>"NO BUCKET DATA FOR WRITING TO STDIN") and ($line<>"BUCKET EVAL ERROR"))
     {
-      $result=unserialize($line);
+      $buckets=unserialize($line);
       irciv__term_echo("successfully loaded bucket data");
     }
     else
@@ -141,8 +142,8 @@ function get_bucket()
 
 function set_bucket()
 {
-  global $players;
-  $data=serialize($players);
+  global $buckets;
+  $data=serialize($buckets);
   echo ":".NICK_EXEC." BUCKET_SET :$data\n";
 }
 
