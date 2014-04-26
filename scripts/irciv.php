@@ -9,27 +9,21 @@
 #####################################################################################################
 
 ini_set("display_errors","on");
+require_once("irciv_lib.php");
 
-define("GAME_NAME","IRCiv");
 define("GAME_CHAN","#civ");
-define("NICK_EXEC","exec");
 
 define("ACTION_LOGIN","login");
 define("ACTION_LOGOUT","logout");
 define("ACTION_RENAME","rename");
 
-irciv__term_echo("running...");
-
 $buckets["civ"]["players"]=array();
 get_bucket();
-
 $players=&$buckets["civ"]["players"];
 
 $nick=$argv[1];
 $trailing=$argv[2];
 $dest=$argv[3];
-
-echo "dest=$dest\n";
 
 $parts=explode(" ",$trailing);
 
@@ -92,74 +86,6 @@ switch ($action)
 }
 
 set_bucket();
-
-#####################################################################################################
-
-function irciv__term_echo($msg)
-{
-  echo GAME_NAME.": $msg\n";
-}
-
-#####################################################################################################
-
-function irciv__privmsg($msg)
-{
-  echo "IRC_MSG ".GAME_NAME.": $msg\n";
-}
-
-#####################################################################################################
-
-function irciv__err($msg)
-{
-  echo "IRC_MSG ".GAME_NAME." error: $msg\n";
-  die();
-}
-
-#####################################################################################################
-
-function get_bucket()
-{
-  global $buckets;
-  echo ":".NICK_EXEC." BUCKET_GET :\$buckets[\"civ\"]\n";
-  $f=fopen("php://stdin","r");
-  $line=fgets($f);
-  if ($line===False)
-  {
-    irciv__err("unable to read bucket data");
-  }
-  else
-  {
-    $line=trim($line);
-    if (($line<>"") and ($line<>"NO BUCKET DATA FOR WRITING TO STDIN") and ($line<>"BUCKET EVAL ERROR"))
-    {
-      echo "$line\n";
-      $tmp=unserialize($line);
-      if ($tmp!==False)
-      {
-        $buckets["civ"]=$tmp;
-        irciv__term_echo("successfully loaded bucket data");
-      }
-      else
-      {
-        irciv__term_echo("error unserializing bucket data");
-      }
-    }
-    else
-    {
-      irciv__term_echo("no bucket data to load");
-    }
-  }
-  fclose($f);
-}
-
-#####################################################################################################
-
-function set_bucket()
-{
-  global $buckets;
-  $data=serialize($buckets);
-  echo ":".NICK_EXEC." BUCKET_SET :$data\n";
-}
 
 #####################################################################################################
 
