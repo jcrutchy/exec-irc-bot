@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 25-april-2014
+# 26-april-2014
 
 #####################################################################################################
 
@@ -12,6 +12,7 @@ define("EXEC_FILE","exec");
 define("EXEC_DELIM","|");
 define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
+define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
 define("INIT_CHAN_LIST","#civ");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
@@ -19,6 +20,11 @@ define("IRC_PORT","6667");
 define("IGNORE_TIME",20); # seconds (flood control)
 define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
+
+# bucket commands
+define("BUCKET_GET","BUCKET_GET");
+define("BUCKET_SET","BUCKET_SET");
+define("BUCKET_UNSET","BUCKET_UNSET");
 
 # internal command aliases (can't use in exec file)
 define("CMD_QUIT","~q");
@@ -44,6 +50,7 @@ define("START_TIME",microtime(True)); # used for %%start%% template
 $alias_locks=array(); # optionally stores an alias for each nick, which then treats every privmsg by that nick as being prefixed by the set alias
 $handles=array(); # stores executed process information
 $time_deltas=array(); # keeps track of how often nicks call an alias (used for flood control)
+$buckets=array(); # common place for scripts to store stuff
 
 $admin_nicks=array("crutchy");
 
@@ -135,12 +142,15 @@ function handle_stdout($handle)
     {
       privmsg($handle["destination"],$handle["nick"],$prefix_msg);
     }
-    else
+    elseif ($prefix==STDOUT_PREFIX_TERM)
     {
-      term_echo($msg);
+      term_echo($prefix_msg);
     }
   }
-  handle_data($buf);
+  if (handle_buckets($msg,$handle)==False)
+  {
+    handle_data($buf);
+  }
 }
 
 #####################################################################################################
@@ -162,6 +172,44 @@ function handle_stderr($handle)
     $msg=substr($msg,0,strlen($msg)-1);
   }
   term_echo($msg);
+}
+
+#####################################################################################################
+
+function handle_buckets($data,$handle)
+{
+  global $buckets;
+  $items=parse_data($data);
+  if ($items===False)
+  {
+    return False;
+  }
+  $trailing=$items["trailing"];
+  switch ($items["cmd"])
+  {
+    case BUCKET_GET:
+      if ((is_resource($handle["pipe_stdin"])==True) and (eval("\$buf=serialize($trailing);")!==False))
+      {
+        $result=fwrite($handle["pipe_stdin"],"$buf\n");
+        if ($result===False)
+        {
+          term_echo("ERROR WRITING BUCKET DATA TO STDIN");
+        }
+      }
+      return True;
+    case BUCKET_SET:
+      $bucket=unserialize($trailing);
+      if ($bucket===False)
+      {
+        term_echo("ERROR UNSERIALIZING BUCKET DATA");
+      }
+      else
+      {
+        var_dump($bucket);
+        $buckets=array_replace_recursive($buckets,$bucket);
+      }
+      return True;
+  }
 }
 
 #####################################################################################################

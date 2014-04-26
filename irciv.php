@@ -2,14 +2,13 @@
 
 # gpl2
 # by crutchy
-# 25-april-2014
+# 26-april-2014
 
 # irciv.php
 
 #####################################################################################################
 
 ini_set("display_errors","on");
-date_default_timezone_set("UTC");
 
 define("GAME_NAME","IRCiv");
 define("NICK_EXEC","exec");
@@ -19,6 +18,8 @@ define("ACTION_LOGOUT","logout");
 define("ACTION_RENAME","rename");
 
 irciv__term_echo("running...");
+
+$players=array();
 
 $nick=$argv[1];
 $trailing=$argv[2];
@@ -30,12 +31,6 @@ if (count($parts)<=1)
   irciv__privmsg("by crutchy");
   return;
 }
-
-require_once(__DIR__."/db.php");
-require_once(__DIR__."/db_players.php");
-require_once(__DIR__."/db_games.php");
-
-$pdo=db__connect();
 
 $action=$parts[0];
 

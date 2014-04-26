@@ -25,10 +25,13 @@ bsod|10|1|1|php bsod.php
 weather|10|0|1|php weather.php %%alias%% %%trailing%%
 weather-add|10|0|1|php weather.php %%alias%% %%trailing%%
 
-civ|5|0|1|php irciv/irciv.php %%nick%% %%trailing%%
+civ|5|0|1|php irciv.php %%nick%% %%trailing%%
 
 # non-php scripts
 haskell|5|1|1|runhaskell haskell.hs
 perl|5|1|1|perl perl.pl
 
 ~recurse|5|0|1|php recurse.php
+
+
+~bucket|5|0|1|php buckets.php
