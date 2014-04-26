@@ -11,6 +11,7 @@
 ini_set("display_errors","on");
 
 define("GAME_NAME","IRCiv");
+define("GAME_CHAN","#civ");
 define("NICK_EXEC","exec");
 
 define("ACTION_LOGIN","login");
@@ -20,15 +21,19 @@ define("ACTION_RENAME","rename");
 irciv__term_echo("running...");
 
 $buckets["civ"]["players"]=array();
-$players=&$buckets["civ"]["players"];
 get_bucket();
+
+$players=&$buckets["civ"]["players"];
 
 $nick=$argv[1];
 $trailing=$argv[2];
+$dest=$argv[3];
+
+echo "dest=$dest\n";
 
 $parts=explode(" ",$trailing);
 
-if (count($parts)<=1)
+if ((count($parts)<=1) or (($dest<>GAME_CHAN) and ($nick<>NICK_EXEC)))
 {
   irciv__privmsg("by crutchy");
   return;
@@ -127,8 +132,17 @@ function get_bucket()
     $line=trim($line);
     if (($line<>"") and ($line<>"NO BUCKET DATA FOR WRITING TO STDIN") and ($line<>"BUCKET EVAL ERROR"))
     {
-      $buckets=unserialize($line);
-      irciv__term_echo("successfully loaded bucket data");
+      echo "$line\n";
+      $tmp=unserialize($line);
+      if ($tmp!==False)
+      {
+        $buckets["civ"]=$tmp;
+        irciv__term_echo("successfully loaded bucket data");
+      }
+      else
+      {
+        irciv__term_echo("error unserializing bucket data");
+      }
     }
     else
     {

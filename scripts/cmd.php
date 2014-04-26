@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 25-april-2014
+# 26-april-2014
 
 define("CHAN_CIV","#civ");
 define("NICK","exec");
@@ -16,11 +16,6 @@ $dest=$argv[4];
 $params=$argv[5];
 $nick=$argv[6];
 
-/*
-:crutchy!~crutchy_@724-640-25-593.cust.aussiebb.net NICK :crutchy|blah
-:crutchy|blah!~crutchy_@724-640-25-593.cust.aussiebb.net NICK :crutchy
-*/
-
 switch ($cmd)
 {
   case "330": # is logged in as
@@ -33,10 +28,16 @@ switch ($cmd)
     }
     break;
   case "JOIN":
-    echo "IRC_RAW WHOIS $nick\n";
+    if ($dest==CHAN_CIV)
+    {
+      echo "IRC_RAW WHOIS $nick\n";
+    }
     break;
   case "PART":
-    echo ":".NICK." NOTICE ".CHAN_CIV." :civ logout $nick\n";
+    if ($dest==CHAN_CIV)
+    {
+      echo ":".NICK." NOTICE ".CHAN_CIV." :civ logout $nick\n";
+    }
     break;
   case "NICK":
     echo ":".NICK." NOTICE ".CHAN_CIV." :civ rename $nick $trailing\n";
@@ -44,6 +45,8 @@ switch ($cmd)
   case "PRIVMSG":
     break;
   case "NOTICE":
+    break;
+  case "MODE":
     break;
 }
 

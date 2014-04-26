@@ -5,6 +5,7 @@
 # EXEC ON ALL LINES (ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 *|5|0|0|php scripts/grab.php %%trailing%% %%nick%% && php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
 
+~|5|1|1|php scripts/about.php
 cowsay|5|1|0|cowsay %%trailing%%
 snake|5|1|1|echo %%trailing%% | cowsay -f elephant-in-snake
 test|5|0|0|php scripts/test.php %%trailing%% %%dest%% %%nick%%
@@ -25,7 +26,7 @@ bsod|10|1|1|php scripts/bsod.php
 weather|10|0|1|php scripts/weather.php %%alias%% %%trailing%%
 weather-add|10|0|1|php scripts/weather.php %%alias%% %%trailing%%
 
-civ|5|0|1|php scripts/irciv.php %%nick%% %%trailing%%
+civ|5|0|1|php scripts/irciv.php %%nick%% %%trailing%% %%dest%%
 
 # non-php scripts
 haskell|5|1|1|runhaskell scripts/haskell.hs

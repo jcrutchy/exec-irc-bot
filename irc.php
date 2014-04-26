@@ -21,7 +21,7 @@ define("IGNORE_TIME",20); # seconds (flood control)
 define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
 
-# bucket messages
+# bucket messages (buckets are arrays filled through pipes)
 define("BUCKET_GET","BUCKET_GET");
 define("BUCKET_SET","BUCKET_SET");
 
