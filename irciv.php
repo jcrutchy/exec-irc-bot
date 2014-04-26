@@ -20,6 +20,7 @@ define("ACTION_RENAME","rename");
 irciv__term_echo("running...");
 
 $players=array();
+get_bucket();
 
 $nick=$argv[1];
 $trailing=$argv[2];
@@ -84,6 +85,8 @@ switch ($action)
     break;
 }
 
+set_bucket();
+
 #####################################################################################################
 
 function irciv__term_echo($msg)
@@ -104,6 +107,35 @@ function irciv__err($msg)
 {
   echo "IRC_MSG ".GAME_NAME." error: $msg\n";
   die();
+}
+
+#####################################################################################################
+
+function get_bucket()
+{
+  global $players;
+  echo ":".NICK_EXEC." BUCKET_GET :\$buckets[\"civ\"]\n";
+  $f=fopen("php://stdin","r");
+  $line=fgets($f);
+  if ($line===False)
+  {
+    irciv__err("unable to read bucket data");
+  }
+  else
+  {
+    $result=unserialize($line);
+    irciv__term_echo("successfully loaded bucket data");
+  }
+  fclose($f);
+}
+
+#####################################################################################################
+
+function set_bucket()
+{
+  global $players;
+  $data=serialize($players);
+  echo ":".NICK_EXEC." BUCKET_SET :$data\n";
 }
 
 #####################################################################################################

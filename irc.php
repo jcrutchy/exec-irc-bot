@@ -21,16 +21,18 @@ define("IGNORE_TIME",20); # seconds (flood control)
 define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
 
-# bucket commands
+# bucket messages
 define("BUCKET_GET","BUCKET_GET");
 define("BUCKET_SET","BUCKET_SET");
-define("BUCKET_UNSET","BUCKET_UNSET");
 
 # internal command aliases (can't use in exec file)
 define("CMD_QUIT","~q");
 define("CMD_LOCK","~lock");
 define("CMD_UNLOCK","~unlock");
 define("CMD_RELOAD","~reload");
+define("CMD_BUCKETS_DUMP","~bucket-dump"); # dump buckets to terminal
+define("CMD_BUCKETS_SAVE","~bucket-save"); # save buckets to file
+define("CMD_BUCKETS_LOAD","~bucket-load"); # load buckets from file
 
 # exec file shell command templates (replaced by the bot with actual values before executing)
 define("TEMPLATE_TRAILING","trailing");
@@ -203,6 +205,10 @@ function handle_buckets($data,$handle)
       {
         term_echo("ERROR UNSERIALIZING BUCKET DATA");
       }
+      elseif (is_array($bucket)==False)
+      {
+        term_echo("BUCKET DATA IS NOT AN ARRAY");
+      }
       else
       {
         var_dump($bucket);
@@ -210,6 +216,30 @@ function handle_buckets($data,$handle)
       }
       return True;
   }
+}
+
+#####################################################################################################
+
+function bucket_dump()
+{
+  global $buckets;
+  var_dump($buckets);
+}
+
+#####################################################################################################
+
+function bucket_save()
+{
+  global $buckets;
+
+}
+
+#####################################################################################################
+
+function bucket_load()
+{
+  global $buckets;
+
 }
 
 #####################################################################################################
@@ -270,6 +300,18 @@ function handle_data($data)
       {
         privmsg($items["destination"],$items["nick"],"successfully reloaded exec");
       }
+    }
+    elseif (($items["trailing"]==CMD_BUCKETS_DUMP) and (check_nick($items["nick"],CMD_BUCKETS_DUMP)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    {
+      bucket_dump();
+    }
+    elseif (($items["trailing"]==CMD_BUCKETS_SAVE) and (check_nick($items["nick"],CMD_BUCKETS_SAVE)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    {
+      bucket_save();
+    }
+    elseif (($items["trailing"]==CMD_BUCKETS_LOAD) and (check_nick($items["nick"],CMD_BUCKETS_LOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    {
+      bucket_load();
     }
     elseif ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
     {
