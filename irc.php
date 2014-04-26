@@ -9,6 +9,7 @@
 define("NICK","exec");
 define("PASSWORD",file_get_contents("../pwd/".NICK));
 define("EXEC_FILE","exec");
+define("BUCKET_FILE","../data/bucket");
 define("EXEC_DELIM","|");
 define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
@@ -240,7 +241,7 @@ function handle_buckets($data,$handle)
 
 #####################################################################################################
 
-function bucket_dump()
+function bucket_dump($items)
 {
   global $buckets;
   term_echo("############ BEGIN BUCKET DUMP ############");
@@ -250,18 +251,42 @@ function bucket_dump()
 
 #####################################################################################################
 
-function bucket_save()
+function bucket_save($items)
 {
   global $buckets;
-
+  $data=serialize($buckets);
+  if ($data===False)
+  {
+    privmsg($items["destination"],$items["nick"],"error serializing buckets");
+    return;
+  }
+  if (file_put_contents(BUCKET_FILE,$data)===False)
+  {
+    privmsg($items["destination"],$items["nick"],"error saving bucket file");
+    return;
+  }
+  privmsg($items["destination"],$items["nick"],"successfully saved bucket file");
 }
 
 #####################################################################################################
 
-function bucket_load()
+function bucket_load($items)
 {
   global $buckets;
-
+  $data=file_get_contents(BUCKET_FILE);
+  if ($data===False)
+  {
+    privmsg($items["destination"],$items["nick"],"error reading bucket file");
+    return;
+  }
+  $data=unserialize($data);
+  if ($data===False)
+  {
+    privmsg($items["destination"],$items["nick"],"error unserializing bucket file");
+    return;
+  }
+  $buckets=$data;
+  privmsg($items["destination"],$items["nick"],"successfully loaded bucket file");
 }
 
 #####################################################################################################
@@ -325,15 +350,15 @@ function handle_data($data)
     }
     elseif (($items["trailing"]==CMD_BUCKETS_DUMP) and (check_nick($items["nick"],CMD_BUCKETS_DUMP)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
-      bucket_dump();
+      bucket_dump($items);
     }
     elseif (($items["trailing"]==CMD_BUCKETS_SAVE) and (check_nick($items["nick"],CMD_BUCKETS_SAVE)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
-      bucket_save();
+      bucket_save($items);
     }
     elseif (($items["trailing"]==CMD_BUCKETS_LOAD) and (check_nick($items["nick"],CMD_BUCKETS_LOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
-      bucket_load();
+      bucket_load($items);
     }
     elseif ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
     {
