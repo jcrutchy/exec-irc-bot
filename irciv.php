@@ -19,7 +19,8 @@ define("ACTION_RENAME","rename");
 
 irciv__term_echo("running...");
 
-$players=array();
+$buckets["civ"]["players"]=array();
+$players=&$buckets["civ"]["players"];
 get_bucket();
 
 $nick=$argv[1];
