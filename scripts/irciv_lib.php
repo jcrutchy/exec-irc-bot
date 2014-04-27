@@ -79,42 +79,34 @@ function set_bucket()
 
 #####################################################################################################
 
-function map_coord($x,$y)
+function map_coord($cols,$x,$y)
 {
-  global $cols;
   return ($x+$y*$cols);
 }
 
 #####################################################################################################
 
-function map_generate($chan)
+function map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,$ocean_char,$land_char)
 {
-  global $maps;
-  global $cols;
-  global $rows;
   $dir_x=array(0,1,0,-1);
   $dir_y=array(-1,0,1,0);
   /* 0 = Up
      1 = Right
      2 = Down
      3 = Left */
-  /*$count=$rows*$cols;
-  $maps[$chan]=array();
-  $coords=str_repeat("O",$count);
-  $landmass_count=20;
-  $landmass_size=200;
+  $count=$rows*$cols;
+  $coords=str_repeat($ocean_char,$count);
   for ($i=0;$i<$landmass_count;$i++)
   {
     $n=0;
     $x=mt_rand(0,$cols-1);
     $y=mt_rand(0,$rows-1);
-    $coords[map_coord($x,$y)]="L";
+    $coords[map_coord($cols,$x,$y)]=$land_char;
     $n++;
     $x1=$x;
     $y1=$y;
     $d=mt_rand(0,3);
-    $size=$landmass_size;
-    while ($n<$size)
+    while ($n<$landmass_size)
     {
       do
       {
@@ -130,17 +122,16 @@ function map_generate($chan)
       while (($x2<0) or ($y2<0) or ($x2>=$cols) or ($y2>=$rows));
       $x1=$x2;
       $y1=$y2;
-      if ($coords[map_coord($x1,$y1)]<>"L")
+      if ($coords[map_coord($cols,$x1,$y1)]<>$land_char)
       {
-        $coords[map_coord($x1,$y1)]="L";
+        $coords[map_coord($cols,$x1,$y1)]=$land_char;
         $n++;
       }
-      if (mt_rand(0,100)==0) # higher upper limit makes landmass more spread out
+      if (mt_rand(0,$land_spread)==0) # higher upper limit makes landmass more spread out
       {
         $x1=$x;
         $y1=$y;
       }
-      $size=mt_rand($landmass_size-round(0.2*$landmass_size),$landmass_size+round(0.2*$landmass_size));
     }
   }
   # fill in any isolated inland 1x1 lakes
@@ -148,8 +139,8 @@ function map_generate($chan)
   {
     for ($x=0;$x<$cols;$x++)
     {
-      $i=map_coord($x,$y);
-      if ($coords[$i]=="O")
+      $i=map_coord($cols,$x,$y);
+      if ($coords[$i]==$ocean_char)
       {
         $n=0;
         for ($j=0;$j<=3;$j++)
@@ -158,7 +149,7 @@ function map_generate($chan)
           $y1=$y+$dir_y[$j];
           if (($x1>=0) and ($y1>=0) and ($x1<$cols) and ($y1<$rows))
           {
-            if ($coords[map_coord($x1,$y1)]=="L")
+            if ($coords[map_coord($cols,$x1,$y1)]==$land_char)
             {
               $n++;
             }
@@ -166,28 +157,18 @@ function map_generate($chan)
         }
         if ($n==4)
         {
-          $coords[$i]="L";
+          $coords[$i]=$land_char;
         }
       }
     }
-  }*/
-  #$maps[$chan]["coords"]=gzcompress($coords);
-  #$maps[$chan]["coords"]=$coords;
+  }
+  return $coords;
 }
 
 #####################################################################################################
 
-function map_dump($chan)
+function map_dump($coords,$cols,$rows)
 {
-  global $maps;
-  global $cols;
-  global $rows;
-  if (isset($maps[$chan]["coords"])==False)
-  {
-    return;
-  }
-  #$coords=gzuncompress($maps[$chan]["coords"]);
-  $coords=$maps[$chan]["coords"];
   irciv__term_echo("############ BEGIN MAP DUMP ############");
   for ($i=0;$i<$rows;$i++)
   {

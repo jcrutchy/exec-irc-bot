@@ -188,14 +188,10 @@ function handle_stdin($handle,$data)
   {
     return False;
   }
-  $buffer=str_split($data,1024);
-  for ($i=0;$i<count($buffer);$i++)
+  $result=fwrite($handle["pipe_stdin"],$data."\n");
+  if ($result===False)
   {
-    $result=fwrite($handle["pipe_stdin"],$buffer[$i]."\n");
-    if ($result===False)
-    {
-      return False;
-    }
+    return False;
   }
   return True;
 }
