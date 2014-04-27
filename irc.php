@@ -197,26 +197,34 @@ function handle_bucket($data,$handle)
     case BUCKET_GET:
       if (is_resource($handle["pipe_stdin"])==True)
       {
-        $eval="if(isset(\$bucket".$trailing.")==True){\$buf=serialize(\$bucket".$trailing.");}";
-        if (eval($eval)!==False)
+        if (bucket_check_trailing($trailing)==True)
         {
-          if ($buf<>"")
+          $eval="if(isset(\$bucket".$trailing.")==True){\$buf=serialize(\$bucket".$trailing.");}";
+          if (eval($eval)!==False)
           {
-            $result=fwrite($handle["pipe_stdin"],"$buf\n");
-            if ($result===False)
+            if ($buf<>"")
             {
-              term_echo("BUCKET_GET: ERROR WRITING BUCKET DATA TO STDIN");
+              $result=fwrite($handle["pipe_stdin"],"$buf\n");
+              if ($result===False)
+              {
+                term_echo("BUCKET_GET: ERROR WRITING BUCKET DATA TO STDIN");
+              }
+            }
+            else
+            {
+              term_echo("BUCKET_GET: NO BUCKET DATA FOR WRITING TO STDIN");
+              fwrite($handle["pipe_stdin"],"\n");
             }
           }
           else
           {
-            term_echo("BUCKET_GET: NO BUCKET DATA FOR WRITING TO STDIN");
+            term_echo("BUCKET_GET: EVAL ERROR");
             fwrite($handle["pipe_stdin"],"\n");
           }
         }
         else
         {
-          term_echo("BUCKET_GET: EVAL ERROR");
+          term_echo("BUCKET_GET: INVALID TRAILING");
           fwrite($handle["pipe_stdin"],"\n");
         }
       }
@@ -233,23 +241,52 @@ function handle_bucket($data,$handle)
       }
       else
       {
-        var_dump($tmp);
         $bucket=array_replace_recursive($bucket,$tmp);
         term_echo("BUCKET_SET: SUCCESS");
       }
       return True;
     case BUCKET_UNSET:
-      $eval="if(isset(\$bucket".$trailing.")==True){unset(\$bucket".$trailing.");}";
-      if (eval($eval)===False)
+      if (bucket_check_trailing($trailing)==True)
       {
-        term_echo("BUCKET_UNSET: EVAL ERROR");
+        $eval="if(isset(\$bucket".$trailing.")==True){unset(\$bucket".$trailing.");}";
+        if (eval($eval)===False)
+        {
+          term_echo("BUCKET_UNSET: EVAL ERROR");
+        }
+        else
+        {
+          term_echo("BUCKET_UNSET: SUCCESS");
+        }
       }
       else
       {
-        term_echo("BUCKET_UNSET: SUCCESS");
+        term_echo("BUCKET_UNSET: INVALID TRAILING");
       }
       return True;
   }
+}
+
+#####################################################################################################
+
+function bucket_check_trailing($trailing)
+{
+  $parts=explode("\"]",$trailing);
+  if (count($parts)<2)
+  {
+    return False;
+  }
+  if ($parts[count($parts)-1]<>"")
+  {
+    return False;
+  }
+  for ($i=0;$i<(count($parts)-1);$i++)
+  {
+    if (substr($parts[$i],0,2)<>"[\"")
+    {
+      return False;
+    }
+  }
+  return True;
 }
 
 #####################################################################################################
@@ -259,7 +296,7 @@ function bucket_dump($items)
   global $bucket;
   term_echo("############ BEGIN BUCKET DUMP ############");
   var_dump($bucket);
-  term_echo("###########################################");
+  term_echo("############# END BUCKET DUMP #############");
 }
 
 #####################################################################################################
@@ -506,7 +543,7 @@ function pingpong($data)
 
 function term_echo($msg)
 {
-  echo "\033[1;31m$msg\033[0m\n";
+  echo "\033[31m$msg\033[0m\n";
 }
 
 #####################################################################################################

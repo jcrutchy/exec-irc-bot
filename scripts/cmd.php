@@ -2,7 +2,9 @@
 
 # gpl2
 # by crutchy
-# 26-april-2014
+# 27-april-2014
+
+#####################################################################################################
 
 define("CHAN_CIV","#civ");
 define("NICK","exec");
@@ -27,6 +29,31 @@ switch ($cmd)
       echo ":".NICK." NOTICE ".CHAN_CIV." :civ login $nick $account\n";
     }
     break;
+  case "353": # channel names list
+    sleep(3);
+    $parts=explode(" = ",$params);
+    if (count($parts)==2)
+    {
+      if (($parts[0]==NICK) and ($parts[1]==CHAN_CIV))
+      {
+        $names=explode(" ",$trailing);
+        for ($i=0;$i<count($names);$i++)
+        {
+          $name=$names[$i];
+          if ((substr($name,0,1)=="+") or (substr($name,0,1)=="@"))
+          {
+            $name=substr($name,1);
+          }
+          if ($name==NICK)
+          {
+            continue;
+          }
+          echo "IRC_RAW WHOIS $name\n";
+          sleep(1);
+        }
+      }
+    }
+    break;
   case "JOIN":
     if ($dest==CHAN_CIV)
     {
@@ -49,5 +76,14 @@ switch ($cmd)
   case "MODE":
     break;
 }
+
+#####################################################################################################
+
+function term_echo($msg)
+{
+  echo "\033[35m$msg\033[0m\n";
+}
+
+#####################################################################################################
 
 ?>

@@ -3,7 +3,7 @@
 # %%trailing%% excludes alias
 
 # EXEC ON ALL LINES (ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
-*|5|0|1|php scripts/grab.php %%trailing%% %%nick%% && php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
+*|10|0|1|php scripts/grab.php %%trailing%% %%nick%% && php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
 
 ~|5|1|1|php scripts/about.php
 cowsay|5|1|0|cowsay %%trailing%%
