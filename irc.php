@@ -22,7 +22,7 @@ define("IGNORE_TIME",20); # seconds (flood control)
 define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
 
-# bucket messages (buckets are arrays filled through pipes)
+# bucket messages (bucket is an array filled by pipes)
 define("BUCKET_GET","BUCKET_GET");
 define("BUCKET_SET","BUCKET_SET");
 
@@ -31,9 +31,9 @@ define("CMD_QUIT","~q");
 define("CMD_LOCK","~lock");
 define("CMD_UNLOCK","~unlock");
 define("CMD_RELOAD","~reload");
-define("CMD_BUCKETS_DUMP","~bucket-dump"); # dump buckets to terminal
-define("CMD_BUCKETS_SAVE","~bucket-save"); # save buckets to file
-define("CMD_BUCKETS_LOAD","~bucket-load"); # load buckets from file
+define("CMD_BUCKET_DUMP","~bucket-dump"); # dump bucket to terminal
+define("CMD_BUCKET_SAVE","~bucket-save"); # save bucket to file
+define("CMD_BUCKET_LOAD","~bucket-load"); # load bucket from file
 
 # exec file shell command templates (replaced by the bot with actual values before executing)
 define("TEMPLATE_TRAILING","trailing");
@@ -53,7 +53,7 @@ define("START_TIME",microtime(True)); # used for %%start%% template
 $alias_locks=array(); # optionally stores an alias for each nick, which then treats every privmsg by that nick as being prefixed by the set alias
 $handles=array(); # stores executed process information
 $time_deltas=array(); # keeps track of how often nicks call an alias (used for flood control)
-$buckets=array(); # common place for scripts to store stuff
+$bucket=array(); # common place for scripts to store stuff
 
 $admin_nicks=array("crutchy");
 
@@ -150,7 +150,7 @@ function handle_stdout($handle)
       term_echo($prefix_msg);
     }
   }
-  if (handle_buckets($msg,$handle)==False)
+  if (handle_bucket($msg,$handle)==False)
   {
     handle_data($buf);
   }
@@ -179,9 +179,9 @@ function handle_stderr($handle)
 
 #####################################################################################################
 
-function handle_buckets($data,$handle)
+function handle_bucket($data,$handle)
 {
-  global $buckets;
+  global $bucket;
   $items=parse_data($data);
   if ($items===False)
   {
@@ -221,19 +221,19 @@ function handle_buckets($data,$handle)
       }
       return True;
     case BUCKET_SET:
-      $bucket=unserialize($trailing);
-      if ($bucket===False)
+      $tmp=unserialize($trailing);
+      if ($tmp===False)
       {
         term_echo("ERROR UNSERIALIZING BUCKET DATA");
       }
-      elseif (is_array($bucket)==False)
+      elseif (is_array($tmp)==False)
       {
         term_echo("BUCKET DATA IS NOT AN ARRAY");
       }
       else
       {
-        var_dump($bucket);
-        $buckets=array_replace_recursive($buckets,$bucket);
+        var_dump($tmp);
+        $bucket=array_replace_recursive($bucket,$tmp);
       }
       return True;
   }
@@ -243,9 +243,9 @@ function handle_buckets($data,$handle)
 
 function bucket_dump($items)
 {
-  global $buckets;
+  global $bucket;
   term_echo("############ BEGIN BUCKET DUMP ############");
-  var_dump($buckets);
+  var_dump($bucket);
   term_echo("###########################################");
 }
 
@@ -253,11 +253,11 @@ function bucket_dump($items)
 
 function bucket_save($items)
 {
-  global $buckets;
-  $data=serialize($buckets);
+  global $bucket;
+  $data=serialize($bucket);
   if ($data===False)
   {
-    privmsg($items["destination"],$items["nick"],"error serializing buckets");
+    privmsg($items["destination"],$items["nick"],"error serializing bucket");
     return;
   }
   if (file_put_contents(BUCKET_FILE,$data)===False)
@@ -272,7 +272,7 @@ function bucket_save($items)
 
 function bucket_load($items)
 {
-  global $buckets;
+  global $bucket;
   $data=file_get_contents(BUCKET_FILE);
   if ($data===False)
   {
@@ -285,7 +285,7 @@ function bucket_load($items)
     privmsg($items["destination"],$items["nick"],"error unserializing bucket file");
     return;
   }
-  $buckets=$data;
+  $bucket=$data;
   privmsg($items["destination"],$items["nick"],"successfully loaded bucket file");
 }
 
@@ -348,15 +348,15 @@ function handle_data($data)
         privmsg($items["destination"],$items["nick"],"successfully reloaded exec");
       }
     }
-    elseif (($items["trailing"]==CMD_BUCKETS_DUMP) and (check_nick($items["nick"],CMD_BUCKETS_DUMP)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKET_DUMP) and (check_nick($items["nick"],CMD_BUCKET_DUMP)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
       bucket_dump($items);
     }
-    elseif (($items["trailing"]==CMD_BUCKETS_SAVE) and (check_nick($items["nick"],CMD_BUCKETS_SAVE)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKET_SAVE) and (check_nick($items["nick"],CMD_BUCKET_SAVE)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
       bucket_save($items);
     }
-    elseif (($items["trailing"]==CMD_BUCKETS_LOAD) and (check_nick($items["nick"],CMD_BUCKETS_LOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKET_LOAD) and (check_nick($items["nick"],CMD_BUCKET_LOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
       bucket_load($items);
     }

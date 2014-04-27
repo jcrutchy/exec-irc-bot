@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-april-2014
+# 27-april-2014
 
 # irciv.php
 
@@ -17,9 +17,9 @@ define("ACTION_LOGIN","login");
 define("ACTION_LOGOUT","logout");
 define("ACTION_RENAME","rename");
 
-$buckets["civ"]["players"]=array();
+$bucket["civ"]["players"]=array();
 get_bucket();
-$players=&$buckets["civ"]["players"];
+$players=&$bucket["civ"]["players"];
 
 $nick=$argv[1];
 $trailing=$argv[2];
@@ -29,7 +29,7 @@ $parts=explode(" ",$trailing);
 
 if ((count($parts)<=1) or (($dest<>GAME_CHAN) and ($nick<>NICK_EXEC)))
 {
-  irciv__privmsg("by crutchy");
+  irciv__privmsg("https://github.com/crutchy-/test");
   return;
 }
 
@@ -45,11 +45,11 @@ switch ($action)
       if (isset($players[$player])==False)
       {
         $players[$player]["account"]=$account;
-        irciv__privmsg("player \"$player\" is now logged in");
+        irciv__privmsg("login: player \"$player\" is now logged in");
       }
       else
       {
-        irciv__privmsg("player \"$player\" already logged in");
+        irciv__privmsg("login: player \"$player\" already logged in");
       }
     }
     break;
@@ -60,11 +60,7 @@ switch ($action)
       $new=$parts[2];
       if (isset($players[$old])==True)
       {
-        irciv__privmsg("player \"$old\" is now known as \"$new\"");
-      }
-      else
-      {
-        irciv__privmsg("there is no player logged in as \"$old\"");
+        irciv__privmsg("rename: player \"$old\" is now known as \"$new\"");
       }
     }
     break;
@@ -75,11 +71,11 @@ switch ($action)
       if (isset($players[$player])==True)
       {
         unset($players[$player]);
-        irciv__privmsg("player \"$player\" logged out");
+        irciv__privmsg("logout: player \"$player\" logged out");
       }
       else
       {
-        irciv__privmsg("there is no player logged in as \"$player\"");
+        irciv__privmsg("logout: there is no player logged in as \"$player\"");
       }
     }
     break;

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-april-2014
+# 27-april-2014
 
 # irciv_lib.php
 
@@ -35,8 +35,8 @@ function irciv__err($msg)
 
 function get_bucket()
 {
-  global $buckets;
-  echo ":".NICK_EXEC." BUCKET_GET :\$buckets[\"civ\"]\n";
+  global $bucket;
+  echo ":".NICK_EXEC." BUCKET_GET :\$bucket[\"civ\"]\n";
   $f=fopen("php://stdin","r");
   $line=fgets($f);
   if ($line===False)
@@ -49,10 +49,10 @@ function get_bucket()
     if (($line<>"") and ($line<>"NO BUCKET DATA FOR WRITING TO STDIN") and ($line<>"BUCKET EVAL ERROR"))
     {
       echo "$line\n";
-      $tmp=unserialize($line);
+      $tmp=unserialize(gzuncompress($line));
       if ($tmp!==False)
       {
-        $buckets["civ"]=$tmp;
+        $bucket["civ"]=$tmp;
         irciv__term_echo("successfully loaded bucket data");
       }
       else
@@ -72,8 +72,8 @@ function get_bucket()
 
 function set_bucket()
 {
-  global $buckets;
-  $data=serialize($buckets);
+  global $bucket;
+  $data=gzcompress(serialize($bucket));
   echo ":".NICK_EXEC." BUCKET_SET :$data\n";
 }
 
