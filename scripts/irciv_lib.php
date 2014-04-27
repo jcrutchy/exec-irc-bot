@@ -36,7 +36,7 @@ function irciv__err($msg)
 function get_bucket()
 {
   global $bucket;
-  echo ":".NICK_EXEC." BUCKET_GET :\$bucket[\"civ\"]\n";
+  echo ":".NICK_EXEC." BUCKET_GET :bucket[\"civ\"]\n";
   $f=fopen("php://stdin","r");
   $line=fgets($f);
   if ($line===False)
@@ -46,10 +46,10 @@ function get_bucket()
   else
   {
     $line=trim($line);
-    if (($line<>"") and ($line<>"NO BUCKET DATA FOR WRITING TO STDIN") and ($line<>"BUCKET EVAL ERROR"))
+    if ($line<>"")
     {
       echo "$line\n";
-      $tmp=unserialize(gzuncompress($line));
+      $tmp=unserialize($line);
       if ($tmp!==False)
       {
         $bucket["civ"]=$tmp;
@@ -73,7 +73,7 @@ function get_bucket()
 function set_bucket()
 {
   global $bucket;
-  $data=gzcompress(serialize($bucket));
+  $data=serialize($bucket);
   echo ":".NICK_EXEC." BUCKET_SET :$data\n";
 }
 

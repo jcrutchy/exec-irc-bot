@@ -23,8 +23,10 @@ define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
 
 # bucket messages (bucket is an array filled by pipes)
+# bucket trailing format: ["elem"]["elem"]["elem"]["elem"] etc
 define("BUCKET_GET","BUCKET_GET");
 define("BUCKET_SET","BUCKET_SET");
+define("BUCKET_UNSET","BUCKET_UNSET");
 
 # internal command aliases (can't use in exec file)
 define("CMD_QUIT","~q");
@@ -34,6 +36,7 @@ define("CMD_RELOAD","~reload");
 define("CMD_BUCKET_DUMP","~bucket-dump"); # dump bucket to terminal
 define("CMD_BUCKET_SAVE","~bucket-save"); # save bucket to file
 define("CMD_BUCKET_LOAD","~bucket-load"); # load bucket from file
+define("CMD_BUCKET_FLUSH","~bucket-flush"); # re-initialize bucket
 
 # exec file shell command templates (replaced by the bot with actual values before executing)
 define("TEMPLATE_TRAILING","trailing");
@@ -189,12 +192,12 @@ function handle_bucket($data,$handle)
   }
   $trailing=$items["trailing"];
   $buf="";
-  $eval="if(isset($trailing)==True){\$buf=serialize($trailing);}";
   switch ($items["cmd"])
   {
     case BUCKET_GET:
       if (is_resource($handle["pipe_stdin"])==True)
       {
+        $eval="if(isset(\$bucket".$trailing.")==True){\$buf=serialize(\$bucket".$trailing.");}";
         if (eval($eval)!==False)
         {
           if ($buf<>"")
@@ -202,21 +205,19 @@ function handle_bucket($data,$handle)
             $result=fwrite($handle["pipe_stdin"],"$buf\n");
             if ($result===False)
             {
-              term_echo("ERROR WRITING BUCKET DATA TO STDIN");
+              term_echo("BUCKET_GET: ERROR WRITING BUCKET DATA TO STDIN");
             }
           }
           else
           {
-            $msg="NO BUCKET DATA FOR WRITING TO STDIN";
-            term_echo($msg);
-            fwrite($handle["pipe_stdin"],"$msg\n");
+            term_echo("BUCKET_GET: NO BUCKET DATA FOR WRITING TO STDIN");
+            fwrite($handle["pipe_stdin"],"\n");
           }
         }
         else
         {
-          $msg="BUCKET EVAL ERROR";
-          term_echo($msg);
-          fwrite($handle["pipe_stdin"],"$msg\n");
+          term_echo("BUCKET_GET: EVAL ERROR");
+          fwrite($handle["pipe_stdin"],"\n");
         }
       }
       return True;
@@ -224,16 +225,28 @@ function handle_bucket($data,$handle)
       $tmp=unserialize($trailing);
       if ($tmp===False)
       {
-        term_echo("ERROR UNSERIALIZING BUCKET DATA");
+        term_echo("BUCKET_SET: ERROR UNSERIALIZING BUCKET DATA");
       }
       elseif (is_array($tmp)==False)
       {
-        term_echo("BUCKET DATA IS NOT AN ARRAY");
+        term_echo("BUCKET_SET: BUCKET DATA IS NOT AN ARRAY");
       }
       else
       {
         var_dump($tmp);
         $bucket=array_replace_recursive($bucket,$tmp);
+        term_echo("BUCKET_SET: SUCCESS");
+      }
+      return True;
+    case BUCKET_UNSET:
+      $eval="if(isset(\$bucket".$trailing.")==True){unset(\$bucket".$trailing.");}";
+      if (eval($eval)===False)
+      {
+        term_echo("BUCKET_UNSET: EVAL ERROR");
+      }
+      else
+      {
+        term_echo("BUCKET_UNSET: SUCCESS");
       }
       return True;
   }
@@ -287,6 +300,15 @@ function bucket_load($items)
   }
   $bucket=$data;
   privmsg($items["destination"],$items["nick"],"successfully loaded bucket file");
+}
+
+#####################################################################################################
+
+function bucket_flush($items)
+{
+  global $bucket;
+  $bucket=array();
+  privmsg($items["destination"],$items["nick"],"bucket flushed");
 }
 
 #####################################################################################################
@@ -359,6 +381,10 @@ function handle_data($data)
     elseif (($items["trailing"]==CMD_BUCKET_LOAD) and (check_nick($items["nick"],CMD_BUCKET_LOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
       bucket_load($items);
+    }
+    elseif (($items["trailing"]==CMD_BUCKET_FLUSH) and (check_nick($items["nick"],CMD_BUCKET_FLUSH)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    {
+      bucket_flush($items);
     }
     elseif ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
     {
