@@ -79,8 +79,9 @@ function set_bucket()
 
 #####################################################################################################
 
-function map_coord($cols,$x,$y)
+function map_coord($x,$y)
 {
+  global $cols;
   return ($x+$y*$cols);
 }
 
@@ -97,7 +98,7 @@ function map_generate($chan)
      1 = Right
      2 = Down
      3 = Left */
-  $count=$rows*$cols;
+  /*$count=$rows*$cols;
   $maps[$chan]=array();
   $coords=str_repeat("O",$count);
   $landmass_count=20;
@@ -169,9 +170,9 @@ function map_generate($chan)
         }
       }
     }
-  }
+  }*/
   #$maps[$chan]["coords"]=gzcompress($coords);
-  $maps[$chan]["coords"]=$coords;
+  #$maps[$chan]["coords"]=$coords;
 }
 
 #####################################################################################################
@@ -192,7 +193,7 @@ function map_dump($chan)
   {
     irciv__term_echo(substr($coords,$i*$cols,$cols));
   }
-  irciv__term_echo("########################################");
+  irciv__term_echo("############# END MAP DUMP #############");
 }
 
 #####################################################################################################

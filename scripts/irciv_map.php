@@ -14,7 +14,7 @@ require_once("irciv_lib.php");
 define("CMD_GENERATE","generate");
 define("CMD_DUMP","dump");
 
-$cols=100;
+$cols=50;
 $rows=30;
 
 irciv__term_echo("civ-map running...");
@@ -43,7 +43,9 @@ $cmd=$parts[0];
 switch ($cmd)
 {
   case CMD_GENERATE:
+    $maps[$dest]["coords"]="";
     map_generate($dest);
+    $maps[$dest]["coords"]=gzcompress("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL");
     break;
   case CMD_DUMP:
     map_dump($dest);

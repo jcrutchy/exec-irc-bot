@@ -182,6 +182,26 @@ function handle_stderr($handle)
 
 #####################################################################################################
 
+function handle_stdin($handle,$data)
+{
+  if (is_resource($handle["pipe_stdin"])==False)
+  {
+    return False;
+  }
+  $buffer=str_split($data,1024);
+  for ($i=0;$i<count($buffer);$i++)
+  {
+    $result=fwrite($handle["pipe_stdin"],$buffer[$i]."\n");
+    if ($result===False)
+    {
+      return False;
+    }
+  }
+  return True;
+}
+
+#####################################################################################################
+
 function handle_bucket($data,$handle)
 {
   global $bucket;
@@ -195,38 +215,35 @@ function handle_bucket($data,$handle)
   switch ($items["cmd"])
   {
     case BUCKET_GET:
-      if (is_resource($handle["pipe_stdin"])==True)
+      if (bucket_check_trailing($trailing)==True)
       {
-        if (bucket_check_trailing($trailing)==True)
+        $eval="if(isset(\$bucket".$trailing.")==True){\$buf=serialize(\$bucket".$trailing.");}";
+        if (eval($eval)!==False)
         {
-          $eval="if(isset(\$bucket".$trailing.")==True){\$buf=serialize(\$bucket".$trailing.");}";
-          if (eval($eval)!==False)
+          if ($buf<>"")
           {
-            if ($buf<>"")
+            $result=handle_stdin($handle,$buf);
+            if ($result===False)
             {
-              $result=fwrite($handle["pipe_stdin"],"$buf\n");
-              if ($result===False)
-              {
-                term_echo("BUCKET_GET: ERROR WRITING BUCKET DATA TO STDIN");
-              }
-            }
-            else
-            {
-              term_echo("BUCKET_GET: NO BUCKET DATA FOR WRITING TO STDIN");
-              fwrite($handle["pipe_stdin"],"\n");
+              term_echo("BUCKET_GET: ERROR WRITING BUCKET DATA TO STDIN");
             }
           }
           else
           {
-            term_echo("BUCKET_GET: EVAL ERROR");
-            fwrite($handle["pipe_stdin"],"\n");
+            term_echo("BUCKET_GET: NO BUCKET DATA FOR WRITING TO STDIN");
+            handle_stdin($handle,"\n");
           }
         }
         else
         {
-          term_echo("BUCKET_GET: INVALID TRAILING");
-          fwrite($handle["pipe_stdin"],"\n");
+          term_echo("BUCKET_GET: EVAL ERROR");
+          handle_stdin($handle,"\n");
         }
+      }
+      else
+      {
+        term_echo("BUCKET_GET: INVALID TRAILING");
+        handle_stdin($handle,"\n");
       }
       return True;
     case BUCKET_SET:
