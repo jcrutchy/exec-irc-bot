@@ -31,8 +31,8 @@ function map_generate()
      3 = Left */
   $count=$rows*$cols;
   $coords=str_repeat("O",$count);
-  $landmass_count=6;
-  $landmass_size=70;
+  $landmass_count=20;
+  $landmass_size=150;
   for ($i=0;$i<$landmass_count;$i++)
   {
     $n=0;
@@ -64,7 +64,7 @@ function map_generate()
         $coords[map_coord($cols,$x1,$y1)]="L";
         $n++;
       }
-      if (mt_rand(0,200)==0) # higher upper limit makes landmass more spread out
+      if (mt_rand(0,100)==0) # higher upper limit makes landmass more spread out
       {
         $x1=$x;
         $y1=$y;
