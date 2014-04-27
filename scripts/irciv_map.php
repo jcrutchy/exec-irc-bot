@@ -37,8 +37,8 @@ $parts=explode(" ",$trailing);
 
 $cmd=$parts[0];
 
-$cols=140;
-$rows=53;
+$cols=2000;
+$rows=2000;
 
 switch ($cmd)
 {
@@ -56,7 +56,8 @@ switch ($cmd)
     if (isset($maps[$dest]["coords"])==True)
     {
       $coords=$maps[$dest]["coords"];
-      map_dump($coords,$cols,$rows);
+      #map_dump($coords,$cols,$rows);
+      irciv__term_echo(strlen($coords));
     }
     else
     {

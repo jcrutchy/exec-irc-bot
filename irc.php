@@ -198,6 +198,14 @@ function handle_stdin($handle,$data)
 
 #####################################################################################################
 
+/*
+TODO:
+- use a linear array bucket structure (refer to by key)
+- if a script requires complex data structures it can serialize/unserialize at its end
+- then i can also use gzcompress/gzuncompress on the pipe data
+- i'm gunna get rid of the evil eval!
+*/
+
 function handle_bucket($data,$handle)
 {
   global $bucket;

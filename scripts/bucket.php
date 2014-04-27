@@ -4,6 +4,8 @@
 # by crutchy
 # 26-april-2014
 
+# needs updating
+
 $test["level1"]["level2"]="blah";
 $data=serialize($test);
 echo ":exec BUCKET_SET :$data\n";
