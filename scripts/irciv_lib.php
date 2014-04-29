@@ -8,6 +8,8 @@
 
 define("GAME_NAME","IRCiv");
 define("NICK_EXEC","exec");
+define("GAME_CHAN","#civ");
+define("BUCKET_PREFIX",GAME_NAME."_".GAME_CHAN."_");
 
 #####################################################################################################
 
@@ -33,56 +35,27 @@ function irciv__err($msg)
 
 #####################################################################################################
 
-/*
-TODO:
-- use a linear array bucket structure (refer to by key)
-- if a script requires complex data structures it can serialize/unserialize at its end
-- then i can also use gzcompress/gzuncompress on the pipe data
-- i'm gunna get rid of the evil eval!
-*/
-
-function get_bucket()
+function get_bucket($suffix)
 {
-  global $bucket;
-  echo ":".NICK_EXEC." BUCKET_GET :[\"civ\"]\n";
+  echo ":".NICK_EXEC." BUCKET_GET :".BUCKET_PREFIX."$suffix\n";
   $f=fopen("php://stdin","r");
-  $line=fgets($f);
-  if ($line===False)
+  $data=fgets($f);
+  if ($data===False)
   {
     irciv__err("unable to read bucket data");
   }
   else
   {
-    $line=trim($line);
-    if ($line<>"")
-    {
-      echo "$line\n";
-      $tmp=unserialize($line);
-      if ($tmp!==False)
-      {
-        $bucket["civ"]=$tmp;
-        irciv__term_echo("successfully loaded bucket data");
-      }
-      else
-      {
-        irciv__term_echo("error unserializing bucket data");
-      }
-    }
-    else
-    {
-      irciv__term_echo("no bucket data to load");
-    }
+    return trim($data);
   }
   fclose($f);
 }
 
 #####################################################################################################
 
-function set_bucket()
+function set_bucket($suffix,$data)
 {
-  global $bucket;
-  $data=serialize($bucket);
-  echo ":".NICK_EXEC." BUCKET_SET :$data\n";
+  echo ":".NICK_EXEC." BUCKET_SET :".BUCKET_PREFIX."$suffix $data\n";
 }
 
 #####################################################################################################

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-april-2014
+# 30-april-2014
 
 #####################################################################################################
 
@@ -16,6 +16,7 @@ define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this,
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
 define("INIT_CHAN_LIST","#civ");
 define("MAX_MSG_LENGTH",800);
+#define("IRC_HOST","62.194.147.98"); # xlefay's xanlan server
 define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6667");
 define("IGNORE_TIME",20); # seconds (flood control)
@@ -56,7 +57,7 @@ define("START_TIME",microtime(True)); # used for %%start%% template
 $alias_locks=array(); # optionally stores an alias for each nick, which then treats every privmsg by that nick as being prefixed by the set alias
 $handles=array(); # stores executed process information
 $time_deltas=array(); # keeps track of how often nicks call an alias (used for flood control)
-$bucket=array(); # common place for scripts to store stuff
+$buckets=array(); # common place for scripts to store stuff
 
 $admin_nicks=array("crutchy");
 
@@ -198,125 +199,72 @@ function handle_stdin($handle,$data)
 
 #####################################################################################################
 
-/*
-TODO:
-- use a linear array bucket structure (refer to by key)
-- if a script requires complex data structures it can serialize/unserialize at its end
-- then i can also use gzcompress/gzuncompress on the pipe data
-- i'm gunna get rid of the evil eval!
-*/
-
 function handle_bucket($data,$handle)
 {
-  global $bucket;
+  global $buckets;
   $items=parse_data($data);
   if ($items===False)
   {
     return False;
   }
   $trailing=$items["trailing"];
-  $buf="";
   switch ($items["cmd"])
   {
     case BUCKET_GET:
-      if (bucket_check_trailing($trailing)==True)
+      $index=base64_encode($trailing);
+      if (isset($buckets[$index])==True)
       {
-        $eval="if(isset(\$bucket".$trailing.")==True){\$buf=serialize(\$bucket".$trailing.");}";
-        if (eval($eval)!==False)
+        $result=handle_stdin($handle,$buckets[$index]);
+        if ($result===False)
         {
-          if ($buf<>"")
-          {
-            $result=handle_stdin($handle,$buf);
-            if ($result===False)
-            {
-              term_echo("BUCKET_GET: ERROR WRITING BUCKET DATA TO STDIN");
-            }
-          }
-          else
-          {
-            term_echo("BUCKET_GET: NO BUCKET DATA FOR WRITING TO STDIN");
-            handle_stdin($handle,"\n");
-          }
+          term_echo("BUCKET_GET: ERROR WRITING BUCKET DATA TO STDIN");
         }
         else
         {
-          term_echo("BUCKET_GET: EVAL ERROR");
-          handle_stdin($handle,"\n");
+          term_echo("BUCKET_GET: SUCCESS");
         }
       }
       else
       {
-        term_echo("BUCKET_GET: INVALID TRAILING");
         handle_stdin($handle,"\n");
+        term_echo("BUCKET_GET: BUCKET NOT SET");
       }
       return True;
     case BUCKET_SET:
-      $tmp=unserialize($trailing);
-      if ($tmp===False)
+      $parts=explode(" ",$trailing);
+      if (count($parts)<>2)
       {
-        term_echo("BUCKET_SET: ERROR UNSERIALIZING BUCKET DATA");
-      }
-      elseif (is_array($tmp)==False)
-      {
-        term_echo("BUCKET_SET: BUCKET DATA IS NOT AN ARRAY");
+        term_echo("BUCKET_SET: INVALID TRAILING: '$trailing'");
       }
       else
       {
-        $bucket=array_replace_recursive($bucket,$tmp);
+        $index=base64_encode($parts[0]);
+        $buckets[$index]=$parts[1];
         term_echo("BUCKET_SET: SUCCESS");
       }
       return True;
     case BUCKET_UNSET:
-      if (bucket_check_trailing($trailing)==True)
+      $index=base64_encode($trailing);
+      if (isset($buckets[$index])==True)
       {
-        $eval="if(isset(\$bucket".$trailing.")==True){unset(\$bucket".$trailing.");}";
-        if (eval($eval)===False)
-        {
-          term_echo("BUCKET_UNSET: EVAL ERROR");
-        }
-        else
-        {
-          term_echo("BUCKET_UNSET: SUCCESS");
-        }
+        unset($buckets[$index]);
+        term_echo("BUCKET_UNSET: SUCCESS");
       }
       else
       {
-        term_echo("BUCKET_UNSET: INVALID TRAILING");
+        term_echo("BUCKET_UNSET: BUCKET NOT SET");
       }
       return True;
   }
-}
-
-#####################################################################################################
-
-function bucket_check_trailing($trailing)
-{
-  $parts=explode("\"]",$trailing);
-  if (count($parts)<2)
-  {
-    return False;
-  }
-  if ($parts[count($parts)-1]<>"")
-  {
-    return False;
-  }
-  for ($i=0;$i<(count($parts)-1);$i++)
-  {
-    if (substr($parts[$i],0,2)<>"[\"")
-    {
-      return False;
-    }
-  }
-  return True;
 }
 
 #####################################################################################################
 
 function bucket_dump($items)
 {
-  global $bucket;
+  global $buckets;
   term_echo("############ BEGIN BUCKET DUMP ############");
-  var_dump($bucket);
+  var_dump($buckets);
   term_echo("############# END BUCKET DUMP #############");
 }
 
@@ -324,8 +272,8 @@ function bucket_dump($items)
 
 function bucket_save($items)
 {
-  global $bucket;
-  $data=serialize($bucket);
+  global $buckets;
+  $data=serialize($buckets);
   if ($data===False)
   {
     privmsg($items["destination"],$items["nick"],"error serializing bucket");
@@ -343,7 +291,7 @@ function bucket_save($items)
 
 function bucket_load($items)
 {
-  global $bucket;
+  global $buckets;
   $data=file_get_contents(BUCKET_FILE);
   if ($data===False)
   {
@@ -356,7 +304,7 @@ function bucket_load($items)
     privmsg($items["destination"],$items["nick"],"error unserializing bucket file");
     return;
   }
-  $bucket=$data;
+  $buckets=$data;
   privmsg($items["destination"],$items["nick"],"successfully loaded bucket file");
 }
 
@@ -364,8 +312,8 @@ function bucket_load($items)
 
 function bucket_flush($items)
 {
-  global $bucket;
-  $bucket=array();
+  global $buckets;
+  $buckets=array();
   privmsg($items["destination"],$items["nick"],"bucket flushed");
 }
 

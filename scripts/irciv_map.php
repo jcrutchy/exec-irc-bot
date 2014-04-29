@@ -16,9 +16,11 @@ define("CMD_DUMP","dump");
 
 irciv__term_echo("civ-map running...");
 
-$bucket["civ"]["maps"]=array();
-get_bucket();
-$maps=&$bucket["civ"]["maps"];
+$coords=get_bucket("map");
+if ($coords=="")
+{
+  irciv__term_echo("map coords bucket contains no data");
+}
 
 $nick=$argv[1];
 $trailing=$argv[2];
@@ -37,8 +39,8 @@ $parts=explode(" ",$trailing);
 
 $cmd=$parts[0];
 
-$cols=2000;
-$rows=2000;
+$cols=500;
+$rows=500;
 
 switch ($cmd)
 {
@@ -49,24 +51,14 @@ switch ($cmd)
     $ocean_char="O";
     $land_char="L";
     $coords=map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,$ocean_char,$land_char);
-    $maps[$dest]["coords"]=$coords;
-    irciv__term_echo("map coords generated for channel \"$dest\"");
+    irciv__privmsg("map coords generated for channel \"$dest\"");
     break;
   case CMD_DUMP:
-    if (isset($maps[$dest]["coords"])==True)
-    {
-      $coords=$maps[$dest]["coords"];
-      #map_dump($coords,$cols,$rows);
-      irciv__term_echo(strlen($coords));
-    }
-    else
-    {
-      irciv__term_echo("map coords for channel \"$dest\" not found in bucket");
-    }
+    map_dump($coords,$cols,$rows);
     return;
 }
 
-set_bucket();
+set_bucket("map",$coords);
 
 #####################################################################################################
 

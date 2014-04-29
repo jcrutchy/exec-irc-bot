@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 27-april-2014
+# 30-april-2014
 
 # irciv.php
 
@@ -11,15 +11,32 @@
 ini_set("display_errors","on");
 require_once("irciv_lib.php");
 
-define("GAME_CHAN","#civ");
-
 define("ACTION_LOGIN","login");
 define("ACTION_LOGOUT","logout");
 define("ACTION_RENAME","rename");
 
-$bucket["civ"]["players"]=array();
-get_bucket();
-$players=&$bucket["civ"]["players"];
+$buckets=array();
+$buckets["players"]=array();
+
+$data=get_bucket("players");
+if ($data=="")
+{
+  irciv__term_echo("player bucket contains no data");
+}
+else
+{
+  $data=unserialize($data);
+  if ($data===False)
+  {
+    irciv__term_echo("error unserializing player bucket data");
+  }
+  else
+  {
+    $buckets["players"]=$data;
+  }
+}
+
+$players=&$buckets["players"];
 
 $nick=$argv[1];
 $trailing=$argv[2];
@@ -81,7 +98,15 @@ switch ($action)
     break;
 }
 
-set_bucket();
+$data=serialize($buckets["players"]);
+if ($data===False)
+{
+  irciv__term_echo("error serializing player bucket data");
+}
+else
+{
+  set_bucket("players",$data);
+}
 
 #####################################################################################################
 
