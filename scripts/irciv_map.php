@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 27-april-2014
+# 30-april-2014
 
 # irciv_map.php
 
@@ -20,6 +20,10 @@ $coords=get_bucket("map");
 if ($coords=="")
 {
   irciv__term_echo("map coords bucket contains no data");
+}
+else
+{
+  $coords=map_unzip($coords);
 }
 
 $nick=$argv[1];
@@ -39,8 +43,8 @@ $parts=explode(" ",$trailing);
 
 $cmd=$parts[0];
 
-$cols=500;
-$rows=500;
+$cols=100;
+$rows=100;
 
 switch ($cmd)
 {
@@ -54,9 +58,11 @@ switch ($cmd)
     irciv__privmsg("map coords generated for channel \"$dest\"");
     break;
   case CMD_DUMP:
-    map_dump($coords,$cols,$rows);
+    map_dump($coords,$cols,$rows,$dest);
     return;
 }
+
+$coords=map_zip($coords);
 
 set_bucket("map",$coords);
 

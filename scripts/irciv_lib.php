@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 27-april-2014
+# 30-april-2014
 
 # irciv_lib.php
 
@@ -148,14 +148,38 @@ function map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,$o
 
 #####################################################################################################
 
-function map_dump($coords,$cols,$rows)
+function map_dump($coords,$cols,$rows,$filename)
 {
-  irciv__term_echo("############ BEGIN MAP DUMP ############");
+  $data="############ BEGIN MAP DUMP ############\n";
   for ($i=0;$i<$rows;$i++)
   {
-    irciv__term_echo(substr($coords,$i*$cols,$cols));
+    $data=$data.substr($coords,$i*$cols,$cols)."\n";
   }
-  irciv__term_echo("############# END MAP DUMP #############");
+  $data=$data."############# END MAP DUMP #############";
+  if (file_put_contents($filename,$data)!==False)
+  {
+    irciv__privmsg("successfully saved map file to \"$filename\"");
+  }
+  else
+  {
+    irciv__privmsg("error saving map file to \"$filename\"");
+  }
+}
+
+#####################################################################################################
+
+function map_zip($coords)
+{
+  # replace consecutive characters with one character followed by the number of repetitions
+  # or maybe use gzcompress but escape the control characters (prolly easier)
+  return $coords;
+}
+
+#####################################################################################################
+
+function map_unzip($coords)
+{
+  return $coords;
 }
 
 #####################################################################################################

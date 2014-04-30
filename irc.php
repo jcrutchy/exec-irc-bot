@@ -364,7 +364,7 @@ function handle_data($data)
       privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]]."\" unlocked for nick \"".$items["nick"]."\"");
       unset($alias_locks[$items["nick"]]);
     }
-    elseif (($items["trailing"]==CMD_RELOAD) and (check_nick($items["nick"],CMD_RELOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_RELOAD) and (check_nick($items,CMD_RELOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
       if (exec_load()===False)
       {
@@ -376,19 +376,19 @@ function handle_data($data)
         privmsg($items["destination"],$items["nick"],"successfully reloaded exec");
       }
     }
-    elseif (($items["trailing"]==CMD_BUCKET_DUMP) and (check_nick($items["nick"],CMD_BUCKET_DUMP)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKET_DUMP) and (check_nick($items,CMD_BUCKET_DUMP)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
       bucket_dump($items);
     }
-    elseif (($items["trailing"]==CMD_BUCKET_SAVE) and (check_nick($items["nick"],CMD_BUCKET_SAVE)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKET_SAVE) and (check_nick($items,CMD_BUCKET_SAVE)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
       bucket_save($items);
     }
-    elseif (($items["trailing"]==CMD_BUCKET_LOAD) and (check_nick($items["nick"],CMD_BUCKET_LOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKET_LOAD) and (check_nick($items,CMD_BUCKET_LOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
       bucket_load($items);
     }
-    elseif (($items["trailing"]==CMD_BUCKET_FLUSH) and (check_nick($items["nick"],CMD_BUCKET_FLUSH)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKET_FLUSH) and (check_nick($items,CMD_BUCKET_FLUSH)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
       bucket_flush($items);
     }
