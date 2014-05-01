@@ -98,6 +98,10 @@ switch ($action)
     break;
 }
 
+irciv__term_echo("== BUCKETS ==");
+var_dump($buckets);
+irciv__term_echo("=============");
+
 $data=serialize($buckets["players"]);
 if ($data===False)
 {

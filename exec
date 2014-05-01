@@ -30,7 +30,7 @@ weather|10|0|1|php scripts/weather.php %%alias%% %%trailing%%
 weather-add|10|0|1|php scripts/weather.php %%alias%% %%trailing%%
 
 civ|5|0|1|php scripts/irciv.php %%nick%% %%trailing%% %%dest%%
-civ-map|10|0|1|php scripts/irciv_map.php %%nick%% %%trailing%% %%dest%%
+civ-map|15|0|1|php scripts/irciv_map.php %%nick%% %%trailing%% %%dest%%
 
 # non-php scripts
 haskell|5|1|1|runhaskell scripts/haskell.hs

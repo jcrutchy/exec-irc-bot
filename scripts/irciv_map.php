@@ -11,6 +11,11 @@
 ini_set("display_errors","on");
 require_once("irciv_lib.php");
 
+/*$coords=get_bucket("map");
+$coords=str_repeat("0",2*1048*1048);
+set_bucket("map",$coords);
+return;*/
+
 define("CMD_GENERATE","generate");
 define("CMD_DUMP","dump");
 
@@ -43,8 +48,8 @@ $parts=explode(" ",$trailing);
 
 $cmd=$parts[0];
 
-$cols=100;
-$rows=100;
+$cols=1024;
+$rows=1024;
 
 switch ($cmd)
 {

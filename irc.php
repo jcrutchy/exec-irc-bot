@@ -189,10 +189,16 @@ function handle_stdin($handle,$data)
   {
     return False;
   }
-  $result=fwrite($handle["pipe_stdin"],$data."\n");
-  if ($result===False)
+  $lines=str_split($data,1024);
+  $lines[]="<<EOF>>";
+  var_dump($lines);
+  for ($i=0;$i<count($lines);$i++)
   {
-    return False;
+    $result=fwrite($handle["pipe_stdin"],$lines[$i]."\n");
+    if ($result===False)
+    {
+      return False;
+    }
   }
   return True;
 }

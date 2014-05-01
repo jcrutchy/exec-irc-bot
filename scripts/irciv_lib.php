@@ -39,7 +39,19 @@ function get_bucket($suffix)
 {
   echo ":".NICK_EXEC." BUCKET_GET :".BUCKET_PREFIX."$suffix\n";
   $f=fopen("php://stdin","r");
-  $data=fgets($f);
+  $data="";
+  $i=0;
+  while (True)
+  {
+    $line=trim(fgets($f));
+    irciv__term_echo($line);
+    if (($line=="") or ($line=="<<EOF>>") or ($i>1000))
+    {
+      break;
+    }
+    $data=$data.$line;
+    $i++;
+  }
   if ($data===False)
   {
     irciv__err("unable to read bucket data");
@@ -158,7 +170,7 @@ function map_dump($coords,$cols,$rows,$filename)
   $data=$data."############# END MAP DUMP #############";
   if (file_put_contents($filename,$data)!==False)
   {
-    irciv__privmsg("successfully saved map file to \"$filename\"");
+    irciv__privmsg("successfully saved map file to \"$filename\" (".round(strlen($coords)/1024,1)."kb)");
   }
   else
   {
