@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 30-april-2014
+# 02-may-2014
 
 # irciv.php
 
@@ -18,7 +18,7 @@ define("ACTION_RENAME","rename");
 $buckets=array();
 $buckets["players"]=array();
 
-$data=get_bucket("players");
+$data=irciv__get_bucket("players");
 if ($data=="")
 {
   irciv__term_echo("player bucket contains no data");
@@ -98,10 +98,6 @@ switch ($action)
     break;
 }
 
-irciv__term_echo("== BUCKETS ==");
-var_dump($buckets);
-irciv__term_echo("=============");
-
 $data=serialize($buckets["players"]);
 if ($data===False)
 {
@@ -109,7 +105,7 @@ if ($data===False)
 }
 else
 {
-  set_bucket("players",$data);
+  irciv__set_bucket("players",$data);
 }
 
 #####################################################################################################

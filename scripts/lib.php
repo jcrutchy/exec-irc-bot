@@ -4,54 +4,64 @@
 # by crutchy
 # 02-may-2014
 
-# irciv_lib.php
+# lib.php
 
-require_once("lib.php");
-
-define("GAME_NAME","IRCiv");
-define("GAME_CHAN","#civ");
-define("BUCKET_PREFIX",GAME_NAME."_".GAME_CHAN."_");
+define("NICK_EXEC","exec");
 
 #####################################################################################################
 
-function irciv__term_echo($msg)
+function term_echo($msg)
 {
-  term_echo(GAME_NAME.": $msg");
+  echo "\033[34m$msg\033[0m\n";
 }
 
 #####################################################################################################
 
-function irciv__privmsg($msg)
+function privmsg($msg)
 {
-  privmsg(GAME_NAME.": $msg");
+  echo "IRC_MSG $msg\n";
 }
 
 #####################################################################################################
 
-function irciv__err($msg)
+function err($msg)
 {
-  err(GAME_NAME." error: $msg");
+  privmsg($msg);
+  die();
 }
 
 #####################################################################################################
 
-function irciv__get_bucket($suffix)
+function get_bucket($index)
 {
-  return get_bucket(BUCKET_PREFIX.$suffix);
+  echo ":".NICK_EXEC." BUCKET_GET :$index\n";
+  $f=fopen("php://stdin","r");
+  $data="";
+  while (True)
+  {
+    $line=trim(fgets($f));
+    if (($line=="") or ($line=="<<EOF>>"))
+    {
+      break;
+    }
+    $data=$data.$line;
+  }
+  if ($data===False)
+  {
+    err("unable to read bucket data");
+  }
+  else
+  {
+    return trim($data);
+  }
+  fclose($f);
 }
 
 #####################################################################################################
 
-function irciv__set_bucket($suffix,$data)
+function set_bucket($index,$data)
 {
-  set_bucket(BUCKET_PREFIX.$suffix,$data);
-}
-
-#####################################################################################################
-
-function map_coord($cols,$x,$y)
-{
-  return ($x+$y*$cols);
+  echo ":".NICK_EXEC." BUCKET_SET :$index $data\n";
 }
 
 #####################################################################################################

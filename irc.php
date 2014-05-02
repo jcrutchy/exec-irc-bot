@@ -2,7 +2,9 @@
 
 # gpl2
 # by crutchy
-# 30-april-2014
+# 02-may-2014
+
+# irc.php
 
 #####################################################################################################
 
@@ -50,6 +52,7 @@ define("TEMPLATE_CMD","cmd");
 define("TEMPLATE_PARAMS","params");
 
 set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)
+ini_set("memory_limit","128M");
 ini_set("display_errors","on"); # output errors to stdout
 
 define("START_TIME",microtime(True)); # used for %%start%% template
@@ -191,7 +194,6 @@ function handle_stdin($handle,$data)
   }
   $lines=str_split($data,1024);
   $lines[]="<<EOF>>";
-  var_dump($lines);
   for ($i=0;$i<count($lines);$i++)
   {
     $result=fwrite($handle["pipe_stdin"],$lines[$i]."\n");
@@ -220,6 +222,7 @@ function handle_bucket($data,$handle)
       $index=base64_encode($trailing);
       if (isset($buckets[$index])==True)
       {
+        term_echo("BUCKET_GET: $trailing: ".round(strlen($buckets[$index])/1024,1)."kb");
         $result=handle_stdin($handle,$buckets[$index]);
         if ($result===False)
         {
@@ -698,7 +701,6 @@ function process_scripts($items,$doall=False)
     "start"=>$start,
     "nick"=>$items["nick"],
     "destination"=>$items["destination"]);
-  stream_set_blocking($pipes[0],0);
   stream_set_blocking($pipes[1],0);
   stream_set_blocking($pipes[2],0);
 }
