@@ -71,6 +71,11 @@ if ($exec_list===False)
 }
 
 $socket=fsockopen(IRC_HOST,IRC_PORT);
+if ($socket===False)
+{
+  term_echo("ERROR CREATING IRC SOCKET");
+  die();
+}
 stream_set_blocking($socket,0);
 rawmsg("NICK ".NICK);
 rawmsg("USER ".NICK." hostname servername :".NICK.".bot");
@@ -106,11 +111,14 @@ function handle_process($handle)
     }
     return False;
   }
-  if ((microtime(True)-$handle["start"])>$handle["timeout"])
+  if ($handle["timeout"]>=0)
   {
-    proc_close($handle["process"]);
-    privmsg($handle["destination"],$handle["nick"],"error: command timed out");
-    return False;
+    if ((microtime(True)-$handle["start"])>$handle["timeout"])
+    {
+      proc_close($handle["process"]);
+      privmsg($handle["destination"],$handle["nick"],"error: command timed out");
+      return False;
+    }
   }
   return True;
 }
@@ -346,6 +354,7 @@ function handle_socket($socket)
 function handle_data($data)
 {
   global $admin_nicks;
+  global $alias_locks;
   echo $data;
   $items=parse_data($data);
   if ($items!==False)
@@ -359,18 +368,18 @@ function handle_data($data)
     {
       if (count($args)==2)
       {
-        $alias_locks[$items["nick"]]=$args[1];
-        privmsg($items["destination"],$items["nick"],"alias \"".$args[1]."\" locked for nick \"".$items["nick"]."\"");
+        $alias_locks[$items["nick"]][$items["destination"]]=$args[1];
+        privmsg($items["destination"],$items["nick"],"alias \"".$args[1]."\" locked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
       }
       else
       {
         privmsg($items["destination"],$items["nick"],"syntax: ~lock <alias>");
       }
     }
-    elseif (($items["trailing"]==CMD_UNLOCK) and (check_nick($items,CMD_UNLOCK)==True) and (isset($alias_locks[$items["nick"]])==True))
+    elseif (($items["trailing"]==CMD_UNLOCK) and (check_nick($items,CMD_UNLOCK)==True) and (isset($alias_locks[$items["nick"]][$items["destination"]])==True))
     {
-      privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]]."\" unlocked for nick \"".$items["nick"]."\"");
-      unset($alias_locks[$items["nick"]]);
+      privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]][$items["destination"]]."\" unlocked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
+      unset($alias_locks[$items["nick"]][$items["destination"]]);
     }
     elseif (($items["trailing"]==CMD_RELOAD) and (check_nick($items,CMD_RELOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
@@ -633,9 +642,9 @@ function process_scripts($items,$doall=False)
   $trailing=$items["trailing"];
   if ($doall==False)
   {
-    if (isset($alias_locks[$nick])==True)
+    if (isset($alias_locks[$nick][$destination])==True)
     {
-      $alias=$alias_locks[$nick];
+      $alias=$alias_locks[$nick][$destination];
     }
     else
     {

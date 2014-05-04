@@ -33,8 +33,8 @@ $parts=explode(" ",$trailing);
 
 $cmd=$parts[0];
 
-$coords_bucket=irciv__get_bucket("map_coords");
-$data_bucket=irciv__get_bucket("map_data");
+$coords_bucket=irciv_get_bucket("map_coords");
+$data_bucket=irciv_get_bucket("map_data");
 if (($coords_bucket<>"") and ($data_bucket<>""))
 {
   $coords=map_unzip($coords_bucket);
@@ -42,7 +42,7 @@ if (($coords_bucket<>"") and ($data_bucket<>""))
 }
 else
 {
-  irciv__term_echo("map coords and/or data bucket(s) not found");
+  irciv_term_echo("map coords and/or data bucket(s) not found");
 }
 
 switch ($cmd)
@@ -52,12 +52,12 @@ switch ($cmd)
     $landmass_size=80;
     if (($landmass_count*$landmass_size)>=(0.8*$data["cols"]*$data["rows"]))
     {
-      irciv__privmsg("landmass parameter error in generating map for channel \"$dest\"");
+      irciv_privmsg("landmass parameter error in generating map for channel \"$dest\"");
       return;
     }
     $land_spread=100;
     $coords=map_generate($data,$landmass_count,$landmass_size,$land_spread,TERRAIN_OCEAN,TERRAIN_LAND);
-    irciv__privmsg("map coords generated for channel \"$dest\"");
+    irciv_privmsg("map coords generated for channel \"$dest\"");
     break;
   case CMD_DUMP:
     map_dump($coords,$data,$dest);
@@ -69,9 +69,9 @@ switch ($cmd)
 
 $coords=map_zip($coords);
 $data=serialize($data);
-irciv__term_echo("coords: ".round(strlen($coords)/1024,1)."kb");
-irciv__set_bucket("map_coords",$coords);
-irciv__set_bucket("map_data",$data);
+irciv_term_echo("coords: ".round(strlen($coords)/1024,1)."kb");
+irciv_set_bucket("map_coords",$coords);
+irciv_set_bucket("map_data",$data);
 
 #####################################################################################################
 
@@ -126,14 +126,14 @@ function map_generate($data,$landmass_count,$landmass_size,$land_spread,$ocean_c
       }
     }
     $delta=microtime(True)-$prev;
-    irciv__term_echo("processed landmass $i: ".round($delta,3)." sec / $landmass_count landmasses");
+    irciv_term_echo("processed landmass $i: ".round($delta,3)." sec / $landmass_count landmasses");
     $prev=microtime(True);
   }
-  irciv__term_echo("processed all landmasses");
+  irciv_term_echo("processed all landmasses");
   # fill in any isolated inland 1x1 lakes
   for ($y=0;$y<$rows;$y++)
   {
-    irciv__term_echo("1x1 lake fixer: processing row $y / $rows");
+    irciv_term_echo("1x1 lake fixer: processing row $y / $rows");
     for ($x=0;$x<$cols;$x++)
     {
       $i=map_coord($cols,$x,$y);
@@ -176,11 +176,11 @@ function map_dump($coords,$data,$filename)
   $out=trim($out);
   if (file_put_contents($filename,$out)!==False)
   {
-    irciv__privmsg("successfully saved map file to \"$filename\" (".round(strlen($coords)/1024,1)."kb)");
+    irciv_privmsg("successfully saved map file to \"$filename\" (".round(strlen($coords)/1024,1)."kb)");
   }
   else
   {
-    irciv__privmsg("error saving map file to \"$filename\"");
+    irciv_privmsg("error saving map file to \"$filename\"");
   }
 }
 
@@ -212,6 +212,7 @@ function map_gif($coords,$filename,$scale=2)
   #header('Content-Type: image/gif');
   imagegif($buffer,$filename.".gif");
   imagedestroy($buffer);
+  irciv_privmsg("saved map image file to \"$filename.gif\"");
 }
 
 #####################################################################################################

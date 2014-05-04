@@ -17,35 +17,35 @@ define("TERRAIN_LAND","L");
 
 #####################################################################################################
 
-function irciv__term_echo($msg)
+function irciv_term_echo($msg)
 {
   term_echo(GAME_NAME.": $msg");
 }
 
 #####################################################################################################
 
-function irciv__privmsg($msg)
+function irciv_privmsg($msg)
 {
   privmsg(GAME_NAME.": $msg");
 }
 
 #####################################################################################################
 
-function irciv__err($msg)
+function irciv_err($msg)
 {
   err(GAME_NAME." error: $msg");
 }
 
 #####################################################################################################
 
-function irciv__get_bucket($suffix)
+function irciv_get_bucket($suffix)
 {
   return get_bucket(BUCKET_PREFIX.$suffix);
 }
 
 #####################################################################################################
 
-function irciv__set_bucket($suffix,$data)
+function irciv_set_bucket($suffix,$data)
 {
   set_bucket(BUCKET_PREFIX.$suffix,$data);
 }

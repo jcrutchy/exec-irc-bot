@@ -25,6 +25,7 @@ bsod|10|1|1|php scripts/bsod.php
 ~recurse|5|0|1|php scripts/recurse.php
 ~bucket|5|0|1|php scripts/bucket.php
 ~flush|5|0|1|php scripts/bucket_flush.php %%nick%%
+tux|5|1|0|cowsay -f tux %%trailing%%
 
 weather|10|0|1|php scripts/weather.php %%alias%% %%trailing%%
 weather-add|10|0|1|php scripts/weather.php %%alias%% %%trailing%%
