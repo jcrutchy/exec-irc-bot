@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 02-may-2014
+# 04-may-2014
 
 # irciv.php
 
@@ -14,29 +14,25 @@ require_once("irciv_lib.php");
 define("ACTION_LOGIN","login");
 define("ACTION_LOGOUT","logout");
 define("ACTION_RENAME","rename");
+define("ACTION_MOVE","move");
 
-$buckets=array();
-$buckets["players"]=array();
+$map_coords="";
+$map_data=array();
+$players=array();
 
-$data=irciv__get_bucket("players");
-if ($data=="")
+$players_bucket=irciv__get_bucket("players");
+if ($players_bucket=="")
 {
   irciv__term_echo("player bucket contains no data");
 }
 else
 {
-  $data=unserialize($data);
-  if ($data===False)
+  $players=unserialize($players_bucket);
+  if ($players===False)
   {
-    irciv__term_echo("error unserializing player bucket data");
-  }
-  else
-  {
-    $buckets["players"]=$data;
+    irciv__err("error unserializing player bucket data");
   }
 }
-
-$players=&$buckets["players"];
 
 $nick=$argv[1];
 $trailing=$argv[2];
@@ -75,9 +71,16 @@ switch ($action)
     {
       $old=$parts[1];
       $new=$parts[2];
-      if (isset($players[$old])==True)
+      if ((isset($players[$old])==True) and (isset($players[$new])==False))
       {
-        irciv__privmsg("rename: player \"$old\" is now known as \"$new\"");
+        $player_data=$players[$old];
+        $players[$new]=$player_data;
+        unset($players[$old]);
+        irciv__privmsg("player \"$old\" renamed to \"$new\"");
+      }
+      else
+      {
+        irciv__privmsg("error renaming player \"$old\" to \"$new\"");
       }
     }
     break;
@@ -96,16 +99,60 @@ switch ($action)
       }
     }
     break;
+  case ACTION_MOVE:
+    player_init($nick);
+    break;
 }
 
-$data=serialize($buckets["players"]);
-if ($data===False)
+$players_bucket=serialize($players);
+if ($players_bucket===False)
 {
   irciv__term_echo("error serializing player bucket data");
 }
 else
 {
-  irciv__set_bucket("players",$data);
+  irciv__set_bucket("players",$players_bucket);
+}
+
+#####################################################################################################
+
+function player_init($nick)
+{
+  global $players;
+  global $map_coords;
+  global $map_data;
+  if (isset($players[$nick])==False)
+  {
+    die();
+  }
+  $coords_bucket=irciv__get_bucket("map_coords");
+  $data_bucket=irciv__get_bucket("map_data");
+  if (($coords_bucket<>"") and ($data_bucket<>""))
+  {
+    $map_coords=map_unzip($coords_bucket);
+    $map_data=unserialize($data_bucket);
+  }
+  else
+  {
+    irciv__privmsg("map coords and/or data bucket(s) not found");
+    die();
+  }
+  do
+  {
+    $coord=mt_rand(0,$map_data["cols"]*$map_data["rows"]);
+  }
+  while ($map_coords[$coord]<>TERRAIN_LAND);
+  $players[$nick]["units"][]=unit_init("warrior",$coord);
+}
+
+#####################################################################################################
+
+function unit_init($type,$coord)
+{
+  $data["type"]=$type;
+  $data["health"]=100;
+  $data["coord"]=$coord;
+  return $data;
 }
 
 #####################################################################################################

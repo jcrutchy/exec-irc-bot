@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 02-may-2014
+# 04-may-2014
 
 # irc.php
 
@@ -11,22 +11,21 @@
 define("NICK","exec");
 define("PASSWORD",file_get_contents("../pwd/".NICK));
 define("EXEC_FILE","exec");
-define("BUCKET_FILE","../data/bucket");
+define("BUCKETS_FILE","../data/buckets");
 define("EXEC_DELIM","|");
 define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
 define("INIT_CHAN_LIST","#civ");
 define("MAX_MSG_LENGTH",800);
-#define("IRC_HOST","62.194.147.98"); # xlefay's xanlan server
 define("IRC_HOST","irc.sylnt.us");
+#define("IRC_HOST","localhost");
 define("IRC_PORT","6667");
 define("IGNORE_TIME",20); # seconds (flood control)
 define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
 
-# bucket messages (bucket is an array filled by pipes)
-# bucket trailing format: ["elem"]["elem"]["elem"]["elem"] etc
+# bucket messages (buckets is an array filled by pipes)
 define("BUCKET_GET","BUCKET_GET");
 define("BUCKET_SET","BUCKET_SET");
 define("BUCKET_UNSET","BUCKET_UNSET");
@@ -36,10 +35,10 @@ define("CMD_QUIT","~q");
 define("CMD_LOCK","~lock");
 define("CMD_UNLOCK","~unlock");
 define("CMD_RELOAD","~reload");
-define("CMD_BUCKET_DUMP","~bucket-dump"); # dump bucket to terminal
-define("CMD_BUCKET_SAVE","~bucket-save"); # save bucket to file
-define("CMD_BUCKET_LOAD","~bucket-load"); # load bucket from file
-define("CMD_BUCKET_FLUSH","~bucket-flush"); # re-initialize bucket
+define("CMD_BUCKETS_DUMP","~buckets-dump"); # dump buckets to terminal
+define("CMD_BUCKETS_SAVE","~buckets-save"); # save buckets to file
+define("CMD_BUCKETS_LOAD","~buckets-load"); # load buckets from file
+define("CMD_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
 
 # exec file shell command templates (replaced by the bot with actual values before executing)
 define("TEMPLATE_TRAILING","trailing");
@@ -269,61 +268,61 @@ function handle_bucket($data,$handle)
 
 #####################################################################################################
 
-function bucket_dump($items)
+function buckets_dump($items)
 {
   global $buckets;
-  term_echo("############ BEGIN BUCKET DUMP ############");
+  term_echo("############ BEGIN BUCKETS DUMP ############");
   var_dump($buckets);
-  term_echo("############# END BUCKET DUMP #############");
+  term_echo("############# END BUCKETS DUMP #############");
 }
 
 #####################################################################################################
 
-function bucket_save($items)
+function buckets_save($items)
 {
   global $buckets;
   $data=serialize($buckets);
   if ($data===False)
   {
-    privmsg($items["destination"],$items["nick"],"error serializing bucket");
+    privmsg($items["destination"],$items["nick"],"error serializing buckets");
     return;
   }
-  if (file_put_contents(BUCKET_FILE,$data)===False)
+  if (file_put_contents(BUCKETS_FILE,$data)===False)
   {
-    privmsg($items["destination"],$items["nick"],"error saving bucket file");
+    privmsg($items["destination"],$items["nick"],"error saving buckets file");
     return;
   }
-  privmsg($items["destination"],$items["nick"],"successfully saved bucket file");
+  privmsg($items["destination"],$items["nick"],"successfully saved buckets file");
 }
 
 #####################################################################################################
 
-function bucket_load($items)
+function buckets_load($items)
 {
   global $buckets;
-  $data=file_get_contents(BUCKET_FILE);
+  $data=file_get_contents(BUCKETS_FILE);
   if ($data===False)
   {
-    privmsg($items["destination"],$items["nick"],"error reading bucket file");
+    privmsg($items["destination"],$items["nick"],"error reading buckets file");
     return;
   }
   $data=unserialize($data);
   if ($data===False)
   {
-    privmsg($items["destination"],$items["nick"],"error unserializing bucket file");
+    privmsg($items["destination"],$items["nick"],"error unserializing buckets file");
     return;
   }
   $buckets=$data;
-  privmsg($items["destination"],$items["nick"],"successfully loaded bucket file");
+  privmsg($items["destination"],$items["nick"],"successfully loaded buckets file");
 }
 
 #####################################################################################################
 
-function bucket_flush($items)
+function buckets_flush($items)
 {
   global $buckets;
   $buckets=array();
-  privmsg($items["destination"],$items["nick"],"bucket flushed");
+  privmsg($items["destination"],$items["nick"],"buckets flushed");
 }
 
 #####################################################################################################
@@ -385,21 +384,21 @@ function handle_data($data)
         privmsg($items["destination"],$items["nick"],"successfully reloaded exec");
       }
     }
-    elseif (($items["trailing"]==CMD_BUCKET_DUMP) and (check_nick($items,CMD_BUCKET_DUMP)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKETS_DUMP) and (check_nick($items,CMD_BUCKETS_DUMP)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
-      bucket_dump($items);
+      buckets_dump($items);
     }
-    elseif (($items["trailing"]==CMD_BUCKET_SAVE) and (check_nick($items,CMD_BUCKET_SAVE)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKETS_SAVE) and (check_nick($items,CMD_BUCKETS_SAVE)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
-      bucket_save($items);
+      buckets_save($items);
     }
-    elseif (($items["trailing"]==CMD_BUCKET_LOAD) and (check_nick($items,CMD_BUCKET_LOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKETS_LOAD) and (check_nick($items,CMD_BUCKETS_LOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
-      bucket_load($items);
+      buckets_load($items);
     }
-    elseif (($items["trailing"]==CMD_BUCKET_FLUSH) and (check_nick($items,CMD_BUCKET_FLUSH)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKETS_FLUSH) and (check_nick($items,CMD_BUCKETS_FLUSH)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
-      bucket_flush($items);
+      buckets_flush($items);
     }
     elseif ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
     {

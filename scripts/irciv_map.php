@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 02-may-2014
+# 04-may-2014
 
 # irciv_map.php
 
@@ -25,37 +25,42 @@ if (in_array($nick,$admin_nicks)==False)
   return;
 }
 
+$data["cols"]=128;
+$data["rows"]=64;
+$coords=str_repeat(TERRAIN_OCEAN,$data["cols"]*$data["rows"]);
+
 $parts=explode(" ",$trailing);
 
 $cmd=$parts[0];
 
-$coords=irciv__get_bucket("map");
-if ($coords=="")
+$coords_bucket=irciv__get_bucket("map_coords");
+$data_bucket=irciv__get_bucket("map_data");
+if (($coords_bucket<>"") and ($data_bucket<>""))
 {
-  irciv__term_echo("map coords bucket contains no data");
+  $coords=map_unzip($coords_bucket);
+  $data=unserialize($data_bucket);
 }
 else
 {
-  $coords=map_unzip($coords);
+  irciv__term_echo("map coords and/or data bucket(s) not found");
 }
-
-$cols=1024;
-$rows=1024;
-
-$ocean_char="O";
-$land_char="L";
 
 switch ($cmd)
 {
   case CMD_GENERATE:
-    $landmass_count=300;
-    $landmass_size=1000;
-    $land_spread=200;
-    $coords=map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,$ocean_char,$land_char);
+    $landmass_count=50;
+    $landmass_size=80;
+    if (($landmass_count*$landmass_size)>=(0.8*$data["cols"]*$data["rows"]))
+    {
+      irciv__privmsg("landmass parameter error in generating map for channel \"$dest\"");
+      return;
+    }
+    $land_spread=100;
+    $coords=map_generate($data,$landmass_count,$landmass_size,$land_spread,TERRAIN_OCEAN,TERRAIN_LAND);
     irciv__privmsg("map coords generated for channel \"$dest\"");
     break;
   case CMD_DUMP:
-    map_dump($coords,$cols,$rows,$dest);
+    map_dump($coords,$data,$dest);
     return;
   case CMD_IMAGE:
     map_gif($coords,$dest,2);
@@ -63,12 +68,14 @@ switch ($cmd)
 }
 
 $coords=map_zip($coords);
+$data=serialize($data);
 irciv__term_echo("coords: ".round(strlen($coords)/1024,1)."kb");
-irciv__set_bucket("map",$coords);
+irciv__set_bucket("map_coords",$coords);
+irciv__set_bucket("map_data",$data);
 
 #####################################################################################################
 
-function map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,$ocean_char,$land_char)
+function map_generate($data,$landmass_count,$landmass_size,$land_spread,$ocean_char,$land_char)
 {
   $dir_x=array(0,1,0,-1);
   $dir_y=array(-1,0,1,0);
@@ -76,6 +83,8 @@ function map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,$o
      1 = Right
      2 = Down
      3 = Left */
+  $cols=$data["cols"];
+  $rows=$data["rows"];
   $count=$rows*$cols;
   $coords=str_repeat($ocean_char,$count);
   $prev=microtime(True);
@@ -117,12 +126,14 @@ function map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,$o
       }
     }
     $delta=microtime(True)-$prev;
-    irciv__term_echo("processed landmass %i: ".round($delta,3)." sec / $landmass_count landmasses");
+    irciv__term_echo("processed landmass $i: ".round($delta,3)." sec / $landmass_count landmasses");
     $prev=microtime(True);
   }
+  irciv__term_echo("processed all landmasses");
   # fill in any isolated inland 1x1 lakes
   for ($y=0;$y<$rows;$y++)
   {
+    irciv__term_echo("1x1 lake fixer: processing row $y / $rows");
     for ($x=0;$x<$cols;$x++)
     {
       $i=map_coord($cols,$x,$y);
@@ -153,15 +164,17 @@ function map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,$o
 
 #####################################################################################################
 
-function map_dump($coords,$cols,$rows,$filename)
+function map_dump($coords,$data,$filename)
 {
-  $data="";
+  $cols=$data["cols"];
+  $rows=$data["rows"];
+  $out="";
   for ($i=0;$i<$rows;$i++)
   {
-    $data=$data.substr($coords,$i*$cols,$cols)."\n";
+    $out=$out.substr($coords,$i*$cols,$cols)."\n";
   }
-  $data=trim($data);
-  if (file_put_contents($filename,$data)!==False)
+  $out=trim($out);
+  if (file_put_contents($filename,$out)!==False)
   {
     irciv__privmsg("successfully saved map file to \"$filename\" (".round(strlen($coords)/1024,1)."kb)");
   }
@@ -173,27 +186,11 @@ function map_dump($coords,$cols,$rows,$filename)
 
 #####################################################################################################
 
-function map_zip($coords)
-{
-  # replace consecutive characters with one character followed by the number of repetitions
-  # or maybe use gzcompress but escape the control characters (prolly easier)
-  return $coords;
-}
-
-#####################################################################################################
-
-function map_unzip($coords)
-{
-  return $coords;
-}
-
-#####################################################################################################
-
 function map_gif($coords,$filename,$scale=2)
 {
-  global $cols;
-  global $rows;
-  global $land_char;
+  global $data;
+  $cols=$data["cols"];
+  $rows=$data["rows"];
   #ob_clean();
   $w=$cols*$scale;
   $h=$rows*$scale;
@@ -206,9 +203,9 @@ function map_gif($coords,$filename,$scale=2)
     for ($x=0;$x<$cols;$x++)
     {
       $i=map_coord($cols,$x,$y);
-      if ($coords[$i]==$land_char)
+      if ($coords[$i]==TERRAIN_LAND)
       {
-        imagefilledrectangle($buffer,$x*$scale,$y*$scale,($x+1)*$scale,($y+1)*$scale,$color_land);
+        imagefilledrectangle($buffer,$x*$scale,$y*$scale,($x+1)*$scale-1,($y+1)*$scale-1,$color_land);
       }
     }
   }

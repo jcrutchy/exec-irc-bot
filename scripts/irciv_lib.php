@@ -12,6 +12,9 @@ define("GAME_NAME","IRCiv");
 define("GAME_CHAN","#civ");
 define("BUCKET_PREFIX",GAME_NAME."_".GAME_CHAN."_");
 
+define("TERRAIN_OCEAN","O");
+define("TERRAIN_LAND","L");
+
 #####################################################################################################
 
 function irciv__term_echo($msg)
@@ -52,6 +55,22 @@ function irciv__set_bucket($suffix,$data)
 function map_coord($cols,$x,$y)
 {
   return ($x+$y*$cols);
+}
+
+#####################################################################################################
+
+function map_zip($coords)
+{
+  # replace consecutive characters with one character followed by the number of repetitions
+  # or maybe use gzcompress but escape the control characters (prolly easier)
+  return $coords;
+}
+
+#####################################################################################################
+
+function map_unzip($coords)
+{
+  return $coords;
 }
 
 #####################################################################################################
