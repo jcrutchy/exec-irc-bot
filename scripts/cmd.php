@@ -65,7 +65,10 @@ switch ($cmd)
   case "JOIN":
     if ($dest==CHAN_CIV)
     {
-      echo ":crutchy NOTICE #civ :civ-map generate\n";
+      if ($nick==NICK)
+      {
+        echo ":crutchy NOTICE #civ :civ-map generate\n";
+      }
       echo "IRC_RAW WHOIS $nick\n";
     }
     break;
