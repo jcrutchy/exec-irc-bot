@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 04-may-2014
+# 05-may-2014
 
 # irc.php
 
@@ -24,6 +24,14 @@ define("IRC_PORT","6667");
 define("IGNORE_TIME",20); # seconds (flood control)
 define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
+
+# stdout bot directives
+define("DIRECTIVE_QUIT","<<quit>>");
+
+# reserved aliases
+define("ALIAS_ALL","*");
+define("ALIAS_INIT","<init>");
+define("ALIAS_QUIT","<quit>");
 
 # bucket messages (buckets is an array filled by pipes)
 define("BUCKET_GET","BUCKET_GET");
@@ -70,6 +78,7 @@ if ($exec_list===False)
   return;
 }
 
+init();
 $socket=fsockopen(IRC_HOST,IRC_PORT);
 if ($socket===False)
 {
@@ -93,6 +102,14 @@ while (True)
   $handles=array_values($handles);
   handle_socket($socket);
   usleep(0.01e6); # 0.01 second to prevent cpu flogging
+}
+
+#####################################################################################################
+
+function init()
+{
+  $items=parse_data("INIT");
+  process_scripts($items,ALIAS_INIT);
 }
 
 #####################################################################################################
@@ -135,6 +152,10 @@ function handle_stdout($handle)
   if ($buf===False)
   {
     return;
+  }
+  if (trim($buf)==DIRECTIVE_QUIT)
+  {
+    doquit();
   }
   $msg=$buf;
   if (substr($msg,strlen($msg)-1)=="\n")
@@ -362,7 +383,7 @@ function handle_data($data)
     $args=explode(" ",$items["trailing"]);
     if (($items["trailing"]==CMD_QUIT) and (in_array($items["nick"],$admin_nicks)==True))
     {
-      doquit();
+      process_scripts($items,ALIAS_QUIT);
     }
     elseif (($args[0]==CMD_LOCK) and (check_nick($items,CMD_LOCK)==True))
     {
@@ -420,7 +441,7 @@ function handle_data($data)
     else
     {
       process_scripts($items); # execute scripts occurring for a specific alias
-      process_scripts($items,True); # process scripts occuring for every line (* alias)
+      process_scripts($items,ALIAS_ALL); # process scripts occuring for every line (* alias)
     }
   }
 }
@@ -629,7 +650,7 @@ function privmsg($destination,$nick,$msg)
 
 #####################################################################################################
 
-function process_scripts($items,$doall=False)
+function process_scripts($items,$reserved="")
 {
   global $handles;
   global $exec_list;
@@ -638,9 +659,8 @@ function process_scripts($items,$doall=False)
   $destination=trim($items["destination"]);
   $data=trim($items["data"]);
   $cmd=trim($items["cmd"]);
-  $alias="*";
   $trailing=$items["trailing"];
-  if ($doall==False)
+  if ($reserved=="")
   {
     if (isset($alias_locks[$nick][$destination])==True)
     {
@@ -657,10 +677,14 @@ function process_scripts($items,$doall=False)
       array_shift($parts);
       $trailing=trim(implode(" ",$parts));
     }
-    if ($alias=="*")
+    if (($alias==ALIAS_ALL) or ($alias==ALIAS_INIT) or ($alias==ALIAS_QUIT))
     {
       return;
     }
+  }
+  else
+  {
+    $alias=$reserved;
   }
   if (isset($exec_list[$alias])==False)
   {

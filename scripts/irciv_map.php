@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 04-may-2014
+# 5-may-2014
 
 # irciv_map.php
 
@@ -79,10 +79,10 @@ function map_generate($data,$landmass_count,$landmass_size,$land_spread,$ocean_c
 {
   $dir_x=array(0,1,0,-1);
   $dir_y=array(-1,0,1,0);
-  /* 0 = Up
-     1 = Right
-     2 = Down
-     3 = Left */
+  /* 0 = up
+     1 = right
+     2 = down
+     3 = left */
   $cols=$data["cols"];
   $rows=$data["rows"];
   $count=$rows*$cols;

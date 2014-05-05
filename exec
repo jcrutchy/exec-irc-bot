@@ -2,8 +2,14 @@
 # available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%exec%%, %%params%%
 # %%trailing%% excludes alias
 
-# EXEC ON ALL LINES (ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
+# EXEC ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 *|10|0|1|php scripts/grab.php %%trailing%% %%nick%% && php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
+
+# EXEC ON REGISTER - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
+<init>|10|0|1|php scripts/init.php
+
+# EXEC ON QUIT - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
+<quit>|3|0|1|php scripts/quit.php
 
 ~|5|1|1|php scripts/about.php
 cowsay|5|1|0|cowsay %%trailing%%

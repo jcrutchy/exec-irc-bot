@@ -26,7 +26,15 @@ switch ($cmd)
     {
       $nick=$parts[1];
       $account=$parts[2];
-      echo ":".NICK." NOTICE ".CHAN_CIV." :civ login $nick $account\n";
+      if ($nick<>NICK)
+      {
+        echo ":".NICK." NOTICE ".CHAN_CIV." :civ login $nick $account\n";
+        echo ":$nick NOTICE ".CHAN_CIV." :~lock civ\n";
+        sleep(1);
+        echo ":$nick NOTICE ".CHAN_CIV." :flag public_status\n";
+        sleep(1);
+        echo ":$nick NOTICE ".CHAN_CIV." :status\n";
+      }
     }
     break;
   case "353": # channel names list
@@ -57,6 +65,7 @@ switch ($cmd)
   case "JOIN":
     if ($dest==CHAN_CIV)
     {
+      echo ":crutchy NOTICE #civ :civ-map generate\n";
       echo "IRC_RAW WHOIS $nick\n";
     }
     break;

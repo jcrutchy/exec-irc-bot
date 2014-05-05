@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 04-may-2014
+# 5-may-2014
 
 # irciv.php
 
@@ -62,7 +62,7 @@ $action=strtolower($parts[0]);
 switch ($action)
 {
   case ACTION_LOGIN:
-    if ((isset($parts[1])==True) and (isset($parts[2])==True) and ($nick==NICK_EXEC))
+    if ((count($parts)==3) and ($nick==NICK_EXEC))
     {
       $player=$parts[1];
       $account=$parts[2];
@@ -78,7 +78,7 @@ switch ($action)
     }
     break;
   case ACTION_RENAME:
-    if ((isset($parts[1])==True) and (isset($parts[2])==True) and ($nick==NICK_EXEC))
+    if ((count($parts)==3) and ($nick==NICK_EXEC))
     {
       $old=$parts[1];
       $new=$parts[2];
@@ -96,7 +96,7 @@ switch ($action)
     }
     break;
   case ACTION_LOGOUT:
-    if (isset($parts[1])==True)
+    if (count($parts)==2)
     {
       $player=$parts[1];
       if (isset($players[$player])==True)
@@ -112,109 +112,37 @@ switch ($action)
     break;
   case "u":
   case "up":
-    if (isset($players[$nick]["active"])==True)
+    if (count($parts)==1)
     {
-      $y=$players[$nick]["active"]["y"]-1;
-      if ($y>=0)
-      {
-        if ($map_coords[map_coord($map_data["cols"],$players[$nick]["active"]["x"],$y)]==TERRAIN_LAND)
-        {
-          $players[$nick]["active"]["y"]=$y;
-          $players[$nick]["status_msg"]="active unit moved up";
-          cycle_active($nick);
-        }
-        else
-        {
-          $players[$nick]["status_msg"]="move up failed for active unit (already @ edge of landmass)";
-        }
-      }
-      else
-      {
-        $players[$nick]["status_msg"]="move up failed for active unit (already @ top edge of map)";
-      }
-      status($nick);
-    }
-    break;
-  case "d":
-  case "down":
-    if (isset($players[$nick]["active"])==True)
-    {
-      $y=$players[$nick]["active"]["y"]+1;
-      if ($y<$map_data["rows"])
-      {
-        if ($map_coords[map_coord($map_data["cols"],$players[$nick]["active"]["x"],$y)]==TERRAIN_LAND)
-        {
-          $players[$nick]["active"]["y"]=$y;
-          $players[$nick]["status_msg"]="active unit moved down";
-          cycle_active($nick);
-        }
-        else
-        {
-          $players[$nick]["status_msg"]="move down failed for active unit (already @ edge of landmass)";
-        }
-      }
-      else
-      {
-        $players[$nick]["status_msg"]="move down failed for active unit (already @ bottom edge of map)";
-      }
-      status($nick);
-    }
-    break;
-  case "l":
-  case "left":
-    if (isset($players[$nick]["active"])==True)
-    {
-      $x=$players[$nick]["active"]["x"]-1;
-      if ($x>=0)
-      {
-        if ($map_coords[map_coord($map_data["cols"],$x,$players[$nick]["active"]["y"])]==TERRAIN_LAND)
-        {
-          $players[$nick]["active"]["x"]=$x;
-          $players[$nick]["status_msg"]="active unit moved left";
-          cycle_active($nick);
-        }
-        else
-        {
-          $players[$nick]["status_msg"]="move left failed for active unit (already @ edge of landmass)";
-        }
-      }
-      else
-      {
-        $players[$nick]["status_msg"]="move left failed for active unit (already @ left edge of map)";
-      }
-      status($nick);
+      move_active_unit($nick,0);
     }
     break;
   case "r":
   case "right":
-    if (isset($players[$nick]["active"])==True)
+    if (count($parts)==1)
     {
-      $x=$players[$nick]["active"]["x"]+1;
-      if ($x<$map_data["cols"])
-      {
-        if ($map_coords[map_coord($map_data["cols"],$x,$players[$nick]["active"]["y"])]==TERRAIN_LAND)
-        {
-          $players[$nick]["active"]["x"]=$x;
-          $players[$nick]["status_msg"]="active unit moved right";
-          cycle_active($nick);
-        }
-        else
-        {
-          $players[$nick]["status_msg"]="move right failed for active unit (already @ edge of landmass)";
-        }
-      }
-      else
-      {
-        $players[$nick]["status_msg"]="move right failed for active unit (already @ right edge of map)";
-      }
-      status($nick);
+      move_active_unit($nick,1);
+    }
+    break;
+  case "d":
+  case "down":
+    if (count($parts)==1)
+    {
+      move_active_unit($nick,2);
+    }
+    break;
+  case "l":
+  case "left":
+    if (count($parts)==1)
+    {
+      move_active_unit($nick,3);
     }
     break;
   case ACTION_STATUS:
     status($nick);
     break;
   case ACTION_SET:
-    if (isset($parts[1])==True)
+    if (count($parts)==2)
     {
       $pair=explode("=",$parts[1]);
       if (count($pair)==2)
@@ -235,7 +163,7 @@ switch ($action)
     }
     break;
   case ACTION_UNSET:
-    if (isset($parts[1])==True)
+    if (count($parts)==2)
     {
       $key=$parts[1];
       if (isset($players[$nick]["settings"][$key])==True)
@@ -254,7 +182,7 @@ switch ($action)
     }
     break;
   case ACTION_FLAG:
-    if (isset($parts[1])==True)
+    if (count($parts)==2)
     {
       $flag=$parts[1];
       $players[$nick]["flags"][$flag]="";
@@ -266,7 +194,7 @@ switch ($action)
     }
     break;
   case ACTION_UNFLAG:
-    if (isset($parts[1])==True)
+    if (count($parts)==2)
     {
       $flag=$parts[1];
       if (isset($players[$nick]["flags"][$flag])==True)
@@ -303,8 +231,14 @@ function player_init($nick)
   global $players;
   global $map_coords;
   global $map_data;
+  if (isset($map_data["cols"])==False)
+  {
+    irciv_privmsg("error: map not ready");
+    return;
+  }
   if (isset($players[$nick])==False)
   {
+    irciv_privmsg("player \"$nick\" not found");
     return;
   }
   do
@@ -317,7 +251,7 @@ function player_init($nick)
   $units=&$players[$nick]["units"];
   $units[]=unit_init("warrior",$x,$y);
   $units[0]["index"]=0;
-  $players[$nick]["active"]=&$players[$nick]["units"][0];
+  $players[$nick]["active"]=0;
   status($nick);
 }
 
@@ -341,7 +275,8 @@ function status($nick)
   {
     $public=True;
   }
-  $unit=&$players[$nick]["active"];
+  $i=$players[$nick]["active"];
+  $unit=$players[$nick]["units"][$i];
   $index=$unit["index"];
   $type=$unit["type"];
   $health=$unit["health"];
@@ -349,10 +284,13 @@ function status($nick)
   $y=$unit["y"];
   $n=count($players[$nick]["units"]);
   status_msg($nick,GAME_CHAN."/$nick => $index/$n, $type, +$health, ($x,$y)",$public);
-  if (isset($players[$nick]["status_msg"])==True)
+  if (isset($players[$nick]["status_messages"])==True)
   {
-    status_msg($nick,GAME_CHAN."/$nick => ".$players[$nick]["status_msg"],$public);
-    unset($players[$nick]["status_msg"]);
+    for ($i=0;$i<count($players[$nick]["status_messages"]);$i++)
+    {
+      status_msg($nick,GAME_CHAN."/$nick => ".$players[$nick]["status_messages"][$i],$public);
+    }
+    unset($players[$nick]["status_messages"]);
   }
 }
 
@@ -380,6 +318,40 @@ function unit_init($type,$x,$y)
   $data["x"]=$x;
   $data["y"]=$y;
   return $data;
+}
+
+#####################################################################################################
+
+function move_active_unit($nick,$dir)
+{
+  global $players;
+  global $map_data;
+  global $map_coords;
+  $dir_x=array(0,1,0,-1);
+  $dir_y=array(-1,0,1,0);
+  $captions=array("up","right","down","left");
+  if (isset($players[$nick]["active"])==True)
+  {
+    $active=$players[$nick]["active"];
+    $x=$players[$nick]["units"][$active]["x"]+$dir_x[$dir];
+    $y=$players[$nick]["units"][$active]["y"]+$dir_y[$dir];
+    $caption=$captions[$dir];
+    if (($x<0) or ($x>=$map_data["cols"]) or ($y<0) or ($y>=$map_data["rows"]))
+    {
+      $players[$nick]["status_messages"][]="move $caption failed for active unit (already @ edge of map)";
+    }
+    elseif ($map_coords[map_coord($map_data["cols"],$x,$y)]<>TERRAIN_LAND)
+    {
+      $players[$nick]["status_messages"][]="move $caption failed for active unit (already @ edge of landmass)";
+    }
+    else
+    {
+      $players[$nick]["units"][$active]["x"]=$x;
+      $players[$nick]["units"][$active]["y"]=$y;
+      cycle_active($nick);
+    }
+    status($nick);
+  }
 }
 
 #####################################################################################################
