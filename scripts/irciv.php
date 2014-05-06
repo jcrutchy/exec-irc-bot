@@ -9,7 +9,10 @@
 #####################################################################################################
 
 ini_set("display_errors","on");
+date_default_timezone_set("UTC");
 require_once("irciv_lib.php");
+
+define("TIMEOUT_RANDOM_COORD",10); # sec
 
 define("ACTION_LOGIN","login");
 define("ACTION_LOGOUT","logout");
@@ -226,33 +229,91 @@ else
 
 #####################################################################################################
 
+function player_ready($nick)
+{
+  global $players;
+  global $map_data;
+  if (isset($map_data["cols"])==False)
+  {
+    irciv_privmsg("error: map not ready");
+    return False;
+  }
+  if (isset($players[$nick])==False)
+  {
+    irciv_privmsg("player \"$nick\" not found");
+    return False;
+  }
+  return True;
+}
+
+#####################################################################################################
+
 function player_init($nick)
 {
   global $players;
   global $map_coords;
   global $map_data;
-  if (isset($map_data["cols"])==False)
+  if (player_ready($nick)==False)
   {
-    irciv_privmsg("error: map not ready");
     return;
   }
-  if (isset($players[$nick])==False)
+  $players[$nick]["init_time"]=time();
+  $players[$nick]["units"]=array();
+  $start_x=-1;
+  $start_y=-1;
+  if (random_coord(TERRAIN_LAND,$start_x,$start_y)==False)
   {
-    irciv_privmsg("player \"$nick\" not found");
     return;
   }
+  add_unit($nick,"settler",$start_x,$start_y);
+  add_unit($nick,"warrior",$start_x,$start_y);
+  cycle_active($nick);
+  $players[$nick]["start_x"]=$start_x;
+  $players[$nick]["start_y"]=$start_y;
+  status($nick);
+}
+
+#####################################################################################################
+
+function random_coord($terrain,&$x,&$y)
+{
+  global $map_coords;
+  global $map_data;
+  $start=microtime(True);
   do
   {
     $x=mt_rand(0,$map_data["cols"]-1);
     $y=mt_rand(0,$map_data["rows"]-1);
     $coord=map_coord($map_data["cols"],$x,$y);
+    $dt=microtime(True)-$start;
+    if ($dt>TIMEOUT_RANDOM_COORD)
+    {
+      irciv_privmsg("error: random_coord timeout");
+      return False;
+    }
   }
-  while ($map_coords[$coord]<>TERRAIN_LAND);
+  while ($map_coords[$coord]<>$terrain);
+  return True;
+}
+
+#####################################################################################################
+
+function add_unit($nick,$type,$x,$y)
+{
+  global $players;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
   $units=&$players[$nick]["units"];
-  $units[]=unit_init("warrior",$x,$y);
-  $units[0]["index"]=0;
-  $players[$nick]["active"]=0;
-  status($nick);
+  $data["type"]=$type;
+  $data["health"]=100;
+  $data["x"]=$x;
+  $data["y"]=$y;
+  $units[]=$data;
+  $i=count($units)-1;
+  $units[$i]["index"]=$i;
+  return True;
 }
 
 #####################################################################################################
@@ -283,7 +344,6 @@ function status($nick)
   $x=$unit["x"];
   $y=$unit["y"];
   $n=count($players[$nick]["units"]);
-  status_msg($nick,GAME_CHAN."/$nick => $index/$n, $type, +$health, ($x,$y)",$public);
   if (isset($players[$nick]["status_messages"])==True)
   {
     for ($i=0;$i<count($players[$nick]["status_messages"]);$i++)
@@ -292,6 +352,7 @@ function status($nick)
     }
     unset($players[$nick]["status_messages"]);
   }
+  status_msg($nick,GAME_CHAN."/$nick => $index/$n, $type, +$health, ($x,$y)",$public);
 }
 
 #####################################################################################################
@@ -310,18 +371,6 @@ function status_msg($nick,$msg,$public)
 
 #####################################################################################################
 
-function unit_init($type,$x,$y)
-{
-  global $map_data;
-  $data["type"]=$type;
-  $data["health"]=100;
-  $data["x"]=$x;
-  $data["y"]=$y;
-  return $data;
-}
-
-#####################################################################################################
-
 function move_active_unit($nick,$dir)
 {
   global $players;
@@ -333,8 +382,10 @@ function move_active_unit($nick,$dir)
   if (isset($players[$nick]["active"])==True)
   {
     $active=$players[$nick]["active"];
-    $x=$players[$nick]["units"][$active]["x"]+$dir_x[$dir];
-    $y=$players[$nick]["units"][$active]["y"]+$dir_y[$dir];
+    $old_x=$players[$nick]["units"][$active]["x"];
+    $old_y=$players[$nick]["units"][$active]["y"];
+    $x=$old_x+$dir_x[$dir];
+    $y=$old_y+$dir_y[$dir];
     $caption=$captions[$dir];
     if (($x<0) or ($x>=$map_data["cols"]) or ($y<0) or ($y>=$map_data["rows"]))
     {
@@ -348,6 +399,8 @@ function move_active_unit($nick,$dir)
     {
       $players[$nick]["units"][$active]["x"]=$x;
       $players[$nick]["units"][$active]["y"]=$y;
+      $type=$players[$nick]["units"][$active]["type"];
+      $players[$nick]["status_messages"][]="successfully moved $type $caption from ($old_x,$old_y) to ($x,$y)";
       cycle_active($nick);
     }
     status($nick);
@@ -359,7 +412,23 @@ function move_active_unit($nick,$dir)
 function cycle_active($nick)
 {
   global $players;
-
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
+  $n=count($players[$nick]["units"]);
+  if (isset($players[$nick]["active"])==False)
+  {
+    $players[$nick]["active"]=0;
+  }
+  else
+  {
+    $players[$nick]["active"]=$players[$nick]["active"]+1;
+    if ($players[$nick]["active"]>=$n)
+    {
+      $players[$nick]["active"]=0;
+    }
+  }
 }
 
 #####################################################################################################
