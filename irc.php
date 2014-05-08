@@ -746,7 +746,7 @@ function check_nick($items,$alias)
   {
     return True;
   }
-  if (($items["nick"]==NICK) and ($alias=="*"))
+  if (($items["nick"]==NICK) or ($alias=="*"))
   {
     return True;
   }

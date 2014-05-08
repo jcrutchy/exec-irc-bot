@@ -1,0 +1,13 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>IRCiv</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<style type="text/css"></style>
+<script type="text/javascript"></script>
+</head>
+<body>
+<p><img src="%%domain%%?logo" alt=""></p>
+<p><img src="%%domain%%?img=%%hash%%" alt=""></p>
+</body>
+</html>

@@ -63,7 +63,7 @@ switch ($cmd)
     map_dump($coords,$data,$dest);
     return;
   case CMD_IMAGE:
-    map_gif($coords,$dest,2);
+    map_gif($coords,$dest,16);
     return;
 }
 
@@ -186,7 +186,7 @@ function map_dump($coords,$data,$filename)
 
 #####################################################################################################
 
-function map_gif($coords,$filename,$scale=2)
+function map_gif($coords,$filename,$scale)
 {
   global $data;
   $cols=$data["cols"];

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 5-may-2014
+# 8-may-2014
 
 # irciv.php
 
@@ -94,7 +94,10 @@ switch ($action)
       }
       else
       {
-        irciv_privmsg("error renaming player \"$old\" to \"$new\"");
+        if (isset($players[$old])==True)
+        {
+          irciv_privmsg("error renaming player \"$old\" to \"$new\"");
+        }
       }
     }
     break;
@@ -429,6 +432,26 @@ function cycle_active($nick)
       $players[$nick]["active"]=0;
     }
   }
+}
+
+#####################################################################################################
+
+function upload_map_image($nick)
+{
+  /*$fp=fsockopen($host,80);
+  if ($fp===False)
+  {
+    echo "Error connecting to \"$host\".\r\n";
+    return;
+  }
+  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
+  $response="";
+  while (!feof($fp))
+  {
+    $response=$response.fgets($fp,1024);
+  }
+  fclose($fp);
+  return $response;*/
 }
 
 #####################################################################################################
