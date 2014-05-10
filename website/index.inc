@@ -2,7 +2,7 @@
 
 if ((isset($_POST["exec_key"])==True) and (isset($_POST["filename"])==True) and (isset($_FILES["image"])==True))
 {
-  $ref=file_get_contents("exec_key");
+  $ref=file_get_contents(__DIR__."/exec_key");
   if ($ref===False)
   {
     die("ERROR: UNABLE TO LOAD REFERENCE KEY");
@@ -15,7 +15,7 @@ if ((isset($_POST["exec_key"])==True) and (isset($_POST["filename"])==True) and 
   {
     die("ERROR: INVALID FILENAME");
   }
-  if (move_uploaded_file($_FILES["image"]["tmp_name"],"maps/".$_POST["filename"].".gif")==False)
+  if (move_uploaded_file($_FILES["image"]["tmp_name"],__DIR__."/maps/".$_POST["filename"].".gif")==False)
   {
     die("ERROR: UNABLE TO MOVE UPLOADED FILE");
   }
@@ -24,14 +24,14 @@ if ((isset($_POST["exec_key"])==True) and (isset($_POST["filename"])==True) and 
 
 if (isset($_GET["logo"])==True)
 {
-  output_png_image("irciv.png");
+  output_gif_image(__DIR__."/irciv.gif");
 }
 
 if (isset($_GET["img"])==True)
 {
   if (valid_filename($_GET["img"])==True)
   {
-    output_gif_image("maps/".$_GET["img"].".gif");
+    output_gif_image(__DIR__."/maps/".$_GET["img"].".gif");
   }
   else
   {
@@ -39,7 +39,7 @@ if (isset($_GET["img"])==True)
   }
 }
 
-$page=file_get_contents("template");
+$page=file_get_contents(__DIR__."/template");
 $page=str_replace("%%domain%%","http://".$_SERVER["SERVER_NAME"]."/",$page);
 $map="";
 if (isset($_GET["map"])==True)
@@ -63,22 +63,6 @@ function empty_image()
   imagefill($buffer,0,0,$bg_color);
   header("Content-Type: image/gif");
   imagegif($buffer);
-  imagedestroy($buffer);
-  die();
-}
-
-#####################################################################################################
-
-function output_png_image($filename)
-{
-  if (file_exists($filename)==False)
-  {
-    empty_image();
-  }
-  ob_clean();
-  $buffer=imagecreatefrompng($filename);
-  header("Content-Type: image/png");
-  imagepng($buffer);
   imagedestroy($buffer);
   die();
 }

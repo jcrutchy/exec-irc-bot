@@ -64,6 +64,7 @@ switch ($cmd)
     return;
   case CMD_IMAGE:
     map_gif($coords,$dest,16);
+    irciv_privmsg("saved map image file to \"$dest.gif\"");
     return;
 }
 
@@ -191,7 +192,6 @@ function map_gif($coords,$filename,$scale)
   global $data;
   $cols=$data["cols"];
   $rows=$data["rows"];
-  #ob_clean();
   $w=$cols*$scale;
   $h=$rows*$scale;
   $buffer=imagecreatetruecolor($w,$h);
@@ -209,10 +209,8 @@ function map_gif($coords,$filename,$scale)
       }
     }
   }
-  #header('Content-Type: image/gif');
   imagegif($buffer,$filename.".gif");
   imagedestroy($buffer);
-  irciv_privmsg("saved map image file to \"$filename.gif\"");
 }
 
 #####################################################################################################

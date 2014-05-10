@@ -29,7 +29,7 @@ bsod|10|1|1|php scripts/bsod.php
 ~join|5|0|0|php scripts/join.php %%trailing%%
 ~part|5|0|1|php scripts/part.php %%dest%% %%trailing%%
 ~recurse|5|0|1|php scripts/recurse.php
-~bucket|5|0|1|php scripts/bucket.php
+~bucket|5|0|1|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 ~flush|5|0|1|php scripts/bucket_flush.php %%nick%%
 tux|5|1|0|cowsay -f tux %%trailing%%
 

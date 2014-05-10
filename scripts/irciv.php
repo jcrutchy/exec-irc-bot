@@ -436,24 +436,4 @@ function cycle_active($nick)
 
 #####################################################################################################
 
-function upload_map_image($nick)
-{
-  /*$fp=fsockopen($host,80);
-  if ($fp===False)
-  {
-    echo "Error connecting to \"$host\".\r\n";
-    return;
-  }
-  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
-  $response="";
-  while (!feof($fp))
-  {
-    $response=$response.fgets($fp,1024);
-  }
-  fclose($fp);
-  return $response;*/
-}
-
-#####################################################################################################
-
 ?>

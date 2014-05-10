@@ -8,6 +8,6 @@
 </head>
 <body>
 <p><img src="%%domain%%?logo" alt=""></p>
-<p><img src="%%domain%%?img=%%hash%%" alt=""></p>
+<p><img src="%%domain%%?img=%%map%%" alt=""></p>
 </body>
 </html>

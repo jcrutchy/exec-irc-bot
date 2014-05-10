@@ -2,28 +2,40 @@
 
 # gpl2
 # by crutchy
-# 26-april-2014
+# 10-may-2014
 
-# needs updating
+# ~bucket|5|0|1|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 
-$test["level1"]["level2"]="blah";
-$data=serialize($test);
-echo ":exec BUCKET_SET :$data\n";
+ini_set("display_errors","on");
+require_once("lib.php");
 
-echo ":exec BUCKET_GET :\$buckets\n";
-$f=fopen("php://stdin","r");
-$line=fgets($f);
-if ($line===False)
+$trailing=$argv[1];
+$nick=$argv[2];
+$dest=$argv[3];
+
+$parts=explode(" ",$trailing);
+
+$index=$parts[0];
+
+if (count($parts)==2)
 {
-  echo "IRC_MSG ERROR\n";
+  $data=$parts[1];
+  set_bucket($index,$data);
+  return;
 }
-else
+
+if (count($parts)==1)
 {
-  echo "RESULT:\n";
-  $result=unserialize($line);
-  var_dump($result);
-  echo "IRC_MSG $line\n";
+  $data=get_bucket($index);
+  if ($data=="")
+  {
+    privmsg("bucket data empty");
+  }
+  else
+  {
+    privmsg($data);
+  }
+  return;
 }
-fclose($f);
 
 ?>
