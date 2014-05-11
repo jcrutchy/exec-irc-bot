@@ -63,7 +63,7 @@ switch ($cmd)
     map_dump($coords,$data,$dest);
     return;
   case CMD_IMAGE:
-    map_gif($coords,$dest,16);
+    map_gif($coords,$data,16,$dest);
     irciv_privmsg("saved map image file to \"$dest.gif\"");
     return;
 }
@@ -183,34 +183,6 @@ function map_dump($coords,$data,$filename)
   {
     irciv_privmsg("error saving map file to \"$filename\"");
   }
-}
-
-#####################################################################################################
-
-function map_gif($coords,$filename,$scale)
-{
-  global $data;
-  $cols=$data["cols"];
-  $rows=$data["rows"];
-  $w=$cols*$scale;
-  $h=$rows*$scale;
-  $buffer=imagecreatetruecolor($w,$h);
-  $color_ocean=imagecolorallocate($buffer,142,163,234); # blue
-  $color_land=imagecolorallocate($buffer,90,132,72); # green
-  imagefill($buffer,0,0,$color_ocean);
-  for ($y=0;$y<$rows;$y++)
-  {
-    for ($x=0;$x<$cols;$x++)
-    {
-      $i=map_coord($cols,$x,$y);
-      if ($coords[$i]==TERRAIN_LAND)
-      {
-        imagefilledrectangle($buffer,$x*$scale,$y*$scale,($x+1)*$scale-1,($y+1)*$scale-1,$color_land);
-      }
-    }
-  }
-  imagegif($buffer,$filename.".gif");
-  imagedestroy($buffer);
 }
 
 #####################################################################################################

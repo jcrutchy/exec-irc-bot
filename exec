@@ -1,44 +1,45 @@
-# alias|timeout(sec)|auto-privmsg(1|0)|empty-trailing-allowed(1|0)|cmd
+# alias|timeout(sec)|repeat(sec)|auto-privmsg(1|0)|empty-trailing-allowed(1|0)|cmd
 # available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%exec%%, %%params%%
 # %%trailing%% excludes alias
 
 # EXEC ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
-*|10|0|1|php scripts/grab.php %%trailing%% %%nick%% && php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
+*|10|0|0|1|php scripts/grab.php %%trailing%% %%nick%% && php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
 
 # EXEC BEFORE IRC CONNECTION - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
-<init>|10|0|1|php scripts/init.php
+<init>|10|0|0|1|php scripts/init.php
 
 # EXEC ON QUIT - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
-<quit>|10|0|1|php scripts/quit.php
+<quit>|10|0|0|1|php scripts/quit.php
 
-~|5|1|1|php scripts/about.php
-cowsay|5|1|0|cowsay %%trailing%%
-snake|5|1|1|echo %%trailing%% | cowsay -f elephant-in-snake
-test|5|0|0|php scripts/test.php %%trailing%% %%dest%% %%nick%%
-ps|5|1|1|ps fl
-moo|10|1|1|apt-get moo
-fortune|5|1|1|fortune -s
-cowsay-fortune|5|1|1|sh cowsay-fortune.sh
-define|10|0|0|php scripts/definitions.php %%trailing%%
-php|5|0|0|php scripts/php.php %%trailing%%
-smile|5|1|0|php scripts/smile.php %%trailing%%
-uptime|5|1|1|uptime
-rofl|5|1|1|fortune -s
-exec-up|5|0|1|php scripts/up.php %%start%%
-bsod|10|1|1|php scripts/bsod.php
-~join|5|0|0|php scripts/join.php %%trailing%%
-~part|5|0|1|php scripts/part.php %%dest%% %%trailing%%
-~recurse|5|0|1|php scripts/recurse.php
-~bucket|5|0|1|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
-~flush|5|0|1|php scripts/bucket_flush.php %%nick%%
-tux|5|1|0|cowsay -f tux %%trailing%%
+~|5|0|1|1|php scripts/about.php
+cowsay|5|0|1|0|cowsay %%trailing%%
+snake|5|0|1|1|echo %%trailing%% | cowsay -f elephant-in-snake
+test|5|0|0|0|php scripts/test.php %%trailing%% %%dest%% %%nick%%
+#ps|5|0|1|1|ps fl
+moo|10|0|1|1|apt-get moo
+fortune|5|0|1|1|fortune -s
+cowsay-fortune|5|0|1|1|sh cowsay-fortune.sh
+define|10|0|0|0|php scripts/definitions.php %%trailing%%
+php|5|0|0|0|php scripts/php.php %%trailing%%
+smile|5|0|1|0|php scripts/smile.php %%trailing%%
+uptime|5|0|1|1|uptime
+rofl|5|0|1|1|fortune -s
+exec-up|5|0|0|1|php scripts/up.php %%start%%
+con/con|10|0|1|1|php scripts/bsod.php
+~join|5|0|0|0|php scripts/join.php %%trailing%%
+~part|5|0|0|1|php scripts/part.php %%dest%% %%trailing%%
+~recurse|5|0|0|1|php scripts/recurse.php
+~bucket|5|0|0|1|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
+~flush|5|0|0|1|php scripts/bucket_flush.php %%nick%%
+tux|5|0|1|0|cowsay -f tux %%trailing%%
 
-weather|10|0|1|php scripts/weather.php %%alias%% %%trailing%%
-weather-add|10|0|1|php scripts/weather.php %%alias%% %%trailing%%
+weather|10|0|0|1|php scripts/weather.php %%alias%% %%trailing%%
+weather-add|10|0|0|1|php scripts/weather.php %%alias%% %%trailing%%
 
-civ|5|0|1|php scripts/irciv.php %%nick%% %%trailing%% %%dest%%
-civ-map|300|0|1|php scripts/irciv_map.php %%nick%% %%trailing%% %%dest%%
+civ|5|0|0|1|php scripts/irciv.php %%nick%% %%trailing%% %%dest%%
+civ-map|300|0|0|1|php scripts/irciv_map.php %%nick%% %%trailing%% %%dest%%
+# civ-save|5|300|0|1|php scripts/irciv.php %%alias%%
 
 # non-php scripts
-haskell|5|1|1|runhaskell scripts/haskell.hs
-perl|5|1|1|perl scripts/perl.pl
+haskell|5|0|1|1|runhaskell scripts/haskell.hs
+perl|5|0|1|1|perl scripts/perl.pl

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 05-may-2014
+# 11-may-2014
 
 # irc.php
 
@@ -102,6 +102,7 @@ while (True)
   $handles=array_values($handles);
   handle_socket($socket);
   usleep(0.01e6); # 0.01 second to prevent cpu flogging
+  process_timed_execs();
 }
 
 #####################################################################################################
@@ -478,24 +479,27 @@ function exec_load()
       continue;
     }
     $parts=explode(EXEC_DELIM,$line);
-    if (count($parts)<5)
+    if (count($parts)<6)
     {
       continue;
     }
     $alias=trim($parts[0]);
     $timeout=trim($parts[1]); # seconds
-    $auto=trim($parts[2]); # auto privmsg (0 = no, 1 = yes)
-    $empty=trim($parts[3]); # empty msg permitted (0 = no, 1 = yes)
+    $repeat=trim($parts[2]); # seconds
+    $auto=trim($parts[3]); # auto privmsg (0 = no, 1 = yes)
+    $empty=trim($parts[4]); # empty msg permitted (0 = no, 1 = yes)
     unset($parts[0]);
     unset($parts[1]);
     unset($parts[2]);
     unset($parts[3]);
+    unset($parts[4]);
     $cmd=trim(implode("|",$parts)); # shell command
-    if (($alias=="") or (is_numeric($timeout)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or ($cmd==""))
+    if (($alias=="") or (is_numeric($timeout)==False) or (is_numeric($repeat)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or ($cmd==""))
     {
       continue;
     }
     $exec_list[$alias]["timeout"]=$timeout;
+    $exec_list[$alias]["repeat"]=$repeat;
     $exec_list[$alias]["auto"]=$auto;
     $exec_list[$alias]["empty"]=$empty;
     $exec_list[$alias]["cmd"]=$cmd;
@@ -729,6 +733,7 @@ function process_scripts($items,$reserved="")
     "template"=>$exec_list[$alias]["cmd"],
     "allow_empty"=>$exec_list[$alias]["empty"],
     "timeout"=>$exec_list[$alias]["timeout"],
+    "repeat"=>$exec_list[$alias]["repeat"],
     "auto_privmsg"=>$exec_list[$alias]["auto"],
     "start"=>$start,
     "nick"=>$items["nick"],
@@ -781,6 +786,36 @@ function check_nick($items,$alias)
     return False;
   }
   return True;
+}
+
+#####################################################################################################
+
+function process_timed_execs()
+{
+  global $exec_list;
+  foreach ($exec_list as $alias => $exec_data)
+  {
+    if ($exec_data["repeat"]<=0)
+    {
+      continue;
+    }
+    if (isset($exec_data["repeat_time"])==True)
+    {
+      $delta=microtime(True)-$exec_data["repeat_time"];
+      if ($delta<$exec_data["repeat"])
+      {
+        continue;
+      }
+    }
+    $data=":exec NOTICE :$alias";
+    $items=parse_data($data);
+    if ($items===False)
+    {
+      continue;
+    }
+    $exec_list[$alias]["repeat_time"]=microtime(True);
+    process_scripts($items);
+  }
 }
 
 #####################################################################################################

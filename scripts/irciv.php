@@ -71,7 +71,14 @@ switch ($action)
       $account=$parts[2];
       if (isset($players[$player])==False)
       {
+        $player_id=1;
+        if (isset($players[NICK_EXEC]["player_count"])==True)
+        {
+          $player_id=$players[NICK_EXEC]["player_count"]+1;
+        }
+        $players[NICK_EXEC]["player_count"]=$player_id;
         $players[$player]["account"]=$account;
+        $players[$player]["id"]=$player_id;
         irciv_privmsg("login: player \"$player\" is now logged in");
       }
       else
@@ -415,9 +422,31 @@ function move_active_unit($nick,$dir)
 function cycle_active($nick)
 {
   global $players;
+  global $map_coords;
+  global $map_data;
   if (player_ready($nick)==False)
   {
     return False;
+  }
+  $game_id=sprintf("%02d",0);
+  $player_id=sprintf("%02d",$players[$nick]["id"]);
+  $timestamp=date("YmdHis",time());
+  $key=random_string(16);
+  $filename=$game_id.$player_id.$timestamp.$key;
+  $response=upload_map_image($filename,$map_coords,$map_data);
+  $response_lines=explode("\n",$response);
+  $msg=trim($response_lines[count($response_lines)-1]);
+  if (trim($response_lines[0])=="HTTP/1.1 200 OK")
+  { 
+    if ($msg=="SUCCESS")
+    {
+      $players[$nick]["status_messages"][]="http://irciv.port119.net/?pid=".$players[$nick]["id"];
+      $players[$nick]["status_messages"][]="http://irciv.port119.net/?map=$filename";
+    }
+  }
+  else
+  {
+    $players[$nick]["status_messages"][]=$msg;
   }
   $n=count($players[$nick]["units"]);
   if (isset($players[$nick]["active"])==False)

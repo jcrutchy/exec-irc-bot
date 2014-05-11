@@ -9,6 +9,7 @@
 require_once("lib.php");
 
 define("GAME_NAME","IRCiv");
+define("GAME_VERSION","0.0");
 define("GAME_CHAN","#civ");
 define("BUCKET_PREFIX",GAME_NAME."_".GAME_CHAN."_");
 
@@ -75,44 +76,103 @@ function map_unzip($coords)
 
 #####################################################################################################
 
-function upload_map_image($nick)
+function map_gif($map_coords,$map_data,$scale,$filename="")
 {
-#The boundary parameter is set to a number of hyphens plus a random string at the end, but you can set it to anything at all. The problem is, if the boundary string shows up in the request data, it will be treated as a boundary.
-#Note: Content-Length should be changed whene the boundary change
-/*
+  $cols=$map_data["cols"];
+  $rows=$map_data["rows"];
+  $w=$cols*$scale;
+  $h=$rows*$scale;
+  $buffer=imagecreatetruecolor($w,$h);
+  $color_ocean=imagecolorallocate($buffer,142,163,234); # blue
+  $color_land=imagecolorallocate($buffer,90,132,72); # green
+  imagefill($buffer,0,0,$color_ocean);
+  for ($y=0;$y<$rows;$y++)
+  {
+    for ($x=0;$x<$cols;$x++)
+    {
+      $i=map_coord($cols,$x,$y);
+      if ($map_coords[$i]==TERRAIN_LAND)
+      {
+        imagefilledrectangle($buffer,$x*$scale,$y*$scale,($x+1)*$scale-1,($y+1)*$scale-1,$color_land);
+      }
+    }
+  }
+  if ($filename<>"")
+  {
+    imagegif($buffer,$filename.".gif");
+  }
+  else
+  {
+    ob_start();
+    imagegif($buffer);
+    $data=ob_get_contents();
+    ob_end_clean();
+    return $data;
+  }
+  imagedestroy($buffer);
+}
 
-    The encapsulation boundary must occur at the beginning of a line, i.e.,
-    following a CRLF (Carriage Return-Line Feed)
-    The boundary must be followed immediately either by another CRLF and the header fields for
-    the next part, or by two CRLFs, in which case there are no header fields for the next part
-    (and it is therefore assumed to be of Content-Type text/plain).
-    Encapsulation boundaries must not appear within the encapsulations, and must be no longer
-    than 70 characters, not counting the two leading hyphens.
+#####################################################################################################
 
-Last but not least:
+function random_string($length)
+{
+  $legal="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  $result="";
+  for ($i=0;$i<$length;$i++)
+  {
+    $result=$result.$legal[mt_rand(0,strlen($legal)-1)];
+  }
+  return $result;
+}
 
-    The encapsulation boundary following the last body part is a distinguished delimiter that
-    indicates that no further body parts will follow. Such a delimiter is identical to the previous
-    delimiters, with the addition of two more hyphens at the end of the line:
+#####################################################################################################
 
- --gc0p4Jq0M2Yt08jU534c0p-- 
-
-*/
-  #map_gif($coords,$filename,$scale);
-  /*$fp=fsockopen($host,80);
+function upload_map_image($filename,$map_coords,$map_data)
+{
+  $headers=file_get_contents(__DIR__."/irciv_map_request_headers");
+  $content=file_get_contents(__DIR__."/irciv_map_request_content");
+  $exec_key=file_get_contents("../pwd/exec_key");
+  if (($headers===False) or ($content===False) or ($exec_key===False))
+  {
+    return "upload_map_image: file load error";
+  }
+  $uri="/";
+  $host="irciv.port119.net";
+  $gif_data=map_gif($map_coords,$map_data,10);
+  if ($gif_data===False)
+  {
+    return "upload_map_image: map_gif error";
+  }
+  do
+  {
+    $boundary=random_string(40);
+  }
+  while ((strpos($gif_data,$boundary)!==False) or (strpos($exec_key,$boundary)!==False));
+  $headers=str_replace("%%uri%%",$uri,$headers);
+  $headers=str_replace("%%host%%",$host,$headers);
+  $content=str_replace("%%filename%%",$filename,$content);
+  $headers=str_replace("%%boundary%%",$boundary,$headers);
+  $content=str_replace("%%boundary%%",$boundary,$content);
+  $headers=str_replace("%%game_name%%",GAME_NAME,$headers);
+  $headers=str_replace("%%game_version%%",GAME_VERSION,$headers);
+  $content=str_replace("%%exec_key%%",$exec_key,$content);
+  $content=str_replace("%%gif_data%%",$gif_data,$content);
+  $content_length=strlen($content);
+  $headers=str_replace("%%content_length%%",$content_length,$headers);
+  $request=$headers.$content;
+  $fp=fsockopen($host,80);
   if ($fp===False)
   {
-    echo "Error connecting to \"$host\".\r\n";
-    return;
+    return "upload_map_image: error connecting to $host";
   }
-  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
+  fwrite($fp,$request);
   $response="";
   while (!feof($fp))
   {
     $response=$response.fgets($fp,1024);
   }
   fclose($fp);
-  return $response;*/
+  return $response;
 }
 
 #####################################################################################################
