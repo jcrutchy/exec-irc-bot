@@ -121,18 +121,33 @@ function map_gif($map_coords,$map_data,$filename="",$player_data="",$nick="")
       }
     }
   }
+  imagedestroy($buffer_terrain_ocean);
+  imagedestroy($buffer_terrain_land);
   if (($player_data<>"") and ($nick<>""))
   {
     #imagealphablending($imgdest,False);
     #imagesavealpha($imgdest,True);
   }
+  imagedestroy($buffer_unit_settler);
+  imagedestroy($buffer_unit_warrior);
   # to make final map image smaller filesize, use createimage to create palleted image, then copy truecolor image to palleted image
-
   $scale=0.25;
   $final_w=round($w*$scale);
   $final_h=round($h*$scale);
   $buffer_resized=imagecreatetruecolor($final_w,$final_h);
-  imagecopyresampled($buffer_resized,$buffer,0,0,0,0,$final_w,$final_h,$w,$h);
+  if (imagecopyresampled($buffer_resized,$buffer,0,0,0,0,$final_w,$final_h,$w,$h)==False)
+  {
+    irciv_term_echo("imagecopyresampled error");
+    return False;
+  }
+  imagedestroy($buffer);
+  $buffer=imagecreate($final_w,$final_h);
+  if (imagecopy($buffer,$buffer_resized,0,0,0,0,$final_w,$final_h)==False)
+  {
+    irciv_term_echo("imagecopy error");
+    return False;
+  }
+  imagedestroy($buffer_resized);
   if ($filename<>"")
   {
     imagegif($buffer,$filename.".gif");
@@ -145,10 +160,6 @@ function map_gif($map_coords,$map_data,$filename="",$player_data="",$nick="")
     ob_end_clean();
     return $data;
   }
-  imagedestroy($buffer_terrain_ocean);
-  imagedestroy($buffer_terrain_land);
-  imagedestroy($buffer_unit_settler);
-  imagedestroy($buffer_unit_warrior);
   imagedestroy($buffer);
 }
 
@@ -178,8 +189,7 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
   }
   $uri="/";
   $host="irciv.port119.net";
-  $gif_data=False;
-  #$gif_data=map_gif($map_coords,$map_data,"",$players,$nick);
+  $gif_data=map_gif($map_coords,$map_data,"",$players,$nick);
   if (($gif_data===False) or ($gif_data==""))
   {
     return "upload_map_image: map_gif error";
