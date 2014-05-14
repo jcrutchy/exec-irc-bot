@@ -7,5 +7,5 @@ Content-Disposition: file; name="image"; filename="%%filename%%"
 Content-Type: image/png
 Content-Transfer-Encoding: binary
 
-%%png_data%%
+%%img_data%%
 --%%boundary%%--
