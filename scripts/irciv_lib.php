@@ -83,7 +83,7 @@ function map_unzip($coords)
 
 #####################################################################################################
 
-function map_gif($map_coords,$map_data,$filename="",$player_data="",$nick="")
+function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$filetype="gif")
 {
   $cols=$map_data["cols"];
   $rows=$map_data["rows"];
@@ -97,6 +97,8 @@ function map_gif($map_coords,$map_data,$filename="",$player_data="",$nick="")
   }
   $tile_w=imagesx($buffer_terrain_ocean);
   $tile_h=imagesy($buffer_terrain_ocean);
+  $unit_w=imagesx($buffer_unit_settler);
+  $unit_h=imagesy($buffer_unit_settler);
   $w=$cols*$tile_w;
   $h=$rows*$tile_h;
   $buffer=imagecreatetruecolor($w,$h);
@@ -125,13 +127,44 @@ function map_gif($map_coords,$map_data,$filename="",$player_data="",$nick="")
   imagedestroy($buffer_terrain_land);
   if (($player_data<>"") and ($nick<>""))
   {
-    #imagealphablending($imgdest,False);
-    #imagesavealpha($imgdest,True);
+    if (isset($player_data[$nick]["flags"]["grid"])==True)
+    {
+      $color_grid=imagecolorallocate($buffer,0,0,0);
+      for ($x=0;$x<$cols;$x++)
+      {
+        imageline($buffer,$x*$tile_w,0,$x*$tile_w,$h,$color_grid);
+      }
+      for ($y=0;$y<$rows;$y++)
+      {
+        imageline($buffer,0,$y*$tile_h,$w,$y*$tile_h,$color_grid);
+      }
+    }
+    $color_transparent=imagecolorallocate($buffer_unit_settler,255,0,255);
+    imagecolortransparent($buffer_unit_settler,$color_transparent);
+    imagecolortransparent($buffer_unit_warrior,$color_transparent);
+    imagealphablending($buffer,True);
+    imagesavealpha($buffer,True);
+    for ($i=0;$i<count($player_data[$nick]["units"]);$i++)
+    {
+      $unit=$player_data[$nick]["units"][$i];
+      $x=$unit["x"];
+      $y=$unit["y"];
+      $dx=($unit_w-$tile_w)/2;
+      switch ($unit["type"])
+      {
+        case "settler":
+          imagecopy($buffer,$buffer_unit_settler,round($x*$tile_w-$dx),round($y*$tile_h),0,0,$unit_w,$unit_h);
+          break;
+        case "warrior":
+          imagecopy($buffer,$buffer_unit_warrior,round($x*$tile_w-$dx),round($y*$tile_h),0,0,$unit_w,$unit_h);
+          break;
+      }
+    }
   }
   imagedestroy($buffer_unit_settler);
   imagedestroy($buffer_unit_warrior);
   # to make final map image smaller filesize, use createimage to create palleted image, then copy truecolor image to palleted image
-  $scale=0.25;
+  $scale=1.0;
   $final_w=round($w*$scale);
   $final_h=round($h*$scale);
   $buffer_resized=imagecreatetruecolor($final_w,$final_h);
@@ -150,12 +183,34 @@ function map_gif($map_coords,$map_data,$filename="",$player_data="",$nick="")
   imagedestroy($buffer_resized);
   if ($filename<>"")
   {
-    imagegif($buffer,$filename.".gif");
+    switch ($filetype)
+    {
+      case "gif":
+        imagegif($buffer,$filename.".gif");
+        break;
+      case "png":
+        imagepng($buffer,$filename.".png");
+        break;
+      case "jpg":
+        imagejpg($buffer,$filename.".jpg");
+        break;
+    }
   }
   else
   {
     ob_start();
-    imagegif($buffer);
+    switch ($filetype)
+    {
+      case "gif":
+        imagegif($buffer);
+        break;
+      case "png":
+        imagepng($buffer);
+        break;
+      case "jpg":
+        imagejpg($buffer);
+        break;
+    }
     $data=ob_get_contents();
     ob_end_clean();
     return $data;
@@ -189,10 +244,10 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
   }
   $uri="/";
   $host="irciv.port119.net";
-  $gif_data=map_gif($map_coords,$map_data,"",$players,$nick);
-  if (($gif_data===False) or ($gif_data==""))
+  $img_data=map_img($map_coords,$map_data,"",$players,$nick,"png");
+  if (($img_data===False) or ($img_data==""))
   {
-    return "upload_map_image: map_gif error";
+    return "upload_map_image: map_img error";
   }
   do
   {
@@ -207,7 +262,7 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
   $headers=str_replace("%%game_name%%",GAME_NAME,$headers);
   $headers=str_replace("%%game_version%%",GAME_VERSION,$headers);
   $content=str_replace("%%exec_key%%",$exec_key,$content);
-  $content=str_replace("%%gif_data%%",$gif_data,$content);
+  $content=str_replace("%%img_data%%",$img_data,$content);
   $content_length=strlen($content);
   $headers=str_replace("%%content_length%%",$content_length,$headers);
   $request=$headers.$content;

@@ -4,8 +4,8 @@ Content-Disposition: form-data; name="exec_key"
 %%exec_key%%
 --%%boundary%%
 Content-Disposition: file; name="image"; filename="%%filename%%"
-Content-Type: image/gif
+Content-Type: image/png
 Content-Transfer-Encoding: binary
 
-%%gif_data%%
+%%png_data%%
 --%%boundary%%--

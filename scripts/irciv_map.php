@@ -63,8 +63,8 @@ switch ($cmd)
     map_dump($coords,$data,$dest);
     return;
   case CMD_IMAGE:
-    map_gif($coords,$data,$dest);
-    irciv_privmsg("saved map image file to \"$dest.gif\"");
+    map_img($coords,$data,$dest,"","","png");
+    irciv_privmsg("saved map image file to \"$dest.png\"");
     return;
 }
 

@@ -15,7 +15,7 @@ if ((isset($_POST["exec_key"])==True) and (isset($_FILES["image"])==True))
   {
     die("ERROR: INVALID FILENAME");
   }
-  if (move_uploaded_file($_FILES["image"]["tmp_name"],__DIR__."/maps/".$_FILES["image"]["name"].".gif")==False)
+  if (move_uploaded_file($_FILES["image"]["tmp_name"],__DIR__."/maps/".$_FILES["image"]["name"].".png")==False)
   {
     die("ERROR: UNABLE TO MOVE UPLOADED FILE");
   }
@@ -31,11 +31,11 @@ if (isset($_GET["img"])==True)
 {
   if (valid_filename($_GET["img"])==True)
   {
-    output_gif_image(__DIR__."/maps/".$_GET["img"].".gif");
+    output_png_image(__DIR__."/maps/".$_GET["img"].".png");
   }
   else
   {
-    empty_image();
+    output_png_image("");
   }
 }
 
@@ -85,29 +85,6 @@ function empty_img()
   $bg_color=imagecolorallocate($buffer,255,0,255);
   imagecolortransparent($buffer,$bg_color);
   imagefill($buffer,0,0,$bg_color);
-}
-
-#####################################################################################################
-
-function output_gif_image($filename)
-{
-  ob_clean();
-  if (file_exists($filename)==False)
-  {
-    $buffer=empty_img();
-  }
-  else
-  {
-    $buffer=imagecreatefromgif($filename);
-    if ($buffer===False)
-    {
-      $buffer=empty_img();
-    }
-  }
-  header("Content-Type: image/gif");
-  imagegif($buffer);
-  imagedestroy($buffer);
-  die();
 }
 
 #####################################################################################################
