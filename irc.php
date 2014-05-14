@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 11-may-2014
+# 12-may-2014
 
 # irc.php
 
@@ -38,7 +38,7 @@ define("BUCKET_GET","BUCKET_GET");
 define("BUCKET_SET","BUCKET_SET");
 define("BUCKET_UNSET","BUCKET_UNSET");
 
-# internal command aliases (can't use in exec file)
+# internal command aliases (can also use in exec file with alias locking, but that would be just weird)
 define("CMD_QUIT","~q");
 define("CMD_LOCK","~lock");
 define("CMD_UNLOCK","~unlock");

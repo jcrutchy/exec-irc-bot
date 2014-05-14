@@ -16,6 +16,13 @@ define("BUCKET_PREFIX",GAME_NAME."_".GAME_CHAN."_");
 define("TERRAIN_OCEAN","O");
 define("TERRAIN_LAND","L");
 
+define("IMAGE_TERRAIN_OCEAN","ocean.png");
+define("IMAGE_TERRAIN_LAND","grassland.png");
+define("IMAGE_UNIT_SETTLER","settler.png");
+define("IMAGE_UNIT_WARRIOR","warrior.png");
+
+define("PATH_IMAGES",__DIR__."/images/");
+
 #####################################################################################################
 
 function irciv_term_echo($msg)
@@ -76,16 +83,23 @@ function map_unzip($coords)
 
 #####################################################################################################
 
-function map_gif($map_coords,$map_data,$scale,$filename="")
+function map_gif($map_coords,$map_data,$filename="",$player_data="",$nick="")
 {
   $cols=$map_data["cols"];
   $rows=$map_data["rows"];
-  $w=$cols*$scale;
-  $h=$rows*$scale;
+  $buffer_terrain_ocean=imagecreatefrompng(PATH_IMAGES.IMAGE_TERRAIN_OCEAN);
+  $buffer_terrain_land=imagecreatefrompng(PATH_IMAGES.IMAGE_TERRAIN_LAND);
+  $buffer_unit_settler=imagecreatefrompng(PATH_IMAGES.IMAGE_UNIT_SETTLER);
+  $buffer_unit_warrior=imagecreatefrompng(PATH_IMAGES.IMAGE_UNIT_WARRIOR);
+  if (($buffer_terrain_ocean===False) or ($buffer_terrain_land===False) or ($buffer_unit_settler===False) or ($buffer_unit_warrior===False))
+  {
+    return False;
+  }
+  $tile_w=imagesx($buffer_terrain_ocean);
+  $tile_h=imagesy($buffer_terrain_ocean);
+  $w=$cols*$tile_w;
+  $h=$rows*$tile_h;
   $buffer=imagecreatetruecolor($w,$h);
-  $color_ocean=imagecolorallocate($buffer,142,163,234); # blue
-  $color_land=imagecolorallocate($buffer,90,132,72); # green
-  imagefill($buffer,0,0,$color_ocean);
   for ($y=0;$y<$rows;$y++)
   {
     for ($x=0;$x<$cols;$x++)
@@ -93,10 +107,32 @@ function map_gif($map_coords,$map_data,$scale,$filename="")
       $i=map_coord($cols,$x,$y);
       if ($map_coords[$i]==TERRAIN_LAND)
       {
-        imagefilledrectangle($buffer,$x*$scale,$y*$scale,($x+1)*$scale-1,($y+1)*$scale-1,$color_land);
+        if (imagecopy($buffer,$buffer_terrain_land,$x*$tile_w,$y*$tile_h,0,0,$tile_w,$tile_h)==False)
+        {
+          return False;
+        }
+      }
+      if ($map_coords[$i]==TERRAIN_OCEAN)
+      {
+        if (imagecopy($buffer,$buffer_terrain_ocean,$x*$tile_w,$y*$tile_h,0,0,$tile_w,$tile_h)==False)
+        {
+          return False;
+        }
       }
     }
   }
+  if (($player_data<>"") and ($nick<>""))
+  {
+    #imagealphablending($imgdest,False);
+    #imagesavealpha($imgdest,True);
+  }
+  # to make final map image smaller filesize, use createimage to create palleted image, then copy truecolor image to palleted image
+
+  $scale=0.25;
+  $final_w=round($w*$scale);
+  $final_h=round($h*$scale);
+  $buffer_resized=imagecreatetruecolor($final_w,$final_h);
+  imagecopyresampled($buffer_resized,$buffer,0,0,0,0,$final_w,$final_h,$w,$h);
   if ($filename<>"")
   {
     imagegif($buffer,$filename.".gif");
@@ -109,6 +145,10 @@ function map_gif($map_coords,$map_data,$scale,$filename="")
     ob_end_clean();
     return $data;
   }
+  imagedestroy($buffer_terrain_ocean);
+  imagedestroy($buffer_terrain_land);
+  imagedestroy($buffer_unit_settler);
+  imagedestroy($buffer_unit_warrior);
   imagedestroy($buffer);
 }
 
@@ -127,7 +167,7 @@ function random_string($length)
 
 #####################################################################################################
 
-function upload_map_image($filename,$map_coords,$map_data)
+function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
 {
   $headers=file_get_contents(__DIR__."/irciv_map_request_headers");
   $content=file_get_contents(__DIR__."/irciv_map_request_content");
@@ -138,8 +178,9 @@ function upload_map_image($filename,$map_coords,$map_data)
   }
   $uri="/";
   $host="irciv.port119.net";
-  $gif_data=map_gif($map_coords,$map_data,10);
-  if ($gif_data===False)
+  $gif_data=False;
+  #$gif_data=map_gif($map_coords,$map_data,"",$players,$nick);
+  if (($gif_data===False) or ($gif_data==""))
   {
     return "upload_map_image: map_gif error";
   }

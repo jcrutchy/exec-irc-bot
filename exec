@@ -26,6 +26,8 @@ uptime|5|0|1|1|uptime
 rofl|5|0|1|1|fortune -s
 exec-up|5|0|0|1|php scripts/up.php %%start%%
 con/con|10|0|1|1|php scripts/bsod.php
+bsod|10|0|1|1|php scripts/bsod.php
+sylnt|10|0|1|1|php scripts/soylent.php
 ~join|5|0|0|0|php scripts/join.php %%trailing%%
 ~part|5|0|0|1|php scripts/part.php %%dest%% %%trailing%%
 ~recurse|5|0|0|1|php scripts/recurse.php

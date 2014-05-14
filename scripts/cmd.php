@@ -4,6 +4,8 @@
 # by crutchy
 # 27-april-2014
 
+# Ref: https://www.alien.net.au/irc/irc2numerics.html
+
 #####################################################################################################
 
 define("CHAN_CIV","#civ");
@@ -72,12 +74,17 @@ switch ($cmd)
       echo "IRC_RAW WHOIS $nick\n";
     }
     break;
+  case "KILL":
+  case "KICK":
+  case "QUIT":
   case "PART":
     if ($dest==CHAN_CIV)
     {
       echo ":".NICK." NOTICE ".CHAN_CIV." :civ logout $nick\n";
     }
     break;
+  #case "043": # Sent to the client when their nickname was forced to change due to a collision
+  #case "436": # Returned by a server to a client when it detects a nickname collision
   case "NICK":
     echo ":".NICK." NOTICE ".CHAN_CIV." :civ rename $nick $trailing\n";
     break;
@@ -86,6 +93,12 @@ switch ($cmd)
   case "NOTICE":
     break;
   case "MODE":
+    break;
+  case "PING":
+    break;
+  case "263": # When a server drops a command without processing it, it MUST use this reply.
+    break;
+  case "471": # Returned when attempting to join a channel which is set +l and is already full
     break;
 }
 

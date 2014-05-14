@@ -433,7 +433,7 @@ function cycle_active($nick)
   $timestamp=date("YmdHis",time());
   $key=random_string(16);
   $filename=$game_id.$player_id.$timestamp.$key;
-  $response=upload_map_image($filename,$map_coords,$map_data);
+  $response=upload_map_image($filename,$map_coords,$map_data,$players,$nick);
   $response_lines=explode("\n",$response);
   $msg=trim($response_lines[count($response_lines)-1]);
   if (trim($response_lines[0])=="HTTP/1.1 200 OK")
