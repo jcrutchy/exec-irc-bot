@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 8-may-2014
+# 14-may-2014
 
 # irciv.php
 
