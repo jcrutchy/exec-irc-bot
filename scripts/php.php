@@ -2,13 +2,13 @@
 
 # gpl2
 # by crutchy
-# 23-april-2014
+# 15-may-2014
 
 # thanks to prospectacle for link to download doc files
 
 $msg=$argv[1];
 $msg=str_replace("_","-",$msg);
-$html=file_get_contents("/var/www/slash/git/data/php_manual/php-chunked-xhtml/function.".$msg.".html");
+$html=file_get_contents("/nas/server/git/data/php_manual/php-chunked-xhtml/function.".$msg.".html");
 $delim1="<div class=\"methodsynopsis dc-description\">";
 $delim2="<p class=\"para rdfs-comment\">";
 $i=strpos($html,$delim1);

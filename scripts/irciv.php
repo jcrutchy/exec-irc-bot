@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 14-may-2014
+# 15-may-2014
 
 # irciv.php
 
@@ -17,6 +17,7 @@ define("TIMEOUT_RANDOM_COORD",10); # sec
 define("ACTION_LOGIN","login");
 define("ACTION_LOGOUT","logout");
 define("ACTION_RENAME","rename");
+define("ACTION_INIT","init");
 define("ACTION_STATUS","status");
 define("ACTION_SET","set");
 define("ACTION_UNSET","unset");
@@ -64,6 +65,13 @@ $action=strtolower($parts[0]);
 
 switch ($action)
 {
+  case "help":
+  case "?":
+    if (count($parts)==1)
+    {
+      output_help();
+    }
+    break;
   case ACTION_LOGIN:
     if ((count($parts)==3) and ($nick==NICK_EXEC))
     {
@@ -123,11 +131,26 @@ switch ($action)
       }
     }
     break;
+  case ACTION_INIT:
+    if (count($parts)==1)
+    {
+      player_init($nick);
+      irciv_privmsg("data player \"$nick\" has been initialized");
+    }
+    else
+    {
+      irciv_privmsg("syntax: [civ] init");
+    }
+    break;
   case "u":
   case "up":
     if (count($parts)==1)
     {
       move_active_unit($nick,0);
+    }
+    else
+    {
+      irciv_privmsg("syntax: [civ] (up|u)");
     }
     break;
   case "r":
@@ -136,6 +159,10 @@ switch ($action)
     {
       move_active_unit($nick,1);
     }
+    else
+    {
+      irciv_privmsg("syntax: [civ] (right|r)");
+    }
     break;
   case "d":
   case "down":
@@ -143,12 +170,33 @@ switch ($action)
     {
       move_active_unit($nick,2);
     }
+    else
+    {
+      irciv_privmsg("syntax: [civ] (down|d)");
+    }
     break;
   case "l":
   case "left":
     if (count($parts)==1)
     {
       move_active_unit($nick,3);
+    }
+    else
+    {
+      irciv_privmsg("syntax: [civ] (left|l)");
+    }
+    break;
+  case "b":
+  case "build":
+    if (count($parts)>1)
+    {
+      unset($parts[0]);
+      $city_name=implode(" ",$parts);
+      build_city($nick,$city_name);
+    }
+    else
+    {
+      irciv_privmsg("syntax: [civ] (build|b) City Name");
     }
     break;
   case ACTION_STATUS:
@@ -167,12 +215,12 @@ switch ($action)
       }
       else
       {
-        irciv_privmsg("syntax: civ set key=value");
+        irciv_privmsg("syntax: [civ] set key=value");
       }
     }
     else
     {
-      irciv_privmsg("syntax: civ set key=value");
+      irciv_privmsg("syntax: [civ] set key=value");
     }
     break;
   case ACTION_UNSET:
@@ -191,7 +239,7 @@ switch ($action)
     }
     else
     {
-      irciv_privmsg("syntax: civ unset key");
+      irciv_privmsg("syntax: [civ] unset key");
     }
     break;
   case ACTION_FLAG:
@@ -203,7 +251,7 @@ switch ($action)
     }
     else
     {
-      irciv_privmsg("syntax: civ flag name");
+      irciv_privmsg("syntax: [civ] flag name");
     }
     break;
   case ACTION_UNFLAG:
@@ -222,7 +270,7 @@ switch ($action)
     }
     else
     {
-      irciv_privmsg("syntax: civ unflag name");
+      irciv_privmsg("syntax: [civ] unflag name");
     }
     break;
 }
@@ -235,6 +283,17 @@ if ($players_bucket===False)
 else
 {
   irciv_set_bucket("players",$players_bucket);
+}
+
+#####################################################################################################
+
+function output_help()
+{
+  irciv_privmsg("QUICK START GUIDE");
+  irciv_privmsg("unit movement: (left|l),(right|r),(up|u),(down|d)");
+  irciv_privmsg("settler actions: (build|b)");
+  irciv_privmsg("player functions: (help|?),status,init,flag/unflag,set/unset");
+  irciv_privmsg("flags: public_status,grid");
 }
 
 #####################################################################################################
@@ -269,6 +328,7 @@ function player_init($nick)
   }
   $players[$nick]["init_time"]=time();
   $players[$nick]["units"]=array();
+  $players[$nick]["cities"]=array();
   $start_x=-1;
   $start_y=-1;
   if (random_coord(TERRAIN_LAND,$start_x,$start_y)==False)
@@ -277,6 +337,7 @@ function player_init($nick)
   }
   add_unit($nick,"settler",$start_x,$start_y);
   add_unit($nick,"warrior",$start_x,$start_y);
+  $players[$nick]["active"]=-1;
   cycle_active($nick);
   $players[$nick]["start_x"]=$start_x;
   $players[$nick]["start_y"]=$start_y;
@@ -323,6 +384,26 @@ function add_unit($nick,$type,$x,$y)
   $units[]=$data;
   $i=count($units)-1;
   $units[$i]["index"]=$i;
+  return True;
+}
+
+#####################################################################################################
+
+function add_city($nick,$x,$y,$city_name)
+{
+  global $players;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
+  $cities=&$players[$nick]["cities"];
+  $data["name"]=$city_name;
+  $data["population"]=1;
+  $data["x"]=$x;
+  $data["y"]=$y;
+  $cities[]=$data;
+  $i=count($cities)-1;
+  $cities[$i]["index"]=$i;
   return True;
 }
 
@@ -386,6 +467,10 @@ function move_active_unit($nick,$dir)
   global $players;
   global $map_data;
   global $map_coords;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
   $dir_x=array(0,1,0,-1);
   $dir_y=array(-1,0,1,0);
   $captions=array("up","right","down","left");
@@ -419,7 +504,63 @@ function move_active_unit($nick,$dir)
 
 #####################################################################################################
 
-function cycle_active($nick)
+function delete_unit($nick,$index)
+{
+  global $players;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
+  if (isset($players[$nick]["units"][$index])==False)
+  {
+    return False;
+  }
+  $count=count($players[$nick]["units"]);
+  $next=$index+1;
+  for ($i=$next;$i<$count;$i++)
+  {
+    $players[$nick]["units"][$i]["index"]=$i-1;
+  }
+  unset($players[$nick]["units"][$index]);
+  $players[$nick]["units"]=array_values($players[$nick]["units"]);
+  return True;
+}
+
+#####################################################################################################
+
+function build_city($nick,$city_name)
+{
+  global $players;
+  global $map_data;
+  global $map_coords;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
+  if (isset($players[$nick]["active"])==False)
+  {
+    return False;
+  }
+  $unit=$players[$nick]["units"][$players[$nick]["active"]];
+  if ($unit["type"]<>"settler")
+  {
+    $players[$nick]["status_messages"][]="only settlers can build cities";
+  }
+  else
+  {
+    $x=$unit["x"];
+    $y=$unit["y"];
+    add_city($nick,$x,$y,$city_name);
+    #delete_unit($nick,$players[$nick]["active"]); # WORKS BUT LEAVE OUT FOR TESTING
+    $players[$nick]["status_messages"][]="successfully established the new city of \"$city_name\" at coordinates ($x,$y)";
+    cycle_active($nick);
+  }
+  status($nick);
+}
+
+#####################################################################################################
+
+function output_map($nick)
 {
   global $players;
   global $map_coords;
@@ -448,6 +589,18 @@ function cycle_active($nick)
   {
     $players[$nick]["status_messages"][]=$msg;
   }
+}
+
+#####################################################################################################
+
+function cycle_active($nick)
+{
+  global $players;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
+  output_map($nick);
   $n=count($players[$nick]["units"]);
   if (isset($players[$nick]["active"])==False)
   {

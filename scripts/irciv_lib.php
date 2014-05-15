@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 14-may-2014
+# 15-may-2014
 
 # irciv_lib.php
 
@@ -20,6 +20,7 @@ define("IMAGE_TERRAIN_OCEAN","ocean.png");
 define("IMAGE_TERRAIN_LAND","grassland.png");
 define("IMAGE_UNIT_SETTLER","settler.png");
 define("IMAGE_UNIT_WARRIOR","warrior.png");
+define("IMAGE_CITY_SIZE_1","city1.png");
 
 define("PATH_IMAGES",__DIR__."/images/");
 
@@ -87,11 +88,29 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
 {
   $cols=$map_data["cols"];
   $rows=$map_data["rows"];
+  # make some kind of image library structure (maybe a class might be useful here)
   $buffer_terrain_ocean=imagecreatefrompng(PATH_IMAGES.IMAGE_TERRAIN_OCEAN);
+  if ($buffer_terrain_ocean===False)
+  {
+    return False;
+  }
   $buffer_terrain_land=imagecreatefrompng(PATH_IMAGES.IMAGE_TERRAIN_LAND);
+  if ($buffer_terrain_land===False)
+  {
+    return False;
+  }
   $buffer_unit_settler=imagecreatefrompng(PATH_IMAGES.IMAGE_UNIT_SETTLER);
+  if ($buffer_unit_settler===False)
+  {
+    return False;
+  }
   $buffer_unit_warrior=imagecreatefrompng(PATH_IMAGES.IMAGE_UNIT_WARRIOR);
-  if (($buffer_terrain_ocean===False) or ($buffer_terrain_land===False) or ($buffer_unit_settler===False) or ($buffer_unit_warrior===False))
+  if ($buffer_unit_warrior===False)
+  {
+    return False;
+  }
+  $buffer_city_size_1=imagecreatefrompng(PATH_IMAGES.IMAGE_CITY_SIZE_1);
+  if ($buffer_city_size_1===False)
   {
     return False;
   }
@@ -99,6 +118,8 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
   $tile_h=imagesy($buffer_terrain_ocean);
   $unit_w=imagesx($buffer_unit_settler);
   $unit_h=imagesy($buffer_unit_settler);
+  $city_w=imagesx($buffer_city_size_1);
+  $city_h=imagesy($buffer_city_size_1);
   $w=$cols*$tile_w;
   $h=$rows*$tile_h;
   $buffer=imagecreatetruecolor($w,$h);
@@ -142,27 +163,39 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
     $color_transparent=imagecolorallocate($buffer_unit_settler,255,0,255);
     imagecolortransparent($buffer_unit_settler,$color_transparent);
     imagecolortransparent($buffer_unit_warrior,$color_transparent);
+    imagecolortransparent($buffer_city_size_1,$color_transparent);
     imagealphablending($buffer,True);
     imagesavealpha($buffer,True);
+    for ($i=0;$i<count($player_data[$nick]["cities"]);$i++)
+    {
+      $city=$player_data[$nick]["cities"][$i];
+      $x=$city["x"];
+      $y=$city["y"];
+      $dx=($city_w-$tile_w)/2;
+      $dy=($city_h-$tile_h)/2;
+      imagecopy($buffer,$buffer_city_size_1,round($x*$tile_w-$dx),round($y*$tile_h-$dy),0,0,$city_w,$city_h);
+    }
     for ($i=0;$i<count($player_data[$nick]["units"]);$i++)
     {
       $unit=$player_data[$nick]["units"][$i];
       $x=$unit["x"];
       $y=$unit["y"];
       $dx=($unit_w-$tile_w)/2;
+      $dy=$unit_h-$tile_h;
       switch ($unit["type"])
       {
         case "settler":
-          imagecopy($buffer,$buffer_unit_settler,round($x*$tile_w-$dx),round($y*$tile_h),0,0,$unit_w,$unit_h);
+          imagecopy($buffer,$buffer_unit_settler,round($x*$tile_w-$dx),round($y*$tile_h-$dy),0,0,$unit_w,$unit_h);
           break;
         case "warrior":
-          imagecopy($buffer,$buffer_unit_warrior,round($x*$tile_w-$dx),round($y*$tile_h),0,0,$unit_w,$unit_h);
+          imagecopy($buffer,$buffer_unit_warrior,round($x*$tile_w-$dx),round($y*$tile_h-$dy),0,0,$unit_w,$unit_h);
           break;
       }
     }
   }
   imagedestroy($buffer_unit_settler);
   imagedestroy($buffer_unit_warrior);
+  imagedestroy($buffer_city_size_1);
   # to make final map image smaller filesize, use createimage to create palleted image, then copy truecolor image to palleted image
   $scale=1.0;
   $final_w=round($w*$scale);
@@ -253,7 +286,7 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
   {
     $boundary=random_string(40);
   }
-  while ((strpos($gif_data,$boundary)!==False) or (strpos($exec_key,$boundary)!==False));
+  while ((strpos($img_data,$boundary)!==False) or (strpos($exec_key,$boundary)!==False));
   $headers=str_replace("%%uri%%",$uri,$headers);
   $headers=str_replace("%%host%%",$host,$headers);
   $content=str_replace("%%filename%%",$filename,$content);
