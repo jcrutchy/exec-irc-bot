@@ -47,6 +47,8 @@ define("CMD_BUCKETS_DUMP","~buckets-dump"); # dump buckets to terminal
 define("CMD_BUCKETS_SAVE","~buckets-save"); # save buckets to file
 define("CMD_BUCKETS_LOAD","~buckets-load"); # load buckets from file
 define("CMD_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
+define("CMD_DEST_OVERRIDE","~dest-override");
+define("CMD_DEST_CLEAR","~dest-clear");
 
 # exec file shell command templates (replaced by the bot with actual values before executing)
 define("TEMPLATE_TRAILING","trailing");
@@ -68,6 +70,7 @@ $alias_locks=array(); # optionally stores an alias for each nick, which then tre
 $handles=array(); # stores executed process information
 $time_deltas=array(); # keeps track of how often nicks call an alias (used for flood control)
 $buckets=array(); # common place for scripts to store stuff
+$dest_overrides=array(); # optionally stores a destination for each nick, which treats every privmsg by that nick as having the set destination
 
 $admin_nicks=array("crutchy");
 
@@ -377,6 +380,7 @@ function handle_data($data)
 {
   global $admin_nicks;
   global $alias_locks;
+  global $dest_overrides;
   echo $data;
   $items=parse_data($data);
   if ($items!==False)
@@ -395,13 +399,30 @@ function handle_data($data)
       }
       else
       {
-        privmsg($items["destination"],$items["nick"],"syntax: ~lock <alias>");
+        privmsg($items["destination"],$items["nick"],"syntax: ".CMD_LOCK." <alias>");
       }
     }
     elseif (($items["trailing"]==CMD_UNLOCK) and (check_nick($items,CMD_UNLOCK)==True) and (isset($alias_locks[$items["nick"]][$items["destination"]])==True))
     {
       privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]][$items["destination"]]."\" unlocked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
       unset($alias_locks[$items["nick"]][$items["destination"]]);
+    }
+    elseif (($args[0]==CMD_DEST_OVERRIDE) and (check_nick($items,CMD_DEST_OVERRIDE)==True))
+    {
+      if (count($args)==2)
+      {
+        privmsg($items["destination"],$items["nick"],"destination override \"".$args[1]."\" set for nick \"".$items["nick"]."\"");
+        $dest_overrides[$items["nick"]]=$args[1];
+      }
+      else
+      {
+        privmsg($items["destination"],$items["nick"],"syntax: ".CMD_DEST_OVERRIDE." <dest>");
+      }
+    }
+    elseif (($items["trailing"]==CMD_DEST_CLEAR) and (check_nick($items,CMD_DEST_CLEAR)==True) and (isset($dest_overrides[$items["nick"]])==True))
+    {
+      privmsg($items["destination"],$items["nick"],"destination override \"".$dest_overrides[$items["nick"]]."\" clear for nick \"".$items["nick"]."\"");
+      unset($dest_overrides[$items["nick"]]);
     }
     elseif (($items["trailing"]==CMD_RELOAD) and (check_nick($items,CMD_RELOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
@@ -628,6 +649,7 @@ function parse_data($data)
 
 function privmsg($destination,$nick,$msg)
 {
+  global $dest_overrides;
   if ($destination=="")
   {
     term_echo("PRIVMSG: DESTINATION NOT SPECIFIED");
@@ -639,15 +661,23 @@ function privmsg($destination,$nick,$msg)
     return;
   }
   $msg=substr($msg,0,MAX_MSG_LENGTH);
-  if (substr($destination,0,1)=="#")
+  if (isset($dest_overrides[$nick])==True)
   {
-    $data=":".NICK." PRIVMSG $destination :$msg";
+    $data=":".NICK." PRIVMSG ".$dest_overrides[$nick]." :$msg";
     rawmsg($data);
   }
   else
   {
-    $data=":".NICK." PRIVMSG $nick :$msg";
-    rawmsg($data);
+    if (substr($destination,0,1)=="#")
+    {
+      $data=":".NICK." PRIVMSG $destination :$msg";
+      rawmsg($data);
+    }
+    else
+    {
+      $data=":".NICK." PRIVMSG $nick :$msg";
+      rawmsg($data);
+    }
   }
   term_echo($msg);
 }

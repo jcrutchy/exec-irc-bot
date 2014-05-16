@@ -15,6 +15,7 @@
 cowsay|5|0|1|0|cowsay %%trailing%%
 snake|5|0|1|1|echo %%trailing%% | cowsay -f elephant-in-snake
 test|5|0|0|0|php scripts/test.php %%trailing%% %%dest%% %%nick%%
+~say|2|0|1|0|php scripts/say.php %%trailing%%
 #ps|5|0|1|1|ps fl
 moo|10|0|1|1|apt-get moo
 fortune|5|0|1|1|fortune -s

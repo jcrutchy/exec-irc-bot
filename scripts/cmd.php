@@ -31,11 +31,11 @@ switch ($cmd)
       if ($nick<>NICK)
       {
         echo ":".NICK." NOTICE ".CHAN_CIV." :civ login $nick $account\n";
-        echo ":$nick NOTICE ".CHAN_CIV." :~lock civ\n";
+        /*echo ":$nick NOTICE ".CHAN_CIV." :~lock civ\n";
         sleep(1);
         echo ":$nick NOTICE ".CHAN_CIV." :flag public_status\n";
         sleep(1);
-        echo ":$nick NOTICE ".CHAN_CIV." :status\n";
+        echo ":$nick NOTICE ".CHAN_CIV." :status\n";*/
       }
     }
     break;
@@ -99,6 +99,8 @@ switch ($cmd)
   case "263": # When a server drops a command without processing it, it MUST use this reply.
     break;
   case "471": # Returned when attempting to join a channel which is set +l and is already full
+    break;
+  case "404":
     break;
 }
 
