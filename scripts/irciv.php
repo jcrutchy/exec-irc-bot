@@ -121,7 +121,7 @@ switch ($action)
         }
         else
         {
-          irciv_err("ACTION_RENAME: old nick not found");
+          #irciv_err("ACTION_RENAME: old nick not found");
         }
       }
     }
