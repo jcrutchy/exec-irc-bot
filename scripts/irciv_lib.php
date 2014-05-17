@@ -12,6 +12,8 @@ define("GAME_VERSION","0.0");
 define("GAME_CHAN","#civ");
 define("BUCKET_PREFIX","IRCiv_".GAME_CHAN."_");
 
+define("IRCIV_DATA_FILE","../data/irciv_data");
+
 define("TERRAIN_OCEAN","O");
 define("TERRAIN_LAND","L");
 
@@ -321,7 +323,7 @@ function irciv_save_data()
   $players=irciv_get_bucket("players");
   $map_coords=irciv_get_bucket("map_coords");
   $map_data=irciv_get_bucket("map_data");
-  if (file_put_contents("../data/irciv_data",$players."\n".$map_coords."\n".$map_data)===False)
+  if (file_put_contents(IRCIV_DATA_FILE,$players."\n".$map_coords."\n".$map_data)===False)
   {
     irciv_err("IRCiv data not saved");
     return;
@@ -334,10 +336,15 @@ function irciv_save_data()
 function irciv_load_data()
 {
   irciv_term_echo("loading IRCiv data...");
-
-  /*$data=file_get_contents(EXEC_FILE);
-  irciv_set_bucket("players",serialize($players));*/
-
+  if (file_exists(IRCIV_DATA_FILE)==True)
+  {
+    $data=file_get_contents(IRCIV_DATA_FILE);
+    #irciv_set_bucket("players",serialize($players));*/
+  }
+  else
+  {
+    irciv_term_echo("IRCiv data file not found");
+  }
 }
 
 #####################################################################################################

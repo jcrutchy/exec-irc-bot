@@ -43,12 +43,12 @@ define("CMD_QUIT","~q");
 define("CMD_LOCK","~lock");
 define("CMD_UNLOCK","~unlock");
 define("CMD_RELOAD","~reload");
+define("CMD_DEST_OVERRIDE","~dest-override");
+define("CMD_DEST_CLEAR","~dest-clear");
 define("CMD_BUCKETS_DUMP","~buckets-dump"); # dump buckets to terminal
 define("CMD_BUCKETS_SAVE","~buckets-save"); # save buckets to file
 define("CMD_BUCKETS_LOAD","~buckets-load"); # load buckets from file
 define("CMD_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
-define("CMD_DEST_OVERRIDE","~dest-override");
-define("CMD_DEST_CLEAR","~dest-clear");
 
 # exec file shell command templates (replaced by the bot with actual values before executing)
 define("TEMPLATE_TRAILING","trailing");
@@ -421,19 +421,19 @@ function handle_data($data)
     {
       if (count($args)==2)
       {
-        privmsg($items["destination"],$items["nick"],"destination override \"".$args[1]."\" set for nick \"".$items["nick"]."\"");
-        $dest_overrides[$items["nick"]]=$args[1];
+        privmsg($items["destination"],$items["nick"],"destination override \"".$args[1]."\" set for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
+        $dest_overrides[$items["nick"]][$items["destination"]]=$args[1];
       }
       else
       {
         privmsg($items["destination"],$items["nick"],"syntax: ".CMD_DEST_OVERRIDE." <dest>");
       }
     }
-    elseif (($items["trailing"]==CMD_DEST_CLEAR) and (check_nick($items,CMD_DEST_CLEAR)==True) and (isset($dest_overrides[$items["nick"]])==True))
+    elseif (($items["trailing"]==CMD_DEST_CLEAR) and (check_nick($items,CMD_DEST_CLEAR)==True) and (isset($dest_overrides[$items["nick"]][$items["destination"]])==True))
     {
-      $override=$dest_overrides[$items["nick"]];
-      unset($dest_overrides[$items["nick"]]);
-      privmsg($items["destination"],$items["nick"],"destination override \"$override\" cleared for nick \"".$items["nick"]."\"");
+      $override=$dest_overrides[$items["nick"]][$items["destination"]];
+      unset($dest_overrides[$items["nick"]][$items["destination"]]);
+      privmsg($items["destination"],$items["nick"],"destination override \"$override\" cleared for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
     }
     elseif (($items["trailing"]==CMD_RELOAD) and (check_nick($items,CMD_RELOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
@@ -672,9 +672,9 @@ function privmsg($destination,$nick,$msg)
     return;
   }
   $msg=substr($msg,0,MAX_MSG_LENGTH);
-  if (isset($dest_overrides[$nick])==True)
+  if (isset($dest_overrides[$nick][$destination])==True)
   {
-    $data=":".NICK." PRIVMSG ".$dest_overrides[$nick]." :$msg";
+    $data=":".NICK." PRIVMSG ".$dest_overrides[$nick][$destination]." :$msg";
     rawmsg($data);
   }
   else
