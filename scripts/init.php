@@ -13,6 +13,10 @@ ini_set("display_errors","on");
 
 echo "################ BEGIN INIT ################\n";
 echo ":exec BUCKET_SET :init success\n";
+
+require_once("irciv_lib.php");
+irciv_load_data();
+
 echo "################# END INIT #################\n";
 
 #####################################################################################################

@@ -118,6 +118,15 @@ function init()
 
 #####################################################################################################
 
+function log_data($data)
+{
+  $filename="../data/".date("Ymd",time()).".log";
+  $line="<<".date("Y-m-d H:i:s",microtime(True)).">> ".rtrim($data)."\n";
+  file_put_contents($filename,$line,FILE_APPEND);
+}
+
+#####################################################################################################
+
 function handle_process($handle)
 {
   handle_stdout($handle);
@@ -382,6 +391,7 @@ function handle_data($data)
   global $alias_locks;
   global $dest_overrides;
   echo $data;
+  log_data($data);
   $items=parse_data($data);
   if ($items!==False)
   {

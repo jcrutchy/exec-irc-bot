@@ -2,8 +2,11 @@
 
 # gpl2
 # by crutchy
-# 16-may-2014
+# 17-may-2014
 
-echo $argv[1]."\n";
+if ($argv[2]=="crutchy")
+{
+  echo $argv[1]."\n";
+}
 
 ?>

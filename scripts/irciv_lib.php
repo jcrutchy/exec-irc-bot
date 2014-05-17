@@ -321,7 +321,7 @@ function irciv_save_data()
   $players=irciv_get_bucket("players");
   $map_coords=irciv_get_bucket("map_coords");
   $map_data=irciv_get_bucket("map_data");
-  if (file_put_contents("../data/buckets",$players."\n".$map_coords."\n".$map_data)===False)
+  if (file_put_contents("../data/irciv_data",$players."\n".$map_coords."\n".$map_data)===False)
   {
     irciv_err("IRCiv data not saved");
     return;
@@ -334,6 +334,10 @@ function irciv_save_data()
 function irciv_load_data()
 {
   irciv_term_echo("loading IRCiv data...");
+
+  /*$data=file_get_contents(EXEC_FILE);
+  irciv_set_bucket("players",serialize($players));*/
+
 }
 
 #####################################################################################################

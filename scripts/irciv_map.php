@@ -127,14 +127,14 @@ function map_generate($data,$landmass_count,$landmass_size,$land_spread,$ocean_c
       }
     }
     $delta=microtime(True)-$prev;
-    irciv_term_echo("processed landmass $i: ".round($delta,3)." sec / $landmass_count landmasses");
+    #irciv_term_echo("processed landmass $i: ".round($delta,3)." sec / $landmass_count landmasses");
     $prev=microtime(True);
   }
   irciv_term_echo("processed all landmasses");
   # fill in any isolated inland 1x1 lakes
   for ($y=0;$y<$rows;$y++)
   {
-    irciv_term_echo("1x1 lake fixer: processing row $y / $rows");
+    #irciv_term_echo("1x1 lake fixer: processing row $y / $rows");
     for ($x=0;$x<$cols;$x++)
     {
       $i=map_coord($cols,$x,$y);
