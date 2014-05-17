@@ -343,6 +343,7 @@ function player_init($nick)
   $players[$nick]["init_time"]=time();
   $players[$nick]["units"]=array();
   $players[$nick]["cities"]=array();
+  $players[$nick]["fog"]=str_repeat("0",strlen($map_coords));
   $start_x=-1;
   $start_y=-1;
   if (random_coord(TERRAIN_LAND,$start_x,$start_y)==False)
@@ -393,11 +394,13 @@ function add_unit($nick,$type,$x,$y)
   $units=&$players[$nick]["units"];
   $data["type"]=$type;
   $data["health"]=100;
+  $data["sight_range"]=2;
   $data["x"]=$x;
   $data["y"]=$y;
   $units[]=$data;
   $i=count($units)-1;
   $units[$i]["index"]=$i;
+  unfog($x,$y,$data["sight_range"]);
   return True;
 }
 
@@ -413,12 +416,29 @@ function add_city($nick,$x,$y,$city_name)
   $cities=&$players[$nick]["cities"];
   $data["name"]=$city_name;
   $data["population"]=1;
+  $data["sight_range"]=3;
   $data["x"]=$x;
   $data["y"]=$y;
   $cities[]=$data;
   $i=count($cities)-1;
   $cities[$i]["index"]=$i;
+  unfog($x,$y,$data["sight_range"]);
   return True;
+}
+
+#####################################################################################################
+
+function unfog($x,$y,$range)
+{
+  global $players;
+  global $map_coords;
+  global $map_data;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
+  $players[$nick]["fog"]
+  map_coord($cols,$x,$y)
 }
 
 #####################################################################################################
@@ -596,7 +616,7 @@ function output_map($nick)
     if ($msg=="SUCCESS")
     {
       $players[$nick]["status_messages"][]="http://irciv.port119.net/?pid=".$players[$nick]["id"];
-      $players[$nick]["status_messages"][]="http://irciv.port119.net/?map=$filename";
+      #$players[$nick]["status_messages"][]="http://irciv.port119.net/?map=$filename";
     }
   }
   else

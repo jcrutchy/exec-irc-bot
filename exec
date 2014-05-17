@@ -47,3 +47,6 @@ civ-save|5|1200|0|1|php scripts/irciv.php '<<SAVE>>'
 # non-php scripts
 haskell|5|0|1|1|runhaskell scripts/haskell.hs
 perl|5|0|1|1|perl scripts/perl.pl
+
+# scripts by chromas
+mackey|5|0|1|0|php /nas/server/git/php/mackey.php %%trailing%% %%nick%%

@@ -58,10 +58,10 @@ switch ($argv[1])
     }
     else
     {
-      privmsg("SOYLENT IRC WEATHER INFORMATION BOT");
-      privmsg("  usage: \"weather location\" (visit http://wiki.soylentnews.org/wiki/IRC#weather for more info)");
+      privmsg("IRC WEATHER INFORMATION BOT");
+      privmsg("  usage: \"weather location\" (visit http://wiki.soylentnews.org/wiki/IRC:exec#Weather_script for more info)");
       privmsg("  data courtesy of the APRS Citizen Weather Observer Program (CWOP) @ http://weather.gladstonefamily.net/");
-      privmsg("  by crutchy: https://github.com/crutchy-/test/blob/master/weather.php");
+      privmsg("  by crutchy: https://github.com/crutchy-/test/blob/master/scripts/weather.php");
     }
     break;
  }

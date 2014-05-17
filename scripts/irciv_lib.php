@@ -229,6 +229,7 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
         imagejpg($buffer,$filename.".jpg");
         break;
     }
+    imagedestroy($buffer);
   }
   else
   {
@@ -247,9 +248,9 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
     }
     $data=ob_get_contents();
     ob_end_clean();
+    imagedestroy($buffer);
     return $data;
   }
-  imagedestroy($buffer);
 }
 
 #####################################################################################################
