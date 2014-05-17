@@ -73,4 +73,24 @@ function set_bucket($index,$data)
 
 #####################################################################################################
 
+function wget($host,$uri,$port)
+{
+  $fp=fsockopen($host,$port);
+  if ($fp===False)
+  {
+    term_echo("Error connecting to \"$host\".");
+    return;
+  }
+  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
+  $response="";
+  while (!feof($fp))
+  {
+    $response=$response.fgets($fp,1024);
+  }
+  fclose($fp);
+  return $response;
+}
+
+#####################################################################################################
+
 ?>

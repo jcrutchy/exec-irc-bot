@@ -35,6 +35,7 @@ sylnt|10|0|1|1|php scripts/soylent.php
 ~bucket|5|0|0|1|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 ~flush|5|0|0|1|php scripts/bucket_flush.php %%nick%%
 tux|5|0|1|0|cowsay -f tux %%trailing%%
+isdown|10|0|0|0|php scripts/isdown.php %%trailing%%
 
 weather|10|0|0|1|php scripts/weather.php %%alias%% %%trailing%%
 weather-add|10|0|0|1|php scripts/weather.php %%alias%% %%trailing%%
