@@ -2,16 +2,15 @@
 
 # gpl2
 # by crutchy
-# 15-may-2014
+# 17-may-2014
 
 # irciv_lib.php
 
 require_once("lib.php");
 
-define("GAME_NAME","IRCiv");
 define("GAME_VERSION","0.0");
 define("GAME_CHAN","#civ");
-define("BUCKET_PREFIX",GAME_NAME."_".GAME_CHAN."_");
+define("BUCKET_PREFIX","IRCiv_".GAME_CHAN."_");
 
 define("TERRAIN_OCEAN","O");
 define("TERRAIN_LAND","L");
@@ -28,21 +27,21 @@ define("PATH_IMAGES",__DIR__."/images/");
 
 function irciv_term_echo($msg)
 {
-  term_echo(GAME_NAME.": $msg");
+  term_echo("IRCiv: $msg");
 }
 
 #####################################################################################################
 
 function irciv_privmsg($msg)
 {
-  privmsg(GAME_NAME.": $msg");
+  privmsg("IRCiv: $msg");
 }
 
 #####################################################################################################
 
 function irciv_err($msg)
 {
-  err(GAME_NAME." error: $msg");
+  err("IRCiv error: $msg");
 }
 
 #####################################################################################################
@@ -292,7 +291,7 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
   $content=str_replace("%%filename%%",$filename,$content);
   $headers=str_replace("%%boundary%%",$boundary,$headers);
   $content=str_replace("%%boundary%%",$boundary,$content);
-  $headers=str_replace("%%game_name%%",GAME_NAME,$headers);
+  $headers=str_replace("%%game_name%%","IRCiv",$headers);
   $headers=str_replace("%%game_version%%",GAME_VERSION,$headers);
   $content=str_replace("%%exec_key%%",$exec_key,$content);
   $content=str_replace("%%img_data%%",$img_data,$content);
@@ -312,6 +311,29 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
   }
   fclose($fp);
   return $response;
+}
+
+#####################################################################################################
+
+function irciv_save_data()
+{
+  irciv_term_echo("saving IRCiv data...");
+  $players=irciv_get_bucket("players");
+  $map_coords=irciv_get_bucket("map_coords");
+  $map_data=irciv_get_bucket("map_data");
+  if (file_put_contents("../data/buckets",$players."\n".$map_coords."\n".$map_data)===False)
+  {
+    irciv_err("IRCiv data not saved");
+    return;
+  }
+  irciv_term_echo("IRCiv data saved");
+}
+
+#####################################################################################################
+
+function irciv_load_data()
+{
+  irciv_term_echo("loading IRCiv data...");
 }
 
 #####################################################################################################

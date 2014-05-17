@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-may-2014
+# 17-may-2014
 
 # irc.php
 
@@ -407,7 +407,7 @@ function handle_data($data)
       privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]][$items["destination"]]."\" unlocked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
       unset($alias_locks[$items["nick"]][$items["destination"]]);
     }
-    elseif (($args[0]==CMD_DEST_OVERRIDE) and (check_nick($items,CMD_DEST_OVERRIDE)==True))
+    elseif (($args[0]==CMD_DEST_OVERRIDE) and (check_nick($items,CMD_DEST_OVERRIDE)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {
       if (count($args)==2)
       {
@@ -421,8 +421,9 @@ function handle_data($data)
     }
     elseif (($items["trailing"]==CMD_DEST_CLEAR) and (check_nick($items,CMD_DEST_CLEAR)==True) and (isset($dest_overrides[$items["nick"]])==True))
     {
-      privmsg($items["destination"],$items["nick"],"destination override \"".$dest_overrides[$items["nick"]]."\" clear for nick \"".$items["nick"]."\"");
+      $override=$dest_overrides[$items["nick"]];
       unset($dest_overrides[$items["nick"]]);
+      privmsg($items["destination"],$items["nick"],"destination override \"$override\" cleared for nick \"".$items["nick"]."\"");
     }
     elseif (($items["trailing"]==CMD_RELOAD) and (check_nick($items,CMD_RELOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
     {

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 15-may-2014
+# 17-may-2014
 
 # irciv.php
 
@@ -11,6 +11,12 @@
 ini_set("display_errors","on");
 date_default_timezone_set("UTC");
 require_once("irciv_lib.php");
+
+if ($argv[1]=="<<SAVE>>")
+{
+  irciv_save_data();
+  return;
+}
 
 define("TIMEOUT_RANDOM_COORD",10); # sec
 
@@ -113,7 +119,15 @@ switch ($action)
         {
           irciv_privmsg("error renaming player \"$old\" to \"$new\"");
         }
+        else
+        {
+          irciv_err("ACTION_RENAME: old nick not found");
+        }
       }
+    }
+    else
+    {
+      irciv_err("ACTION_RENAME: incorrect part count or wrong nick");
     }
     break;
   case ACTION_LOGOUT:

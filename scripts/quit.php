@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 5-may-2014
+# 16-may-2014
 
 #####################################################################################################
 
@@ -13,6 +13,10 @@ ini_set("display_errors","on");
 # IF <<quit>> DIRECTIVE IS NOT ECHOED, EXEC WILL NOT QUIT (WILL NEED TO BE FORCED USING CRTL+C IN TERMINAL)
 
 echo "################ BEGIN QUIT ################\n";
+
+require_once("irciv_lib.php");
+irciv_save_data();
+
 echo "################# END QUIT #################\n";
 echo "<<quit>>\n";
 
