@@ -33,12 +33,15 @@ $parts=explode(" ",$trailing);
 
 $cmd=$parts[0];
 
+$map_loaded=False;
+
 $coords_bucket=irciv_get_bucket("map_coords");
 $data_bucket=irciv_get_bucket("map_data");
 if (($coords_bucket<>"") and ($data_bucket<>""))
 {
   $coords=map_unzip($coords_bucket);
   $data=unserialize($data_bucket);
+  $map_loaded=True;
 }
 else
 {
@@ -48,6 +51,10 @@ else
 switch ($cmd)
 {
   case CMD_GENERATE:
+    if ($map_loaded==True)
+    {
+      return;
+    }
     $landmass_count=50;
     $landmass_size=80;
     if (($landmass_count*$landmass_size)>=(0.8*$data["cols"]*$data["rows"]))

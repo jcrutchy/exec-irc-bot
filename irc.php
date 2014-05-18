@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 17-may-2014
+# 18-may-2014
 
 # irc.php
 
@@ -260,49 +260,51 @@ function handle_bucket($data,$handle)
   switch ($items["cmd"])
   {
     case BUCKET_GET:
-      $index=base64_encode($trailing);
+      $index=$trailing;
       if (isset($buckets[$index])==True)
       {
-        term_echo("BUCKET_GET: $trailing: ".round(strlen($buckets[$index])/1024,1)."kb");
+        $size=round(strlen($buckets[$index])/1024,1)."kb";
         $result=handle_stdin($handle,$buckets[$index]);
         if ($result===False)
         {
-          term_echo("BUCKET_GET: ERROR WRITING BUCKET DATA TO STDIN");
+          term_echo("BUCKET_GET [$index]: ERROR WRITING BUCKET DATA TO STDIN ($size)");
         }
         else
         {
-          term_echo("BUCKET_GET: SUCCESS");
+          term_echo("BUCKET_GET [$index]: SUCCESS ($size)");
         }
       }
       else
       {
         handle_stdin($handle,"\n");
-        term_echo("BUCKET_GET: BUCKET NOT SET");
+        term_echo("BUCKET_GET [$index]: BUCKET NOT SET");
       }
       return True;
     case BUCKET_SET:
       $parts=explode(" ",$trailing);
-      if (count($parts)<>2)
+      if (count($parts)<2)
       {
         term_echo("BUCKET_SET: INVALID TRAILING: '$trailing'");
       }
       else
       {
-        $index=base64_encode($parts[0]);
-        $buckets[$index]=$parts[1];
-        term_echo("BUCKET_SET: SUCCESS");
+        $index=$parts[0];
+        unset($parts[0]);
+        $trailing=implode(" ",$parts);
+        $buckets[$index]=$trailing;
+        term_echo("BUCKET_SET [$index]: SUCCESS");
       }
       return True;
     case BUCKET_UNSET:
-      $index=base64_encode($trailing);
+      $index=$trailing;
       if (isset($buckets[$index])==True)
       {
         unset($buckets[$index]);
-        term_echo("BUCKET_UNSET: SUCCESS");
+        term_echo("BUCKET_UNSET [$index]: SUCCESS");
       }
       else
       {
-        term_echo("BUCKET_UNSET: BUCKET NOT SET");
+        term_echo("BUCKET_UNSET [$index]: BUCKET NOT SET");
       }
       return True;
   }
@@ -840,8 +842,10 @@ function process_timed_execs()
     {
       continue;
     }
+    $time_set=False;
     if (isset($exec_data["repeat_time"])==True)
     {
+      $time_set=True;
       $delta=microtime(True)-$exec_data["repeat_time"];
       if ($delta<$exec_data["repeat"])
       {
@@ -855,7 +859,10 @@ function process_timed_execs()
       continue;
     }
     $exec_list[$alias]["repeat_time"]=microtime(True);
-    process_scripts($items);
+    if ($time_set==True)
+    {
+      process_scripts($items);
+    }
   }
 }
 

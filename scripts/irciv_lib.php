@@ -344,7 +344,13 @@ function irciv_load_data()
   if (file_exists(IRCIV_DATA_FILE)==True)
   {
     $data=file_get_contents(IRCIV_DATA_FILE);
-    #irciv_set_bucket("players",serialize($players));*/
+    $lines=explode("\n",$data);
+    $players=$lines[0];
+    $map_coords=$lines[1];
+    $map_data=$lines[2];
+    irciv_set_bucket("players",$players);
+    irciv_set_bucket("map_coords",$map_coords);
+    irciv_set_bucket("map_data",$map_data);
   }
   else
   {

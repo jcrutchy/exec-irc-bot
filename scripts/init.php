@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 16-may-2014
+# 18-may-2014
 
 #####################################################################################################
 
@@ -12,7 +12,6 @@ ini_set("display_errors","on");
 # TO EXECUTE A SCRIPT IN RESPONSE TO AN IRC EVENT, USE THE "cmd.php" SCRIPT
 
 echo "################ BEGIN INIT ################\n";
-echo ":exec BUCKET_SET :init success\n";
 
 require_once("irciv_lib.php");
 irciv_load_data();

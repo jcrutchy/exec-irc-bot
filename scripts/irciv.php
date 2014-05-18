@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 17-may-2014
+# 18-may-2014
 
 # irciv.php
 
@@ -60,6 +60,7 @@ if (($coords_bucket<>"") and ($data_bucket<>""))
 $nick=$argv[1];
 $trailing=$argv[2];
 $dest=$argv[3];
+$start=$argv[4];
 
 if (($trailing=="") or (($dest<>GAME_CHAN) and ($nick<>NICK_EXEC) and ($dest<>NICK_EXEC)))
 {
@@ -70,6 +71,17 @@ if (($trailing=="") or (($dest<>GAME_CHAN) and ($nick<>NICK_EXEC) and ($dest<>NI
 $parts=explode(" ",$trailing);
 
 $action=strtolower($parts[0]);
+
+validate_logins();
+
+if ($nick<>NICK_EXEC)
+{
+  if (is_logged_in($nick)==False)
+  {
+    irciv_term_echo("access denied: nick \"$nick\" not logged in"); # TODO: PROBLEM SOMEWHERE TO DO WITH THIS
+    return;
+  }
+}
 
 switch ($action)
 {
@@ -97,10 +109,8 @@ switch ($action)
         $players[$player]["id"]=$player_id;
         irciv_privmsg("login: player \"$player\" is now logged in");
       }
-      else
-      {
-        irciv_privmsg("login: player \"$player\" already logged in");
-      }
+      $players[$player]["login_time"]=microtime(True);
+      $players[$nick]["logged_in"]=True;
     }
     break;
   case ACTION_RENAME:
@@ -299,6 +309,47 @@ if ($players_bucket===False)
 else
 {
   irciv_set_bucket("players",$players_bucket);
+}
+
+#####################################################################################################
+
+function validate_logins()
+{
+  global $players;
+  global $start;
+  $login_current=False;
+  foreach ($players as $nick => $data)
+  {
+    if (isset($players[$nick]["login_time"])==True)
+    {
+      if ($players[$nick]["login_time"]>=$start)
+      {
+        $login_current=True;
+      }
+    }
+  }
+  if ($login_current==False)
+  {
+    $players[$nick]["logged_in"]=False;
+  }
+}
+
+#####################################################################################################
+
+function is_logged_in($nick)
+{
+  if (isset($players[$nick]["logged_in"])==False)
+  {
+    return False;
+  }
+  if ($players[$nick]["logged_in"]==False)
+  {
+    return False;
+  }
+  else
+  {
+    return True;
+  }
 }
 
 #####################################################################################################
