@@ -400,7 +400,7 @@ function add_unit($nick,$type,$x,$y)
   $units[]=$data;
   $i=count($units)-1;
   $units[$i]["index"]=$i;
-  unfog($x,$y,$data["sight_range"]);
+  unfog($nick,$x,$y,$data["sight_range"]);
   return True;
 }
 
@@ -422,13 +422,13 @@ function add_city($nick,$x,$y,$city_name)
   $cities[]=$data;
   $i=count($cities)-1;
   $cities[$i]["index"]=$i;
-  unfog($x,$y,$data["sight_range"]);
+  unfog($nick,$x,$y,$data["sight_range"]);
   return True;
 }
 
 #####################################################################################################
 
-function unfog($x,$y,$range)
+function unfog($nick,$x,$y,$range)
 {
   global $players;
   global $map_coords;
@@ -437,32 +437,31 @@ function unfog($x,$y,$range)
   {
     return False;
   }
-  $dir_x=array(0,1,0,-1);
-  $dir_y=array(-1,0,1,0);
-  /* 0 = up
-     1 = right
-     2 = down
-     3 = left */
   $cols=$map_data["cols"];
   $rows=$map_data["rows"];
-  $count=$rows*$cols;
-  $coord=map_coord($cols,$x,$y);
-  $players[$nick]["fog"][$coord]="1";
-  for ($i=1;$i<=$range;$i++)
+  $size=2*$range+1;
+  $region=imagecreate($size,$size);
+  $white=imagecolorallocate($region,255,255,255);
+  $black=imagecolorallocate($region,0,0,0);
+  imagefill($region,0,0,$white);
+  imagefilledellipse($region,$range,$range,$size,$size,$black);
+  for ($j=0;$j<$size;$j++)
   {
-    # 0 0 0 1 0 0 0  (range=3)
-    # 0 1 1 1 1 1 0
-    # 0 1 1 1 1 1 0
-    # 1 1 1 1 1 1 1
-    # 0 1 1 1 1 1 0
-    # 0 1 1 1 1 1 0
-    # 0 0 0 1 0 0 0
-    for ($j=0;$j<=3;$j++)
+    for ($i=0;$i<$size;$i++)
     {
-      $coord=map_coord($cols,$x+$dir_x[$j]*$i,$y+$dir_y[$j]*$i);
-      $players[$nick]["fog"][$coord]="1";
+      $xx=$x-$range+$i;
+      $yy=$y-$range+$j;
+      if (imagecolorat($region,$i,$j)==$black)
+      {
+        if (($xx>=0) and ($yy>=0) and ($xx<$cols) and ($yy<$rows))
+        {
+          $coord=map_coord($cols,$xx,$yy);
+          $players[$nick]["fog"][$coord]="1";
+        }
+      }
     }
   }
+  imagedestroy($region);
 }
 
 #####################################################################################################
@@ -552,6 +551,7 @@ function move_active_unit($nick,$dir)
     {
       $players[$nick]["units"][$active]["x"]=$x;
       $players[$nick]["units"][$active]["y"]=$y;
+      unfog($nick,$x,$y,$players[$nick]["units"][$active]["sight_range"]);
       $type=$players[$nick]["units"][$active]["type"];
       $players[$nick]["status_messages"][]="successfully moved $type $caption from ($old_x,$old_y) to ($x,$y)";
       cycle_active($nick);

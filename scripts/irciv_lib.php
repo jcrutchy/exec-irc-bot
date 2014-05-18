@@ -129,6 +129,10 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
     for ($x=0;$x<$cols;$x++)
     {
       $i=map_coord($cols,$x,$y);
+      if ($player_data[$nick]["fog"][$i]=="0")
+      {
+        continue;
+      }
       if ($map_coords[$i]==TERRAIN_LAND)
       {
         if (imagecopy($buffer,$buffer_terrain_land,$x*$tile_w,$y*$tile_h,0,0,$tile_w,$tile_h)==False)
