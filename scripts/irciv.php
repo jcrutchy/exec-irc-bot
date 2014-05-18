@@ -30,6 +30,8 @@ define("ACTION_UNSET","unset");
 define("ACTION_FLAG","flag");
 define("ACTION_UNFLAG","unflag");
 
+define("MIN_CITY_SPACING",3);
+
 $map_coords="";
 $map_data=array();
 $players=array();
@@ -608,6 +610,7 @@ function build_city($nick,$city_name)
     $x=$unit["x"];
     $y=$unit["y"];
     $city_exists=False;
+    $city_adjacent=False;
     $cities=&$players[$nick]["cities"];
     for ($i=0;$i<count($cities);$i++)
     {
@@ -617,8 +620,16 @@ function build_city($nick,$city_name)
         $players[$nick]["status_messages"][]="city named \"$city_name\" already exists";
         break;
       }
+      $dx=abs($cities[$i]["x"]-$x);
+      $dy=abs($cities[$i]["y"]-$y);
+      if (($dx<MIN_CITY_SPACING) and ($dy<MIN_CITY_SPACING))
+      {
+        $city_adjacent=True;
+        $players[$nick]["status_messages"][]="city \"".$cities[$i]["name"]."\" is too close";
+        break;
+      }
     }
-    if ($city_exists==False)
+    if (($city_exists==False) and ($city_adjacent==False))
     {
       add_city($nick,$x,$y,$city_name);
       #delete_unit($nick,$players[$nick]["active"]); # WORKS BUT LEAVE OUT FOR TESTING
