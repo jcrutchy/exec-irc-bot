@@ -394,7 +394,7 @@ function add_unit($nick,$type,$x,$y)
   $units=&$players[$nick]["units"];
   $data["type"]=$type;
   $data["health"]=100;
-  $data["sight_range"]=2;
+  $data["sight_range"]=4;
   $data["x"]=$x;
   $data["y"]=$y;
   $units[]=$data;
@@ -416,7 +416,7 @@ function add_city($nick,$x,$y,$city_name)
   $cities=&$players[$nick]["cities"];
   $data["name"]=$city_name;
   $data["population"]=1;
-  $data["sight_range"]=3;
+  $data["sight_range"]=7;
   $data["x"]=$x;
   $data["y"]=$y;
   $cities[]=$data;
@@ -437,8 +437,32 @@ function unfog($x,$y,$range)
   {
     return False;
   }
-  $players[$nick]["fog"]
-  map_coord($cols,$x,$y)
+  $dir_x=array(0,1,0,-1);
+  $dir_y=array(-1,0,1,0);
+  /* 0 = up
+     1 = right
+     2 = down
+     3 = left */
+  $cols=$map_data["cols"];
+  $rows=$map_data["rows"];
+  $count=$rows*$cols;
+  $coord=map_coord($cols,$x,$y);
+  $players[$nick]["fog"][$coord]="1";
+  for ($i=1;$i<=$range;$i++)
+  {
+    # 0 0 0 1 0 0 0  (range=3)
+    # 0 1 1 1 1 1 0
+    # 0 1 1 1 1 1 0
+    # 1 1 1 1 1 1 1
+    # 0 1 1 1 1 1 0
+    # 0 1 1 1 1 1 0
+    # 0 0 0 1 0 0 0
+    for ($j=0;$j<=3;$j++)
+    {
+      $coord=map_coord($cols,$x+$dir_x[$j]*$i,$y+$dir_y[$j]*$i);
+      $players[$nick]["fog"][$coord]="1";
+    }
+  }
 }
 
 #####################################################################################################
