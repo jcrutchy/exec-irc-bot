@@ -411,7 +411,7 @@ function add_city($nick,$x,$y,$city_name)
   global $players;
   if (player_ready($nick)==False)
   {
-    return False;
+    return;
   }
   $cities=&$players[$nick]["cities"];
   $data["name"]=$city_name;
@@ -423,7 +423,6 @@ function add_city($nick,$x,$y,$city_name)
   $i=count($cities)-1;
   $cities[$i]["index"]=$i;
   unfog($nick,$x,$y,$data["sight_range"]);
-  return True;
 }
 
 #####################################################################################################
@@ -608,10 +607,24 @@ function build_city($nick,$city_name)
   {
     $x=$unit["x"];
     $y=$unit["y"];
-    add_city($nick,$x,$y,$city_name);
-    #delete_unit($nick,$players[$nick]["active"]); # WORKS BUT LEAVE OUT FOR TESTING
-    $players[$nick]["status_messages"][]="successfully established the new city of \"$city_name\" at coordinates ($x,$y)";
-    cycle_active($nick);
+    $city_exists=False;
+    $cities=&$players[$nick]["cities"];
+    for ($i=0;$i<count($cities);$i++)
+    {
+      if ($cities[$i]["name"]==$city_name)
+      {
+        $city_exists=True;
+        $players[$nick]["status_messages"][]="city named \"$city_name\" already exists";
+        break;
+      }
+    }
+    if ($city_exists==False)
+    {
+      add_city($nick,$x,$y,$city_name);
+      #delete_unit($nick,$players[$nick]["active"]); # WORKS BUT LEAVE OUT FOR TESTING
+      $players[$nick]["status_messages"][]="successfully established the new city of \"$city_name\" at coordinates ($x,$y)";
+      cycle_active($nick);
+    }
   }
   status($nick);
 }
