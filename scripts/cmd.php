@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 17-may-2014
+# 18-may-2014
 
 # Ref: https://www.alien.net.au/irc/irc2numerics.html
 
@@ -91,6 +91,7 @@ switch ($cmd)
     echo ":".NICK." NOTICE ".CHAN_CIV." :civ rename $nick $trailing\n";
     break;
   case "PRIVMSG":
+    echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H $trailing\n"; # last.php
     break;
   case "NOTICE":
     break;
