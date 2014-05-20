@@ -41,11 +41,13 @@ isdown|10|0|0|0|php scripts/isdown.php %%trailing%%
 weather|10|0|0|1|php scripts/weather.php %%alias%% %%trailing%%
 weather-add|10|0|0|1|php scripts/weather.php %%alias%% %%trailing%%
 
-civ|5|0|0|1|php scripts/irciv.php %%nick%% %%trailing%% %%dest%% %%start%%
+civ|20|0|0|1|php scripts/irciv.php %%nick%% %%trailing%% %%dest%% %%start%%
 civ-map|300|0|0|1|php scripts/irciv_map.php %%nick%% %%trailing%% %%dest%%
 civ-save|5|1200|0|1|php scripts/irciv.php '<<SAVE>>'
 
 !greet|5|0|0|0|php scripts/greet.php %%trailing%% %%nick%% %%alias%%
+
+!computer|5|0|0|0|php scripts/computer.php %%trailing%% %%dest%% %%nick%%
 
 # non-php scripts
 haskell|5|0|1|1|runhaskell scripts/haskell.hs

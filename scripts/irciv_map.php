@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 5-may-2014
+# 20-may-2014
 
 # irciv_map.php
 
@@ -33,15 +33,14 @@ $parts=explode(" ",$trailing);
 
 $cmd=$parts[0];
 
-$map_loaded=False;
-
+$generated=False;
 $coords_bucket=irciv_get_bucket("map_coords");
 $data_bucket=irciv_get_bucket("map_data");
 if (($coords_bucket<>"") and ($data_bucket<>""))
 {
   $coords=map_unzip($coords_bucket);
   $data=unserialize($data_bucket);
-  $map_loaded=True;
+  $generated=True;
 }
 else
 {
@@ -51,18 +50,18 @@ else
 switch ($cmd)
 {
   case CMD_GENERATE:
-    if ($map_loaded==True)
+    if ($generated==True)
     {
       return;
     }
     $landmass_count=50;
     $landmass_size=80;
+    $land_spread=100;
     if (($landmass_count*$landmass_size)>=(0.8*$data["cols"]*$data["rows"]))
     {
       irciv_privmsg("landmass parameter error in generating map for channel \"$dest\"");
       return;
     }
-    $land_spread=100;
     $coords=map_generate($data,$landmass_count,$landmass_size,$land_spread,TERRAIN_OCEAN,TERRAIN_LAND);
     irciv_privmsg("map coords generated for channel \"$dest\"");
     break;

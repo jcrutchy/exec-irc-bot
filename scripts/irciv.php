@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 18-may-2014
+# 20-may-2014
 
 # irciv.php
 
@@ -30,11 +30,26 @@ define("ACTION_UNSET","unset");
 define("ACTION_FLAG","flag");
 define("ACTION_UNFLAG","unflag");
 
+define("ACTION_ADMIN_PLAYERDATA","data-players");
+
 define("MIN_CITY_SPACING",3);
+
+$admin_nicks=array("crutchy");
 
 $map_coords="";
 $map_data=array();
 $players=array();
+
+$nick=$argv[1];
+$trailing=$argv[2];
+$dest=$argv[3];
+$start=$argv[4];
+
+if (($trailing=="") or (($dest<>GAME_CHAN) and ($nick<>NICK_EXEC) and ($dest<>NICK_EXEC)))
+{
+  irciv_privmsg("https://github.com/crutchy-/test");
+  return;
+}
 
 $players_bucket=irciv_get_bucket("players");
 if ($players_bucket=="")
@@ -56,16 +71,18 @@ if (($coords_bucket<>"") and ($data_bucket<>""))
   $map_coords=map_unzip($coords_bucket);
   $map_data=unserialize($data_bucket);
 }
-
-$nick=$argv[1];
-$trailing=$argv[2];
-$dest=$argv[3];
-$start=$argv[4];
-
-if (($trailing=="") or (($dest<>GAME_CHAN) and ($nick<>NICK_EXEC) and ($dest<>NICK_EXEC)))
+else
 {
-  irciv_privmsg("https://github.com/crutchy-/test");
-  return;
+  $landmass_count=50;
+  $landmass_size=80;
+  $land_spread=100;
+  if (($landmass_count*$landmass_size)>=(0.8*$map_data["cols"]*$map_data["rows"]))
+  {
+    irciv_privmsg("landmass parameter error in generating map for channel \"$dest\"");
+    return;
+  }
+  $map_coords=map_generate($map_data,$landmass_count,$landmass_size,$land_spread,TERRAIN_OCEAN,TERRAIN_LAND);
+  irciv_privmsg("map coords generated for channel \"$dest\"");
 }
 
 $parts=explode(" ",$trailing);
@@ -78,7 +95,7 @@ if ($nick<>NICK_EXEC)
 {
   if (is_logged_in($nick)==False)
   {
-    irciv_term_echo("access denied: nick \"$nick\" not logged in"); # TODO: PROBLEM SOMEWHERE TO DO WITH THIS
+    irciv_privmsg("access denied: nick \"$nick\" not logged in");
     return;
   }
 }
@@ -106,11 +123,16 @@ switch ($action)
         }
         $players[NICK_EXEC]["player_count"]=$player_id;
         $players[$player]["account"]=$account;
-        $players[$player]["id"]=$player_id;
-        irciv_privmsg("login: player \"$player\" is now logged in");
+        $players[$player]["player_id"]=$player_id;
+        player_init($player);
+        irciv_privmsg("login: welcome new player \"$player\"");
+      }
+      else
+      {
+        irciv_privmsg("login: welcome back \"$player\"");
       }
       $players[$player]["login_time"]=microtime(True);
-      $players[$nick]["logged_in"]=True;
+      $players[$player]["logged_in"]=True;
     }
     break;
   case ACTION_RENAME:
@@ -139,7 +161,14 @@ switch ($action)
     }
     else
     {
-      irciv_err("ACTION_RENAME: incorrect part count or wrong nick");
+      if ($nick<>NICK_EXEC)
+      {
+        irciv_err("ACTION_RENAME: only exec can perform logins");
+      }
+      else
+      {
+        irciv_err("ACTION_RENAME: invalid login message");
+      }
     }
     break;
   case ACTION_LOGOUT:
@@ -148,13 +177,19 @@ switch ($action)
       $player=$parts[1];
       if (isset($players[$player])==True)
       {
-        unset($players[$player]);
+        $players[$player]["logged_in"]=False;
         irciv_privmsg("logout: player \"$player\" logged out");
       }
       else
       {
         irciv_privmsg("logout: there is no player logged in as \"$player\"");
       }
+    }
+    break;
+  case ACTION_ADMIN_PLAYERDATA:
+    if (in_array($nick,$admin_nicks)==True)
+    {
+      var_dump($players);
     }
     break;
   case ACTION_INIT:
@@ -317,20 +352,15 @@ function validate_logins()
 {
   global $players;
   global $start;
-  $login_current=False;
   foreach ($players as $nick => $data)
   {
     if (isset($players[$nick]["login_time"])==True)
     {
-      if ($players[$nick]["login_time"]>=$start)
+      if ($players[$nick]["login_time"]<$start)
       {
-        $login_current=True;
+        $players[$nick]["logged_in"]=False;
       }
     }
-  }
-  if ($login_current==False)
-  {
-    $players[$nick]["logged_in"]=False;
   }
 }
 
@@ -338,6 +368,7 @@ function validate_logins()
 
 function is_logged_in($nick)
 {
+  global $players;
   if (isset($players[$nick]["logged_in"])==False)
   {
     return False;
@@ -526,16 +557,12 @@ function status($nick)
   {
     return;
   }
-  if (isset($players[$nick]["units"])==False)
-  {
-    player_init($nick);
-    return;
-  }
-  $public=False;
+  /*$public=False;
   if (isset($players[$nick]["flags"]["public_status"])==True)
   {
     $public=True;
-  }
+  }*/
+  $public=True; # TODO: DELETE & RESTORE CODE ABOVE
   $i=$players[$nick]["active"];
   $unit=$players[$nick]["units"][$i];
   $index=$unit["index"];
@@ -703,7 +730,7 @@ function output_map($nick)
     return False;
   }
   $game_id=sprintf("%02d",0);
-  $player_id=sprintf("%02d",$players[$nick]["id"]);
+  $player_id=sprintf("%02d",$players[$nick]["player_id"]);
   $timestamp=date("YmdHis",time());
   $key=random_string(16);
   $filename=$game_id.$player_id.$timestamp.$key;
@@ -714,7 +741,7 @@ function output_map($nick)
   { 
     if ($msg=="SUCCESS")
     {
-      $players[$nick]["status_messages"][]="http://irciv.port119.net/?pid=".$players[$nick]["id"];
+      $players[$nick]["status_messages"][]="http://irciv.port119.net/?pid=".$players[$nick]["player_id"];
       #$players[$nick]["status_messages"][]="http://irciv.port119.net/?map=$filename";
     }
   }

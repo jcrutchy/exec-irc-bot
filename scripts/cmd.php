@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 18-may-2014
+# 20-may-2014
 
 # Ref: https://www.alien.net.au/irc/irc2numerics.html
 
