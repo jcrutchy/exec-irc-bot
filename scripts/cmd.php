@@ -91,7 +91,7 @@ switch ($cmd)
     echo ":".NICK." NOTICE ".CHAN_CIV." :civ rename $nick $trailing\n";
     break;
   case "PRIVMSG":
-    echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H $trailing\n"; # last.php
+    #echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H $trailing\n"; # last.php
     break;
   case "NOTICE":
     break;

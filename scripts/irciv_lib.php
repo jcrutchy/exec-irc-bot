@@ -112,8 +112,8 @@ function map_paint_city(&$buffer,&$city_buffers,&$buffer_city_flag,$tile_w,$tile
   $dx=($city_w-$tile_w)/2;
   $dy=($city_h-$tile_h)/2;
   imagecopy($buffer,$city_buffers[$city["size"]],round($x*$tile_w-$dx),round($y*$tile_h-$dy),0,0,$city_w,$city_h);
-  $city_flag_x=round($x*$tile_w-$dx+$city_w/2+$city["size"]*$tile_w);
-  $city_flag_y=round($y*$tile_h-$dy+$city_h/2);
+  $city_flag_x=round($x*$tile_w-$dx+$city_w/2-$tile_w/2+$city["size"]*$tile_w);
+  $city_flag_y=round($y*$tile_h-$dy+$city_h/2-$city["size"]*$tile_h);
   imagecopy($buffer,$buffer_city_flag,$city_flag_x,$city_flag_y,0,0,$city_flag_w,$city_flag_h);
   if ($show_city_names==False)
   {

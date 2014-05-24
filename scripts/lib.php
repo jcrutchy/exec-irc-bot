@@ -73,6 +73,13 @@ function set_bucket($index,$data)
 
 #####################################################################################################
 
+function unset_bucket($index)
+{
+  echo ":".NICK_EXEC." BUCKET_UNSET :$index\n";
+}
+
+#####################################################################################################
+
 function wget($host,$uri,$port)
 {
   $fp=fsockopen($host,$port);
@@ -89,6 +96,62 @@ function wget($host,$uri,$port)
   }
   fclose($fp);
   return $response;
+}
+
+#####################################################################################################
+
+function wpost($host,$uri,$port,$agent,$params,$extra_headers="")
+{
+  $fp=fsockopen($host,$port);
+  if ($fp===False)
+  {
+    term_echo("Error connecting to \"$host\".");
+    return;
+  }
+  $content="";
+  foreach ($params as $key => $value)
+  {
+    if ($content<>"")
+    {
+      $content=$content."&";
+    }
+    $content=$content.$key."=".rawurlencode($value);
+  }
+  $headers="POST $uri HTTP/1.0\r\n";
+  $headers=$headers."Host: $host\r\n";
+  $headers=$headers."User-Agent: $agent\r\n";
+  $headers=$headers."Content-Type: application/x-www-form-urlencoded\r\n";
+  $headers=$headers."Content-Length: ".strlen($content)."\r\n";
+  if ($extra_headers<>"")
+  {
+    foreach ($extra_headers as $key => $value)
+    {
+      $headers=$headers.$key.": ".$value."\r\n";
+    }
+  }
+  $headers=$headers."Connection: Close\r\n\r\n";
+  $request=$headers.$content;
+  fwrite($fp,$request);
+  $response="";
+  while (!feof($fp))
+  {
+    $response=$response.fgets($fp,1024);
+  }
+  fclose($fp);
+  return $response;
+}
+
+#####################################################################################################
+
+function strip_headers($response)
+{
+  $delim="\r\n\r\n";
+  $i=strpos($response,$delim);
+  if ($i===False)
+  {
+    return False;
+  }
+  return substr($response,$i+strlen($delim));
 }
 
 #####################################################################################################
