@@ -522,11 +522,10 @@ function exec_load()
     $repeat=trim($parts[2]); # seconds
     $auto=trim($parts[3]); # auto privmsg (0 = no, 1 = yes)
     $empty=trim($parts[4]); # empty msg permitted (0 = no, 1 = yes)
-    unset($parts[0]);
-    unset($parts[1]);
-    unset($parts[2]);
-    unset($parts[3]);
-    unset($parts[4]);
+    for ($j=0;$j<=4;$j++)
+    {
+      array_shift($parts);
+    }
     $cmd=trim(implode("|",$parts)); # shell command
     if (($alias=="") or (is_numeric($timeout)==False) or (is_numeric($repeat)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or ($cmd==""))
     {

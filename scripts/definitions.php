@@ -2,35 +2,55 @@
 
 # gpl2
 # by crutchy
-# 22-may-2014
+# 23-may-2014
 
+# definitions.php
+
+#####################################################################################################
+
+ini_set("display_errors","on");
+require_once("lib.php");
 $msg=$argv[1];
-
-if (urbandictionary($msg)==False)
+$alias=$argv[2];
+define("DEFINITIONS_FILE","../data/definitions");
+$terms=unserialize(file_get_contents(DEFINITIONS_FILE));
+if ($alias=="define-add")
 {
-  if (wolframalpha($msg)==False)
+  $parts=explode(" ",$msg);
+  if (count($parts)>1)
   {
-    echo "IRC_MSG $msg: unable to find definition\n";
+    $term=trim($parts[0]);
+    array_shift($parts);
+    $def=trim(implode(" ",$parts));
+    $terms[$term]=$def;
+    if (file_put_contents(DEFINITIONS_FILE,serialize($terms))===False)
+    {
+      privmsg("error writing definitions file");
+    }
+    else
+    {
+      privmsg("definition for term \"$term\" set to \"$def\"");
+    }
+  }
+  return;
+}
+if (isset($terms[$msg])==True)
+{
+  $def=$terms[$msg];
+  privmsg("[soylent] $msg: $def");
+}
+else
+{
+  if (urbandictionary($msg)==False)
+  {
+    if (wolframalpha($msg)==False)
+    {
+      echo "IRC_MSG $msg: unable to find definition\n";
+    }
   }
 }
 
-function wget($host,$uri,$port)
-{
-  $fp=fsockopen($host,$port);
-  if ($fp===False)
-  {
-    term_echo("Error connecting to \"$host\".");
-    return;
-  }
-  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
-  $response="";
-  while (!feof($fp))
-  {
-    $response=$response.fgets($fp,1024);
-  }
-  fclose($fp);
-  return $response;
-}
+#####################################################################################################
 
 function wolframalpha($msg)
 {
@@ -60,6 +80,8 @@ function wolframalpha($msg)
   }
 }
 
+#####################################################################################################
+
 function urbandictionary($msg)
 {
   $html=wget("www.urbandictionary.com","/define.php?term=$msg",80);
@@ -84,7 +106,7 @@ function urbandictionary($msg)
     }
     else
     {
-      echo "IRC_MSG [urbandictionary] $msg: $def\n";
+      echo "IRC_MSG [urbandictionary] $msg: ".html_entity_decode($def,ENT_QUOTES,"UTF-8")."\n";
       return True;
     }
   }
@@ -94,5 +116,7 @@ function urbandictionary($msg)
     return False;
   }
 }
+
+#####################################################################################################
 
 ?>

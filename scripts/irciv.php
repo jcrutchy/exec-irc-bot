@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 20-may-2014
+# 24-may-2014
 
 # irciv.php
 
@@ -33,6 +33,8 @@ define("ACTION_UNFLAG","unflag");
 define("ACTION_ADMIN_PLAYERDATA","data-players");
 
 define("MIN_CITY_SPACING",3);
+
+$update_players=False;
 
 $admin_nicks=array("crutchy");
 
@@ -100,6 +102,20 @@ if ($nick<>NICK_EXEC)
   }
 }
 
+# ADD NEW PROPERTIES TO EXISTING PLAYER DATA
+/*for ($i=0;$i<count($players[$nick]["cities"]);$i++)
+{
+  $players[$nick]["cities"][$i]["size"]=1;
+}*/
+/*foreach ($players as $player => $data)
+{
+  $players[$player]["color"]="0,0,0";
+}
+foreach ($players as $player => $data)
+{
+  set_player_color($player);
+}*/
+
 switch ($action)
 {
   case "help":
@@ -133,6 +149,7 @@ switch ($action)
       }
       $players[$player]["login_time"]=microtime(True);
       $players[$player]["logged_in"]=True;
+      $update_players=True;
     }
     break;
   case ACTION_RENAME:
@@ -145,6 +162,7 @@ switch ($action)
         $player_data=$players[$old];
         $players[$new]=$player_data;
         unset($players[$old]);
+        $update_players=True;
         irciv_privmsg("player \"$old\" renamed to \"$new\"");
       }
       else
@@ -178,6 +196,7 @@ switch ($action)
       if (isset($players[$player])==True)
       {
         $players[$player]["logged_in"]=False;
+        $update_players=True;
         irciv_privmsg("logout: player \"$player\" logged out");
       }
       else
@@ -196,6 +215,7 @@ switch ($action)
     if (count($parts)==1)
     {
       player_init($nick);
+      $update_players=True;
       irciv_privmsg("data player \"$nick\" has been initialized");
     }
     else
@@ -254,6 +274,7 @@ switch ($action)
       unset($parts[0]);
       $city_name=implode(" ",$parts);
       build_city($nick,$city_name);
+      $update_players=True;
     }
     else
     {
@@ -272,6 +293,7 @@ switch ($action)
         $key=$pair[0];
         $value=$pair[1];
         $players[$nick]["settings"][$key]=$value;
+        $update_players=True;
         irciv_privmsg("key \"$key\" set to value \"$value\" for player \"$nick\"");
       }
       else
@@ -291,6 +313,7 @@ switch ($action)
       if (isset($players[$nick]["settings"][$key])==True)
       {
         unset($players[$nick]["settings"][$key]);
+        $update_players=True;
         irciv_privmsg("key \"$key\" unset for player \"$nick\"");
       }
       else
@@ -308,6 +331,7 @@ switch ($action)
     {
       $flag=$parts[1];
       $players[$nick]["flags"][$flag]="";
+      $update_players=True;
       irciv_privmsg("flag \"$flag\" set for player \"$nick\"");
     }
     else
@@ -322,6 +346,7 @@ switch ($action)
       if (isset($players[$nick]["flags"][$flag])==True)
       {
         unset($players[$nick]["flags"][$flag]);
+        $update_players=True;
         irciv_privmsg("flag \"$flag\" unset for player \"$nick\"");
       }
       else
@@ -336,14 +361,57 @@ switch ($action)
     break;
 }
 
-$players_bucket=serialize($players);
-if ($players_bucket===False)
+if ($update_players==True)
 {
-  irciv_term_echo("error serializing player bucket data");
+  $players_bucket=serialize($players);
+  if ($players_bucket===False)
+  {
+    irciv_term_echo("error serializing player bucket data");
+  }
+  else
+  {
+    irciv_set_bucket("players",$players_bucket);
+  }
 }
-else
+
+#####################################################################################################
+
+function set_player_color($nick,$color="")
 {
-  irciv_set_bucket("players",$players_bucket);
+  global $players;
+  $reserved_colors=array("255,0,255","0,0,0","255,255,255");
+  if ($color=="")
+  {
+    do
+    {
+      $color=mt_rand(0,255).",".mt_rand(0,255).",".mt_rand(0,255);
+      foreach ($players as $player => $data)
+      {
+        if (($player<>$nick) and ($color==$players[$player]["color"]))
+        {
+          continue;
+        }
+      }
+    }
+    while (in_array($color,$reserved_colors)==True);
+    $players[$nick]["color"]=$color;
+  }
+  else
+  {
+    foreach ($players as $player => $data)
+    {
+      if (($player<>$nick) and ($color==$players[$player]["color"]))
+      {
+        return False;
+      }
+    }
+    if (in_array($color,$reserved_colors)==True)
+    {
+      return False;
+    }
+    $players[$nick]["color"]=$color;
+    return True;
+  }
 }
 
 #####################################################################################################
@@ -500,6 +568,7 @@ function add_city($nick,$x,$y,$city_name)
   $cities=&$players[$nick]["cities"];
   $data["name"]=$city_name;
   $data["population"]=1;
+  $data["size"]=1;
   $data["sight_range"]=7;
   $data["x"]=$x;
   $data["y"]=$y;
@@ -603,6 +672,7 @@ function move_active_unit($nick,$dir)
   global $players;
   global $map_data;
   global $map_coords;
+  global $update_players;
   if (player_ready($nick)==False)
   {
     return False;
@@ -633,9 +703,58 @@ function move_active_unit($nick,$dir)
       unfog($nick,$x,$y,$players[$nick]["units"][$active]["sight_range"]);
       $type=$players[$nick]["units"][$active]["type"];
       $players[$nick]["status_messages"][]="successfully moved $type $caption from ($old_x,$old_y) to ($x,$y)";
+      $update_players=True;
+      update_other_players($nick,$active);
       cycle_active($nick);
     }
     status($nick);
+  }
+}
+
+#####################################################################################################
+
+function is_fogged($nick,$x,$y)
+{
+  global $players;
+  global $map_data;
+  $cols=$map_data["cols"];
+  $coord=map_coord($cols,$x,$y);
+  if ($players[$nick]["fog"][$coord]=="0")
+  {
+    return True;
+  }
+  else
+  {
+    return False;
+  }
+}
+
+#####################################################################################################
+
+function update_other_players($nick,$active)
+{
+  global $players;
+  global $map_data;
+  global $map_coords;
+  $x=$players[$nick]["units"][$active]["x"];
+  $y=$players[$nick]["units"][$active]["y"];
+  foreach ($players as $player => $data)
+  {
+    if (($player==$nick) or ($player==NICK_EXEC))
+    {
+      continue;
+    }
+    if (player_ready($player)==False)
+    {
+      continue;
+    }
+    if (is_fogged($player,$x,$y)==False)
+    {
+      $players[$player]["status_messages"][]="player \"$nick\" moved a unit into your field of vision";
+      $players[$nick]["status_messages"][]="you moved a unit into the field of vision of player \"$player\"";
+      output_map($player);
+      status($player);
+    }
   }
 }
 
