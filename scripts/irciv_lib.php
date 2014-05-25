@@ -121,15 +121,17 @@ function map_paint_city(&$buffer,&$city_buffers,&$buffer_city_flag,$tile_w,$tile
   imagecopy($buffer,$city_buffers[$city["size"]],round($x*$tile_w-$dx),round($y*$tile_h-$dy),0,0,$city_w,$city_h);
   $city_flag_x=round($x*$tile_w-$dx+$city_w/2-$tile_w/2+$city["size"]*$tile_w);
   $city_flag_y=round($y*$tile_h-$dy+$city_h/2-$city["size"]*$tile_h);
+  $components=explode(",",$color_str);
+  $r=$components[0];
+  $g=$components[1];
+  $b=$components[2];
+  $color_city_flag=imagecolorallocate($buffer_city_flag,$r,$g,$b);
+  imagefill($buffer_city_flag,round($city_flag_w/2),round($city_flag_h/3),$color_city_flag);
   imagecopy($buffer,$buffer_city_flag,$city_flag_x,$city_flag_y,0,0,$city_flag_w,$city_flag_h);
   if ($show_city_names==False)
   {
     return;
   }
-  $components=explode(",",$color_str);
-  $r=$components[0];
-  $g=$components[1];
-  $b=$components[2];
   $color_text=imagecolorallocate($buffer,$r,$g,$b);
   $rs=255;
   $gs=255;

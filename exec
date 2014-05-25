@@ -59,4 +59,4 @@ haskell|5|0|1|1|runhaskell scripts/haskell.hs
 perl|5|0|1|1|perl scripts/perl.pl
 
 # scripts by chromas
-mackey|5|0|1|0|php /nas/server/git/php/mackey.php %%trailing%% %%nick%%
+mackey|5|0|1|0|php /nas/server/git/chromas/mackey.php %%trailing%% %%nick%%
