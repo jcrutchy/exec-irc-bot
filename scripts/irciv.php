@@ -30,7 +30,8 @@ define("ACTION_UNSET","unset");
 define("ACTION_FLAG","flag");
 define("ACTION_UNFLAG","unflag");
 
-define("ACTION_ADMIN_PLAYERDATA","data-players");
+define("ACTION_ADMIN_PLAYER_DATA","player-data");
+define("ACTION_ADMIN_PLAYER_UNSET","player-unset");
 
 define("MIN_CITY_SPACING",3);
 
@@ -153,7 +154,7 @@ switch ($action)
     }
     break;
   case ACTION_RENAME:
-    if ((count($parts)==3) and ($nick==NICK_EXEC))
+    if ((count($parts)==3) and (($nick==NICK_EXEC) or (in_array($nick,$admin_nicks)==Tue)))
     {
       $old=$parts[1];
       $new=$parts[2];
@@ -205,10 +206,33 @@ switch ($action)
       }
     }
     break;
-  case ACTION_ADMIN_PLAYERDATA:
+  case ACTION_ADMIN_PLAYER_UNSET:
+    if ((count($parts)==2) and (in_array($nick,$admin_nicks)==True))
+    {
+      $player=$parts[1];
+      if (isset($players[$player])==True)
+      {
+        unset($players[$player]);
+        irciv_privmsg("admin: unset \"$player\"");
+        $update_players=True;
+      }
+      else
+      {
+        irciv_privmsg("admin: player \"$player\" not found");
+      }
+    }
+    break;
+  case ACTION_ADMIN_PLAYER_DATA:
     if (in_array($nick,$admin_nicks)==True)
     {
-      var_dump($players);
+      if (count($parts)==2)
+      {
+        var_dump($players[$parts[1]]);
+      }
+      else
+      {
+        var_dump($players);
+      }
     }
     break;
   case ACTION_INIT:
@@ -370,6 +394,7 @@ if ($update_players==True)
   }
   else
   {
+    irciv_unset_bucket("players");
     irciv_set_bucket("players",$players_bucket);
   }
 }
@@ -493,6 +518,7 @@ function player_init($nick)
     return;
   }
   $players[$nick]["init_time"]=time();
+  $players[$nick]["color"]=set_player_color($nick);
   $players[$nick]["units"]=array();
   $players[$nick]["cities"]=array();
   $players[$nick]["fog"]=str_repeat("0",strlen($map_coords));

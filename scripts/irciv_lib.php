@@ -63,6 +63,13 @@ function irciv_set_bucket($suffix,$data)
 
 #####################################################################################################
 
+function irciv_unset_bucket($suffix)
+{
+  unset_bucket(BUCKET_PREFIX.$suffix);
+}
+
+#####################################################################################################
+
 function map_coord($cols,$x,$y)
 {
   return ($x+$y*$cols);
@@ -276,7 +283,7 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
     $show_city_names=False;
     if (isset($player_data[$nick]["flags"]["city_names"])==True)
     {
-      $show_city_names=False;
+      $show_city_names=True;
     }
     for ($i=0;$i<count($player_data[$nick]["cities"]);$i++)
     {

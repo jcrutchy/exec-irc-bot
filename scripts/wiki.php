@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-may-2014
+# 25-may-2014
 
 # wiki.php
 
@@ -16,22 +16,27 @@ require_once("lib.php");
 $trailing=$argv[1];
 $dest=$argv[2];
 $nick=$argv[3];
-$user_agent="IRC-Executive/0.01 (https://github.com/crutchy-/test; jared.crutchfield@hotmail.com)";
+$user_agent="IRC-Executive/0.01 (https://github.com/crutchy-/test/blob/master/scripts/wiki.php; jared.crutchfield@hotmail.com)";
 
 if ($trailing=="logout")
 {
   $response=wget("wiki.soylentnews.org","/w/api.php?action=logout&format=php",80);
   $lines=explode("\n",$response);
+  $loggedout=False;
   for ($i=0;$i<count($lines);$i++)
   {
     if ((substr($lines[$i],0,strlen("Set-Cookie"))=="Set-Cookie") and (strpos($lines[$i],"LoggedOut")!==False))
     {
-      privmsg("logged out of wiki");
+      $loggedout=True;
     }
-    else
-    {
-      privmsg("logout not detected");
-    }
+  }
+  if ($loggedout==True)
+  {
+    privmsg("logged out of wiki");
+  }
+  else
+  {
+    privmsg("logout not detected");
   }
   return;
 }
