@@ -32,6 +32,7 @@ define("ACTION_UNFLAG","unflag");
 
 define("ACTION_ADMIN_PLAYER_DATA","player-data");
 define("ACTION_ADMIN_PLAYER_UNSET","player-unset");
+define("ACTION_ADMIN_PLAYER_EDIT","player-edit");
 
 define("MIN_CITY_SPACING",3);
 
@@ -107,14 +108,6 @@ if ($nick<>NICK_EXEC)
 /*for ($i=0;$i<count($players[$nick]["cities"]);$i++)
 {
   $players[$nick]["cities"][$i]["size"]=1;
-}*/
-/*foreach ($players as $player => $data)
-{
-  $players[$player]["color"]="0,0,0";
-}
-foreach ($players as $player => $data)
-{
-  set_player_color($player);
 }*/
 
 switch ($action)
@@ -235,6 +228,50 @@ switch ($action)
       }
     }
     break;
+  case ACTION_ADMIN_PLAYER_EDIT:
+    if (in_array($nick,$admin_nicks)==True)
+    {
+      if (count($parts)>=3)
+      {
+        $player=$parts[1];
+        $key=$parts[2];
+        for ($i=1;$i<=3;$i++)
+        {
+          array_shift($parts);
+        }
+        $value=implode(" ",$parts);
+        if ($key<>"")
+        {
+          if (isset($players[$player])==True)
+          {
+            if ($value=="<unset>")
+            {
+              unset($players[$player][$key]);
+              irciv_privmsg("key \"$key\" unset for player \"$player\"");
+            }
+            else
+            {
+              $players[$player][$key]=$value;
+              irciv_privmsg("key \"$key\" set with value \"$value\" for player \"$player\"");
+            }
+            $update_players=True;
+          }
+          else
+          {
+            irciv_privmsg("player \"$player\" not found");
+          }
+        }
+        else
+        {
+          irciv_privmsg("invalid key");
+        }
+      }
+      else
+      {
+        irciv_privmsg("syntax: [civ] player-edit nick key value (value can be omitted to set empty string, and value of <unset> unsets key)");
+      }
+    }
+    break;
   case ACTION_INIT:
     if (count($parts)==1)
     {
@@ -306,6 +343,7 @@ switch ($action)
     }
     break;
   case ACTION_STATUS:
+    output_map($nick);
     status($nick);
     break;
   case ACTION_SET:
@@ -484,7 +522,7 @@ function output_help()
   irciv_privmsg("unit movement: (left|l),(right|r),(up|u),(down|d)");
   irciv_privmsg("settler actions: (build|b)");
   irciv_privmsg("player functions: (help|?),status,init,flag/unflag,set/unset");
-  irciv_privmsg("flags: public_status,grid");
+  irciv_privmsg("flags: public_status,grid,coords,city_names");
 }
 
 #####################################################################################################
@@ -776,8 +814,8 @@ function update_other_players($nick,$active)
     }
     if (is_fogged($player,$x,$y)==False)
     {
-      $players[$player]["status_messages"][]="player \"$nick\" moved a unit into your field of vision";
-      $players[$nick]["status_messages"][]="you moved a unit into the field of vision of player \"$player\"";
+      $players[$player]["status_messages"][]="player \"$nick\" moved a unit within your field of vision";
+      $players[$nick]["status_messages"][]="you moved a unit within the field of vision of player \"$player\"";
       output_map($player);
       status($player);
     }

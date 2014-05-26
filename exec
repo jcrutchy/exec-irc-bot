@@ -11,7 +11,7 @@
 # EXEC ON QUIT - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 <quit>|10|0|0|1|php scripts/quit.php
 
-~|5|0|1|1|php scripts/about.php
+~|5|0|1|1|php scripts/about.php %%trailing%%
 cowsay|5|0|1|0|cowsay %%trailing%%
 snake|5|0|1|1|echo %%trailing%% | cowsay -f elephant-in-snake
 test|5|0|0|0|php scripts/test.php %%trailing%% %%dest%% %%nick%%
@@ -26,6 +26,7 @@ php|5|0|0|0|php scripts/php.php %%trailing%%
 smile|5|0|1|0|php scripts/smile.php %%trailing%%
 uptime|5|0|1|1|uptime
 rofl|5|0|1|1|fortune -s
+bad|5|0|1|1|fortune -o
 exec-up|5|0|0|1|php scripts/up.php %%start%%
 con/con|10|0|1|1|php scripts/bsod.php
 bsod|10|0|1|1|php scripts/bsod.php
