@@ -106,6 +106,25 @@ switch ($cmd)
     break;
   case "404":
     break;
+  case "311":
+    #:irc.sylnt.us 311 exec tme520 ~TME520 218-883-738-54.tpgi.com.au * :TME520
+    if ($trailing=="SedBot")
+    {
+      echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H exec.sed.disable\n"; # last.php
+    }
+    break;
+  case "401": # No such nick/channel
+    #echo "IRC_RAW :".NICK_EXEC." PRIVMSG #soylent :SedBot not found\n";
+    $parts=explode(" ",$params);
+    if (count($parts)==2)
+    {
+      if ($parts[1]=="SedBot")
+      {
+        #echo "IRC_RAW :".NICK_EXEC." PRIVMSG #soylent :SedBot not found\n";
+        echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H exec.sed.enable\n"; # last.php
+      }
+    }
+    break;
 }
 
 #####################################################################################################

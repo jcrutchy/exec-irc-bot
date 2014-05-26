@@ -38,7 +38,8 @@ sylnt|10|0|1|1|php scripts/soylent.php
 ~flush|5|0|0|1|php scripts/bucket_flush.php %%nick%%
 tux|5|0|1|0|cowsay -f tux %%trailing%%
 isdown|10|0|0|0|php scripts/isdown.php %%trailing%%
-~AUJ73HF839CHH2933HRJPA8N2H|5|0|0|0|php scripts/last.php %%trailing%% %%nick%% %%dest%%
+~AUJ73HF839CHH2933HRJPA8N2H|5|0|0|0|php scripts/last.php %%trailing%% %%nick%% %%dest%% %%cmd%%
+~UG4HO6EW9NBBE9CH51SOK6H8N3|5|60|0|1|php scripts/monitor-minute.php %%trailing%% %%nick%% %%start%%
 isdown|10|0|0|0|php scripts/isdown.php %%trailing%%
 
 weather|10|0|0|1|php scripts/weather.php %%alias%% %%trailing%%

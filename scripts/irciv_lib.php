@@ -396,19 +396,6 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
 
 #####################################################################################################
 
-function random_string($length)
-{
-  $legal="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  $result="";
-  for ($i=0;$i<$length;$i++)
-  {
-    $result=$result.$legal[mt_rand(0,strlen($legal)-1)];
-  }
-  return $result;
-}
-
-#####################################################################################################
-
 function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
 {
   $headers=file_get_contents(__DIR__."/irciv_map_request_headers");

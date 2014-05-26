@@ -156,4 +156,34 @@ function strip_headers($response)
 
 #####################################################################################################
 
+function random_string($length)
+{
+  $legal="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  $result="";
+  for ($i=0;$i<$length;$i++)
+  {
+    $result=$result.$legal[mt_rand(0,strlen($legal)-1)];
+  }
+  return $result;
+}
+
+#####################################################################################################
+
+function replace_first($search,$replace,$subject)
+{
+  $lsubject=strtolower($subject);
+  $lsearch=strtolower($search);
+  $n=count($search);
+  $i=strpos($lsubject,$lsearch);
+  if ($i===False)
+  {
+    return False;
+  }
+  $s1=substr($subject,0,$i);
+  $s2=substr($subject,$i+strlen($search));
+  return $s1.$replace.$s2;
+}
+
+#####################################################################################################
+
 ?>

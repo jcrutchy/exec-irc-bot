@@ -12,17 +12,24 @@ require_once("lib.php");
 $trailing=$argv[1];
 $nick=$argv[2];
 $dest=$argv[3];
+$cmd=$argv[4];
 
 if ($trailing=="exec.sed.enable")
 {
   set_bucket("exec_sed_enabled","yes");
-  privmsg("exec sed enabled");
+  if ($cmd=="PRIVMSG")
+  {
+    privmsg("exec sed enabled");
+  }
   return;
 }
 if ($trailing=="exec.sed.disable")
 {
   unset_bucket("exec_sed_enabled");
-  privmsg("exec sed disabled");
+  if ($cmd=="PRIVMSG")
+  {
+    privmsg("exec sed disabled");
+  }
   return;
 }
 $sed_enabled=get_bucket("exec_sed_enabled");
@@ -37,10 +44,23 @@ set_bucket($index,$trailing);
 
 function sed($trailing,$nick,$dest)
 {
-  $parts=explode("/",$trailing);
-  if ((count($parts)==3) or (count($parts)==4))
+  # [nick[:] ]s/old/new[/[g]]
+  $replace_all=False;
+  if (substr(strtolower($trailing),strlen($trailing)-2)=="/g")
   {
-    # [nick[:] ]s/old/new[/[g]]
+    $trailing=substr($trailing,0,strlen($trailing)-2);
+    $replace_all=True;
+  }
+  if (substr($trailing,strlen($trailing)-1)=="/")
+  {
+    $trailing=substr($trailing,0,strlen($trailing)-1);
+  }
+  # [nick[:] ]s/old/new
+  $slash=random_string(50);
+  $trailing=str_replace("\/",$slash,$trailing);
+  $parts=explode("/",$trailing);
+  if (count($parts)==3)
+  {
     $start=ltrim($parts[0]);
     if (trim($start)=="")
     {
@@ -71,15 +91,15 @@ function sed($trailing,$nick,$dest)
       return;
     }
     $old=$parts[1];
-    $new=$parts[2];
-    $replace_all=False;
-    if (count($parts)==4)
+    if ($old=="")
     {
-      if (strtolower($parts[3])=="g")
-      {
-        $replace_all=True;
-      }
+      sed_help();
+      term_echo("4");
+      return;
     }
+    $new=$parts[2];
+    $old=str_replace($slash,"/",$old);
+    $new=str_replace($slash,"/",$new);
     if ($sed_nick=="")
     {
       $sed_nick=$nick;
@@ -96,25 +116,21 @@ function sed($trailing,$nick,$dest)
     }
     else
     {
-      # replace first occurrence only
-      $result="";
-      $llast=strtolower($last);
-      $lold=strtolower($old);
-      $n=count($old);
-      $i=strpos($llast,$lold);
-      if ($i===False)
+      $result=replace_first($old,$new,$last);
+      if ($result===False)
       {
         term_echo("5");
         return;
       }
-      $s1=substr($last,0,$i);
-      $s2=substr($last,$i+strlen($old));
-      $result=$s1.$new.$s2;
     }
     if ($result<>"")
     {
       privmsg("$sed_nick: $result");
     }
+  }
+  else
+  {
+    term_echo("6");
   }
 }
 
