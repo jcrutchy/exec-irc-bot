@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-may-2014
+# 27-may-2014
 
 # irciv.php
 
@@ -35,6 +35,10 @@ define("ACTION_ADMIN_PLAYER_UNSET","player-unset");
 define("ACTION_ADMIN_PLAYER_EDIT","player-edit");
 
 define("MIN_CITY_SPACING",3);
+
+# dl,ds,da,al,as,aa
+$unit_strengths["settler"]="2,0,0,0,0,0";
+$unit_strengths["warrior"]="1,0,0,1,0,0";
 
 $update_players=False;
 
@@ -105,9 +109,15 @@ if ($nick<>NICK_EXEC)
 }
 
 # ADD NEW PROPERTIES TO EXISTING PLAYER DATA
-/*for ($i=0;$i<count($players[$nick]["cities"]);$i++)
+/*foreach ($players as $player => $data)
 {
-  $players[$nick]["cities"][$i]["size"]=1;
+  if ($player<>NICK_EXEC)
+  {
+    for ($i=0;$i<count($players[$player]["units"]);$i++)
+    {
+      $players[$player]["units"][$i]["strength"]=$unit_strengths[$players[$player]["units"][$i]["type"]];
+    }
+  }
 }*/
 
 switch ($action)
@@ -450,9 +460,12 @@ function set_player_color($nick,$color="")
       $color=mt_rand(0,255).",".mt_rand(0,255).",".mt_rand(0,255);
       foreach ($players as $player => $data)
       {
-        if (($player<>$nick) and ($color==$players[$player]["color"]))
+        if ($player<>NICK_EXEC)
         {
-          continue;
+          if (($player<>$nick) and ($color==$players[$player]["color"]))
+          {
+            continue;
+          }
         }
       }
     }
@@ -463,9 +476,12 @@ function set_player_color($nick,$color="")
   {
     foreach ($players as $player => $data)
     {
-      if (($player<>$nick) and ($color==$players[$player]["color"]))
+      if ($player<>NICK_EXEC)
       {
-        return False;
+        if (($player<>$nick) and ($color==$players[$player]["color"]))
+        {
+          return False;
+        }
       }
     }
     if (in_array($color,$reserved_colors)==True)
@@ -485,11 +501,14 @@ function validate_logins()
   global $start;
   foreach ($players as $nick => $data)
   {
-    if (isset($players[$nick]["login_time"])==True)
+    if ($nick<>NICK_EXEC)
     {
-      if ($players[$nick]["login_time"]<$start)
+      if (isset($players[$nick]["login_time"])==True)
       {
-        $players[$nick]["logged_in"]=False;
+        if ($players[$nick]["login_time"]<$start)
+        {
+          $players[$nick]["logged_in"]=False;
+        }
       }
     }
   }
@@ -603,6 +622,7 @@ function random_coord($terrain,&$x,&$y)
 function add_unit($nick,$type,$x,$y)
 {
   global $players;
+  global $unit_strengths;
   if (player_ready($nick)==False)
   {
     return False;
@@ -613,6 +633,7 @@ function add_unit($nick,$type,$x,$y)
   $data["sight_range"]=4;
   $data["x"]=$x;
   $data["y"]=$y;
+  $data["strength"]=$unit_strengths[$type];
   $units[]=$data;
   $i=count($units)-1;
   $units[$i]["index"]=$i;
@@ -708,11 +729,11 @@ function status($nick)
   {
     for ($i=0;$i<count($players[$nick]["status_messages"]);$i++)
     {
-      status_msg($nick,GAME_CHAN."/$nick => ".$players[$nick]["status_messages"][$i],$public);
+      status_msg($nick,GAME_CHAN." $nick => ".$players[$nick]["status_messages"][$i],$public);
     }
     unset($players[$nick]["status_messages"]);
   }
-  status_msg($nick,GAME_CHAN."/$nick => $index/$n, $type, +$health, ($x,$y)",$public);
+  status_msg($nick,GAME_CHAN." $nick => $index/$n, $type, +$health, ($x,$y)",$public);
 }
 
 #####################################################################################################
@@ -762,17 +783,48 @@ function move_active_unit($nick,$dir)
     }
     else
     {
-      $players[$nick]["units"][$active]["x"]=$x;
-      $players[$nick]["units"][$active]["y"]=$y;
-      unfog($nick,$x,$y,$players[$nick]["units"][$active]["sight_range"]);
-      $type=$players[$nick]["units"][$active]["type"];
-      $players[$nick]["status_messages"][]="successfully moved $type $caption from ($old_x,$old_y) to ($x,$y)";
-      $update_players=True;
-      update_other_players($nick,$active);
-      cycle_active($nick);
+      $player=is_foreign_unit($nick,$x,$y);
+      if ($player===False)
+      {
+        $players[$nick]["units"][$active]["x"]=$x;
+        $players[$nick]["units"][$active]["y"]=$y;
+        unfog($nick,$x,$y,$players[$nick]["units"][$active]["sight_range"]);
+        $type=$players[$nick]["units"][$active]["type"];
+        $players[$nick]["status_messages"][]="successfully moved $type $caption from ($old_x,$old_y) to ($x,$y)";
+        $update_players=True;
+        update_other_players($nick,$active);
+        cycle_active($nick);
+      }
+      else
+      {
+        $players[$nick]["status_messages"][]="move $caption failed for active unit (player \"$player\" is occupying)";
+        # if player is enemy, attack!
+      }
     }
     status($nick);
   }
+}
+
+#####################################################################################################
+
+function is_foreign_unit($nick,$x,$y)
+{
+  global $players;
+  foreach ($players as $player => $data)
+  {
+    if (($player<>$nick) and ($player<>NICK_EXEC))
+    {
+      for ($i=0;$i<count($players[$player]["units"]);$i++)
+      {
+        $unit=$players[$player]["units"][$i];
+        if (($unit["x"]==$x) and ($unit["y"]==$y))
+        {
+          return $player;
+        }
+      }
+    }
+  }
+  return False;
 }
 
 #####################################################################################################

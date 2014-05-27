@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 25-may-2014
+# 27-may-2014
 
 # irc.php
 
@@ -443,12 +443,12 @@ function handle_data($data)
     {
       if (exec_load()===False)
       {
-        privmsg($items["destination"],$items["nick"],"error reloading exec");
+        privmsg($items["destination"],$items["nick"],"error reloading exec file");
         doquit();
       }
       else
       {
-        privmsg($items["destination"],$items["nick"],"successfully reloaded exec");
+        privmsg($items["destination"],$items["nick"],"successfully reloaded exec file");
       }
     }
     elseif (($items["trailing"]==CMD_BUCKETS_DUMP) and (check_nick($items,CMD_BUCKETS_DUMP)==True) and (in_array($items["nick"],$admin_nicks)==True))

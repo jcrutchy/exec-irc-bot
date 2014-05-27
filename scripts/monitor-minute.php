@@ -12,6 +12,7 @@ $nick=$argv[2];
 $start=$argv[3];
 
 #echo "IRC_RAW :".NICK_EXEC." PRIVMSG #soylent :minute timer test\n";
+
 echo "IRC_RAW WHOIS SedBot\n";
 
 ?>

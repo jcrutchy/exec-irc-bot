@@ -186,4 +186,29 @@ function replace_first($search,$replace,$subject)
 
 #####################################################################################################
 
+function strip_first_tag(&$html,$tag)
+{
+  $lhtml=strtolower($html);
+  $i=strpos($lhtml,"<$tag");
+  $end="</$tag>";
+  $j=strpos($lhtml,$end);
+  if (($i===False) or ($j===False))
+  {
+    return False;
+  }
+  $html=substr($html,0,$i).substr($html,$j+strlen($end));
+  return True;
+}
+
+#####################################################################################################
+
+function strip_all_tag(&$html,$tag)
+{
+  while (strip_first_tag($html,$tag)==True)
+  {
+  }
+}
+
+#####################################################################################################
+
 ?>
