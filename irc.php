@@ -2,11 +2,12 @@
 
 # gpl2
 # by crutchy
-# 27-may-2014
+# 28-may-2014
 
 # irc.php
 
 # TODO: per channel alias bans
+# TODO: random timer interval
 
 #####################################################################################################
 

@@ -18,9 +18,12 @@
 # TODO: registered nick personalised settings (units, default location, private msg, formatting, etc)
 # TODO: delete codes
 
+#####################################################################################################
+
 define("CODES_FILE","../data/weather.codes");
 define("SEDBOT_EXCLUDE_PREFIX","for ");
 ini_set("display_errors","on");
+require_once("lib.php");
 if (file_exists(CODES_FILE)==False)
 {
   term_echo("WEATHER: CODES FILE NOT FOUND");
@@ -64,35 +67,9 @@ switch ($argv[1])
       privmsg("  by crutchy: https://github.com/crutchy-/test/blob/master/scripts/weather.php");
     }
     break;
- }
-
-function privmsg($msg)
-{
-  echo "IRC_MSG $msg\n";
 }
 
-function term_echo($msg)
-{
-  echo "$msg\n";
-}
-
-function wget($host,$uri,$port)
-{
-  $fp=fsockopen($host,$port);
-  if ($fp===False)
-  {
-    term_echo("Error connecting to \"$host\".");
-    return;
-  }
-  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
-  $response="";
-  while (!feof($fp))
-  {
-    $response=$response.fgets($fp,1024);
-  }
-  fclose($fp);
-  return $response;
-}
+#####################################################################################################
 
 function process_weather($location)
 {
@@ -242,5 +219,7 @@ function process_weather($location)
   }
   privmsg("All stations matching \"$loc\" are either inactive or have no data. Check spelling or try another nearby location.");
 }
+
+#####################################################################################################
 
 ?>

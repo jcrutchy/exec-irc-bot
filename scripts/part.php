@@ -6,7 +6,7 @@
 
 if ($argv[2]=="")
 {
-  echo "IRC_RAW PART ".$argv[1]."\n";
+  echo "IRC_RAW PART ".$argv[1]." :bye\n";
 }
 else
 {
