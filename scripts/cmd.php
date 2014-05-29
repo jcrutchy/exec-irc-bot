@@ -93,7 +93,8 @@ switch ($cmd)
     break;
   case "PRIVMSG":
     echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H $trailing\n"; # last.php
-    #echo ":$nick NOTICE $dest :mackey $trailing\n"; # /nas/server/git/chromas/mackey.php
+    echo ":$nick NOTICE $dest :~JRB8D93MSCRQ92E4M1LE9BCX89 $trailing\n"; # grab.php
+    echo ":$nick NOTICE $dest :~TXVHG62M7CGR4K9SC5H6R1S29G $trailing\n"; # funnel.php
     break;
   case "NOTICE":
     break;

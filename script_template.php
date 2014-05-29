@@ -2,7 +2,9 @@
 
 # gpl2
 # by crutchy
-# 17-may-2014
+# 29-may-2014
+
+#####################################################################################################
 
 ini_set("display_errors","on");
 require_once("lib.php");
@@ -25,5 +27,7 @@ err("show this message in terminal and die");
 $data=get_bucket("index");
 set_bucket("index",$data);
 wget($host,$uri,80);
+
+#####################################################################################################
 
 ?>

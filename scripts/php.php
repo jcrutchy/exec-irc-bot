@@ -2,13 +2,22 @@
 
 # gpl2
 # by crutchy
-# 15-may-2014
+# 29-may-2014
 
 # thanks to prospectacle for link to download doc files
 
+ini_set("display_errors","on");
+require_once("lib.php");
 $msg=$argv[1];
 $msg=str_replace("_","-",$msg);
-$html=file_get_contents("/nas/server/git/data/php_manual/php-chunked-xhtml/function.".$msg.".html");
+$msg=filter($msg,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC."-");
+$filename="/nas/server/git/data/php_manual/php-chunked-xhtml/function.".$msg.".html";
+if (file_exists($filename)==False)
+{
+  echo "IRC_MSG function not found\n";
+  return;
+}
+$html=file_get_contents($filename);
 $delim1="<div class=\"methodsynopsis dc-description\">";
 $delim2="<p class=\"para rdfs-comment\">";
 $i=strpos($html,$delim1);
@@ -29,7 +38,7 @@ if ($i===False)
 }
 $syntax=trim(strip_tags(substr($html,0,$i)));
 $syntax=str_replace("\n","",$syntax);
-$syntax=str_replace("  "," ",$syntax);
+$syntax=str_replace("  ","",$syntax);
 if (strlen($syntax)<500)
 {
   if ($syntax=="")

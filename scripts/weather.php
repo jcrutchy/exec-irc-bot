@@ -33,7 +33,7 @@ $codes=unserialize(file_get_contents(CODES_FILE));
 $parts=explode(" ",$argv[2]);
 switch ($argv[1])
 {
-  case "weather-add":
+  case "~weather-add":
     if (count($parts)>1)
     {
       $code=trim($parts[0]);
@@ -50,7 +50,7 @@ switch ($argv[1])
       }
     }
     break;
-  case "weather":
+  case "~weather":
     $location=trim($argv[2]);
     if ($location<>"")
     {
@@ -61,8 +61,8 @@ switch ($argv[1])
     }
     else
     {
-      privmsg("IRC WEATHER INFORMATION BOT");
-      privmsg("  usage: \"weather location\" (visit http://wiki.soylentnews.org/wiki/IRC:exec#Weather_script for more info)");
+      privmsg("IRC WEATHER INFORMATION");
+      privmsg("  usage: \"~weather location\" (visit http://wiki.soylentnews.org/wiki/IRC:exec#Weather_script for more info)");
       privmsg("  data courtesy of the APRS Citizen Weather Observer Program (CWOP) @ http://weather.gladstonefamily.net/");
       privmsg("  by crutchy: https://github.com/crutchy-/test/blob/master/scripts/weather.php");
     }
@@ -82,8 +82,9 @@ function process_weather($location)
   {
     $loc=$location;
   }
+  $loc_query=filter($loc,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC.",");
   # http://weather.gladstonefamily.net/site/search?site=melbourne&search=Search
-  $search=wget("weather.gladstonefamily.net","/site/search?site=".urlencode($loc)."&search=Search",80);
+  $search=wget("weather.gladstonefamily.net","/site/search?site=".urlencode($loc_query)."&search=Search",80);
   if (strpos($search,"Pick one of the following")===False)
   {
     privmsg("Weather for \"$loc\" not found. Check spelling or try another nearby location.");

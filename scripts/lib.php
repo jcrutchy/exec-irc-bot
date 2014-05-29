@@ -2,11 +2,17 @@
 
 # gpl2
 # by crutchy
-# 5-may-2014
+# 29-may-2014
 
 # lib.php
 
 define("NICK_EXEC","exec");
+
+define("VALID_UPPERCASE","ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+define("VALID_LOWERCASE","abcdefghijklmnopqrstuvwxyz");
+define("VALID_NUMERIC","0123456789");
+
+# VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC
 
 #####################################################################################################
 
@@ -158,7 +164,7 @@ function strip_headers($response)
 
 function random_string($length)
 {
-  $legal="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  $legal=VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC;
   $result="";
   for ($i=0;$i<$length;$i++)
   {
@@ -211,7 +217,32 @@ function strip_all_tag(&$html,$tag)
 
 #####################################################################################################
 
+function is_valid_chars($value,$valid_chars)
+{
+  for ($i=0;$i<strlen($value);$i++)
+  {
+    if (strpos($valid_chars,$value[$i])===False)
+    {
+      return False;
+    }
+  }
+  return True;
+}
 
+#####################################################################################################
+
+function filter($value,$valid_chars)
+{
+  $result="";
+  for ($i=0;$i<strlen($value);$i++)
+  {
+    if (strpos($valid_chars,$value[$i])!==False)
+    {
+      $result=$result.$value[$i];
+    }
+  }
+  return $result;
+}
 
 #####################################################################################################
 

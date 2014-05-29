@@ -14,7 +14,7 @@ $msg=$argv[1];
 $alias=$argv[2];
 define("DEFINITIONS_FILE","../data/definitions");
 $terms=unserialize(file_get_contents(DEFINITIONS_FILE));
-if ($alias=="define-add")
+if ($alias=="~define-add")
 {
   $parts=explode(" ",$msg);
   if (count($parts)>1)
@@ -54,7 +54,7 @@ else
 
 function wolframalpha($msg)
 {
-  $html=wget("www.wolframalpha.com","/input/?i=define%3A$msg",80);
+  $html=wget("www.wolframalpha.com","/input/?i=define%3A".urlencode($msg),80);
   $delim1="context.jsonArray.popups.pod_0200.push( {\"stringified\": \"";
   $delim2="\",\"mInput\": \"\",\"mOutput\": \"\", \"popLinks\": {} });";
   $i=strpos($html,$delim1)+strlen($delim1);
@@ -84,7 +84,7 @@ function wolframalpha($msg)
 
 function urbandictionary($msg)
 {
-  $html=wget("www.urbandictionary.com","/define.php?term=$msg",80);
+  $html=wget("www.urbandictionary.com","/define.php?term=".urlencode($msg),80);
   $delim1="<meta content='";
   $delim2="' name='Description' property='og:description'>";
   $i=strpos($html,$delim2);
