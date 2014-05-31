@@ -20,7 +20,7 @@ define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this,
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
 #define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#irpg,#pipedot,#rss-bot,#style");
-define("INIT_CHAN_LIST","#test,#*");
+define("INIT_CHAN_LIST","#test,#*,#civ");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 #define("IRC_HOST","localhost");
@@ -53,7 +53,6 @@ define("CMD_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
 define("CMD_ADMIN_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
 define("CMD_LOCK","~lock");
 define("CMD_UNLOCK","~unlock");
-
 
 # exec file shell command templates (replaced by the bot with actual values before executing)
 define("TEMPLATE_TRAILING","trailing");
@@ -406,11 +405,10 @@ function handle_data($data)
   $items=parse_data($data);
   if ($items!==False)
   {
-    if (($items["cmd"]==330) and ($admin_data<>"")) # is logged in as
+    if ($items["cmd"]==330) # is logged in as
     {
-      $params=$items["params"];
-      $parts=explode(" ",$params);
-      if ((count($parts)==3) and ($parts[0]==NICK))
+      $parts=explode(" ",$items["params"]);
+      if (($admin_data<>"") and (count($parts)==3) and ($parts[0]==NICK))
       {
         $nick=$parts[1];
         $account=$parts[2];
@@ -420,7 +418,19 @@ function handle_data($data)
           $admin_nick=$nick;
           $items=$admin_items;
         }
+        else
+        {
+          $admin_nick="";
+          $admin_data="";
+          return;
+        }
       }
+      else
+      {
+        $admin_nick="";
+        $admin_data="";
+      }
+      term_echo("test 5");
     }
     if ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
     {
@@ -445,8 +455,8 @@ function handle_data($data)
       case CMD_ADMIN_BUCKETS_FLUSH:
         if ($admin_nick==$items["nick"])
         {
-          $admin_data="";
           $admin_nick="";
+          $admin_data="";
         }
         else
         {

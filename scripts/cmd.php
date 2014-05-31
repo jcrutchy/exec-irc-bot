@@ -74,7 +74,10 @@ switch ($cmd)
       {
         echo ":crutchy NOTICE #civ :~civ-map generate\n";
       }
-      echo "IRC_RAW WHOIS $nick\n";
+      else
+      {
+        echo "IRC_RAW WHOIS $nick\n";
+      }
     }
     break;
   case "KILL":
