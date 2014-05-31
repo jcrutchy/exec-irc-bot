@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 23-may-2014
+# 30-may-2014
 
 # definitions.php
 
@@ -14,6 +14,11 @@ $msg=$argv[1];
 $alias=$argv[2];
 define("DEFINITIONS_FILE","../data/definitions");
 $terms=unserialize(file_get_contents(DEFINITIONS_FILE));
+if ($alias=="~define-count")
+{
+  privmsg("custom definition count: ".count($terms));
+  return;
+}
 if ($alias=="~define-add")
 {
   $parts=explode(" ",$msg);
@@ -45,7 +50,7 @@ else
   {
     if (wolframalpha($msg)==False)
     {
-      echo "IRC_MSG $msg: unable to find definition\n";
+      privmsg("$msg: unable to find definition");
     }
   }
 }
@@ -55,28 +60,25 @@ else
 function wolframalpha($msg)
 {
   $html=wget("www.wolframalpha.com","/input/?i=define%3A".urlencode($msg),80);
+  $html=strip_headers($html);
   $delim1="context.jsonArray.popups.pod_0200.push( {\"stringified\": \"";
   $delim2="\",\"mInput\": \"\",\"mOutput\": \"\", \"popLinks\": {} });";
   $i=strpos($html,$delim1)+strlen($delim1);
   $html=substr($html,$i);
   $i=strpos($html,$delim2);
   $def=trim(substr($html,0,$i));
-  if (strlen($def)<700)
+  if (strlen($def)>700)
   {
-    if ($def=="")
-    {
-      return False;
-    }
-    else
-    {
-      echo "IRC_MSG [wolframalpha] $msg: $def\n";
-      return True;
-    }
+    $def=substr($def,0,700)."...";
+  }
+  if ($def=="")
+  {
+    return False;
   }
   else
-  { 
-    echo "$def\n";
-    return False;
+  {
+    privmsg("[wolframalpha] $msg: $def");
+    return True;
   }
 }
 
@@ -84,7 +86,9 @@ function wolframalpha($msg)
 
 function urbandictionary($msg)
 {
+  # http://www.urbandictionary.com/define.php?term=Rule+34
   $html=wget("www.urbandictionary.com","/define.php?term=".urlencode($msg),80);
+  $html=strip_headers($html);
   $delim1="<meta content='";
   $delim2="' name='Description' property='og:description'>";
   $i=strpos($html,$delim2);
@@ -98,22 +102,18 @@ function urbandictionary($msg)
       break;
     }
   }
-  if (strlen($def)<700)
+  if (strlen($def)>700)
   {
-    if ($def=="")
-    {
-      return False;
-    }
-    else
-    {
-      echo "IRC_MSG [urbandictionary] $msg: ".html_entity_decode($def,ENT_QUOTES,"UTF-8")."\n";
-      return True;
-    }
+    $def=substr($def,0,700)."...";
+  }
+  if ($def=="")
+  {
+    return False;
   }
   else
-  { 
-    echo "$def\n";
-    return False;
+  {
+    privmsg("[urbandictionary] $msg: ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
+    return True;
   }
 }
 

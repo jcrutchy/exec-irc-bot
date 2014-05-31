@@ -2,7 +2,25 @@
 
 # gpl2
 # by crutchy
-# 28-may-2014
+# 30-may-2014
+
+/*
+
+chromas, 30-may-2014
+
+function sedSplode($buffer)
+# Explodes a sed string into an array and
+# accounts for escaped slashes.
+{   $l     = strLen($buffer);
+    $z     = 0;
+
+    for ($z = 0; $z < $l; $z++)
+        if ($buffer[$z] == "/" && $buffer[$z-1] !="\\")
+            $buffer[$z] = "\0";
+    return explode("\0", str_replace("\/", "/", $buffer));
+}
+
+*/
 
 #####################################################################################################
 

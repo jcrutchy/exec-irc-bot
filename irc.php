@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 28-may-2014
+# 31-may-2014
 
 # irc.php
 
@@ -20,6 +20,7 @@ define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this,
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
 define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#irpg,#pipedot,#rss-bot,#style");
+#define("INIT_CHAN_LIST","#test,#*");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 #define("IRC_HOST","localhost");
@@ -75,7 +76,9 @@ $time_deltas=array(); # keeps track of how often nicks call an alias (used for f
 $buckets=array(); # common place for scripts to store stuff
 $dest_overrides=array(); # optionally stores a destination for each nick, which treats every privmsg by that nick as having the set destination
 
-$admin_nicks=array("crutchy");
+$admin_accounts=array("crutchy");
+$admin_data="";
+$admin_nick="";
 
 $exec_list=exec_load();
 if ($exec_list===False)
@@ -390,18 +393,75 @@ function handle_socket($socket)
 
 #####################################################################################################
 
+function is_admin_whois(&$items)
+{
+  global $admin_accounts;
+  global $admin_data;
+  global $admin_account;
+  global $admin_nick;
+  $params=$items["params"];
+  $parts=explode(" ",$params);
+  if ((count($parts)==3) and ($parts[0]==NICK))
+  {
+    $nick=$parts[1];
+    $account=$parts[2];
+    $admin_items=parse_data($admin_data);
+    if (($admin_items["nick"]==$nick) and (in_array($account,$admin_accounts)==True))
+    {
+      $admin_nick=$nick;
+      $items=$admin_items;
+      return;
+    }
+  }
+  $admin_data="";
+  $admin_nick="";
+}
+
+#####################################################################################################
+
+function is_admin($items)
+{
+  global $admin_accounts;
+  global $admin_data;
+  global $admin_nick;
+  if ($admin_nick<>"")
+  {
+    if ($admin_nick==$items["nick"])
+    {
+      return True;
+    }
+    else
+    {
+      return False;
+    }
+  }
+  else
+  {
+    term_echo("authenticating admin");
+    $admin_data=$items["data"];
+    rawmsg("WHOIS ".$items["nick"]);
+    return False;
+  }
+}
+
+#####################################################################################################
+
 function handle_data($data)
 {
-  global $admin_nicks;
   global $alias_locks;
   global $dest_overrides;
+  global $admin_data;
   echo $data;
   log_data($data);
   $items=parse_data($data);
   if ($items!==False)
   {
+    if (($items["cmd"]==330) and ($admin_data<>""))
+    {
+      is_admin_whois($items);
+    }
     $args=explode(" ",$items["trailing"]);
-    if (($items["trailing"]==CMD_QUIT) and (in_array($items["nick"],$admin_nicks)==True))
+    if (($items["trailing"]==CMD_QUIT) and (is_admin($items)==True))
     {
       process_scripts($items,ALIAS_QUIT);
     }
@@ -422,7 +482,7 @@ function handle_data($data)
       privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]][$items["destination"]]."\" unlocked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
       unset($alias_locks[$items["nick"]][$items["destination"]]);
     }
-    elseif (($args[0]==CMD_DEST_OVERRIDE) and (check_nick($items,CMD_DEST_OVERRIDE)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($args[0]==CMD_DEST_OVERRIDE) and (check_nick($items,CMD_DEST_OVERRIDE)==True) and (is_admin($items)==True))
     {
       if (count($args)==2)
       {
@@ -440,7 +500,7 @@ function handle_data($data)
       unset($dest_overrides[$items["nick"]][$items["destination"]]);
       privmsg($items["destination"],$items["nick"],"destination override \"$override\" cleared for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
     }
-    elseif (($items["trailing"]==CMD_RELOAD) and (check_nick($items,CMD_RELOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_RELOAD) and (check_nick($items,CMD_RELOAD)==True) and (is_admin($items)==True))
     {
       if (exec_load()===False)
       {
@@ -452,19 +512,19 @@ function handle_data($data)
         privmsg($items["destination"],$items["nick"],"successfully reloaded exec file");
       }
     }
-    elseif (($items["trailing"]==CMD_BUCKETS_DUMP) and (check_nick($items,CMD_BUCKETS_DUMP)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKETS_DUMP) and (check_nick($items,CMD_BUCKETS_DUMP)==True) and (is_admin($items)==True))
     {
       buckets_dump($items);
     }
-    elseif (($items["trailing"]==CMD_BUCKETS_SAVE) and (check_nick($items,CMD_BUCKETS_SAVE)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKETS_SAVE) and (check_nick($items,CMD_BUCKETS_SAVE)==True) and (is_admin($items)==True))
     {
       buckets_save($items);
     }
-    elseif (($items["trailing"]==CMD_BUCKETS_LOAD) and (check_nick($items,CMD_BUCKETS_LOAD)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKETS_LOAD) and (check_nick($items,CMD_BUCKETS_LOAD)==True) and (is_admin($items)==True))
     {
       buckets_load($items);
     }
-    elseif (($items["trailing"]==CMD_BUCKETS_FLUSH) and (check_nick($items,CMD_BUCKETS_FLUSH)==True) and (in_array($items["nick"],$admin_nicks)==True))
+    elseif (($items["trailing"]==CMD_BUCKETS_FLUSH) and (check_nick($items,CMD_BUCKETS_FLUSH)==True) and (is_admin($items)==True))
     {
       buckets_flush($items);
     }

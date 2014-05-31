@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 29-may-2014
+# 31-may-2014
 
 # lib.php
 
@@ -13,6 +13,19 @@ define("VALID_LOWERCASE","abcdefghijklmnopqrstuvwxyz");
 define("VALID_NUMERIC","0123456789");
 
 # VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC
+
+#####################################################################################################
+
+function random_string($length)
+{
+  $legal=VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC;
+  $result="";
+  for ($i=0;$i<$length;$i++)
+  {
+    $result=$result.$legal[mt_rand(0,strlen($legal)-1)];
+  }
+  return $result;
+}
 
 #####################################################################################################
 
@@ -91,8 +104,9 @@ function wget($host,$uri,$port)
   $fp=fsockopen($host,$port);
   if ($fp===False)
   {
-    term_echo("Error connecting to \"$host\".");
-    return;
+    $msg="Error connecting to \"$host\".";
+    term_echo($msg);
+    return $msg;
   }
   fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
   $response="";
@@ -158,19 +172,6 @@ function strip_headers($response)
     return False;
   }
   return substr($response,$i+strlen($delim));
-}
-
-#####################################################################################################
-
-function random_string($length)
-{
-  $legal=VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC;
-  $result="";
-  for ($i=0;$i<$length;$i++)
-  {
-    $result=$result.$legal[mt_rand(0,strlen($legal)-1)];
-  }
-  return $result;
 }
 
 #####################################################################################################

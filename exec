@@ -41,8 +41,9 @@ con/con|10|0|1|1|php scripts/bsod.php
 ~computer|5|0|0|0|php scripts/computer.php %%trailing%% %%dest%% %%nick%%
 ~wiki|20|0|0|0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%%
 
-~define|10|0|0|0|php scripts/definitions.php %%trailing%% %%alias%%
+~define|20|0|0|0|php scripts/definitions.php %%trailing%% %%alias%%
 ~define-add|10|0|0|0|php scripts/definitions.php %%trailing%% %%alias%%
+~define-count|5|0|0|1|php scripts/definitions.php %%trailing%% %%alias%%
 
 ~weather|10|0|0|1|php scripts/weather.php %%alias%% %%trailing%%
 ~weather-add|10|0|0|1|php scripts/weather.php %%alias%% %%trailing%%
@@ -64,6 +65,7 @@ civ-todo|20|0|0|1|php scripts/irciv_todo.php %%nick%%
 # non-php scripts
 ~haskell|5|0|1|1|runhaskell scripts/haskell.hs
 ~perl|5|0|1|1|perl scripts/perl.pl
+~fb|10|0|1|1|perl scripts/fb.pl
 
 # scripts by chromas
 mackey|5|0|1|0|php /nas/server/git/chromas/mackey.php %%trailing%% %%nick%%
