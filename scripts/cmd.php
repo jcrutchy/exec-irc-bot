@@ -33,7 +33,7 @@ switch ($cmd)
       $account=$parts[2];
       if (($nick<>NICK_EXEC) and ($nick<>NICK_SEDBOT))
       {
-        echo ":".NICK_EXEC." NOTICE ".CHAN_CIV." :civ login $nick $account\n";
+        echo ":".NICK_EXEC." NOTICE ".CHAN_CIV." :~civ login $nick $account\n";
         /*echo ":$nick NOTICE ".CHAN_CIV." :~lock civ\n";
         sleep(1);
         echo ":$nick NOTICE ".CHAN_CIV." :flag public_status\n";
@@ -72,7 +72,7 @@ switch ($cmd)
     {
       if ($nick==NICK_EXEC)
       {
-        echo ":crutchy NOTICE #civ :civ-map generate\n";
+        echo ":crutchy NOTICE #civ :~civ-map generate\n";
       }
       echo "IRC_RAW WHOIS $nick\n";
     }
@@ -83,13 +83,13 @@ switch ($cmd)
   case "PART":
     if ($dest==CHAN_CIV)
     {
-      echo ":".NICK_EXEC." NOTICE ".CHAN_CIV." :civ logout $nick\n";
+      echo ":".NICK_EXEC." NOTICE ".CHAN_CIV." :~civ logout $nick\n";
     }
     break;
   #case "043": # Sent to the client when their nickname was forced to change due to a collision
   #case "436": # Returned by a server to a client when it detects a nickname collision
   case "NICK":
-    echo ":".NICK_EXEC." NOTICE ".CHAN_CIV." :civ rename $nick $trailing\n";
+    echo ":".NICK_EXEC." NOTICE ".CHAN_CIV." :~civ rename $nick $trailing\n";
     break;
   case "PRIVMSG":
     echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H $trailing\n"; # last.php

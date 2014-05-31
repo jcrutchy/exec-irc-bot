@@ -25,7 +25,7 @@
 rofl|5|0|1|1|fortune -s
 ~bad|5|0|1|1|fortune -o
 ~exec-up|5|0|0|1|php scripts/up.php %%start%%
-con/con|10|0|1|1|php scripts/bsod.php
+~con/con|10|0|1|1|php scripts/bsod.php
 ~bsod|10|0|1|1|php scripts/bsod.php
 ~sylnt|10|0|1|1|php scripts/soylent.php
 ~join|5|0|0|0|php scripts/join.php %%trailing%%
@@ -48,10 +48,10 @@ con/con|10|0|1|1|php scripts/bsod.php
 ~weather|10|0|0|1|php scripts/weather.php %%alias%% %%trailing%%
 ~weather-add|10|0|0|1|php scripts/weather.php %%alias%% %%trailing%%
 
-civ|120|0|0|1|php scripts/irciv.php %%nick%% %%trailing%% %%dest%% %%start%%
-civ-map|300|0|0|1|php scripts/irciv_map.php %%nick%% %%trailing%% %%dest%%
-civ-save|5|1200|0|1|php scripts/irciv.php '<<SAVE>>'
-civ-todo|20|0|0|1|php scripts/irciv_todo.php %%nick%%
+~civ|120|0|0|1|php scripts/irciv.php %%nick%% %%trailing%% %%dest%% %%start%%
+~civ-map|300|0|0|1|php scripts/irciv_map.php %%nick%% %%trailing%% %%dest%%
+~civ-save|5|1200|0|1|php scripts/irciv.php '<<SAVE>>'
+~civ-todo|20|0|0|1|php scripts/irciv_todo.php %%nick%%
 
 # called from other scripts via NOTICE cmd
 ~AUJ73HF839CHH2933HRJPA8N2H|5|0|0|0|php scripts/last.php %%trailing%% %%nick%% %%dest%% %%cmd%%

@@ -19,8 +19,8 @@ define("EXEC_DELIM","|");
 define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
-define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#irpg,#pipedot,#rss-bot,#style");
-#define("INIT_CHAN_LIST","#test,#*");
+#define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#irpg,#pipedot,#rss-bot,#style");
+define("INIT_CHAN_LIST","#test,#*");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 #define("IRC_HOST","localhost");
@@ -43,16 +43,17 @@ define("BUCKET_SET","BUCKET_SET");
 define("BUCKET_UNSET","BUCKET_UNSET");
 
 # internal command aliases (can also use in exec file with alias locking, but that would be just weird)
-define("CMD_QUIT","~q");
+define("CMD_ADMIN_QUIT","~q");
+define("CMD_ADMIN_RELOAD","~reload");
+define("CMD_ADMIN_DEST_OVERRIDE","~dest-override");
+define("CMD_ADMIN_DEST_CLEAR","~dest-clear");
+define("CMD_ADMIN_BUCKETS_DUMP","~buckets-dump"); # dump buckets to terminal
+define("CMD_ADMIN_BUCKETS_SAVE","~buckets-save"); # save buckets to file
+define("CMD_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
+define("CMD_ADMIN_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
 define("CMD_LOCK","~lock");
 define("CMD_UNLOCK","~unlock");
-define("CMD_RELOAD","~reload");
-define("CMD_DEST_OVERRIDE","~dest-override");
-define("CMD_DEST_CLEAR","~dest-clear");
-define("CMD_BUCKETS_DUMP","~buckets-dump"); # dump buckets to terminal
-define("CMD_BUCKETS_SAVE","~buckets-save"); # save buckets to file
-define("CMD_BUCKETS_LOAD","~buckets-load"); # load buckets from file
-define("CMD_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
+
 
 # exec file shell command templates (replaced by the bot with actual values before executing)
 define("TEMPLATE_TRAILING","trailing");
@@ -393,153 +394,157 @@ function handle_socket($socket)
 
 #####################################################################################################
 
-function is_admin_whois(&$items)
-{
-  global $admin_accounts;
-  global $admin_data;
-  global $admin_account;
-  global $admin_nick;
-  $params=$items["params"];
-  $parts=explode(" ",$params);
-  if ((count($parts)==3) and ($parts[0]==NICK))
-  {
-    $nick=$parts[1];
-    $account=$parts[2];
-    $admin_items=parse_data($admin_data);
-    if (($admin_items["nick"]==$nick) and (in_array($account,$admin_accounts)==True))
-    {
-      $admin_nick=$nick;
-      $items=$admin_items;
-      return;
-    }
-  }
-  $admin_data="";
-  $admin_nick="";
-}
-
-#####################################################################################################
-
-function is_admin($items)
-{
-  global $admin_accounts;
-  global $admin_data;
-  global $admin_nick;
-  if ($admin_nick<>"")
-  {
-    if ($admin_nick==$items["nick"])
-    {
-      return True;
-    }
-    else
-    {
-      return False;
-    }
-  }
-  else
-  {
-    term_echo("authenticating admin");
-    $admin_data=$items["data"];
-    rawmsg("WHOIS ".$items["nick"]);
-    return False;
-  }
-}
-
-#####################################################################################################
-
 function handle_data($data)
 {
   global $alias_locks;
   global $dest_overrides;
+  global $admin_accounts;
   global $admin_data;
+  global $admin_nick;
   echo $data;
   log_data($data);
   $items=parse_data($data);
   if ($items!==False)
   {
-    if (($items["cmd"]==330) and ($admin_data<>""))
+    if (($items["cmd"]==330) and ($admin_data<>"")) # is logged in as
     {
-      is_admin_whois($items);
-    }
-    $args=explode(" ",$items["trailing"]);
-    if (($items["trailing"]==CMD_QUIT) and (is_admin($items)==True))
-    {
-      process_scripts($items,ALIAS_QUIT);
-    }
-    elseif (($args[0]==CMD_LOCK) and (check_nick($items,CMD_LOCK)==True))
-    {
-      if (count($args)==2)
+      $params=$items["params"];
+      $parts=explode(" ",$params);
+      if ((count($parts)==3) and ($parts[0]==NICK))
       {
-        $alias_locks[$items["nick"]][$items["destination"]]=$args[1];
-        privmsg($items["destination"],$items["nick"],"alias \"".$args[1]."\" locked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
-      }
-      else
-      {
-        privmsg($items["destination"],$items["nick"],"syntax: ".CMD_LOCK." <alias>");
+        $nick=$parts[1];
+        $account=$parts[2];
+        $admin_items=parse_data($admin_data);
+        if (($admin_items["nick"]==$nick) and (in_array($account,$admin_accounts)==True))
+        {
+          $admin_nick=$nick;
+          $items=$admin_items;
+        }
       }
     }
-    elseif (($items["trailing"]==CMD_UNLOCK) and (check_nick($items,CMD_UNLOCK)==True) and (isset($alias_locks[$items["nick"]][$items["destination"]])==True))
-    {
-      privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]][$items["destination"]]."\" unlocked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
-      unset($alias_locks[$items["nick"]][$items["destination"]]);
-    }
-    elseif (($args[0]==CMD_DEST_OVERRIDE) and (check_nick($items,CMD_DEST_OVERRIDE)==True) and (is_admin($items)==True))
-    {
-      if (count($args)==2)
-      {
-        privmsg($items["destination"],$items["nick"],"destination override \"".$args[1]."\" set for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
-        $dest_overrides[$items["nick"]][$items["destination"]]=$args[1];
-      }
-      else
-      {
-        privmsg($items["destination"],$items["nick"],"syntax: ".CMD_DEST_OVERRIDE." <dest>");
-      }
-    }
-    elseif (($items["trailing"]==CMD_DEST_CLEAR) and (check_nick($items,CMD_DEST_CLEAR)==True) and (isset($dest_overrides[$items["nick"]][$items["destination"]])==True))
-    {
-      $override=$dest_overrides[$items["nick"]][$items["destination"]];
-      unset($dest_overrides[$items["nick"]][$items["destination"]]);
-      privmsg($items["destination"],$items["nick"],"destination override \"$override\" cleared for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
-    }
-    elseif (($items["trailing"]==CMD_RELOAD) and (check_nick($items,CMD_RELOAD)==True) and (is_admin($items)==True))
-    {
-      if (exec_load()===False)
-      {
-        privmsg($items["destination"],$items["nick"],"error reloading exec file");
-        doquit();
-      }
-      else
-      {
-        privmsg($items["destination"],$items["nick"],"successfully reloaded exec file");
-      }
-    }
-    elseif (($items["trailing"]==CMD_BUCKETS_DUMP) and (check_nick($items,CMD_BUCKETS_DUMP)==True) and (is_admin($items)==True))
-    {
-      buckets_dump($items);
-    }
-    elseif (($items["trailing"]==CMD_BUCKETS_SAVE) and (check_nick($items,CMD_BUCKETS_SAVE)==True) and (is_admin($items)==True))
-    {
-      buckets_save($items);
-    }
-    elseif (($items["trailing"]==CMD_BUCKETS_LOAD) and (check_nick($items,CMD_BUCKETS_LOAD)==True) and (is_admin($items)==True))
-    {
-      buckets_load($items);
-    }
-    elseif (($items["trailing"]==CMD_BUCKETS_FLUSH) and (check_nick($items,CMD_BUCKETS_FLUSH)==True) and (is_admin($items)==True))
-    {
-      buckets_flush($items);
-    }
-    elseif ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
+    if ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
     {
       dojoin(INIT_CHAN_LIST);
+      return;
     }
-    elseif (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]=="You have 60 seconds to identify to your nickname before it is changed."))
+    if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]=="You have 60 seconds to identify to your nickname before it is changed."))
     {
       rawmsg("NickServ IDENTIFY ".PASSWORD);
+      return;
     }
-    else
+    $args=explode(" ",$items["trailing"]);
+    switch ($args[0])
     {
-      process_scripts($items); # execute scripts occurring for a specific alias
-      process_scripts($items,ALIAS_ALL); # process scripts occuring for every line (* alias)
+      case CMD_ADMIN_QUIT:
+      case CMD_ADMIN_RELOAD:
+      case CMD_ADMIN_DEST_OVERRIDE:
+      case CMD_ADMIN_DEST_CLEAR:
+      case CMD_ADMIN_BUCKETS_DUMP:
+      case CMD_ADMIN_BUCKETS_SAVE:
+      case CMD_ADMIN_BUCKETS_LOAD:
+      case CMD_ADMIN_BUCKETS_FLUSH:
+        if ($admin_nick==$items["nick"])
+        {
+          $admin_data="";
+          $admin_nick="";
+        }
+        else
+        {
+          term_echo("authenticating admin");
+          $admin_data=$items["data"];
+          rawmsg("WHOIS ".$items["nick"]);
+          return;
+        }
+    }
+    switch ($args[0])
+    {
+      case CMD_ADMIN_QUIT:
+        if (count($args)==1)
+        {
+          process_scripts($items,ALIAS_QUIT);
+        }
+        break;
+      case CMD_LOCK:
+        if (check_nick($items,CMD_LOCK)==True)
+        {
+          if (count($args)==2)
+          {
+            $alias_locks[$items["nick"]][$items["destination"]]=$args[1];
+            privmsg($items["destination"],$items["nick"],"alias \"".$args[1]."\" locked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
+          }
+          else
+          {
+            privmsg($items["destination"],$items["nick"],"syntax: ".CMD_LOCK." <alias>");
+          }
+        }
+        break;
+      case CMD_UNLOCK:
+        if ((check_nick($items,CMD_UNLOCK)==True) and (isset($alias_locks[$items["nick"]][$items["destination"]])==True))
+        {
+          privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]][$items["destination"]]."\" unlocked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
+          unset($alias_locks[$items["nick"]][$items["destination"]]);
+        }
+        break;
+      case CMD_ADMIN_DEST_OVERRIDE:
+        if (count($args)==2)
+        {
+          privmsg($items["destination"],$items["nick"],"destination override \"".$args[1]."\" set for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
+          $dest_overrides[$items["nick"]][$items["destination"]]=$args[1];
+        }
+        else
+        {
+          privmsg($items["destination"],$items["nick"],"syntax: ".CMD_ADMIN_DEST_OVERRIDE." <dest>");
+        }
+        break;
+      case CMD_ADMIN_DEST_CLEAR:
+        if (isset($dest_overrides[$items["nick"]][$items["destination"]])==True)
+        {
+          $override=$dest_overrides[$items["nick"]][$items["destination"]];
+          unset($dest_overrides[$items["nick"]][$items["destination"]]);
+          privmsg($items["destination"],$items["nick"],"destination override \"$override\" cleared for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
+        }
+        break;
+      case CMD_ADMIN_RELOAD:
+        if (count($args)==1)
+        {
+          if (exec_load()===False)
+          {
+            privmsg($items["destination"],$items["nick"],"error reloading exec file");
+            doquit();
+          }
+          else
+          {
+            privmsg($items["destination"],$items["nick"],"successfully reloaded exec file");
+          }
+        }
+        break;
+      case CMD_ADMIN_BUCKETS_DUMP:
+        if (count($args)==1)
+        {
+          buckets_dump($items);
+        }
+        break;
+      case CMD_ADMIN_BUCKETS_SAVE:
+        if (count($args)==1)
+        {
+          buckets_save($items);
+        }
+        break;
+      case CMD_ADMIN_BUCKETS_LOAD:
+        if (count($args)==1)
+        {
+          buckets_load($items);
+        }
+        break;
+      case CMD_ADMIN_BUCKETS_FLUSH:
+        if (count($args)==1)
+        {
+          buckets_flush($items);
+        }
+        break;
+      default:
+        process_scripts($items); # execute scripts occurring for a specific alias
+        process_scripts($items,ALIAS_ALL); # process scripts occuring for every line (* alias)
     }
   }
 }
