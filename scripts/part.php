@@ -2,7 +2,14 @@
 
 # gpl2
 # by crutchy
-# 22-april-2014
+# 1-june-2014
+
+$locked_chans=array("#soylent","#test","#civ","#*");
+
+if (in_array(strtolower($argv[1]),$locked_chans)==True)
+{
+  return;
+}
 
 if ($argv[2]=="")
 {

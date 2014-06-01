@@ -2,9 +2,7 @@
 
 # gpl2
 # by crutchy
-# 25-may-2014
-
-# ~bucket|5|0|0|1|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
+# 1-june-2014
 
 ini_set("display_errors","on");
 require_once("lib.php");
@@ -13,17 +11,11 @@ $trailing=$argv[1];
 $nick=$argv[2];
 $dest=$argv[3];
 
-$admin_nicks=array("crutchy");
-if (in_array($nick,$admin_nicks)==False)
-{
-  return;
-}
-
 if ($trailing=="")
 {
-  privmsg("GET:   ~bucket index");
-  privmsg("SET:   ~bucket index data");
-  privmsg("UNSET: ~bucket index unset");
+  privmsg("GET:   ~bucket <index>");
+  privmsg("SET:   ~bucket <index> <data>");
+  privmsg("UNSET: ~bucket <index> unset");
   return;
 }
 

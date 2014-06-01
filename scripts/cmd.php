@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 27-may-2014
+# 1-june-2014
 
 # Ref: https://www.alien.net.au/irc/irc2numerics.html
 
@@ -95,8 +95,8 @@ switch ($cmd)
     echo ":".NICK_EXEC." NOTICE ".CHAN_CIV." :~civ rename $nick $trailing\n";
     break;
   case "PRIVMSG":
-    echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H $trailing\n"; # last.php
-    echo ":$nick NOTICE $dest :~JRB8D93MSCRQ92E4M1LE9BCX89 $trailing\n"; # grab.php
+    echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H $trailing\n"; # sed.php
+    #echo ":$nick NOTICE $dest :~JRB8D93MSCRQ92E4M1LE9BCX89 $trailing\n"; # grab.php
     echo ":$nick NOTICE $dest :~TXVHG62M7CGR4K9SC5H6R1S29G $trailing\n"; # funnel.php
     break;
   case "NOTICE":
@@ -121,26 +121,7 @@ switch ($cmd)
     {
       if ($parts[1]==NICK_SEDBOT)
       {
-        if (strpos(strtolower($trailing),"#soylent")===False)
-        {
-          $sed_enabled=get_bucket("exec_sed_enabled");
-          echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H exec.sed.enable\n"; # last.php
-          if ($sed_enabled=="")
-          {
-            echo "IRC_RAW :".NICK_EXEC." PRIVMSG #soylent :ZOMG! ".NICK_SEDBOT."'s disappeared!\n";
-            echo "IRC_RAW :".NICK_EXEC." PRIVMSG #soylent :exec sed enabled\n";
-          }
-        }
-        else
-        {
-          $sed_enabled=get_bucket("exec_sed_enabled");
-          echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H exec.sed.disable\n"; # last.php
-          if ($sed_enabled=="yes")
-          {
-            echo "IRC_RAW :".NICK_EXEC." PRIVMSG #soylent :wb ".NICK_SEDBOT."!\n";
-            echo "IRC_RAW :".NICK_EXEC." PRIVMSG #soylent :exec sed disabled\n";
-          }
-        }
+        set_bucket(NICK_SEDBOT."_channel_list",$trailing);
       }
     }
     break;
@@ -150,13 +131,7 @@ switch ($cmd)
     {
       if ($parts[1]==NICK_SEDBOT)
       {
-        $sed_enabled=get_bucket("exec_sed_enabled");
-        echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H exec.sed.enable\n"; # last.php
-        if ($sed_enabled=="")
-        {
-          echo "IRC_RAW :".NICK_EXEC." PRIVMSG #soylent :ZOMG! ".NICK_SEDBOT."'s disappeared!\n";
-          echo "IRC_RAW :".NICK_EXEC." PRIVMSG #soylent :exec sed enabled\n";
-        }
+        unset_bucket(NICK_SEDBOT."_channel_list");
       }
     }
     break;

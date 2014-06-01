@@ -19,8 +19,8 @@ define("EXEC_DELIM","|");
 define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
-#define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#irpg,#pipedot,#rss-bot,#style");
-define("INIT_CHAN_LIST","#test,#*");
+define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#irpg,#pipedot,#rss-bot,#style");
+#define("INIT_CHAN_LIST","#test,#*");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 #define("IRC_HOST","localhost");
@@ -51,6 +51,7 @@ define("CMD_ADMIN_BUCKETS_DUMP","~buckets-dump"); # dump buckets to terminal
 define("CMD_ADMIN_BUCKETS_SAVE","~buckets-save"); # save buckets to file
 define("CMD_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
 define("CMD_ADMIN_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
+define("CMD_ADMIN_BUCKETS_LIST","~buckets-list"); # output list of set bucket indexes to the terminal
 define("CMD_LOCK","~lock");
 define("CMD_UNLOCK","~unlock");
 
@@ -88,7 +89,8 @@ $admin_commands=array(
   CMD_ADMIN_BUCKETS_DUMP,
   CMD_ADMIN_BUCKETS_SAVE,
   CMD_ADMIN_BUCKETS_LOAD,
-  CMD_ADMIN_BUCKETS_FLUSH);
+  CMD_ADMIN_BUCKETS_FLUSH,
+  CMD_ADMIN_BUCKETS_LIST);
 
 $exec_list=exec_load();
 if ($exec_list===False)
@@ -387,6 +389,19 @@ function buckets_flush($items)
 
 #####################################################################################################
 
+function buckets_list($items)
+{
+  global $buckets;
+  privmsg($items["destination"],$items["nick"],"bucket list output to terminal");
+  foreach ($buckets as $index => $data)
+  {
+    term_echo($index);
+  }
+  privmsg($items["destination"],$items["nick"],"bucket count: ".count($buckets));
+}
+
+#####################################################################################################
+
 function handle_socket($socket)
 {
   $data=fgets($socket);
@@ -591,6 +606,12 @@ function handle_data($data)
         if (count($args)==1)
         {
           buckets_flush($items);
+        }
+        break;
+      case CMD_ADMIN_BUCKETS_LIST:
+        if (count($args)==1)
+        {
+          buckets_list($items);
         }
         break;
       default:
