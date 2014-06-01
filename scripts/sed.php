@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 1-june-2014
+# 2-june-2014
 
 #####################################################################################################
 
@@ -23,6 +23,8 @@ $index="last_".strtolower($nick)."_".$dest;
 set_bucket($index,$trailing);
 
 #####################################################################################################
+
+# http://pastebin.com/UUYu9dGG (thanks SirFinkus)
 
 function sed($trailing,$nick,$dest)
 {
@@ -59,10 +61,17 @@ function sed($trailing,$nick,$dest)
     }
     elseif (count($start_arr)==2)
     {
-      $sed_nick=$start_arr[0];
-      if (substr($sed_nick,strlen($sed_nick)-1)==":")
+      if (strtolower($start_arr[1])=="s")
       {
-        $sed_nick=substr($sed_nick,0,strlen($sed_nick)-1);
+        $sed_nick=$start_arr[0];
+        if (substr($sed_nick,strlen($sed_nick)-1)==":")
+        {
+          $sed_nick=substr($sed_nick,0,strlen($sed_nick)-1);
+        }
+      }
+      else
+      {
+        return;
       }
     }
     else
