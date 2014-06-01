@@ -20,7 +20,7 @@ define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this,
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
 #define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#irpg,#pipedot,#rss-bot,#style");
-define("INIT_CHAN_LIST","#test,#*,#civ,#soylent");
+define("INIT_CHAN_LIST","#test,#*");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 #define("IRC_HOST","localhost");
@@ -440,15 +440,15 @@ function handle_data($data)
         $nick=$parts[1];
         $account=$parts[2];
         $admin_items=parse_data($admin_data);
+        $args=explode(" ",$admin_items["trailing"]);
+        $cmd=$args[0];
         if ($admin_items["nick"]==$nick)
         {
-          $trailing=$admin_items["trailing"];
-          $trailing_arr=explode(" ",$trailing);
-          $alias=$trailing_arr[0];
-          if (has_account_list($alias)==True)
+          if (has_account_list($cmd)==True)
           {
-            if (in_array($account,$exec_list[$alias]["accounts"])==True)
+            if (in_array($account,$exec_list[$cmd]["accounts"])==False)
             {
+              term_echo("authentication failure: \"$account\" attempted to run \"$cmd\" but is not in exec line account list");
               $admin_nick="";
               $admin_data="";
               return;
@@ -458,6 +458,7 @@ function handle_data($data)
           {
             if (in_array($account,$admin_accounts)==False)
             {
+              term_echo("authentication failure: \"$account\" attempted to run \"$cmd\" but is not in admin account list");
               $admin_nick="";
               $admin_data="";
               return;
@@ -465,6 +466,7 @@ function handle_data($data)
           }
           $admin_nick=$nick;
           $items=$admin_items;
+          $args=explode(" ",$items["trailing"]);
         }
         else
         {
