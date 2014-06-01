@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 31-may-2014
+# 1-june-2014
 
 # irc.php
 
@@ -20,7 +20,7 @@ define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this,
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
 #define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#irpg,#pipedot,#rss-bot,#style");
-define("INIT_CHAN_LIST","#test,#*,#civ");
+define("INIT_CHAN_LIST","#test,#*,#civ,#soylent");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 #define("IRC_HOST","localhost");
@@ -79,6 +79,16 @@ $dest_overrides=array(); # optionally stores a destination for each nick, which 
 $admin_accounts=array("crutchy");
 $admin_data="";
 $admin_nick="";
+
+$admin_commands=array(
+  CMD_ADMIN_QUIT,
+  CMD_ADMIN_RELOAD,
+  CMD_ADMIN_DEST_OVERRIDE,
+  CMD_ADMIN_DEST_CLEAR,
+  CMD_ADMIN_BUCKETS_DUMP,
+  CMD_ADMIN_BUCKETS_SAVE,
+  CMD_ADMIN_BUCKETS_LOAD,
+  CMD_ADMIN_BUCKETS_FLUSH);
 
 $exec_list=exec_load();
 if ($exec_list===False)
@@ -393,6 +403,21 @@ function handle_socket($socket)
 
 #####################################################################################################
 
+function has_account_list($alias)
+{
+  global $exec_list;
+  if (isset($exec_list[$alias])==True)
+  {
+    if (count($exec_list[$alias]["accounts"])>0)
+    {
+      return True;
+    }
+  }
+  return False;
+}
+
+#####################################################################################################
+
 function handle_data($data)
 {
   global $alias_locks;
@@ -400,6 +425,8 @@ function handle_data($data)
   global $admin_accounts;
   global $admin_data;
   global $admin_nick;
+  global $admin_commands;
+  global $exec_list;
   echo $data;
   log_data($data);
   $items=parse_data($data);
@@ -413,8 +440,29 @@ function handle_data($data)
         $nick=$parts[1];
         $account=$parts[2];
         $admin_items=parse_data($admin_data);
-        if (($admin_items["nick"]==$nick) and (in_array($account,$admin_accounts)==True))
+        if ($admin_items["nick"]==$nick)
         {
+          $trailing=$admin_items["trailing"];
+          $trailing_arr=explode(" ",$trailing);
+          $alias=$trailing_arr[0];
+          if (has_account_list($alias)==True)
+          {
+            if (in_array($account,$exec_list[$alias]["accounts"])==True)
+            {
+              $admin_nick="";
+              $admin_data="";
+              return;
+            }
+          }
+          else
+          {
+            if (in_array($account,$admin_accounts)==False)
+            {
+              $admin_nick="";
+              $admin_data="";
+              return;
+            }
+          }
           $admin_nick=$nick;
           $items=$admin_items;
         }
@@ -430,7 +478,6 @@ function handle_data($data)
         $admin_nick="";
         $admin_data="";
       }
-      term_echo("test 5");
     }
     if ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
     {
@@ -443,28 +490,20 @@ function handle_data($data)
       return;
     }
     $args=explode(" ",$items["trailing"]);
-    switch ($args[0])
+    if ((in_array($args[0],$admin_commands)==True) or (has_account_list($args[0])==True))
     {
-      case CMD_ADMIN_QUIT:
-      case CMD_ADMIN_RELOAD:
-      case CMD_ADMIN_DEST_OVERRIDE:
-      case CMD_ADMIN_DEST_CLEAR:
-      case CMD_ADMIN_BUCKETS_DUMP:
-      case CMD_ADMIN_BUCKETS_SAVE:
-      case CMD_ADMIN_BUCKETS_LOAD:
-      case CMD_ADMIN_BUCKETS_FLUSH:
-        if ($admin_nick==$items["nick"])
-        {
-          $admin_nick="";
-          $admin_data="";
-        }
-        else
-        {
-          term_echo("authenticating admin");
-          $admin_data=$items["data"];
-          rawmsg("WHOIS ".$items["nick"]);
-          return;
-        }
+      if ($admin_nick==$items["nick"])
+      {
+        $admin_nick="";
+        $admin_data="";
+      }
+      else
+      {
+        term_echo("authenticating admin");
+        $admin_data=$items["data"];
+        rawmsg("WHOIS ".$items["nick"]);
+        return;
+      }
     }
     switch ($args[0])
     {
@@ -591,7 +630,7 @@ function exec_load()
       continue;
     }
     $parts=explode(EXEC_DELIM,$line);
-    if (count($parts)<6)
+    if (count($parts)<7)
     {
       continue;
     }
@@ -600,7 +639,13 @@ function exec_load()
     $repeat=trim($parts[2]); # seconds
     $auto=trim($parts[3]); # auto privmsg (0 = no, 1 = yes)
     $empty=trim($parts[4]); # empty msg permitted (0 = no, 1 = yes)
-    for ($j=0;$j<=4;$j++)
+    $accounts=array();
+    $accounts_str=trim($parts[5]);
+    if ($accounts_str<>"")
+    {
+      $accounts=explode(",",$accounts_str); # comma-delimited list of NickServ accounts authorised to run script (or empty)
+    }
+    for ($j=0;$j<=5;$j++)
     {
       array_shift($parts);
     }
@@ -613,6 +658,7 @@ function exec_load()
     $exec_list[$alias]["repeat"]=$repeat;
     $exec_list[$alias]["auto"]=$auto;
     $exec_list[$alias]["empty"]=$empty;
+    $exec_list[$alias]["accounts"]=$accounts;
     $exec_list[$alias]["cmd"]=$cmd;
   }
   return $exec_list;
