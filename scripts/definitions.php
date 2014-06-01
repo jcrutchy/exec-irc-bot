@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 30-may-2014
+# 1-june-2014
 
 # definitions.php
 
@@ -39,9 +39,13 @@ if ($alias=="~define-add")
   }
   return;
 }
-if (isset($terms[$msg])==True)
+foreach ($terms as $term => $def)
 {
-  $def=$terms[$msg];
+  $lterms[strtolower($term)]=$term;
+}
+if (isset($lterms[strtolower($msg)])==True)
+{
+  $def=$terms[$lterms[strtolower($msg)]];
   privmsg("[soylent] $msg: $def");
 }
 else

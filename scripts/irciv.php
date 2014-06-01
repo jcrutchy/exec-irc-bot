@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 27-may-2014
+# 1-june-2014
 
 # irciv.php
 
@@ -34,6 +34,7 @@ define("ACTION_ADMIN_PLAYER_DATA","player-data");
 define("ACTION_ADMIN_PLAYER_UNSET","player-unset");
 define("ACTION_ADMIN_PLAYER_EDIT","player-edit");
 define("ACTION_ADMIN_PLAYER_LIST","player-list");
+define("ACTION_ADMIN_PART","part");
 
 define("MIN_CITY_SPACING",3);
 
@@ -113,12 +114,9 @@ if ($nick<>NICK_EXEC)
 # ADD NEW PROPERTIES TO EXISTING PLAYER DATA
 /*foreach ($players as $player => $data)
 {
-  if ($player<>NICK_EXEC)
+  for ($i=0;$i<count($players[$player]["units"]);$i++)
   {
-    for ($i=0;$i<count($players[$player]["units"]);$i++)
-    {
-      $players[$player]["units"][$i]["strength"]=$unit_strengths[$players[$player]["units"][$i]["type"]];
-    }
+    $players[$player]["units"][$i]["strength"]=$unit_strengths[$players[$player]["units"][$i]["type"]];
   }
 }*/
 
@@ -138,12 +136,7 @@ switch ($action)
       $account=$parts[2];
       if (isset($players[$player])==False)
       {
-        $player_id=1;
-        if (isset($players[NICK_EXEC]["player_count"])==True)
-        {
-          $player_id=$players[NICK_EXEC]["player_count"]+1;
-        }
-        $players[NICK_EXEC]["player_count"]=$player_id;
+        $player_id=get_new_player_id();
         $players[$player]["account"]=$account;
         $players[$player]["player_id"]=$player_id;
         player_init($player);
@@ -211,6 +204,12 @@ switch ($action)
       }
     }
     break;
+  case ACTION_ADMIN_PART:
+    if ((count($parts)==1) and ($alias==$admin_alias))
+    {
+      echo "IRC_RAW PART $dest :bye\n";
+    }
+    break;
   case ACTION_ADMIN_PLAYER_UNSET:
     if ((count($parts)==2) and ($alias==$admin_alias))
     {
@@ -232,10 +231,7 @@ switch ($action)
     {
       foreach ($players as $player => $data)
       {
-        if ($player<>NICK_EXEC)
-        {
-          irciv_privmsg("[".$data["player_id"]."] ".$player);
-        }
+        irciv_privmsg("[".$data["player_id"]."] ".$player);
       }
     }
     break;
@@ -244,7 +240,15 @@ switch ($action)
     {
       if (count($parts)==2)
       {
-        var_dump($players[$parts[1]]);
+        $player=$parts[1];
+        if (isset($players[$player])==True)
+        {
+          var_dump($players[$player]);
+        }
+        else
+        {
+          irciv_privmsg("player \"$player\" not found");
+        }
       }
       else
       {
@@ -474,12 +478,9 @@ function set_player_color($nick,$color="")
       $color=mt_rand(0,255).",".mt_rand(0,255).",".mt_rand(0,255);
       foreach ($players as $player => $data)
       {
-        if ($player<>NICK_EXEC)
+        if (($player<>$nick) and ($color==$players[$player]["color"]))
         {
-          if (($player<>$nick) and ($color==$players[$player]["color"]))
-          {
-            continue;
-          }
+          continue;
         }
       }
     }
@@ -490,12 +491,9 @@ function set_player_color($nick,$color="")
   {
     foreach ($players as $player => $data)
     {
-      if ($player<>NICK_EXEC)
+      if (($player<>$nick) and ($color==$players[$player]["color"]))
       {
-        if (($player<>$nick) and ($color==$players[$player]["color"]))
-        {
-          return False;
-        }
+        return False;
       }
     }
     if (in_array($color,$reserved_colors)==True)
@@ -509,20 +507,33 @@ function set_player_color($nick,$color="")
 
 #####################################################################################################
 
+function get_new_player_id()
+{
+  global $players;
+  $player_id=1;
+  foreach ($players as $nick => $data)
+  {
+    if ($player_id<=$data["player_id"])
+    {
+      $player_id=$data["player_id"]+1;
+    }
+  }
+  return $player_id;
+}
+
+#####################################################################################################
+
 function validate_logins()
 {
   global $players;
   global $start;
   foreach ($players as $nick => $data)
   {
-    if ($nick<>NICK_EXEC)
+    if (isset($players[$nick]["login_time"])==True)
     {
-      if (isset($players[$nick]["login_time"])==True)
+      if ($players[$nick]["login_time"]<$start)
       {
-        if ($players[$nick]["login_time"]<$start)
-        {
-          $players[$nick]["logged_in"]=False;
-        }
+        $players[$nick]["logged_in"]=False;
       }
     }
   }
@@ -826,7 +837,7 @@ function is_foreign_unit($nick,$x,$y)
   global $players;
   foreach ($players as $player => $data)
   {
-    if (($player<>$nick) and ($player<>NICK_EXEC))
+    if ($player<>$nick)
     {
       for ($i=0;$i<count($players[$player]["units"]);$i++)
       {
@@ -870,7 +881,7 @@ function update_other_players($nick,$active)
   $y=$players[$nick]["units"][$active]["y"];
   foreach ($players as $player => $data)
   {
-    if (($player==$nick) or ($player==NICK_EXEC))
+    if ($player==$nick)
     {
       continue;
     }

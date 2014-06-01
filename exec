@@ -26,7 +26,7 @@
 #~H5IG287BHWO9XNN76FJ10KJYN6|5|30|0|1||php scripts/comments.php %%trailing%% %%nick%% %%dest%%
 
 # NON-TILDE ALIASES
-rofl|5|0|1|1||fortune -s
+rofl|5|0|1|1||fortune -s -o
 
 # GENERAL USAGE ALIASES
 ~|5|0|1|1||php scripts/about.php %%trailing%%
@@ -39,7 +39,7 @@ rofl|5|0|1|1||fortune -s
 ~php|5|0|0|0||php scripts/php.php %%trailing%%
 #~smile|5|0|1|0||php scripts/smile.php %%trailing%%
 #~uptime|5|0|1|1||uptime
-#~bad|5|0|1|1||fortune -o
+#~bad|5|0|1|1||fortune -s -o
 #~exec-up|5|0|0|1||php scripts/up.php %%start%%
 ~con/con|10|0|1|1||php scripts/bsod.php
 ~bsod|10|0|1|1||php scripts/bsod.php

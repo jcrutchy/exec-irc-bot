@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 31-may-2014
+# 1-june-2014
 
 # irciv_lib.php
 
@@ -294,7 +294,7 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
     }
     foreach ($player_data as $player => $data)
     {
-      if (($player==$nick) or ($player==NICK_EXEC))
+      if ($player==$nick)
       {
         continue;
       }
