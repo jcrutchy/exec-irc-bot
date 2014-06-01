@@ -46,7 +46,6 @@ function sed($trailing,$nick,$dest)
     $start=ltrim($parts[0]);
     if (trim($start)=="")
     {
-      term_echo("1");
       return;
     }
     $start_arr=explode(" ",$start);
@@ -55,7 +54,6 @@ function sed($trailing,$nick,$dest)
     {
       if (strtolower($start_arr[0])<>"s")
       {
-        term_echo("2");
         return;
       }
     }
@@ -69,14 +67,12 @@ function sed($trailing,$nick,$dest)
     }
     else
     {
-      term_echo("3");
       return;
     }
     $old=$parts[1];
     if ($old=="")
     {
       sed_help();
-      term_echo("4");
       return;
     }
     $new=$parts[2];
@@ -101,7 +97,6 @@ function sed($trailing,$nick,$dest)
       $result=replace_first($old,$new,$last);
       if ($result===False)
       {
-        term_echo("5");
         return;
       }
     }
@@ -109,10 +104,6 @@ function sed($trailing,$nick,$dest)
     {
       privmsg("$sed_nick: $result");
     }
-  }
-  else
-  {
-    term_echo("6");
   }
 }
 

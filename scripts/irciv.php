@@ -33,6 +33,7 @@ define("ACTION_UNFLAG","unflag");
 define("ACTION_ADMIN_PLAYER_DATA","player-data");
 define("ACTION_ADMIN_PLAYER_UNSET","player-unset");
 define("ACTION_ADMIN_PLAYER_EDIT","player-edit");
+define("ACTION_ADMIN_PLAYER_LIST","player-list");
 
 define("MIN_CITY_SPACING",3);
 
@@ -42,7 +43,7 @@ $unit_strengths["warrior"]="1,0,0,1,0,0";
 
 $update_players=False;
 
-$admin_nicks=array("crutchy");
+$admin_alias="~civ-admin";
 
 $map_coords="";
 $map_data=array();
@@ -52,6 +53,7 @@ $nick=$argv[1];
 $trailing=$argv[2];
 $dest=$argv[3];
 $start=$argv[4];
+$alias=$argv[5];
 
 if (($trailing=="") or (($dest<>GAME_CHAN) and ($nick<>NICK_EXEC) and ($dest<>NICK_EXEC)))
 {
@@ -157,7 +159,7 @@ switch ($action)
     }
     break;
   case ACTION_RENAME:
-    if ((count($parts)==3) and (($nick==NICK_EXEC) or (in_array($nick,$admin_nicks)==Tue)))
+    if ((count($parts)==3) and (($nick==NICK_EXEC) or ($alias==$admin_alias)))
     {
       $old=$parts[1];
       $new=$parts[2];
@@ -210,7 +212,7 @@ switch ($action)
     }
     break;
   case ACTION_ADMIN_PLAYER_UNSET:
-    if ((count($parts)==2) and (in_array($nick,$admin_nicks)==True))
+    if ((count($parts)==2) and ($alias==$admin_alias))
     {
       $player=$parts[1];
       if (isset($players[$player])==True)
@@ -225,8 +227,20 @@ switch ($action)
       }
     }
     break;
+  case ACTION_ADMIN_PLAYER_LIST:
+    if ((count($parts)==1) and ($alias==$admin_alias))
+    {
+      foreach ($players as $player => $data)
+      {
+        if ($player<>NICK_EXEC)
+        {
+          irciv_privmsg("[".$data["player_id"]."] ".$player);
+        }
+      }
+    }
+    break;
   case ACTION_ADMIN_PLAYER_DATA:
-    if (in_array($nick,$admin_nicks)==True)
+    if ($alias==$admin_alias)
     {
       if (count($parts)==2)
       {
@@ -239,7 +253,7 @@ switch ($action)
     }
     break;
   case ACTION_ADMIN_PLAYER_EDIT:
-    if (in_array($nick,$admin_nicks)==True)
+    if ($alias==$admin_alias)
     {
       if (count($parts)>=3)
       {
@@ -278,7 +292,7 @@ switch ($action)
       }
       else
       {
-        irciv_privmsg("syntax: [civ] player-edit nick key value (value can be omitted to set empty string, and value of <unset> unsets key)");
+        irciv_privmsg("syntax: [~civ] player-edit nick key value (value can be omitted to set empty string, and value of <unset> unsets key)");
       }
     }
     break;
@@ -291,7 +305,7 @@ switch ($action)
     }
     else
     {
-      irciv_privmsg("syntax: [civ] init");
+      irciv_privmsg("syntax: [~civ] init");
     }
     break;
   case "u":
@@ -302,7 +316,7 @@ switch ($action)
     }
     else
     {
-      irciv_privmsg("syntax: [civ] (up|u)");
+      irciv_privmsg("syntax: [~civ] (up|u)");
     }
     break;
   case "r":
@@ -313,7 +327,7 @@ switch ($action)
     }
     else
     {
-      irciv_privmsg("syntax: [civ] (right|r)");
+      irciv_privmsg("syntax: [~civ] (right|r)");
     }
     break;
   case "d":
@@ -324,7 +338,7 @@ switch ($action)
     }
     else
     {
-      irciv_privmsg("syntax: [civ] (down|d)");
+      irciv_privmsg("syntax: [~civ] (down|d)");
     }
     break;
   case "l":
@@ -335,7 +349,7 @@ switch ($action)
     }
     else
     {
-      irciv_privmsg("syntax: [civ] (left|l)");
+      irciv_privmsg("syntax: [~civ] (left|l)");
     }
     break;
   case "b":
@@ -349,7 +363,7 @@ switch ($action)
     }
     else
     {
-      irciv_privmsg("syntax: [civ] (build|b) City Name");
+      irciv_privmsg("syntax: [~civ] (build|b) City Name");
     }
     break;
   case ACTION_STATUS:
@@ -370,12 +384,12 @@ switch ($action)
       }
       else
       {
-        irciv_privmsg("syntax: [civ] set key=value");
+        irciv_privmsg("syntax: [~civ] set key=value");
       }
     }
     else
     {
-      irciv_privmsg("syntax: [civ] set key=value");
+      irciv_privmsg("syntax: [~civ] set key=value");
     }
     break;
   case ACTION_UNSET:
@@ -395,7 +409,7 @@ switch ($action)
     }
     else
     {
-      irciv_privmsg("syntax: [civ] unset key");
+      irciv_privmsg("syntax: [~civ] unset key");
     }
     break;
   case ACTION_FLAG:
@@ -408,7 +422,7 @@ switch ($action)
     }
     else
     {
-      irciv_privmsg("syntax: [civ] flag name");
+      irciv_privmsg("syntax: [~civ] flag name");
     }
     break;
   case ACTION_UNFLAG:
@@ -428,7 +442,7 @@ switch ($action)
     }
     else
     {
-      irciv_privmsg("syntax: [civ] unflag name");
+      irciv_privmsg("syntax: [~civ] unflag name");
     }
     break;
 }
@@ -575,7 +589,7 @@ function player_init($nick)
     return;
   }
   $players[$nick]["init_time"]=time();
-  $players[$nick]["color"]=set_player_color($nick);
+  set_player_color($nick);
   $players[$nick]["units"]=array();
   $players[$nick]["cities"]=array();
   $players[$nick]["fog"]=str_repeat("0",strlen($map_coords));
