@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 2-june-2014
+# 3-june-2014
 
 # irc.php
 
@@ -20,7 +20,7 @@ define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this,
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
 define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#shell,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#pipedot,#rss-bot,#style");
-#define("INIT_CHAN_LIST","#test,#*");
+#define("INIT_CHAN_LIST","#test,#*,#exec");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 #define("IRC_HOST","localhost");
@@ -28,6 +28,7 @@ define("IRC_PORT","6667");
 define("IGNORE_TIME",20); # seconds (flood control)
 define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
+define("CHANNEL_MONITOR","#exec");
 
 # stdout bot directives
 define("DIRECTIVE_QUIT","<<quit>>");
@@ -52,6 +53,7 @@ define("CMD_ADMIN_BUCKETS_SAVE","~buckets-save"); # save buckets to file
 define("CMD_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
 define("CMD_ADMIN_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
 define("CMD_ADMIN_BUCKETS_LIST","~buckets-list"); # output list of set bucket indexes to the terminal
+define("CMD_ADMIN_TOGGLE_MONITOR","~monitor");
 define("CMD_LOCK","~lock");
 define("CMD_UNLOCK","~unlock");
 
@@ -81,6 +83,8 @@ $admin_accounts=array("crutchy");
 $admin_data="";
 $admin_nick="";
 
+$monitor_enabled=False;
+
 $admin_commands=array(
   CMD_ADMIN_QUIT,
   CMD_ADMIN_RELOAD,
@@ -90,7 +94,8 @@ $admin_commands=array(
   CMD_ADMIN_BUCKETS_SAVE,
   CMD_ADMIN_BUCKETS_LOAD,
   CMD_ADMIN_BUCKETS_FLUSH,
-  CMD_ADMIN_BUCKETS_LIST);
+  CMD_ADMIN_BUCKETS_LIST,
+  CMD_ADMIN_TOGGLE_MONITOR);
 
 $exec_list=exec_load();
 if ($exec_list===False)
@@ -404,14 +409,16 @@ function buckets_list($items)
 
 function handle_socket($socket)
 {
+  global $monitor_enabled;
   $data=fgets($socket);
   if ($data===False)
   {
     return;
   }
-  if (pingpong($data)==True)
+  pingpong($data);
+  if ($monitor_enabled==True)
   {
-    return;
+    rawmsg(":".NICK." PRIVMSG ".CHANNEL_MONITOR." :>> $data\n",False);
   }
   handle_data($data);
 }
@@ -442,11 +449,16 @@ function handle_data($data)
   global $admin_nick;
   global $admin_commands;
   global $exec_list;
+  global $monitor_enabled;
   echo $data;
   log_data($data);
   $items=parse_data($data);
   if ($items!==False)
   {
+    if ($items["destination"]==CHANNEL_MONITOR)
+    {
+      return;
+    }
     if ($items["cmd"]==330) # is logged in as
     {
       $parts=explode(" ",$items["params"]);
@@ -551,6 +563,21 @@ function handle_data($data)
           unset($alias_locks[$items["nick"]][$items["destination"]]);
         }
         break;
+      case CMD_ADMIN_TOGGLE_MONITOR:
+        if (count($args)==1)
+        {
+          if ($monitor_enabled==True)
+          {
+            $monitor_enabled=False;
+            privmsg($items["destination"],$items["nick"],"exec incoming data monitor disabled");
+          }
+          else
+          {
+            $monitor_enabled=True;
+            privmsg($items["destination"],$items["nick"],"exec incoming data monitor enabled");
+          }
+        }
+        break;
       case CMD_ADMIN_DEST_OVERRIDE:
         if (count($args)==2)
         {
@@ -629,7 +656,7 @@ function rawmsg($msg,$privmsg=True)
   fputs($socket,$msg."\n");
   if ($privmsg==True)
   {
-    fputs($socket,":".NICK." PRIVMSG #exec :$msg\n");
+    fputs($socket,":".NICK." PRIVMSG ".CHANNEL_MONITOR." :<< $msg\n");
   }
 }
 
@@ -728,10 +755,8 @@ function pingpong($data)
     if ($parts[0]=="PING")
     {
       rawmsg("PONG ".$parts[1]);
-      return True;
     }
   }
-  return False;
 }
 
 #####################################################################################################

@@ -41,6 +41,11 @@ function privmsg($msg)
   echo "IRC_MSG $msg\n";
 }
 
+function rawmsg($msg)
+{
+  echo "IRC_RAW $msg\n";
+}
+
 #####################################################################################################
 
 function pm($nick,$msg)
