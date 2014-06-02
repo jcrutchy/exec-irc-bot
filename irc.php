@@ -415,11 +415,11 @@ function handle_socket($socket)
   {
     return;
   }
-  pingpong($data);
   if ($monitor_enabled==True)
   {
     rawmsg(":".NICK." PRIVMSG ".CHANNEL_MONITOR." :>> $data\n",False);
   }
+  pingpong($data);
   handle_data($data);
 }
 
