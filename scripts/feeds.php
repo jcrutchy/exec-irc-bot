@@ -2,7 +2,9 @@
 
 # gpl2
 # by crutchy
-# 29-may-2014
+# 3-june-2014
+
+# /nas/server/git/data/atom.feeds contains a list of urls for scraping
 
 #####################################################################################################
 

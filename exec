@@ -23,7 +23,7 @@
 #~TXVHG62M7CGR4K9SC5H6R1S29G|5|0|0|0||php scripts/funnel.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
 
 # timer scripts
-~UG4HO6EW9NBBE9CH51SOK6H8N3|5|180|0|1||php scripts/monitor.php %%trailing%% %%nick%% %%start%%
+~UG4HO6EW9NBBE9CH51SOK6H8N3|5|360|0|1||php scripts/monitor.php %%trailing%% %%nick%% %%start%%
 #~H5IG287BHWO9XNN76FJ10KJYN6|5|30|0|1||php scripts/comments.php %%trailing%% %%nick%% %%dest%%
 
 # NON-TILDE ALIASES
