@@ -33,7 +33,9 @@ define("ACTION_UNFLAG","unflag");
 define("ACTION_ADMIN_PLAYER_DATA","player-data");
 define("ACTION_ADMIN_PLAYER_UNSET","player-unset");
 define("ACTION_ADMIN_PLAYER_EDIT","player-edit");
+define("ACTION_ADMIN_OBJECT_EDIT","object-edit");
 define("ACTION_ADMIN_PLAYER_LIST","player-list");
+define("ACTION_ADMIN_MOVE_UNIT","move-unit");
 define("ACTION_ADMIN_PART","part");
 
 define("MIN_CITY_SPACING",3);
@@ -256,6 +258,80 @@ switch ($action)
       }
     }
     break;
+  case ACTION_ADMIN_MOVE_UNIT:
+    if ($alias==$admin_alias)
+    {
+      if (count($parts)==5)
+      {
+        $player=$parts[1];
+        $index=$parts[2];
+        $x=$parts[3];
+        $y=$parts[4];
+        if (isset($players[$player]["units"][$index])==True)
+        {
+          $players[$player]["units"][$index]["x"]=$x;
+          $players[$player]["units"][$index]["y"]=$y;
+          unfog($player,$x,$y,$players[$player]["units"][$index]["sight_range"]);
+          $update_players=True;
+          update_other_players($player,$index);
+        }
+        else
+        {
+          irciv_privmsg("players[$player][units][$index] not found");
+        }
+      }
+      else
+      {
+        irciv_privmsg("syntax: [~civ] move-unit nick index x y");
+      }
+    }
+    break;
+  case ACTION_ADMIN_OBJECT_EDIT:
+    if ($alias==$admin_alias)
+    {
+      if (count($parts)>=5)
+      {
+        $player=$parts[1];
+        $array=$parts[2];
+        $index=$parts[3];
+        $key=$parts[4];
+        for ($i=1;$i<=5;$i++)
+        {
+          array_shift($parts);
+        }
+        $value=implode(" ",$parts);
+        if ($key<>"")
+        {
+          if (isset($players[$player][$array][$index])==True)
+          {
+            if ($value=="<unset>")
+            {
+              unset($players[$player][$array][$index][$key]);
+              irciv_privmsg("players[$player][$array][$index][$key] unset");
+            }
+            else
+            {
+              $players[$player][$array][$index][$key]=$value;
+              irciv_privmsg("players[$player][$array][$index][$key]=$value");
+            }
+            $update_players=True;
+          }
+          else
+          {
+            irciv_privmsg("players[$player][$array][$index] not found");
+          }
+        }
+        else
+        {
+          irciv_privmsg("invalid key");
+        }
+      }
+      else
+      {
+        irciv_privmsg("syntax: [~civ] object-edit <nick> <array> <index> <key> [<value>|\"<unset>\"]");
+      }
+    }
+    break;
   case ACTION_ADMIN_PLAYER_EDIT:
     if ($alias==$admin_alias)
     {
@@ -296,7 +372,7 @@ switch ($action)
       }
       else
       {
-        irciv_privmsg("syntax: [~civ] player-edit nick key value (value can be omitted to set empty string, and value of <unset> unsets key)");
+        irciv_privmsg("syntax: [~civ] player-edit <nick> <key> [<value>|\"<unset>\"]");
       }
     }
     break;

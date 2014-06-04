@@ -19,8 +19,8 @@ define("EXEC_DELIM","|");
 define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
-define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#shell,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#pipedot,#rss-bot,#style");
-#define("INIT_CHAN_LIST","#test,#*,#exec");
+#define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#shell,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#pipedot,#rss-bot,#style");
+define("INIT_CHAN_LIST","#test,#*,#exec");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 #define("IRC_HOST","localhost");
@@ -84,6 +84,10 @@ $admin_data="";
 $admin_nick="";
 
 $monitor_enabled=False;
+
+$output_buffer=array();
+$min_output_delay=0.1; # sec
+$max_buffer_count=1000;
 
 $admin_commands=array(
   CMD_ADMIN_QUIT,
@@ -653,10 +657,33 @@ function handle_data($data)
 function rawmsg($msg,$privmsg=True)
 {
   global $socket;
-  fputs($socket,$msg."\n");
+  global $output_buffer;
+  global $min_output_delay;
+  global $max_buffer_count;
+  $raw_msg=$msg."\n";
+  $output_buffer[]=$raw_msg;
   if ($privmsg==True)
   {
-    fputs($socket,":".NICK." PRIVMSG ".CHANNEL_MONITOR." :<< $msg\n");
+    $monitor_msg=":".NICK." PRIVMSG ".CHANNEL_MONITOR." :<< $msg\n";
+    $output_buffer[]=$monitor_msg;
+  }
+  $n=count($output_buffer);
+  if ($n>$max_buffer_count)
+  {
+    $excess=$n-$max_buffer_count;
+    for ($i=0;$i<$excess;$i++)
+    {
+      array_shift($output_buffer);
+    }
+  }
+  for ($i=0;$i<$n;$i++)
+  {
+    fputs($socket,$output_buffer[0]);
+    array_shift($output_buffer);
+    if ($i<($n-1))
+    {
+      usleep($min_output_delay*1e6);
+    }
   }
 }
 

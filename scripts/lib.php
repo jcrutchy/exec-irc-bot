@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 31-may-2014
+# 4-june-2014
 
 # lib.php
 
@@ -40,6 +40,8 @@ function privmsg($msg)
 {
   echo "IRC_MSG $msg\n";
 }
+
+#####################################################################################################
 
 function rawmsg($msg)
 {
@@ -107,6 +109,27 @@ function unset_bucket($index)
 function wget($host,$uri,$port)
 {
   $fp=fsockopen($host,$port);
+  if ($fp===False)
+  {
+    $msg="Error connecting to \"$host\".";
+    term_echo($msg);
+    return $msg;
+  }
+  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
+  $response="";
+  while (!feof($fp))
+  {
+    $response=$response.fgets($fp,1024);
+  }
+  fclose($fp);
+  return $response;
+}
+
+#####################################################################################################
+
+function wget_ssl($host,$uri)
+{
+  $fp=fsockopen("ssl://$host",443);
   if ($fp===False)
   {
     $msg="Error connecting to \"$host\".";
