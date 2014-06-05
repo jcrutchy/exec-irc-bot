@@ -20,7 +20,7 @@ define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this,
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
 #define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#shell,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#pipedot,#rss-bot,#style");
-define("INIT_CHAN_LIST","#test,#*,#exec");
+define("INIT_CHAN_LIST","#test,#*,#exec,#civ,#soylent");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 #define("IRC_HOST","localhost");
@@ -86,7 +86,7 @@ $admin_nick="";
 $monitor_enabled=False;
 
 $output_buffer=array();
-$min_output_delay=0.1; # sec
+$min_output_delay=0.2; # sec
 $max_buffer_count=1000;
 
 $admin_commands=array(

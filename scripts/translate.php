@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 4-june-2014
+# 5-june-2014
 
 #####################################################################################################
 
@@ -10,18 +10,26 @@ ini_set("display_errors","on");
 require_once("lib.php");
 
 $trailing=$argv[1];
+$alias=$argv[2];
 
 $parts=explode(" ",$trailing);
-if (count($parts)<3)
+if (count($parts)<2)
 {
   privmsg("syntax: ~translate <from> <to> <msg>");
   privmsg("eg (translate \"test\" from English to Spanish): ~translate en es test");
   return;
 }
-
-$lang_from=$parts[0];
-$lang_to=$parts[1];
-array_shift($parts);
+if ($alias=="~translate")
+{
+  $lang_from="auto";
+  $lang_to=$parts[0];
+}
+else
+{
+  $lang_from=$parts[0];
+  $lang_to=$parts[1];
+  array_shift($parts);
+}
 array_shift($parts);
 $msg=implode(" ",$parts);
 
