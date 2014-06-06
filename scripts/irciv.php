@@ -2,9 +2,11 @@
 
 # gpl2
 # by crutchy
-# 1-june-2014
+# 5-june-2014
 
 # irciv.php
+
+# TODO: ~civ-admin spawn-server #game
 
 #####################################################################################################
 
@@ -58,7 +60,7 @@ $dest=$argv[3];
 $start=$argv[4];
 $alias=$argv[5];
 
-if (($trailing=="") or (($dest<>GAME_CHAN) and ($nick<>NICK_EXEC) and ($dest<>NICK_EXEC)))
+if (($trailing=="") or ((in_array($dest,$game_chans)==False) and ($nick<>NICK_EXEC)))
 {
   irciv_privmsg("https://github.com/crutchy-/test");
   return;
@@ -142,11 +144,11 @@ switch ($action)
         $players[$player]["account"]=$account;
         $players[$player]["player_id"]=$player_id;
         player_init($player);
-        irciv_privmsg("login: welcome new player \"$player\"");
+        privmsg_player_game_chans($player,"login: welcome new player \"$player\"");
       }
       else
       {
-        irciv_privmsg("login: welcome back \"$player\"");
+        privmsg_player_game_chans($player,"login: welcome back \"$player\"");
       }
       $players[$player]["login_time"]=microtime(True);
       $players[$player]["logged_in"]=True;
@@ -164,17 +166,18 @@ switch ($action)
         $players[$new]=$player_data;
         unset($players[$old]);
         $update_players=True;
-        irciv_privmsg("player \"$old\" renamed to \"$new\"");
+        privmsg_player_game_chans($old,"player \"$old\" renamed to \"$new\"");
+        $chan_list=get_bucket($old."_channel_list");
+        if ($chan_list<>"")
+        {
+          set_bucket($new."_channel_list",$chan_list);
+        }
       }
       else
       {
         if (isset($players[$old])==True)
         {
-          irciv_privmsg("error renaming player \"$old\" to \"$new\"");
-        }
-        else
-        {
-          #irciv_err("ACTION_RENAME: old nick not found");
+          privmsg_player_game_chans($old,"error renaming player \"$old\" to \"$new\"");
         }
       }
     }
@@ -182,11 +185,11 @@ switch ($action)
     {
       if ($nick<>NICK_EXEC)
       {
-        irciv_err("ACTION_RENAME: only exec can perform logins");
+        irciv_term_echo("ACTION_RENAME: only exec can perform logins");
       }
       else
       {
-        irciv_err("ACTION_RENAME: invalid login message");
+        irciv_term_echo("ACTION_RENAME: invalid login message");
       }
     }
     break;
@@ -198,11 +201,11 @@ switch ($action)
       {
         $players[$player]["logged_in"]=False;
         $update_players=True;
-        irciv_privmsg("logout: player \"$player\" logged out");
+        privmsg_player_game_chans($player,"logout: player \"$player\" logged out");
       }
       else
       {
-        irciv_privmsg("logout: there is no player logged in as \"$player\"");
+        irciv_term_echo("logout: there is no player logged in as \"$player\"");
       }
     }
     break;
@@ -543,6 +546,26 @@ if ($update_players==True)
 
 #####################################################################################################
 
+function privmsg_player_game_chans($nick,$msg)
+{
+  global $game_chans;
+  $nick_chans=get_bucket($nick."_channel_list");
+  if ($nick_chans=="")
+  {
+    irciv_term_echo("priv_msg_all_player_game_chans: nick \"$nick\" channels not set");
+  }
+  $nick_chans=explode(" ",$nick_chans);
+  for ($i=0;$i<count($game_chans);$i++)
+  {
+    if (in_array($game_chans[$i],$nick_chans)==True)
+    {
+      echo "IRC_RAW :".NICK_EXEC." PRIVMSG ".$game_chans[$i]." :$msg\n";
+    }
+  }
+}
+
+#####################################################################################################
+
 function set_player_color($nick,$color="")
 {
   global $players;
@@ -808,6 +831,7 @@ function status($nick)
 {
   global $players;
   global $map_data;
+  global $dest;
   if (isset($players[$nick])==False)
   {
     return;
@@ -830,11 +854,11 @@ function status($nick)
   {
     for ($i=0;$i<count($players[$nick]["status_messages"]);$i++)
     {
-      status_msg($nick,GAME_CHAN." $nick => ".$players[$nick]["status_messages"][$i],$public);
+      status_msg($nick,$dest." $nick => ".$players[$nick]["status_messages"][$i],$public);
     }
     unset($players[$nick]["status_messages"]);
   }
-  status_msg($nick,GAME_CHAN." $nick => $index/$n, $type, +$health, ($x,$y)",$public);
+  status_msg($nick,$dest." $nick => $index/$n, $type, +$health, ($x,$y)",$public);
 }
 
 #####################################################################################################

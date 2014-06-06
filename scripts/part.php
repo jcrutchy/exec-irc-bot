@@ -4,7 +4,7 @@
 # by crutchy
 # 1-june-2014
 
-$locked_chans=array("#soylent","#test","#civ","#*","#exec");
+$locked_chans=array("#test","#civ","#*","#exec");
 
 if (in_array(strtolower($argv[1]),$locked_chans)==True)
 {

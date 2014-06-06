@@ -14,7 +14,7 @@ ini_set("display_errors","on");
 echo "################ BEGIN INIT ################\n";
 
 require_once("irciv_lib.php");
-irciv_load_data();
+irciv_init();
 
 echo "################# END INIT #################\n";
 

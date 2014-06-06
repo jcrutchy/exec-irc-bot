@@ -106,6 +106,34 @@ function unset_bucket($index)
 
 #####################################################################################################
 
+function wtouch($host,$uri,$port)
+{
+  $errno=0;
+  $errstr="";
+  if ($port==80)
+  {
+    $fp=fsockopen($host,80,$errno,$errstr,5);
+  }
+  elseif ($port==443)
+  {
+    $fp=fsockopen("ssl://$host",443,$errno,$errstr,5);
+  }
+  else
+  {
+    $fp=fsockopen($host,$port,$errno,$errstr,5);
+  }
+  if ($fp===False)
+  {
+    return False;
+  }
+  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
+  $response=fgets($fp,1024);
+  fclose($fp);
+  return trim($response);
+}
+
+#####################################################################################################
+
 function wget($host,$uri,$port)
 {
   $fp=fsockopen($host,$port);
@@ -271,6 +299,57 @@ function filter($value,$valid_chars)
     }
   }
   return $result;
+}
+
+#####################################################################################################
+
+function exec_get_headers($response)
+{
+  $delim="\r\n\r\n";
+  $i=strpos($response,$delim);
+  if ($i===False)
+  {
+    return False;
+  }
+  return substr($response,0,$i);
+}
+
+#####################################################################################################
+
+function exec_get_header($response,$header)
+{
+  $lines=explode("\n",exec_get_headers($response));
+  for ($i=0;$i<count($lines);$i++)
+  {
+    $line=trim($lines[$i]);
+    $parts=explode(":",$line);
+    if (count($parts)>=2)
+    {
+      $key=trim($parts[0]);
+      array_shift($parts);
+      $value=trim(implode(":",$parts));
+      if (strtolower($key)==strtolower($header))
+      {
+        return $value;
+      }
+    }
+  }
+}
+
+#####################################################################################################
+
+function extract_get($url,$name)
+{
+  $params=array();
+  parse_str(parse_url($url,PHP_URL_QUERY),$params);
+  if (isset($params[$name])==True)
+  {
+    return $params[$name];
+  }
+  else
+  {
+    return False;
+  }
 }
 
 #####################################################################################################

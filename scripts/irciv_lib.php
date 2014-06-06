@@ -11,8 +11,8 @@
 require_once("lib.php");
 
 define("GAME_VERSION","0.0");
-define("GAME_CHAN","#civ");
-define("BUCKET_PREFIX","IRCiv_".GAME_CHAN."_");
+
+define("BUCKET_PREFIX","IRCiv_");
 
 define("IRCIV_DATA_FILE","../data/irciv_data");
 
@@ -25,6 +25,8 @@ define("IMAGE_SHIELD","shield.png");
 define("IMAGE_CITY_FLAG","city_flag.png");
 
 define("PATH_IMAGES",__DIR__."/images/");
+
+$game_chans=array("#civ");
 
 #####################################################################################################
 
@@ -480,6 +482,14 @@ function irciv_load_data()
   {
     irciv_term_echo("IRCiv data file not found");
   }
+}
+
+#####################################################################################################
+
+function irciv_init()
+{
+  global $game_chans;
+  irciv_load_data();
 }
 
 #####################################################################################################

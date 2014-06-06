@@ -71,9 +71,9 @@ function wolframalpha($msg)
   $html=substr($html,$i);
   $i=strpos($html,$delim2);
   $def=trim(substr($html,0,$i));
-  if (strlen($def)>700)
+  if (strlen($def)>400)
   {
-    $def=substr($def,0,700)."...";
+    $def=substr($def,0,400)."...";
   }
   if ($def=="")
   {
@@ -92,27 +92,30 @@ function urbandictionary($msg)
 {
   # http://www.urbandictionary.com/define.php?term=Rule+34
   $html=wget("www.urbandictionary.com","/define.php?term=".urlencode($msg),80);
-  $html=strip_headers($html);
-  $delim1="<meta content='";
-  $delim2="' name='Description' property='og:description'>";
-  $i=strpos($html,$delim2);
-  $html=substr($html,0,$i);
-  $def="";
-  for ($j=$i;$j>0;$j--)
+  $html2=strip_headers($html);
+  $delim1="<div class='meaning'>";
+  $delim2="</div>";
+  $i=strpos($html2,$delim1);
+  $html2=substr($html2,$i+strlen($delim1));
+  $i=strpos($html2,$delim2);
+  $def=trim(strip_tags(substr($html2,0,$i)));
+  $def=str_replace(array("\n","\r")," ",$def);
+  $def=str_replace("  "," ",$def);
+  if (strlen($def)>400)
   {
-    if (substr($html,$j,strlen($delim1))==$delim1)
-    {
-      $def=trim(substr($html,$j+strlen($delim1)));
-      break;
-    }
-  }
-  if (strlen($def)>700)
-  {
-    $def=substr($def,0,700)."...";
+    $def=substr($def,0,400)."...";
   }
   if ($def=="")
   {
-    return False;
+    $location=exec_get_header($html,"location");
+    if ($location=="")
+    {
+      return False;
+    }
+    else
+    {
+      return urbandictionary(extract_get($location,"term"));
+    }
   }
   else
   {
