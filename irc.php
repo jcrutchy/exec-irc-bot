@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 5-june-2014
+# 6-june-2014
 
 # irc.php
 
@@ -20,7 +20,7 @@ define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this,
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
 #define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#shell,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#pipedot,#rss-bot,#style");
-define("INIT_CHAN_LIST","#test,#*,#exec,#civ,#soylent");
+define("INIT_CHAN_LIST","#test,#*,#exec,#civ");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 #define("IRC_HOST","localhost");
@@ -87,9 +87,8 @@ $admin_nick="";
 
 $monitor_enabled=False;
 
-$output_buffer=array();
-$min_output_delay=0.3; # sec
-$max_buffer_count=1000;
+$throttle_flag=False;
+$rawmsg_times=array();
 
 $admin_commands=array(
   CMD_ADMIN_QUIT,
@@ -456,6 +455,7 @@ function handle_data($data)
   global $admin_commands;
   global $exec_list;
   global $monitor_enabled;
+  global $throttle_flag;
   echo $data;
   log_data($data);
   $items=parse_data($data);
@@ -463,6 +463,11 @@ function handle_data($data)
   {
     if ($items["destination"]==CHANNEL_MONITOR)
     {
+      return;
+    }
+    if (($items["prefix"]==IRC_HOST) and (strpos(strtolower($items["trailing"]),"throttled due to flooding")!==False))
+    {
+      $throttle_flag=True;
       return;
     }
     if ($items["cmd"]==330) # is logged in as
@@ -517,6 +522,7 @@ function handle_data($data)
     if ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
     {
       dojoin(INIT_CHAN_LIST);
+      $monitor_enabled=True;
       return;
     }
     if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]=="You have 60 seconds to identify to your nickname before it is changed."))
@@ -659,33 +665,46 @@ function handle_data($data)
 function rawmsg($msg,$privmsg=True)
 {
   global $socket;
-  global $output_buffer;
-  global $min_output_delay;
-  global $max_buffer_count;
-  $raw_msg=$msg."\n";
-  $output_buffer[]=$raw_msg;
+  global $throttle_flag;
+  global $rawmsg_times;
+  $meta=stream_get_meta_data($socket);
+  if ($meta["unread_bytes"]>0)
+  {
+    term_echo("socket unread: ".$meta["unread_bytes"]." bytes");
+  }
+  $flood_count=6; # messages to allow through without any delays
+  if (count($rawmsg_times)>1)
+  {
+    $throttle_time=10; # sec
+    $last=$rawmsg_times[count($rawmsg_times)-1];
+    $dt=microtime(True)-$last;
+    if (($throttle_flag==True) and ($dt<$throttle_time))
+    {
+      return;
+    }
+    $throttle_flag=False;
+    $flood_time=0.4; # sec
+    $dt=$rawmsg_times[0]-$last;
+    if ($dt<$flood_time)
+    {
+      usleep($flood_time*1e6);
+      $rawmsg_times=array();
+    }
+    elseif ($dt>$throttle_time)
+    {
+      $rawmsg_times=array();
+    }
+  }
+  fputs($socket,$msg."\n");
+  $rawmsg_times[]=microtime(True);
+  while (count($rawmsg_times)>$flood_count)
+  {
+    array_shift($rawmsg_times);
+  }
   if ($privmsg==True)
   {
-    $monitor_msg=":".NICK." PRIVMSG ".CHANNEL_MONITOR." :<< $msg\n";
-    $output_buffer[]=$monitor_msg;
-  }
-  $n=count($output_buffer);
-  if ($n>$max_buffer_count)
-  {
-    $excess=$n-$max_buffer_count;
-    for ($i=0;$i<$excess;$i++)
-    {
-      array_shift($output_buffer);
-    }
-  }
-  for ($i=0;$i<$n;$i++)
-  {
-    fputs($socket,$output_buffer[0]);
-    array_shift($output_buffer);
-    if ($i<($n-1))
-    {
-      usleep($min_output_delay*1e6);
-    }
+    # eventually pipe this to a separate monitoring terminal stdout
+    rawmsg(":".NICK." PRIVMSG ".CHANNEL_MONITOR." :<< $msg",False);
   }
 }
 

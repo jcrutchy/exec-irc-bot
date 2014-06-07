@@ -489,6 +489,7 @@ function irciv_load_data()
 function irciv_init()
 {
   global $game_chans;
+  set_bucket("IRCIV_GAME_CHANNELS",serialize($game_chans));
   irciv_load_data();
 }
 

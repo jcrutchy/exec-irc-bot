@@ -27,34 +27,46 @@ switch ($cmd)
     {
       $nick=$parts[1];
       $account=$parts[2];
-      if (($nick<>NICK_EXEC) and ($nick<>NICK_SEDBOT))
+      if ($nick<>NICK_EXEC)
       {
-        echo "NOTICE :~civ login $nick $account\n";
+        $player_channel_list=explode(" ",get_bucket($nick."_channel_list"));
+        $irciv_game_chans=unserialize(get_bucket("IRCIV_GAME_CHANNELS"));
+        for ($i=0;$i<count($irciv_game_chans);$i++)
+        {
+          if (in_array($irciv_game_chans[$i],$player_channel_list)==True)
+          {
+            echo "NOTICE :~civ login $nick $account\n";
+            break;
+          }
+        }
       }
     }
     break;
   case "353": # channel names list
     # :irc.sylnt.us 353 exec = #civ :exec @crutchy arti monopoly chromas Loggie
-    sleep(3);
-    $parts=explode(" = ",$params);
+    $parts=explode("=",$params);
     if (count($parts)==2)
     {
-      if ($parts[0]==NICK_EXEC)
+      if (trim($parts[0])==NICK_EXEC)
       {
-        $names=explode(" ",$trailing);
-        for ($i=0;$i<count($names);$i++)
+        $irciv_game_chans=unserialize(get_bucket("IRCIV_GAME_CHANNELS"));
+        if (in_array(trim($parts[1]),$irciv_game_chans)==True)
         {
-          $name=$names[$i];
-          if ((substr($name,0,1)=="+") or (substr($name,0,1)=="@"))
+          $names=explode(" ",$trailing);
+          for ($i=0;$i<count($names);$i++)
           {
-            $name=substr($name,1);
+            $name=$names[$i];
+            if ((substr($name,0,1)=="+") or (substr($name,0,1)=="@"))
+            {
+              $name=substr($name,1);
+            }
+            if ($name==NICK_EXEC)
+            {
+              continue;
+            }
+            echo "IRC_RAW WHOIS $name\n";
+            sleep(1);
           }
-          if ($name==NICK_EXEC)
-          {
-            continue;
-          }
-          #echo "IRC_RAW WHOIS $name\n"; # TODO: set bucket for IRCiv game chans (create IRCiv init included in init.php), and only do whois on nicks in game channels
-          sleep(1);
         }
       }
     }
