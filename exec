@@ -38,7 +38,6 @@ karma|5|0|0|0|php scripts/comments.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~fortune|5|0|1|1||fortune -s
 ~php|5|0|0|0||php scripts/php.php %%trailing%%
 ~con/con|10|0|1|1||php scripts/bsod.php
-~bsod|10|0|1|1||php scripts/bsod.php
 ~join|5|0|0|0||php scripts/join.php %%trailing%%
 ~part|5|0|0|1||php scripts/part.php %%dest%% %%trailing%%
 ~isup|30|0|0|0||php scripts/isup.php %%trailing%%
@@ -46,6 +45,7 @@ karma|5|0|0|0|php scripts/comments.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~rainbow|5|0|0|0||php scripts/rainbow.php %%trailing%%
 ~translate|10|0|0|0||php scripts/translate.php %%trailing%% %%alias%%
 ~translate-sl|10|0|0|0||php scripts/translate.php %%trailing%% %%alias%%
+#~bsod|10|0|1|1||php scripts/bsod.php
 #~snake|5|0|1|1||echo %%trailing%% | cowsay -f elephant-in-snake
 #~test|5|0|0|0||php scripts/test.php %%trailing%% %%dest%% %%nick%%
 #~cowsay-fortune|5|0|1|1||sh cowsay-fortune.sh
@@ -68,7 +68,7 @@ karma|5|0|0|0|php scripts/comments.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 ~civ|120|0|0|1||php scripts/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
 ~civ-admin|120|0|0|1|crutchy|php scripts/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
-~civ-map|300|0|0|1||php scripts/irciv_map.php %%nick%% %%trailing%% %%dest%%
+~civ-map|300|0|0|1|crutchy|php scripts/irciv_map.php %%nick%% %%trailing%% %%dest%%
 ~civ-save|5|1200|0|1||php scripts/irciv.php '<<SAVE>>'
 ~civ-todo|20|0|0|1||php scripts/irciv_todo.php %%nick%%
 

@@ -58,6 +58,8 @@ define("CMD_ADMIN_BUCKETS_LIST","~buckets-list"); # output list of set bucket in
 define("CMD_ADMIN_TOGGLE_MONITOR","~monitor");
 define("CMD_LOCK","~lock");
 define("CMD_UNLOCK","~unlock");
+define("CMD_LIST","~list");
+define("CMD_LIST_AUTH","~list-auth");
 
 # exec file shell command templates (replaced by the bot with actual values before executing)
 define("TEMPLATE_TRAILING","trailing");
@@ -142,6 +144,51 @@ function init()
 {
   $items=parse_data("INIT");
   process_scripts($items,ALIAS_INIT);
+}
+
+#####################################################################################################
+
+function get_list($items)
+{
+  global $exec_list;
+  $msg="~list ~list-auth ~lock ~unlock";
+  privmsg($items["destination"],$items["nick"],$msg);
+  $msg="";
+  var_dump($exec_list);
+  foreach ($exec_list as $alias => $data)
+  {
+    if ((count($data["accounts"])==0) and (strlen($alias)<=20) and ($alias<>ALIAS_ALL) and ($alias<>ALIAS_INIT) and ($alias<>ALIAS_QUIT))
+    {
+      if ($msg<>"")
+      {
+        $msg=$msg." ";
+      }
+      $msg=$msg.$alias;
+    }
+  }
+  privmsg($items["destination"],$items["nick"],$msg);
+}
+
+#####################################################################################################
+
+function get_list_auth($items)
+{
+  global $exec_list;
+  $msg="~q ~reload ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~monitor";
+  privmsg($items["destination"],$items["nick"],$msg);
+  $msg="";
+  foreach ($exec_list as $alias => $data)
+  {
+    if ((count($data["accounts"])>0) and (strlen($alias)<=20) and ($alias<>ALIAS_ALL) and ($alias<>ALIAS_INIT) and ($alias<>ALIAS_QUIT))
+    {
+      if ($msg<>"")
+      {
+        $msg=$msg." ";
+      }
+      $msg=$msg.$alias;
+    }
+  }
+  privmsg($items["destination"],$items["nick"],$msg);
 }
 
 #####################################################################################################
@@ -414,18 +461,11 @@ function buckets_list($items)
 
 function handle_socket($socket)
 {
-  global $monitor_enabled;
   $data=fgets($socket);
-  if ($data===False)
+  if ($data!==False)
   {
-    return;
+    handle_data($data,True);
   }
-  if ($monitor_enabled==True)
-  {
-    rawmsg(":".NICK." PRIVMSG ".CHANNEL_MONITOR." :>> $data\n",False);
-  }
-  pingpong($data);
-  handle_data($data);
 }
 
 #####################################################################################################
@@ -445,7 +485,7 @@ function has_account_list($alias)
 
 #####################################################################################################
 
-function handle_data($data)
+function handle_data($data,$is_sock=False)
 {
   global $alias_locks;
   global $dest_overrides;
@@ -456,11 +496,17 @@ function handle_data($data)
   global $exec_list;
   global $monitor_enabled;
   global $throttle_flag;
+  global $monitor_enabled;
   echo $data;
   log_data($data);
   $items=parse_data($data);
   if ($items!==False)
   {
+    if (($monitor_enabled==True) and (is_numeric($items["cmd"])==False) and ($is_sock==True))
+    {
+      rawmsg(":".NICK." PRIVMSG ".CHANNEL_MONITOR." :>> $data\n",False);
+    }
+    pingpong($data);
     if ($items["destination"]==CHANNEL_MONITOR)
     {
       return;
@@ -484,7 +530,7 @@ function handle_data($data)
         {
           if (has_account_list($cmd)==True)
           {
-            if (in_array($account,$exec_list[$cmd]["accounts"])==False)
+            if ((in_array($account,$exec_list[$cmd]["accounts"])==False) and (in_array($account,$admin_accounts)==False) and ($account<>NICK))
             {
               term_echo("authentication failure: \"$account\" attempted to run \"$cmd\" but is not in exec line account list");
               $admin_nick="";
@@ -552,6 +598,24 @@ function handle_data($data)
         if (count($args)==1)
         {
           process_scripts($items,ALIAS_QUIT);
+        }
+        break;
+      case CMD_LIST:
+        if (check_nick($items,CMD_LOCK)==True)
+        {
+          if (count($args)==1)
+          {
+            get_list($items);
+          }
+        }
+        break;
+      case CMD_LIST_AUTH:
+        if (check_nick($items,CMD_LOCK)==True)
+        {
+          if (count($args)==1)
+          {
+            get_list_auth($items);
+          }
         }
         break;
       case CMD_LOCK:
@@ -667,11 +731,6 @@ function rawmsg($msg,$privmsg=True)
   global $socket;
   global $throttle_flag;
   global $rawmsg_times;
-  $meta=stream_get_meta_data($socket);
-  if ($meta["unread_bytes"]>0)
-  {
-    term_echo("socket unread: ".$meta["unread_bytes"]." bytes");
-  }
   $flood_count=6; # messages to allow through without any delays
   if (count($rawmsg_times)>1)
   {
@@ -681,6 +740,11 @@ function rawmsg($msg,$privmsg=True)
     if (($throttle_flag==True) and ($dt<$throttle_time))
     {
       return;
+    }
+    $meta=stream_get_meta_data($socket);
+    if ($meta["unread_bytes"]>0)
+    {
+      term_echo("rawmsg function: socket data unread: ".$meta["unread_bytes"]." bytes");
     }
     $throttle_flag=False;
     $flood_time=0.4; # sec

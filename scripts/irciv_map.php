@@ -19,18 +19,7 @@ $nick=$argv[1];
 $trailing=$argv[2];
 $dest=$argv[3];
 
-$admin_nicks=array("crutchy");
-if (in_array($nick,$admin_nicks)==False)
-{
-  return;
-}
-
-$data["cols"]=128;
-$data["rows"]=64;
-$coords=str_repeat(TERRAIN_OCEAN,$data["cols"]*$data["rows"]);
-
 $parts=explode(" ",$trailing);
-
 $cmd=$parts[0];
 
 $generated=False;
@@ -52,6 +41,7 @@ switch ($cmd)
   case CMD_GENERATE:
     if ($generated==True)
     {
+      irciv_term_echo("map already generated for channel \"$dest\"");
       return;
     }
     $landmass_count=50;

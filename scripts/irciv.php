@@ -79,8 +79,8 @@ else
     irciv_err("error unserializing player bucket data");
   }
 }
-$coords_bucket=irciv_get_bucket("map_coords");
-$data_bucket=irciv_get_bucket("map_data");
+$coords_bucket=irciv_get_bucket("map_coords"); # TODO
+$data_bucket=irciv_get_bucket("map_data"); # TODO
 if (($coords_bucket<>"") and ($data_bucket<>""))
 {
   $map_coords=map_unzip($coords_bucket);

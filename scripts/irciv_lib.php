@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 1-june-2014
+# 7-june-2014
 
 # irciv_lib.php
 
@@ -40,6 +40,13 @@ function irciv_term_echo($msg)
 function irciv_privmsg($msg)
 {
   privmsg("IRCiv: $msg");
+}
+
+#####################################################################################################
+
+function irciv_privmsg_dest($dest,$msg)
+{
+  pm($dest,$msg);
 }
 
 #####################################################################################################

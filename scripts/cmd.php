@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 5-june-2014
+# 7-june-2014
 
 #####################################################################################################
 
@@ -72,10 +72,13 @@ switch ($cmd)
     }
     break;
   case "JOIN":
-    $civ_channels=get_bucket("IRCiv_game_channels");
     if ($nick==NICK_EXEC)
     {
-      echo "NOTICE :~civ-map generate\n";
+      $irciv_game_chans=unserialize(get_bucket("IRCIV_GAME_CHANNELS"));
+      for ($i=0;$i<count($irciv_game_chans);$i++)
+      {
+        echo ":".NICK_EXEC." NOTICE ".$irciv_game_chans[$i]." :~civ-map generate\n";
+      }
     }
     else
     {
