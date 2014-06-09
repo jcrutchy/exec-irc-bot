@@ -79,25 +79,16 @@ else
     irciv_err("error unserializing player bucket data");
   }
 }
-$coords_bucket=irciv_get_bucket("map_coords"); # TODO
-$data_bucket=irciv_get_bucket("map_data"); # TODO
-if (($coords_bucket<>"") and ($data_bucket<>""))
+$map_coords=array();
+$map_data=array();
+for ($i=0;$i<count($game_chans);$i++)
 {
-  $map_coords=map_unzip($coords_bucket);
-  $map_data=unserialize($data_bucket);
-}
-else
-{
-  $landmass_count=50;
-  $landmass_size=80;
-  $land_spread=100;
-  if (($landmass_count*$landmass_size)>=(0.8*$map_data["cols"]*$map_data["rows"]))
+  $map_coords[$game_chans[$i]]=irciv_get_bucket("map_coords_".$game_chans[$i]);
+  $map_data[$game_chans[$i]]=irciv_get_bucket("map_data_".$game_chans[$i]);
+  if (($map_coords[$game_chans[$i]]=="") or ($map_data[$game_chans[$i]]==""))
   {
-    irciv_privmsg("landmass parameter error in generating map for channel \"$dest\"");
-    return;
+    irciv_privmsg("map for channel \"$dest\" not found");
   }
-  $map_coords=map_generate($map_data,$landmass_count,$landmass_size,$land_spread,TERRAIN_OCEAN,TERRAIN_LAND);
-  irciv_privmsg("map coords generated for channel \"$dest\"");
 }
 
 $parts=explode(" ",$trailing);
@@ -153,6 +144,7 @@ switch ($action)
       $players[$player]["login_time"]=microtime(True);
       $players[$player]["logged_in"]=True;
       $update_players=True;
+      irciv_term_echo("PLAYER \"$player\" LOGIN");
     }
     break;
   case ACTION_RENAME:
@@ -172,6 +164,7 @@ switch ($action)
         {
           set_bucket($new."_channel_list",$chan_list);
         }
+        irciv_term_echo("PLAYER \"$old\" RENAMED TO \"$new\"");
       }
       else
       {
@@ -202,6 +195,7 @@ switch ($action)
         $players[$player]["logged_in"]=False;
         $update_players=True;
         privmsg_player_game_chans($player,"logout: player \"$player\" logged out");
+        irciv_term_echo("PLAYER \"$player\" LOGOUT");
       }
       else
       {

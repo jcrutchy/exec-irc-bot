@@ -35,7 +35,7 @@ switch ($cmd)
         {
           if (in_array($irciv_game_chans[$i],$player_channel_list)==True)
           {
-            echo "NOTICE :~civ login $nick $account\n";
+            echo ":".NICK_EXEC." NOTICE :~civ login $nick $account\n";
             break;
           }
         }
@@ -47,9 +47,10 @@ switch ($cmd)
     $parts=explode("=",$params);
     if (count($parts)==2)
     {
-      if (trim($parts[0])==NICK_EXEC)
+      $game_chans=get_bucket("IRCIV_GAME_CHANNELS");
+      if ((trim($parts[0])==NICK_EXEC) and ($game_chans!==False))
       {
-        $irciv_game_chans=unserialize(get_bucket("IRCIV_GAME_CHANNELS"));
+        $irciv_game_chans=unserialize($game_chans);
         if (in_array(trim($parts[1]),$irciv_game_chans)==True)
         {
           $names=explode(" ",$trailing);
@@ -89,12 +90,12 @@ switch ($cmd)
   case "KICK":
   case "QUIT":
   case "PART":
-    echo "NOTICE :~civ logout $nick\n";
+    echo ":".NICK_EXEC." NOTICE :~civ logout $nick\n";
     break;
   #case "043": # Sent to the client when their nickname was forced to change due to a collision
   #case "436": # Returned by a server to a client when it detects a nickname collision
   case "NICK":
-    echo "NOTICE :~civ rename $nick $trailing\n";
+    echo ":".NICK_EXEC." NOTICE :~civ rename $nick $trailing\n";
     break;
   case "PRIVMSG":
     echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H $trailing\n"; # sed.php
@@ -122,7 +123,16 @@ switch ($cmd)
     $parts=explode(" ",$params);
     if (count($parts)==2)
     {
-      set_bucket($parts[1]."_channel_list",$trailing);
+      $chans=explode(" ",$trailing);
+      for ($i=0;$i<count($chans);$i++)
+      {
+        if ((substr($chans[$i],0,1)=="+") or (substr($chans[$i],0,1)=="@"))
+        {
+          $chans[$i]=substr($chans[$i],1);
+        }
+      }
+      $chans=implode(" ",$chans);
+      set_bucket($parts[1]."_channel_list",$chans);
     }
     break;
   case "401": # No such nick/channel

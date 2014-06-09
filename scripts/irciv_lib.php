@@ -14,6 +14,10 @@ define("GAME_VERSION","0.0");
 
 define("BUCKET_PREFIX","IRCiv_");
 
+define("IRCIV_FILE_PLAYER_DATA","../data/irciv_player_data");
+define("IRCIV_FILE_MAP_DATA","../data/irciv_map_data_");
+define("IRCIV_FILE_MAP_COORDS","../data/irciv_map_coords_");
+
 define("TERRAIN_OCEAN","O");
 define("TERRAIN_LAND","L");
 
@@ -437,19 +441,26 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
 
 #####################################################################################################
 
-function irciv_save_data() # TODO
+function irciv_save_data()
 {
   global $game_chans;
   irciv_term_echo("saving IRCiv data...");
   $players=irciv_get_bucket("players");
+  if (file_put_contents(IRCIV_FILE_PLAYER_DATA,$players)===False)
+  {
+    irciv_term_echo("IRCiv player data not saved");
+  }
   for ($i=0;$i<count($game_chans);$i++)
   {
-    $map_coords=irciv_get_bucket("map_coords");
-    $map_data=irciv_get_bucket("map_data");
-    if (file_put_contents(IRCIV_DATA_FILE,$players."\n".$map_coords."\n".$map_data)===False)
+    $map_coords=irciv_get_bucket("map_coords_".$game_chans[$i]);
+    $map_data=irciv_get_bucket("map_data_".$game_chans[$i]);
+    if (file_put_contents(IRCIV_FILE_MAP_COORDS.$game_chans[$i],$map_coords)===False)
     {
-      irciv_err("IRCiv data not saved");
-      return;
+      irciv_term_echo("IRCiv map coords for channel \"".$game_chans[$i]."\" not saved");
+    }
+    if (file_put_contents(IRCIV_FILE_MAP_DATA.$game_chans[$i],$map_data)===False)
+    {
+      irciv_term_echo("IRCiv map data for channel \"".$game_chans[$i]."\" not saved");
     }
   }
   irciv_term_echo("IRCiv data saved");
@@ -457,28 +468,39 @@ function irciv_save_data() # TODO
 
 #####################################################################################################
 
-function irciv_load_data() # TODO
+function irciv_load_data()
 {
   global $game_chans;
   irciv_term_echo("loading IRCiv data...");
-  $players_file="../data/irciv_player_data";
-  if (file_exists($players_file)==True)
+  if (file_exists(IRCIV_FILE_PLAYER_DATA)==True)
   {
-    $data=file_get_contents($players_file);
+    $players=file_get_contents(IRCIV_FILE_PLAYER_DATA);
     irciv_set_bucket("players",$players);
-
-    $lines=explode("\n",$data);
-    $players=$lines[0];
-    $irciv_game_chans=unserialize(get_bucket("IRCIV_GAME_CHANNELS"));
-    $map_coords=$lines[1];
-    $map_data=$lines[2];
-
-    irciv_set_bucket("map_coords",$map_coords);
-    irciv_set_bucket("map_data",$map_data);
   }
   else
   {
-    irciv_term_echo("IRCiv data file not found");
+    irciv_term_echo("IRCiv player data not found");
+  }
+  for ($i=0;$i<count($game_chans);$i++)
+  {
+    if (file_exists(IRCIV_FILE_MAP_COORDS.$game_chans[$i])==True)
+    {
+      $map_coords=file_get_contents(IRCIV_FILE_MAP_COORDS.$game_chans[$i]);
+      irciv_set_bucket("map_coords_".$game_chans[$i],$map_coords);
+    }
+    else
+    {
+      irciv_term_echo("IRCiv map coords for channel \"".$game_chans[$i]."\" not found");
+    }
+    if (file_exists(IRCIV_FILE_MAP_DATA.$game_chans[$i])==True)
+    {
+      $map_data=file_get_contents(IRCIV_FILE_MAP_DATA.$game_chans[$i]);
+      irciv_set_bucket("map_data_".$game_chans[$i],$map_data);
+    }
+    else
+    {
+      irciv_term_echo("IRCiv map data for channel \"".$game_chans[$i]."\" not found");
+    }
   }
 }
 

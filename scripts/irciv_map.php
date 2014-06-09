@@ -32,11 +32,11 @@ $parts=explode(" ",$trailing);
 $cmd=$parts[0];
 
 $generated=False;
-$coords_bucket=irciv_get_bucket("map_coords");
-$data_bucket=irciv_get_bucket("map_data");
+$coords_bucket=irciv_get_bucket("map_coords_".$dest);
+$data_bucket=irciv_get_bucket("map_data_".$dest);
 if (($coords_bucket<>"") and ($data_bucket<>""))
 {
-  $coords=map_unzip($coords_bucket);
+  $coords=$coords_bucket;
   $data=unserialize($data_bucket);
   $generated=True;
 }
@@ -75,8 +75,8 @@ switch ($cmd)
 
 $data=serialize($data);
 irciv_term_echo("coords: ".round(strlen($coords)/1024,1)."kb");
-irciv_set_bucket("map_coords",$coords);
-irciv_set_bucket("map_data",$data);
+irciv_set_bucket("map_coords_".$dest,$coords);
+irciv_set_bucket("map_data_".$dest,$data);
 
 #####################################################################################################
 
