@@ -20,7 +20,7 @@ define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this,
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
 #define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#shell,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#pipedot,#rss-bot,#style");
-define("INIT_CHAN_LIST","#test,#*,#exec,#civ");
+define("INIT_CHAN_LIST","#test,#*,#exec,#civ,#soylent");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 #define("IRC_HOST","localhost");
@@ -47,6 +47,7 @@ define("INTERNAL_COMMAND","INTERNAL"); # this command is used in a message to tr
 
 # internal command aliases (can also use in exec file with alias locking, but that would be just weird)
 define("CMD_ADMIN_QUIT","~q");
+define("CMD_ADMIN_RESTART","~restart");
 define("CMD_ADMIN_RELOAD","~reload");
 define("CMD_ADMIN_DEST_OVERRIDE","~dest-override");
 define("CMD_ADMIN_DEST_CLEAR","~dest-clear");
@@ -94,6 +95,7 @@ $rawmsg_times=array();
 
 $admin_commands=array(
   CMD_ADMIN_QUIT,
+  CMD_ADMIN_RESTART,
   CMD_ADMIN_RELOAD,
   CMD_ADMIN_DEST_OVERRIDE,
   CMD_ADMIN_DEST_CLEAR,
@@ -717,6 +719,12 @@ function handle_data($data,$is_sock=False)
           buckets_list($items);
         }
         break;
+      case CMD_ADMIN_RESTART:
+        if (count($args)==1)
+        {
+          doquit(True);
+        }
+        break;
       default:
         process_scripts($items); # execute scripts occurring for a specific alias
         process_scripts($items,ALIAS_ALL); # process scripts occuring for every line (* alias)
@@ -832,10 +840,11 @@ function exec_load()
 
 #####################################################################################################
 
-function doquit()
+function doquit($restart=False)
 {
   global $handles;
   global $socket;
+  global $argv;
   $n=count($handles);
   for ($i=0;$i<$n;$i++)
   {
@@ -844,9 +853,14 @@ function doquit()
       proc_close($handles[$i]["process"]);
     }
   }
+  rawmsg("NickServ LOGOUT");
   rawmsg("QUIT");
   fclose($socket);
   term_echo("QUITTING SCRIPT");
+  if ($restart==True)
+  {
+    pcntl_exec($_SERVER["_"],$argv);
+  }
   die();
 }
 
@@ -1003,7 +1017,7 @@ function process_scripts($items,$reserved="")
     else
     {
       $parts=explode(" ",$items["trailing"]);
-      $alias=trim($parts[0]);
+      $alias=strtolower(trim($parts[0]));
       if (isset($exec_list[$alias])==False)
       {
         return;

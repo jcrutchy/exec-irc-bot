@@ -62,6 +62,7 @@ karma|5|0|0|0|php scripts/comments.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~define|20|0|0|0||php scripts/definitions.php %%trailing%% %%alias%%
 ~define-add|10|0|0|0||php scripts/definitions.php %%trailing%% %%alias%%
 ~define-count|5|0|0|1||php scripts/definitions.php %%trailing%% %%alias%%
+~define-sources|5|0|0|1||php scripts/definitions.php %%trailing%% %%alias%%
 
 ~weather|10|0|0|1||php scripts/weather.php %%alias%% %%trailing%%
 ~weather-add|10|0|0|1||php scripts/weather.php %%alias%% %%trailing%%

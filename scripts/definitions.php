@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 1-june-2014
+# 9-june-2014
 
 # definitions.php
 
@@ -13,10 +13,16 @@ require_once("lib.php");
 $msg=$argv[1];
 $alias=$argv[2];
 define("DEFINITIONS_FILE","../data/definitions");
+define("MAX_DEF_LENGTH",200);
 $terms=unserialize(file_get_contents(DEFINITIONS_FILE));
 if ($alias=="~define-count")
 {
   privmsg("custom definition count: ".count($terms));
+  return;
+}
+if ($alias=="~define-sources")
+{
+  privmsg("definition sources in order of preference: www.urbandictionary.com > www.wolframalpha.com > www.stoacademy.com");
   return;
 }
 if ($alias=="~define-add")
@@ -37,6 +43,10 @@ if ($alias=="~define-add")
       privmsg("definition for term \"$term\" set to \"$def\"");
     }
   }
+  else
+  {
+    privmsg("syntax: ~define-add <term> <definition>");
+  }
   return;
 }
 foreach ($terms as $term => $def)
@@ -54,7 +64,10 @@ else
   {
     if (wolframalpha($msg)==False)
     {
-      privmsg("$msg: unable to find definition");
+      if (stoacademy($msg)==False)
+      {
+        privmsg("$msg: unable to find definition");
+      }
     }
   }
 }
@@ -65,15 +78,20 @@ function wolframalpha($msg)
 {
   $html=wget("www.wolframalpha.com","/input/?i=define%3A".urlencode($msg),80);
   $html=strip_headers($html);
+  if ((strpos($html,"Wolfram|Alpha doesn't know how to interpret your input.")!==False) or (strpos($html,"Using closest Wolfram|Alpha interpretation:")!==False))
+  {
+    term_echo("wolframalpha: term not defined");
+    return False;
+  }
   $delim1="context.jsonArray.popups.pod_0200.push( {\"stringified\": \"";
   $delim2="\",\"mInput\": \"\",\"mOutput\": \"\", \"popLinks\": {} });";
   $i=strpos($html,$delim1)+strlen($delim1);
   $html=substr($html,$i);
   $i=strpos($html,$delim2);
   $def=trim(substr($html,0,$i));
-  if (strlen($def)>400)
+  if (strlen($def)>MAX_DEF_LENGTH)
   {
-    $def=substr($def,0,400)."...";
+    $def=substr($def,0,MAX_DEF_LENGTH)."...";
   }
   if ($def=="")
   {
@@ -93,6 +111,11 @@ function urbandictionary($msg)
   # http://www.urbandictionary.com/define.php?term=Rule+34
   $html=wget("www.urbandictionary.com","/define.php?term=".urlencode($msg),80);
   $html2=strip_headers($html);
+  if (strpos($html,"<i>".htmlspecialchars($msg)."</i> isn't defined.")!==False)
+  {
+    term_echo("urbandictionary: term not defined");
+    return False;
+  }
   $delim1="<div class='meaning'>";
   $delim2="</div>";
   $i=strpos($html2,$delim1);
@@ -101,9 +124,9 @@ function urbandictionary($msg)
   $def=trim(strip_tags(substr($html2,0,$i)));
   $def=str_replace(array("\n","\r")," ",$def);
   $def=str_replace("  "," ",$def);
-  if (strlen($def)>400)
+  if (strlen($def)>MAX_DEF_LENGTH)
   {
-    $def=substr($def,0,400)."...";
+    $def=substr($def,0,MAX_DEF_LENGTH)."...";
   }
   if ($def=="")
   {
@@ -120,6 +143,41 @@ function urbandictionary($msg)
   else
   {
     privmsg("[urbandictionary] $msg: ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
+    return True;
+  }
+}
+
+#####################################################################################################
+
+function stoacademy($msg)
+{
+  # http://www.stoacademy.com/datacore/dictionary.php?searchTerm=borg
+  $html=wget("www.stoacademy.com","/datacore/dictionary.php?searchTerm=".urlencode($msg),80);
+  $html2=strip_headers($html);
+  if (strpos($html,"Sorry no results found.")!==False)
+  {
+    term_echo("stoacademy: term not defined");
+    return False;
+  }
+  $delim1="<b><u>";
+  $delim2="<p>";
+  $i=strpos($html2,$delim1);
+  $html2=substr($html2,$i+strlen($delim1));
+  $i=strpos($html2,$delim2);
+  $def=trim(strip_tags(substr($html2,0,$i)));
+  $def=str_replace(array("\n","\r")," ",$def);
+  $def=str_replace("  "," ",$def);
+  if (strlen($def)>MAX_DEF_LENGTH)
+  {
+    $def=substr($def,0,MAX_DEF_LENGTH)."...";
+  }
+  if ($def=="")
+  {
+    return False;
+  }
+  else
+  {
+    privmsg("[stoacademy] $msg: ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
     return True;
   }
 }

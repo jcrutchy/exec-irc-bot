@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 7-june-2014
+# 9-june-2014
 
 # irciv_lib.php
 
@@ -13,8 +13,6 @@ require_once("lib.php");
 define("GAME_VERSION","0.0");
 
 define("BUCKET_PREFIX","IRCiv_");
-
-define("IRCIV_DATA_FILE","../data/irciv_data");
 
 define("TERRAIN_OCEAN","O");
 define("TERRAIN_LAND","L");
@@ -82,22 +80,6 @@ function irciv_unset_bucket($suffix)
 function map_coord($cols,$x,$y)
 {
   return ($x+$y*$cols);
-}
-
-#####################################################################################################
-
-function map_zip($coords)
-{
-  # replace consecutive characters with one character followed by the number of repetitions
-  # or maybe use gzcompress but escape the control characters (prolly easier)
-  return $coords;
-}
-
-#####################################################################################################
-
-function map_unzip($coords)
-{
-  return $coords;
 }
 
 #####################################################################################################
@@ -455,33 +437,42 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
 
 #####################################################################################################
 
-function irciv_save_data()
+function irciv_save_data() # TODO
 {
+  global $game_chans;
   irciv_term_echo("saving IRCiv data...");
   $players=irciv_get_bucket("players");
-  $map_coords=irciv_get_bucket("map_coords");
-  $map_data=irciv_get_bucket("map_data");
-  if (file_put_contents(IRCIV_DATA_FILE,$players."\n".$map_coords."\n".$map_data)===False)
+  for ($i=0;$i<count($game_chans);$i++)
   {
-    irciv_err("IRCiv data not saved");
-    return;
+    $map_coords=irciv_get_bucket("map_coords");
+    $map_data=irciv_get_bucket("map_data");
+    if (file_put_contents(IRCIV_DATA_FILE,$players."\n".$map_coords."\n".$map_data)===False)
+    {
+      irciv_err("IRCiv data not saved");
+      return;
+    }
   }
   irciv_term_echo("IRCiv data saved");
 }
 
 #####################################################################################################
 
-function irciv_load_data()
+function irciv_load_data() # TODO
 {
+  global $game_chans;
   irciv_term_echo("loading IRCiv data...");
-  if (file_exists(IRCIV_DATA_FILE)==True)
+  $players_file="../data/irciv_player_data";
+  if (file_exists($players_file)==True)
   {
-    $data=file_get_contents(IRCIV_DATA_FILE);
+    $data=file_get_contents($players_file);
+    irciv_set_bucket("players",$players);
+
     $lines=explode("\n",$data);
     $players=$lines[0];
+    $irciv_game_chans=unserialize(get_bucket("IRCIV_GAME_CHANNELS"));
     $map_coords=$lines[1];
     $map_data=$lines[2];
-    irciv_set_bucket("players",$players);
+
     irciv_set_bucket("map_coords",$map_coords);
     irciv_set_bucket("map_data",$map_data);
   }

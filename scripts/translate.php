@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 5-june-2014
+# 8-june-2014
 
 #####################################################################################################
 
@@ -15,8 +15,10 @@ $alias=$argv[2];
 $parts=explode(" ",$trailing);
 if (count($parts)<2)
 {
-  privmsg("syntax: ~translate <from> <to> <msg>");
-  privmsg("eg (translate \"test\" from English to Spanish): ~translate en es test");
+  privmsg("syntax: ~translate <larget-lang> <msg>");
+  privmsg("eg (translate \"test\" from English to Spanish): ~translate es test");
+  privmsg("see also: ~translate-sl <source-lang> <larget-lang> <msg>");
+  privmsg("eg (translate \"test\" from Spanish to English): ~translate-sl es en prueba");
   return;
 }
 if ($alias=="~translate")

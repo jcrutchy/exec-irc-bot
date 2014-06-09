@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 20-may-2014
+# 9-june-2014
 
 # irciv_map.php
 
@@ -18,6 +18,15 @@ define("CMD_IMAGE","image");
 $nick=$argv[1];
 $trailing=$argv[2];
 $dest=$argv[3];
+
+if ($dest=="")
+{
+  irciv_term_echo("irciv_map: dest not set");
+}
+
+$data["cols"]=128;
+$data["rows"]=64;
+$coords=str_repeat(TERRAIN_OCEAN,$data["cols"]*$data["rows"]);
 
 $parts=explode(" ",$trailing);
 $cmd=$parts[0];
@@ -64,7 +73,6 @@ switch ($cmd)
     return;
 }
 
-$coords=map_zip($coords);
 $data=serialize($data);
 irciv_term_echo("coords: ".round(strlen($coords)/1024,1)."kb");
 irciv_set_bucket("map_coords",$coords);

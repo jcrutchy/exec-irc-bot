@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 2-june-2014
+# 9-june-2014
 
 #####################################################################################################
 
@@ -111,7 +111,18 @@ function sed($trailing,$nick,$dest)
     }
     if ($result<>"")
     {
-      privmsg("$sed_nick: $result");
+      if ($nick==$sed_nick)
+      {
+        privmsg("<$sed_nick> $result");
+      }
+      else
+      {
+        privmsg("<$nick> <$sed_nick> $result");
+      }
+    }
+    else
+    {
+      sed_help();
     }
   }
 }
