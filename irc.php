@@ -1220,7 +1220,7 @@ function get_source($items)
     return;
   }
   $source_file="https://".GITHUB_RAW_HOST.$uri;
-  $target_file=__DIR__."/".$trailing."_test";
+  $target_file=__DIR__."/".$trailing;
   if (file_put_contents($target_file,$response)===False)
   {
     privmsg($items["destination"],$items["nick"],"error writing file \"$target_file\"");
