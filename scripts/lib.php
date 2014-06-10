@@ -232,6 +232,21 @@ function strip_headers($response)
 
 #####################################################################################################
 
+function extract_tag($tag,&$html,$delete=False)
+{
+  # djgjjhjdgh<$tag>content</$tag>bhjasdfjhsjfbh
+}
+
+#####################################################################################################
+
+function convert_timestamp($value_str,$format)
+{
+  $ts_arr=date_parse_from_format($format,$value_str);
+  return mktime($ts_arr["hour"],$ts_arr["minute"],$ts_arr["second"],$ts_arr["month"],$ts_arr["day"],$ts_arr["year"]);
+}
+
+#####################################################################################################
+
 function replace_first($search,$replace,$subject)
 {
   $lsubject=strtolower($subject);

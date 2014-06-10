@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 6-june-2014
+# 10-june-2014
 
 # irc.php
 
@@ -57,6 +57,8 @@ define("CMD_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
 define("CMD_ADMIN_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
 define("CMD_ADMIN_BUCKETS_LIST","~buckets-list"); # output list of set bucket indexes to the terminal
 define("CMD_ADMIN_TOGGLE_MONITOR","~monitor");
+define("CMD_ADMIN_SOURCE_GET","~get-source");
+define("CMD_ADMIN_SOURCE_DEL","~del-source");
 define("CMD_LOCK","~lock");
 define("CMD_UNLOCK","~unlock");
 define("CMD_LIST","~list");
@@ -71,6 +73,9 @@ define("TEMPLATE_ALIAS","alias");
 define("TEMPLATE_DATA","data");
 define("TEMPLATE_CMD","cmd");
 define("TEMPLATE_PARAMS","params");
+
+define("GITHUB_RAW_HOST","raw.githubusercontent.com");
+define("GITHUB_RAW_URI","/crutchy-/test/master/");
 
 set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)
 ini_set("memory_limit","128M");
@@ -104,7 +109,9 @@ $admin_commands=array(
   CMD_ADMIN_BUCKETS_LOAD,
   CMD_ADMIN_BUCKETS_FLUSH,
   CMD_ADMIN_BUCKETS_LIST,
-  CMD_ADMIN_TOGGLE_MONITOR);
+  CMD_ADMIN_TOGGLE_MONITOR,
+  CMD_ADMIN_SOURCE_GET,
+  CMD_ADMIN_SOURCE_DEL);
 
 $exec_list=exec_load();
 if ($exec_list===False)
@@ -466,7 +473,10 @@ function handle_socket($socket)
   $data=fgets($socket);
   if ($data!==False)
   {
-    handle_data($data,True);
+    if (pingpong($data)==False)
+    {
+      handle_data($data,True);
+    }
   }
 }
 
@@ -508,7 +518,6 @@ function handle_data($data,$is_sock=False)
     {
       rawmsg(":".NICK." PRIVMSG ".CHANNEL_MONITOR." :>> $data\n",False);
     }
-    pingpong($data);
     if ($items["destination"]==CHANNEL_MONITOR)
     {
       return;
@@ -601,6 +610,11 @@ function handle_data($data,$is_sock=False)
         {
           process_scripts($items,ALIAS_QUIT);
         }
+        break;
+      case CMD_ADMIN_SOURCE_GET:
+        get_source($items);
+        break;
+      case CMD_ADMIN_SOURCE_DEL:
         break;
       case CMD_LIST:
         if (check_nick($items,CMD_LOCK)==True)
@@ -880,9 +894,11 @@ function pingpong($data)
   {
     if ($parts[0]=="PING")
     {
-      rawmsg("PONG ".$parts[1]);
+      rawmsg("PONG ".$parts[1],False);
+      return True;
     }
   }
+  return False;
 }
 
 #####################################################################################################
@@ -1164,6 +1180,53 @@ function process_timed_execs()
     {
       process_scripts($items);
     }
+  }
+}
+
+#####################################################################################################
+
+function get_source($items)
+{
+  $fp=fsockopen("ssl://".GITHUB_RAW_HOST,443);
+  if ($fp===False)
+  {
+    privmsg($items["destination"],$items["nick"],"error connecting to \"".GITHUB_RAW_HOST."\"");
+    return;
+  }
+  $trailing=$items["trailing"];
+  $parts=explode(" ",$trailing);
+  array_shift($parts);
+  $trailing=implode(" ",$parts);
+  $uri=GITHUB_RAW_URI.$trailing;
+  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: ".GITHUB_RAW_HOST."\r\nConnection: Close\r\n\r\n");
+  $response="";
+  while (!feof($fp))
+  {
+    $response=$response.fgets($fp,1024);
+  }
+  fclose($fp);
+  $delim="\r\n\r\n";
+  $i=strpos($response,$delim);
+  if ($i===False)
+  {
+    privmsg($items["destination"],$items["nick"],"headers not detected");
+    return;
+  }
+  $response=substr($response,$i+strlen($delim));
+  if ($response=="")
+  {
+    privmsg($items["destination"],$items["nick"],"source is empty");
+    return;
+  }
+  $source_file="https://".GITHUB_RAW_HOST.$uri;
+  $target_file=__DIR__."/".$trailing."_test";
+  if (file_put_contents($target_file,$response)===False)
+  {
+    privmsg($items["destination"],$items["nick"],"error writing file \"$target_file\"");
+  }
+  else
+  {
+    privmsg($items["destination"],$items["nick"],"successfully downloaded \"$source_file\" to \"$target_file\"");
   }
 }
 
