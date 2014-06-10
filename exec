@@ -68,6 +68,9 @@ karma|5|0|0|0|php scripts/comments.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~weather|10|0|0|1||php scripts/weather.php %%alias%% %%trailing%%
 ~weather-add|10|0|0|1||php scripts/weather.php %%alias%% %%trailing%%
 
+~help|5|0|0|0||php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~help-script|5|0|0|0||php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
+
 ~civ|120|0|0|1||php scripts/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
 ~civ-admin|120|0|0|1|crutchy|php scripts/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
 ~civ-map|300|0|0|1|crutchy|php scripts/irciv_map.php %%nick%% %%trailing%% %%dest%%

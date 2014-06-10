@@ -183,7 +183,7 @@ function get_list($items)
 function get_list_auth($items)
 {
   global $exec_list;
-  $msg="~q ~reload ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~monitor";
+  $msg="~q ~reload ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~monitor ~restart ~get-source ~del-source";
   privmsg($items["destination"],$items["nick"],$msg);
   $msg="";
   foreach ($exec_list as $alias => $data)
@@ -615,6 +615,7 @@ function handle_data($data,$is_sock=False)
         get_source($items);
         break;
       case CMD_ADMIN_SOURCE_DEL:
+        del_source($items);
         break;
       case CMD_LIST:
         if (check_nick($items,CMD_LOCK)==True)
@@ -1227,6 +1228,38 @@ function get_source($items)
   else
   {
     privmsg($items["destination"],$items["nick"],"successfully downloaded \"$source_file\" to \"$target_file\"");
+  }
+}
+
+#####################################################################################################
+
+function del_source($items)
+{
+  $protected=array("irc.php","exec","scripts","scripts/cmd.php","scripts/lib.php");
+  $trailing=$items["trailing"];
+  $parts=explode(" ",$trailing);
+  array_shift($parts);
+  $trailing=implode(" ",$parts);
+  if (in_array($trailing,$protected)==True)
+  {
+    privmsg($items["destination"],$items["nick"],"file \"$trailing\" is protected and cannot be deleted");
+    return;
+  }
+  $target_file=__DIR__."/".$trailing;
+  if (file_exists($target_file)==True)
+  {
+    if (unlink($target_file)==True)
+    {
+      privmsg($items["destination"],$items["nick"],"file \"$target_file\" successfully deleted");
+    }
+    else
+    {
+      privmsg($items["destination"],$items["nick"],"error deleting file \"$target_file\"");
+    }
+  }
+  else
+  {
+    privmsg($items["destination"],$items["nick"],"file \"$target_file\" not found");
   }
 }
 
