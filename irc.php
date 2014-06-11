@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 10-june-2014
+# 11-june-2014
 
 # irc.php
 
@@ -42,8 +42,6 @@ define("ALIAS_QUIT","<quit>");
 define("BUCKET_GET","BUCKET_GET");
 define("BUCKET_SET","BUCKET_SET");
 define("BUCKET_UNSET","BUCKET_UNSET");
-
-define("INTERNAL_COMMAND","INTERNAL"); # this command is used in a message to trigger scripts whilst bypassing IRC
 
 # internal command aliases (can also use in exec file with alias locking, but that would be just weird)
 define("CMD_ADMIN_QUIT","~q");
@@ -508,7 +506,6 @@ function handle_data($data,$is_sock=False)
   global $exec_list;
   global $monitor_enabled;
   global $throttle_flag;
-  global $monitor_enabled;
   echo $data;
   log_data($data);
   $items=parse_data($data);

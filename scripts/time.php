@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 27-may-2014
+# 11-june-2014
 
 ini_set("display_errors","on");
 require_once("lib.php");
@@ -38,7 +38,7 @@ if ($result<>"")
 else
 {
   privmsg("location not found - UTC timestamp: ".date("l, j F Y, h:i:s a"));
-  $delim1="</div><div style=\"display:none\" class=\"am-dropdown-menu\" role=\"menu\" tabindex=\"-1\"></div></div></div>";
+  /*$delim1="</div><div style=\"display:none\" class=\"am-dropdown-menu\" role=\"menu\" tabindex=\"-1\"></div></div></div>";
   $delim2="</div";
   $i=strpos($html,$delim1);
   if ($i!==False)
@@ -63,7 +63,7 @@ else
         {
           $result=trim(substr($result,0,strlen($result)-strlen($delim)));
         }
-        $result=trim(substr($result,0,500));
+        $result=trim(substr($result,0,400));
         $result=trim($result," ");
         if ($result<>"")
         {
@@ -71,7 +71,7 @@ else
         }
       }
     }
-  }
+  }*/
 }
 
 ?>

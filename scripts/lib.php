@@ -232,9 +232,29 @@ function strip_headers($response)
 
 #####################################################################################################
 
-function extract_tag($tag,&$html,$delete=False)
+function extract_tag($html,$tag)
 {
-  # djgjjhjdgh<$tag>content</$tag>bhjasdfjhsjfbh
+  $delim1="<$tag";
+  $delim2=">";
+  $delim3="</$tag>";
+  $i=strpos(strtolower($html),strtolower($delim1));
+  if ($i===False)
+  {
+    return False;
+  }
+  $html=substr($html,$i+strlen($delim1));
+  $i=strpos($html,$delim2);
+  if ($i===False)
+  {
+    return False;
+  }
+  $html=substr($html,$i+strlen($delim2));
+  $i=strpos(strtolower($html),strtolower($delim3));
+  if ($i===False)
+  {
+    return False;
+  }
+  return substr($html,0,$i);
 }
 
 #####################################################################################################

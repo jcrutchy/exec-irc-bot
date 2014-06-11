@@ -2,9 +2,12 @@
 
 # gpl2
 # by crutchy
-# 9-june-2014
+# 11-june-2014
 
 # definitions.php
+
+# http://api.urbandictionary.com/v0/define?term=shitton
+# thanks weirdpercent
 
 #####################################################################################################
 

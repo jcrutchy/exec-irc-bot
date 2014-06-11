@@ -33,6 +33,10 @@ if ($entries===False)
   privmsg("error parsing atom feed");
 }
 
+var_dump($entries);
+
+term_echo(extract_tag("blah<test blah>content</test>blah","test"));
+
 /*
 $delim1="<id>http://soylentnews.org/article.pl?sid=";
 $delim2="&amp;from=rss</id>";
@@ -125,13 +129,20 @@ ATOM
 
 function parse_atom($html)
 {
-  $entries=explode("<entry>",$html);
-  array_shift($entries);
-  for ($i=0;$i<count($entries);$i++)
+  $parts=explode("<entry>",$html);
+  array_shift($parts);
+  $entries=array();
+  for ($i=0;$i<count($parts);$i++)
   {
-    # <id>
-    # <title>
+    $entry=array();
+    $entry["id"]=extract_tag($parts[$i],"id");
+    if ($entry["id"]===False)
+    {
+      continue;
+    }
+    $entries[]=$entry;
   }
+  return $entries;
 }
 
 #####################################################################################################
