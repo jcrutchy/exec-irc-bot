@@ -135,6 +135,7 @@ switch ($cmd)
         }
       }
     }
+    sleep(3);
     unset_bucket($nick."_channel_list");
     break;
   #case "043": # Sent to the client when their nickname was forced to change due to a collision
