@@ -29,6 +29,7 @@ define("IGNORE_TIME",20); # seconds (flood control)
 define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
 define("CHANNEL_MONITOR","#exec");
+define("LOG_PATH","/var/www/irciv.us.to/exec_logs/");
 
 # stdout bot directives
 define("DIRECTIVE_QUIT","<<quit>>");
@@ -202,7 +203,7 @@ function get_list_auth($items)
 
 function log_data($data)
 {
-  $filename="../data/".date("Ymd",time()).".log";
+  $filename=LOG_PATH.date("Ymd",time()).".txt";
   $line="<<".date("Y-m-d H:i:s",microtime(True)).">> ".rtrim($data)."\n";
   file_put_contents($filename,$line,FILE_APPEND);
 }

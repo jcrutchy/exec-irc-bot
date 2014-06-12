@@ -1,8 +1,10 @@
 <?php
 
+define("MAPS_PATH","/var/include/vhosts/irciv.us.to/inc/maps");
+
 if ((isset($_POST["exec_key"])==True) and (isset($_FILES["image"])==True))
 {
-  $ref=file_get_contents(__DIR__."/exec_key");
+  $ref=file_get_contents("/var/include/vhosts/irciv.us.to/pwd/exec_key");
   if ($ref===False)
   {
     die("ERROR: UNABLE TO LOAD REFERENCE KEY");
@@ -15,7 +17,7 @@ if ((isset($_POST["exec_key"])==True) and (isset($_FILES["image"])==True))
   {
     die("ERROR: INVALID FILENAME");
   }
-  if (move_uploaded_file($_FILES["image"]["tmp_name"],__DIR__."/maps/".$_FILES["image"]["name"].".png")==False)
+  if (move_uploaded_file($_FILES["image"]["tmp_name"],MAPS_PATH."/".$_FILES["image"]["name"].".png")==False)
   {
     die("ERROR: UNABLE TO MOVE UPLOADED FILE");
   }
@@ -31,7 +33,7 @@ if (isset($_GET["img"])==True)
 {
   if (valid_filename($_GET["img"])==True)
   {
-    output_png_image(__DIR__."/maps/".$_GET["img"].".png");
+    output_png_image(MAPS_PATH."/".$_GET["img"].".png");
   }
   else
   {
@@ -54,7 +56,7 @@ if (isset($_GET["pid"])==True)
   if (is_numeric($_GET["pid"])==True)
   {
     $player_id=sprintf("%02d",$_GET["pid"]);
-    $dir=opendir(__DIR__."/maps");
+    $dir=opendir(MAPS_PATH);
     $last_timestamp=0;
     $last_filename="";
     while(($file=readdir($dir))!==False)

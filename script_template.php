@@ -2,14 +2,13 @@
 
 # gpl2
 # by crutchy
-# 29-may-2014
+# 12-june-2014
 
 #####################################################################################################
 
 ini_set("display_errors","on");
 require_once("lib.php");
 
-# alias|timeout|repeat|auto-privmsg|empty-trailing-allowed|php scripts/template.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%exec%% %%params%%
 $trailing=$argv[1];
 $dest=$argv[2];
 $nick=$argv[3];

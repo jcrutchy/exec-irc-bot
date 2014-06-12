@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 25-may-2014
+# 12-june-2014
 
 # wiki.php
 
@@ -43,7 +43,7 @@ if ($trailing=="logout")
 $cookie=get_bucket("wiki_login_cookie");
 if (($cookie=="") or ($trailing=="login"))
 {
-  $user_params=explode("\n",file_get_contents("../data/wiki.bot"));
+  $user_params=explode("\n",file_get_contents("../pwd/wiki.bot"));
   $params["lgname"]=$user_params[0];
   $params["lgpassword"]=$user_params[1];
   $response=wpost("wiki.soylentnews.org","/w/api.php?action=login&format=php",80,$user_agent,$params);
