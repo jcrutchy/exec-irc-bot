@@ -232,7 +232,7 @@ function strip_headers($response)
 
 #####################################################################################################
 
-function extract_tag($html,$tag)
+function extract_raw_tag($html,$tag)
 {
   $delim1="<$tag";
   $delim2=">";
@@ -255,6 +255,32 @@ function extract_tag($html,$tag)
     return False;
   }
   return substr($html,0,$i);
+}
+
+#####################################################################################################
+
+function extract_void_tag($html,$tag)
+{
+  $delim1="<$tag";
+  $delim2=">";
+  $i=strpos(strtolower($html),strtolower($delim1));
+  if ($i===False)
+  {
+    return False;
+  }
+  $html=substr($html,$i+strlen($delim1));
+
+  $i=strpos($html,$delim2);
+  if ($i===False)
+  {
+    return False;
+  }
+  $html=substr($html,0,$i);
+  if (substr($html,strlen($html)-1,1)=="/")
+  {
+    $html=substr($html,0,strlen($html)-1);
+  }
+  return trim($html);
 }
 
 #####################################################################################################
