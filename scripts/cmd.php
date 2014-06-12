@@ -108,7 +108,7 @@ switch ($cmd)
       unset_bucket(NICK_SEDBOT."_channel_list");
       # privmsg all channels that sedbot has left (from bucket) to indicate exec sed being enabled
     }
-    else
+    elseif ($nick<>NICK_EXEC)
     {
       $game_chans=get_bucket("IRCIV_GAME_CHANNELS");
       if ($game_chans!==False)
