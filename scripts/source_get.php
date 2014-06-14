@@ -21,7 +21,7 @@ function get_source($file,$nomsg=False)
   $target_dir="/var/include/vhosts/irciv.us.to/inc/";
   if ($file=="*")
   {
-    $fn="filelist.txt";
+    $fn=$target_dir."scripts/filelist.txt";
     if (file_exists($fn)==False)
     {
       privmsg("file \"$fn\" not found");
