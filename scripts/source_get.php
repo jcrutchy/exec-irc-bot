@@ -57,10 +57,12 @@ function get_source($file,$nomsg=False)
   $fp=fsockopen("ssl://".GITHUB_RAW_HOST,443);
   if ($fp===False)
   {
+    $msg="error connecting to \"".GITHUB_RAW_HOST."\"";
     if ($nomsg==False)
     {
-      privmsg("error connecting to \"".GITHUB_RAW_HOST."\"");
+      privmsg($msg);
     }
+    term_echo($msg);
     return False;
   }
   $uri=GITHUB_RAW_URI.$file;
@@ -75,45 +77,55 @@ function get_source($file,$nomsg=False)
   $i=strpos($response,$delim);
   if ($i===False)
   {
+    $msg="headers not detected";
     if ($nomsg==False)
     {
-      privmsg("headers not detected");
+      privmsg($msg);
     }
+    term_echo($msg);
     return False;
   }
   $response=substr($response,$i+strlen($delim));
   if ($response=="")
   {
+    $msg="source is empty";
     if ($nomsg==False)
     {
-      privmsg("source is empty");
+      privmsg($msg);
     }
+    term_echo($msg);
     return False;
   }
   $source_file="https://".GITHUB_RAW_HOST.$uri;
   if (strtolower(trim($response))=="not found")
   {
+    $msg="source not found";
     if ($nomsg==False)
     {
-      privmsg("source not found");
+      privmsg($msg);
     }
+    term_echo($msg);
     return False;
   }
   $target_file=$target_dir.$file;
   if (file_put_contents($target_file,$response)===False)
   {
+    $msg="error writing file \"$target_file\"";
     if ($nomsg==False)
     {
-      privmsg("error writing file \"$target_file\"");
+      privmsg($msg);
     }
+    term_echo($msg);
     return False;
   }
   else
   {
+    $msg="successfully downloaded \"$source_file\" to \"$target_file\"";
     if ($nomsg==False)
     {
-      privmsg("successfully downloaded \"$source_file\" to \"$target_file\"");
+      privmsg($msg);
     }
+    term_echo($msg);
     return True;
   }
 }
