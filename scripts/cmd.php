@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-june-2014
+# 14-june-2014
 
 #####################################################################################################
 
@@ -16,6 +16,7 @@ $data=$argv[3];
 $dest=$argv[4];
 $params=$argv[5];
 $nick=$argv[6];
+$alias=$argv[7];
 
 require_once("lib.php");
 
@@ -147,6 +148,7 @@ switch ($cmd)
     break;
   case "PRIVMSG":
     echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H $trailing\n"; # sed.php
+    echo ":$nick NOTICE $dest :~GE7JN4W9JBT5G7E1Q0AN7L9Z6F $trailing\n"; # stats.php
     #echo ":$nick NOTICE $dest :~HDIN48SH2M6H0XY4BJB4Y8XGF4 $trailing\n"; # bucket_vars.php
     #echo ":$nick NOTICE $dest :~JRB8D93MSCRQ92E4M1LE9BCX89 $trailing\n"; # grab.php
     #echo ":$nick NOTICE $dest :~TXVHG62M7CGR4K9SC5H6R1S29G $trailing\n"; # funnel.php
@@ -154,6 +156,9 @@ switch ($cmd)
   case "NOTICE":
     break;
   case "MODE":
+    break;
+  case "INVITE":
+
     break;
   case "PING":
     break;

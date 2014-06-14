@@ -3,7 +3,7 @@
 # %%trailing%% excludes alias
 
 # EXEC ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
-*|10|0|0|1||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
+*|10|0|0|1||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%% %%alias%%
 
 # EXEC BEFORE IRC CONNECTION - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 <init>|10|0|0|1||php scripts/init.php
@@ -23,7 +23,8 @@
 ~AUJ73HF839CHH2933HRJPA8N2H|5|0|0|0||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%cmd%%
 ~TXVHG62M7CGR4K9SC5H6R1S29G|5|0|0|0||php scripts/funnel.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
 #~JRB8D93MSCRQ92E4M1LE9BCX89|5|0|0|0||php scripts/grab.php %%trailing%% %%nick%%
-~HDIN48SH2M6H0XY4BJB4Y8XGF4|5|0|0|0||php scripts/bucket_vars.php %%trailing%% %%dest%%
+#~HDIN48SH2M6H0XY4BJB4Y8XGF4|5|0|0|0||php scripts/bucket_vars.php %%trailing%% %%dest%%
+~GE7JN4W9JBT5G7E1Q0AN7L9Z6F|5|0|0|0||php scripts/stats.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 # timer scripts
 ~UG4HO6EW9NBBE9CH51SOK6H8N3|5|360|0|1||php scripts/monitor.php %%trailing%% %%nick%% %%start%%
@@ -42,6 +43,7 @@ karma|5|0|0|0|php scripts/comments.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~php|5|0|0|0||php scripts/php.php %%trailing%%
 ~con/con|10|0|1|1||php scripts/bsod.php
 ~join|5|0|0|0||php scripts/join.php %%trailing%%
+~invite|5|0|0|0||php scripts/join.php %%trailing%%
 ~part|5|0|0|1||php scripts/part.php %%dest%% %%trailing%%
 ~isup|30|0|0|0||php scripts/isup.php %%trailing%%
 ~time|30|0|0|0||php scripts/time.php %%trailing%%
