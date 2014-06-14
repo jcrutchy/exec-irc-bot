@@ -30,6 +30,7 @@ define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
 define("CHANNEL_MONITOR","#exec");
 define("LOG_PATH","/var/www/irciv.us.to/exec_logs/");
+define("FILENAME_FILELIST","filelist.txt");
 
 # stdout bot directives
 define("DIRECTIVE_QUIT","<<quit>>");
@@ -1186,16 +1187,47 @@ function process_timed_execs()
 
 function get_source($items)
 {
+  $trailing=$items["trailing"];
+  $parts=explode(" ",$trailing);
+  $alias=$parts[0];
+  array_shift($parts);
+  $trailing=implode(" ",$parts);
+  if ($trailing=="*")
+  {
+    $fn=__DIR__."/".FILENAME_FILELIST;
+    if (file_exists($fn)==False)
+    {
+      privmsg($items["destination"],$items["nick"],"file \"$fn\" not found");
+      return;
+    }
+    $data=file_get_contents($fn);
+    if ($data===False)
+    {
+      privmsg($items["destination"],$items["nick"],"error reading file \"$fn\"");
+      return;
+    }
+    $lines=explode("\n",$data);
+    for ($i=0;$i<count($lines);$i++)
+    {
+      $line=trim($data[$i]);
+      if ($line=="")
+      {
+        continue;
+      }
+      if (substr($line,0,1)=="#")
+      {
+        continue;
+      }
+      $items["trailing"]=$alias." ".$line;
+      get_source($items);
+    }
+  }
   $fp=fsockopen("ssl://".GITHUB_RAW_HOST,443);
   if ($fp===False)
   {
     privmsg($items["destination"],$items["nick"],"error connecting to \"".GITHUB_RAW_HOST."\"");
     return;
   }
-  $trailing=$items["trailing"];
-  $parts=explode(" ",$trailing);
-  array_shift($parts);
-  $trailing=implode(" ",$parts);
   $uri=GITHUB_RAW_URI.$trailing;
   fwrite($fp,"GET $uri HTTP/1.0\r\nHost: ".GITHUB_RAW_HOST."\r\nConnection: Close\r\n\r\n");
   $response="";
