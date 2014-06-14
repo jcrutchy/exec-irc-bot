@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-june-2014
+# 14-june-2014
 
 #####################################################################################################
 
@@ -19,13 +19,13 @@ $data=$argv[7];
 $exec=$argv[8];
 $params=$argv[9];
 
-privmsg("hello world");
+/*privmsg("hello world");
 term_echo("message appears in terminal only");
 pm(NICK_EXEC,"message");
 err("show this message in terminal and die");
 $data=get_bucket("index");
 set_bucket("index",$data);
-wget($host,$uri,80);
+wget($host,$uri,80);*/
 
 #####################################################################################################
 

@@ -1,5 +1,0 @@
-# alias|timeout(sec)|repeat(sec)|auto-privmsg(1|0)|empty-trailing-allowed(1|0)|account1,account2,etc(or-empty)|cmd
-# available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%exec%%, %%params%%
-# %%trailing%% excludes alias
-
-~test-rss|15|0|0|1||php scripts/feeds.php %%trailing%% %%nick%% %%dest%%

@@ -1,6 +1,7 @@
 # alias|timeout(sec)|repeat(sec)|auto-privmsg(1|0)|empty-trailing-allowed(1|0)|account1,account2,etc(or-empty)|cmd
 # available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%exec%%, %%params%%
 # %%trailing%% excludes alias
+# aliases here must be all lower case letters
 
 # EXEC ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 *|10|0|0|1||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%% %%alias%%
@@ -20,15 +21,14 @@
 ~del-source|5|0|0|1|crutchy|php scripts/source_del.php %%trailing%%
 
 # called from other scripts via NOTICE cmd
-~AUJ73HF839CHH2933HRJPA8N2H|5|0|0|0||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%cmd%%
-~TXVHG62M7CGR4K9SC5H6R1S29G|5|0|0|0||php scripts/funnel.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
-#~JRB8D93MSCRQ92E4M1LE9BCX89|5|0|0|0||php scripts/grab.php %%trailing%% %%nick%%
-#~HDIN48SH2M6H0XY4BJB4Y8XGF4|5|0|0|0||php scripts/bucket_vars.php %%trailing%% %%dest%%
-~GE7JN4W9JBT5G7E1Q0AN7L9Z6F|5|0|0|0||php scripts/stats.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~sed_6705140699|5|0|0|0||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%cmd%%
+#~funnel_0341209204|5|0|0|0||php scripts/funnel.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
+#~grab_9103124086|5|0|0|0||php scripts/grab.php %%trailing%% %%nick%%
+#~bucket_vars_4540691864|5|0|0|0||php scripts/bucket_vars.php %%trailing%% %%dest%%
+#~stats_6423280149|5|0|0|0||php scripts/stats.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 # timer scripts
-~UG4HO6EW9NBBE9CH51SOK6H8N3|5|360|0|1||php scripts/monitor.php %%trailing%% %%nick%% %%start%%
-#~H5IG287BHWO9XNN76FJ10KJYN6|10|30|0|1||php scripts/feeds.php %%trailing%% %%nick%% %%dest%%
+#~feeds_5714869245|10|30|0|1||php scripts/feeds.php %%trailing%% %%nick%% %%dest%%
 ~test-rss|15|0|0|1|crutchy|php scripts/feeds.php %%trailing%% %%nick%% %%dest%%
 
 # NON-TILDE ALIASES

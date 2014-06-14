@@ -11,25 +11,30 @@
 
 #####################################################################################################
 
+# installation-specific settings
 define("NICK","exec");
 define("PASSWORD",file_get_contents("../pwd/".NICK));
-define("EXEC_FILE","exec.txt");
 define("BUCKETS_FILE","../data/buckets");
+define("EXEC_FILE","exec.txt");
+define("INIT_CHAN_LIST","#exec,#civ");
+define("LOG_PATH","/var/www/irciv.us.to/exec_logs/");
+define("IRC_HOST","irc.sylnt.us");
+define("IRC_PORT","6667");
+define("MEMORY_LIMIT","128M");
+
+$admin_accounts=array("crutchy");
+
+#####################################################################################################
+
 define("EXEC_DELIM","|");
 define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
-#define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#shell,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#pipedot,#rss-bot,#style");
-define("INIT_CHAN_LIST","#exec,#civ");
 define("MAX_MSG_LENGTH",800);
-define("IRC_HOST","irc.sylnt.us");
-#define("IRC_HOST","localhost");
-define("IRC_PORT","6667");
 define("IGNORE_TIME",20); # seconds (flood control)
 define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
 define("CHANNEL_MONITOR","#exec");
-define("LOG_PATH","/var/www/irciv.us.to/exec_logs/");
 
 # stdout bot directives
 define("DIRECTIVE_QUIT","<<quit>>");
@@ -72,7 +77,7 @@ define("TEMPLATE_CMD","cmd");
 define("TEMPLATE_PARAMS","params");
 
 set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)
-ini_set("memory_limit","128M");
+ini_set("memory_limit",MEMORY_LIMIT);
 ini_set("display_errors","on"); # output errors to stdout
 
 define("START_TIME",microtime(True)); # used for %%start%% template
@@ -83,11 +88,10 @@ $time_deltas=array(); # keeps track of how often nicks call an alias (used for f
 $buckets=array(); # common place for scripts to store stuff
 $dest_overrides=array(); # optionally stores a destination for each nick, which treats every privmsg by that nick as having the set destination
 
-$admin_accounts=array("crutchy");
 $admin_data="";
 $admin_nick="";
 
-$monitor_enabled=False;
+$monitor_enabled=True;
 
 $throttle_flag=False;
 $rawmsg_times=array();
@@ -570,7 +574,6 @@ function handle_data($data,$is_sock=False)
     if ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
     {
       dojoin(INIT_CHAN_LIST);
-      $monitor_enabled=True;
       return;
     }
     if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]=="You have 60 seconds to identify to your nickname before it is changed."))

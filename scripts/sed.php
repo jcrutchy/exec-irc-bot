@@ -14,14 +14,11 @@ $nick=$argv[2];
 $dest=$argv[3];
 $cmd=$argv[4];
 
-privmsg("doorsnoker");
-return;
-
-/*$sedbot_channels=get_bucket("SedBot_channel_list");
+$sedbot_channels=get_bucket("SedBot_channel_list");
 
 $parts=explode(" ",$trailing);
 
-if ($parts[0]=="AUJ73HF839CHH2933HRJPA8N2H")
+if ($parts[0]=="sed_6705140699")
 {
   if (count($parts)>1)
   {
@@ -161,5 +158,5 @@ function sed_help()
 }
 
 #####################################################################################################
-*/
+
 ?>

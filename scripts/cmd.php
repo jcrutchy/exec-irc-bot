@@ -109,7 +109,7 @@ switch ($cmd)
       $chans=get_bucket(NICK_SEDBOT."_channel_list");
       unset_bucket(NICK_SEDBOT."_channel_list");
       # privmsg all channels that sedbot has left (from bucket) to indicate exec sed being enabled
-      echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H AUJ73HF839CHH2933HRJPA8N2H $chans\n"; # sed.php
+      echo ":$nick NOTICE $dest :~sed_6705140699 sed_6705140699 $chans\n";
     }
     elseif ($nick<>NICK_EXEC)
     {
@@ -147,18 +147,17 @@ switch ($cmd)
     echo ":".NICK_EXEC." NOTICE :~civ rename $nick $trailing\n";
     break;
   case "PRIVMSG":
-    echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H $trailing\n"; # sed.php
-    echo ":$nick NOTICE $dest :~GE7JN4W9JBT5G7E1Q0AN7L9Z6F $trailing\n"; # stats.php
-    #echo ":$nick NOTICE $dest :~HDIN48SH2M6H0XY4BJB4Y8XGF4 $trailing\n"; # bucket_vars.php
-    #echo ":$nick NOTICE $dest :~JRB8D93MSCRQ92E4M1LE9BCX89 $trailing\n"; # grab.php
-    #echo ":$nick NOTICE $dest :~TXVHG62M7CGR4K9SC5H6R1S29G $trailing\n"; # funnel.php
+    echo ":$nick NOTICE $dest :~sed_6705140699 $trailing\n";
+    #echo ":$nick NOTICE $dest :~stats_6423280149 $trailing\n";
+    #echo ":$nick NOTICE $dest :~bucket_vars_4540691864 $trailing\n";
+    #echo ":$nick NOTICE $dest :~grab_9103124086 $trailing\n";
+    #echo ":$nick NOTICE $dest :~funnel_0341209204 $trailing\n";
     break;
   case "NOTICE":
     break;
   case "MODE":
     break;
   case "INVITE":
-
     break;
   case "PING":
     break;
@@ -189,7 +188,7 @@ switch ($cmd)
       if ($parts[1]==NICK_SEDBOT)
       {
         # privmsg all channels that sedbot has entered to indicate exec sed being disabled
-        echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H AUJ73HF839CHH2933HRJPA8N2H $chans\n"; # sed.php
+        echo ":$nick NOTICE $dest :~sed_6705140699 sed_6705140699 $chans\n";
       }
     }
     break;
