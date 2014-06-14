@@ -16,7 +16,7 @@
 ~bucket|5|0|0|1|crutchy|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 ~wiki|20|0|0|0|crutchy|php scripts/wiki.php %%trailing%% %%dest%% %%nick%%
 ~ping|5|0|0|1|crutchy|php scripts/ping.php
-~get-source|5|0|0|1|crutchy|php scripts/source_get.php %%trailing%%
+~get-source|30|0|0|1|crutchy|php scripts/source_get.php %%trailing%%
 ~del-source|5|0|0|1|crutchy|php scripts/source_del.php %%trailing%%
 
 # called from other scripts via NOTICE cmd
