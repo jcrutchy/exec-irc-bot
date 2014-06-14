@@ -11,10 +11,10 @@ require_once("lib.php");
 
 $trailing=$argv[1];
 
-get_source($trailing);
-
 define("GITHUB_RAW_HOST","raw.githubusercontent.com");
 define("GITHUB_RAW_URI","/crutchy-/test/master/");
+
+get_source($trailing);
 
 function get_source($file,$nomsg=False)
 {
