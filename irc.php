@@ -1225,8 +1225,8 @@ function get_source($items,$nomsg=False)
       {
         $n++;
       }
-      privmsg($items["destination"],$items["nick"],"$n files downloaded");
     }
+    privmsg($items["destination"],$items["nick"],"$n files downloaded");
     return;
   }
   $fp=fsockopen("ssl://".GITHUB_RAW_HOST,443);
