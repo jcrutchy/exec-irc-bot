@@ -5,8 +5,8 @@ irc_lt.php
 exec_lt.txt
 irc.php
 script_template.php
-filelist.txt
 
+scripts/filelist.txt
 scripts/about.php
 scripts/cmd.php
 scripts/grab.php
@@ -56,6 +56,8 @@ scripts/isup.php
 scripts/php.php
 scripts/smile.php
 scripts/weather.php
+scripts/source_get.php
+scripts/source_del.php
 
 scripts/images/city1.png
 scripts/images/city_flag.png
