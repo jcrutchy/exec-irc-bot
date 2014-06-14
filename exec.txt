@@ -12,7 +12,7 @@
 <quit>|10|0|0|1||php scripts/quit.php
 
 # REQUIRE ADMIN CHECK
-~say|2|0|1|0|crutchy|php scripts/say.php %%trailing%% %%nick%%
+~say|2|0|1|0|crutchy,chromas,monopoly|php scripts/say.php %%trailing%% %%nick%%
 ~bucket|5|0|0|1|crutchy|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 ~wiki|20|0|0|0|crutchy|php scripts/wiki.php %%trailing%% %%dest%% %%nick%%
 ~ping|5|0|0|1|crutchy|php scripts/ping.php
