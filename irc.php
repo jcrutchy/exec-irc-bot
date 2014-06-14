@@ -30,7 +30,6 @@ define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
 define("CHANNEL_MONITOR","#exec");
 define("LOG_PATH","/var/www/irciv.us.to/exec_logs/");
-define("FILENAME_FILELIST","filelist.txt");
 
 # stdout bot directives
 define("DIRECTIVE_QUIT","<<quit>>");
@@ -57,8 +56,6 @@ define("CMD_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
 define("CMD_ADMIN_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
 define("CMD_ADMIN_BUCKETS_LIST","~buckets-list"); # output list of set bucket indexes to the terminal
 define("CMD_ADMIN_TOGGLE_MONITOR","~monitor");
-define("CMD_ADMIN_SOURCE_GET","~get-source");
-define("CMD_ADMIN_SOURCE_DEL","~del-source");
 define("CMD_LOCK","~lock");
 define("CMD_UNLOCK","~unlock");
 define("CMD_LIST","~list");
@@ -109,9 +106,7 @@ $admin_commands=array(
   CMD_ADMIN_BUCKETS_LOAD,
   CMD_ADMIN_BUCKETS_FLUSH,
   CMD_ADMIN_BUCKETS_LIST,
-  CMD_ADMIN_TOGGLE_MONITOR,
-  CMD_ADMIN_SOURCE_GET,
-  CMD_ADMIN_SOURCE_DEL);
+  CMD_ADMIN_TOGGLE_MONITOR);
 
 $exec_list=exec_load();
 if ($exec_list===False)
@@ -183,7 +178,7 @@ function get_list($items)
 function get_list_auth($items)
 {
   global $exec_list;
-  $msg="~q ~reload ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~monitor ~restart ~get-source ~del-source";
+  $msg="~q ~reload ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~monitor ~restart";
   privmsg($items["destination"],$items["nick"],$msg);
   $msg="";
   foreach ($exec_list as $alias => $data)
@@ -609,12 +604,6 @@ function handle_data($data,$is_sock=False)
         {
           process_scripts($items,ALIAS_QUIT);
         }
-        break;
-      case CMD_ADMIN_SOURCE_GET:
-        get_source($items);
-        break;
-      case CMD_ADMIN_SOURCE_DEL:
-        del_source($items);
         break;
       case CMD_LIST:
         if (check_nick($items,CMD_LOCK)==True)
@@ -1181,147 +1170,6 @@ function process_timed_execs()
     {
       process_scripts($items);
     }
-  }
-}
-
-#####################################################################################################
-
-function get_source($items,$nomsg=False)
-{
-  $trailing=$items["trailing"];
-  $parts=explode(" ",$trailing);
-  $alias=$parts[0];
-  array_shift($parts);
-  $trailing=implode(" ",$parts);
-  if ($trailing=="*")
-  {
-    $fn=__DIR__."/".FILENAME_FILELIST;
-    if (file_exists($fn)==False)
-    {
-      privmsg($items["destination"],$items["nick"],"file \"$fn\" not found");
-      return;
-    }
-    $data=file_get_contents($fn);
-    if ($data===False)
-    {
-      privmsg($items["destination"],$items["nick"],"error reading file \"$fn\"");
-      return;
-    }
-    $lines=explode("\n",$data);
-    $n=0;
-    for ($i=0;$i<count($lines);$i++)
-    {
-      $line=trim($lines[$i]);
-      if ($line=="")
-      {
-        continue;
-      }
-      if (substr($line,0,1)=="#")
-      {
-        continue;
-      }
-      $items["trailing"]=$alias." ".$line;
-      if (get_source($items,True)==True)
-      {
-        $n++;
-      }
-    }
-    privmsg($items["destination"],$items["nick"],"$n files downloaded");
-    return;
-  }
-  $fp=fsockopen("ssl://".GITHUB_RAW_HOST,443);
-  if ($fp===False)
-  {
-    if ($nomsg==False)
-    {
-      privmsg($items["destination"],$items["nick"],"error connecting to \"".GITHUB_RAW_HOST."\"");
-    }
-    return False;
-  }
-  $uri=GITHUB_RAW_URI.$trailing;
-  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: ".GITHUB_RAW_HOST."\r\nConnection: Close\r\n\r\n");
-  $response="";
-  while (!feof($fp))
-  {
-    $response=$response.fgets($fp,1024);
-  }
-  fclose($fp);
-  $delim="\r\n\r\n";
-  $i=strpos($response,$delim);
-  if ($i===False)
-  {
-    if ($nomsg==False)
-    {
-      privmsg($items["destination"],$items["nick"],"headers not detected");
-    }
-    return False;
-  }
-  $response=substr($response,$i+strlen($delim));
-  if ($response=="")
-  {
-    if ($nomsg==False)
-    {
-      privmsg($items["destination"],$items["nick"],"source is empty");
-    }
-    return False;
-  }
-  $source_file="https://".GITHUB_RAW_HOST.$uri;
-  if (strtolower(trim($response))=="not found")
-  {
-    if ($nomsg==False)
-    {
-      privmsg($items["destination"],$items["nick"],"source not found");
-    }
-    return False;
-  }
-  $target_file=__DIR__."/".$trailing;
-  if (file_put_contents($target_file,$response)===False)
-  {
-    if ($nomsg==False)
-    {
-      privmsg($items["destination"],$items["nick"],"error writing file \"$target_file\"");
-    }
-    return False;
-  }
-  else
-  {
-    if ($nomsg==False)
-    {
-      privmsg($items["destination"],$items["nick"],"successfully downloaded \"$source_file\" to \"$target_file\"");
-    }
-    return True;
-  }
-}
-
-#####################################################################################################
-
-function del_source($items)
-{
-  $protected=array("irc.php","exec.txt","scripts","scripts/cmd.php","scripts/lib.php");
-  $trailing=$items["trailing"];
-  $parts=explode(" ",$trailing);
-  array_shift($parts);
-  $trailing=implode(" ",$parts);
-  if (in_array($trailing,$protected)==True)
-  {
-    privmsg($items["destination"],$items["nick"],"file \"$trailing\" is protected and cannot be deleted");
-    return;
-  }
-  $target_file=__DIR__."/".$trailing;
-  if (file_exists($target_file)==True)
-  {
-    if (unlink($target_file)==True)
-    {
-      privmsg($items["destination"],$items["nick"],"file \"$target_file\" successfully deleted");
-    }
-    else
-    {
-      privmsg($items["destination"],$items["nick"],"error deleting file \"$target_file\"");
-    }
-  }
-  else
-  {
-    privmsg($items["destination"],$items["nick"],"file \"$target_file\" not found");
   }
 }
 
