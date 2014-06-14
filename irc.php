@@ -1050,7 +1050,6 @@ function process_scripts($items,$reserved="")
     privmsg($destination,$nick,"alias \"$alias\" requires additional trailing argument");
     return;
   }
-  var_dump($items);
   $template=$exec_list[$alias]["cmd"];
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_TRAILING.TEMPLATE_DELIM,escapeshellarg($trailing),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_NICK.TEMPLATE_DELIM,escapeshellarg($nick),$template);
@@ -1069,6 +1068,8 @@ function process_scripts($items,$reserved="")
   {
     term_echo($command);
   }
+  term_echo($command);
+  var_dump($items);
   $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
   $start=microtime(True);
   $handles[]=array(
