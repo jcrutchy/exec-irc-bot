@@ -20,7 +20,7 @@ define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this,
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
 define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
 #define("INIT_CHAN_LIST","#civ,#soylent,##,#test,#*,#,#>,#shell,#~,#derp,#wiki,#sublight,#help,#exec,#1,#0,#/,#staff,#dev,#editorial,#frontend,#pipedot,#rss-bot,#style");
-define("INIT_CHAN_LIST","#test,#*,#exec,#civ,#soylent");
+define("INIT_CHAN_LIST","#exec,#civ");
 define("MAX_MSG_LENGTH",800);
 define("IRC_HOST","irc.sylnt.us");
 #define("IRC_HOST","localhost");
@@ -1006,7 +1006,6 @@ function process_scripts($items,$reserved="")
   global $handles;
   global $exec_list;
   global $alias_locks;
-  var_dump($items);
   $nick=trim($items["nick"]);
   $destination=trim($items["destination"]);
   $data=trim($items["data"]);
@@ -1051,6 +1050,7 @@ function process_scripts($items,$reserved="")
     privmsg($destination,$nick,"alias \"$alias\" requires additional trailing argument");
     return;
   }
+  var_dump($items);
   $template=$exec_list[$alias]["cmd"];
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_TRAILING.TEMPLATE_DELIM,escapeshellarg($trailing),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_NICK.TEMPLATE_DELIM,escapeshellarg($nick),$template);
