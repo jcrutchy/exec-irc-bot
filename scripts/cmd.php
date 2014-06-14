@@ -105,8 +105,10 @@ switch ($cmd)
   case "PART": # :crutchy!~crutchy@709-27-2-01.cust.aussiebb.net PART #Soylent :Leaving
     if ($nick==NICK_SEDBOT)
     {
+      $chans=get_bucket(NICK_SEDBOT."_channel_list");
       unset_bucket(NICK_SEDBOT."_channel_list");
       # privmsg all channels that sedbot has left (from bucket) to indicate exec sed being enabled
+      echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H AUJ73HF839CHH2933HRJPA8N2H $chans\n"; # sed.php
     }
     elseif ($nick<>NICK_EXEC)
     {
@@ -182,6 +184,7 @@ switch ($cmd)
       if ($parts[1]==NICK_SEDBOT)
       {
         # privmsg all channels that sedbot has entered to indicate exec sed being disabled
+        echo ":$nick NOTICE $dest :~AUJ73HF839CHH2933HRJPA8N2H AUJ73HF839CHH2933HRJPA8N2H $chans\n"; # sed.php
       }
     }
     break;

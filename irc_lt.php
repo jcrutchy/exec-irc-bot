@@ -9,7 +9,7 @@
 #####################################################################################################
 
 define("NICK","exec_lt");
-define("EXEC_FILE","exec_lt");
+define("EXEC_FILE","exec_lt.txt");
 define("EXEC_DELIM","|");
 define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)
 define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg

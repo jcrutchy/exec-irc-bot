@@ -45,6 +45,8 @@ if ($entries===False)
 
 term_echo("count: ".count($entries));
 
+# convert_timestamp($value_str,$format)
+
 #####################################################################################################
 
 function parse_atom($html)

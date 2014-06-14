@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 11-june-2014
+# 14-june-2014
 
 # irc.php
 
@@ -13,7 +13,7 @@
 
 define("NICK","exec");
 define("PASSWORD",file_get_contents("../pwd/".NICK));
-define("EXEC_FILE","exec");
+define("EXEC_FILE","exec.txt");
 define("BUCKETS_FILE","../data/buckets");
 define("EXEC_DELIM","|");
 define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 9-june-2014
+# 14-june-2014
 
 #####################################################################################################
 
@@ -15,12 +15,35 @@ $dest=$argv[3];
 $cmd=$argv[4];
 
 $sedbot_channels=get_bucket("SedBot_channel_list");
-if (strpos($sedbot_channels,$dest)===False)
+
+$parts=explode(" ",$trailing);
+
+if ($parts[0]=="AUJ73HF839CHH2933HRJPA8N2H")
 {
-  sed($trailing,$nick,$dest);
+  if (count($parts)>1)
+  {
+    $msg="exec sed disabled";
+    if ($sedbot_channels=="")
+    {
+      $msg="exec sed enabled";
+    }
+    for ($i=1;$i<count($parts);$i++)
+    {
+      pm($parts[$i],$msg);
+    }
+  }
+  return;
 }
-$index="last_".strtolower($nick)."_".$dest;
-set_bucket($index,$trailing);
+
+if ($nick<>NICK_EXEC)
+{
+  if (strpos($sedbot_channels,$dest)===False)
+  {
+    sed($trailing,$nick,$dest);
+  }
+  $index="last_".strtolower($nick)."_".$dest;
+  set_bucket($index,$trailing);
+}
 
 #####################################################################################################
 
