@@ -17,7 +17,7 @@ $cmd=$argv[4];
 privmsg("doorsnoker");
 return;
 
-$sedbot_channels=get_bucket("SedBot_channel_list");
+/*$sedbot_channels=get_bucket("SedBot_channel_list");
 
 $parts=explode(" ",$trailing);
 
@@ -161,5 +161,5 @@ function sed_help()
 }
 
 #####################################################################################################
-
+*/
 ?>

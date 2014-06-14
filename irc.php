@@ -1068,8 +1068,6 @@ function process_scripts($items,$reserved="")
   {
     term_echo($command);
   }
-  term_echo($command);
-  var_dump($items);
   $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
   $start=microtime(True);
   $handles[]=array(
