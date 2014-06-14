@@ -1233,7 +1233,7 @@ function get_source($items)
 
 function del_source($items)
 {
-  $protected=array("irc.php","exec","scripts","scripts/cmd.php","scripts/lib.php");
+  $protected=array("irc.php","exec.txt","scripts","scripts/cmd.php","scripts/lib.php");
   $trailing=$items["trailing"];
   $parts=explode(" ",$trailing);
   array_shift($parts);
