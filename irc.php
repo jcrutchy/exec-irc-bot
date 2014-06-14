@@ -906,6 +906,7 @@ function pingpong($data)
 function term_echo($msg)
 {
   echo "\033[31m$msg\033[0m\n";
+  log_data($msg);
 }
 
 #####################################################################################################
@@ -1209,7 +1210,7 @@ function get_source($items)
     $lines=explode("\n",$data);
     for ($i=0;$i<count($lines);$i++)
     {
-      $line=trim($data[$i]);
+      $line=trim($lines[$i]);
       if ($line=="")
       {
         continue;
@@ -1219,9 +1220,9 @@ function get_source($items)
         continue;
       }
       $items["trailing"]=$alias." ".$line;
-      term_echo($items["trailing"]);
-      //get_source($items);
+      get_source($items);
     }
+    return;
   }
   $fp=fsockopen("ssl://".GITHUB_RAW_HOST,443);
   if ($fp===False)
