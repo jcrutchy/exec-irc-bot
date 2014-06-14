@@ -13,6 +13,9 @@ $trailing=$argv[1];
 
 get_source($trailing);
 
+define("GITHUB_RAW_HOST","raw.githubusercontent.com");
+define("GITHUB_RAW_URI","/crutchy-/test/master/");
+
 function get_source($file,$nomsg=False)
 {
   $target_dir="/var/include/vhosts/irciv.us.to/inc/";

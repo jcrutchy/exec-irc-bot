@@ -71,9 +71,6 @@ define("TEMPLATE_DATA","data");
 define("TEMPLATE_CMD","cmd");
 define("TEMPLATE_PARAMS","params");
 
-define("GITHUB_RAW_HOST","raw.githubusercontent.com");
-define("GITHUB_RAW_URI","/crutchy-/test/master/");
-
 set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)
 ini_set("memory_limit","128M");
 ini_set("display_errors","on"); # output errors to stdout
