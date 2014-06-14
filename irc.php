@@ -1219,7 +1219,8 @@ function get_source($items)
         continue;
       }
       $items["trailing"]=$alias." ".$line;
-      get_source($items);
+      term_echo($items["trailing"]);
+      //get_source($items);
     }
   }
   $fp=fsockopen("ssl://".GITHUB_RAW_HOST,443);
@@ -1250,6 +1251,11 @@ function get_source($items)
     return;
   }
   $source_file="https://".GITHUB_RAW_HOST.$uri;
+  if (strtolower(trim($response))=="not found")
+  {
+    privmsg($items["destination"],$items["nick"],"source not found");
+    return;
+  }
   $target_file=__DIR__."/".$trailing;
   if (file_put_contents($target_file,$response)===False)
   {
