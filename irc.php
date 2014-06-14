@@ -769,7 +769,7 @@ function rawmsg($msg,$privmsg=True)
       term_echo("rawmsg function: socket data unread: ".$meta["unread_bytes"]." bytes");
     }
     $throttle_flag=False;
-    $flood_time=0.4; # sec
+    $flood_time=0.6; # sec
     $dt=$rawmsg_times[0]-$last;
     if ($dt<$flood_time)
     {
@@ -1186,7 +1186,7 @@ function process_timed_execs()
 
 #####################################################################################################
 
-function get_source($items)
+function get_source($items,$nomsg=False)
 {
   $trailing=$items["trailing"];
   $parts=explode(" ",$trailing);
@@ -1208,6 +1208,7 @@ function get_source($items)
       return;
     }
     $lines=explode("\n",$data);
+    $n=0;
     for ($i=0;$i<count($lines);$i++)
     {
       $line=trim($lines[$i]);
@@ -1220,15 +1221,22 @@ function get_source($items)
         continue;
       }
       $items["trailing"]=$alias." ".$line;
-      get_source($items);
+      if (get_source($items,True)==True)
+      {
+        $n++;
+      }
+      privmsg($items["destination"],$items["nick"],"$n files downloaded");
     }
     return;
   }
   $fp=fsockopen("ssl://".GITHUB_RAW_HOST,443);
   if ($fp===False)
   {
-    privmsg($items["destination"],$items["nick"],"error connecting to \"".GITHUB_RAW_HOST."\"");
-    return;
+    if ($nomsg==False)
+    {
+      privmsg($items["destination"],$items["nick"],"error connecting to \"".GITHUB_RAW_HOST."\"");
+    }
+    return False;
   }
   $uri=GITHUB_RAW_URI.$trailing;
   fwrite($fp,"GET $uri HTTP/1.0\r\nHost: ".GITHUB_RAW_HOST."\r\nConnection: Close\r\n\r\n");
@@ -1242,29 +1250,46 @@ function get_source($items)
   $i=strpos($response,$delim);
   if ($i===False)
   {
-    privmsg($items["destination"],$items["nick"],"headers not detected");
-    return;
+    if ($nomsg==False)
+    {
+      privmsg($items["destination"],$items["nick"],"headers not detected");
+    }
+    return False;
   }
   $response=substr($response,$i+strlen($delim));
   if ($response=="")
   {
-    privmsg($items["destination"],$items["nick"],"source is empty");
-    return;
+    if ($nomsg==False)
+    {
+      privmsg($items["destination"],$items["nick"],"source is empty");
+    }
+    return False;
   }
   $source_file="https://".GITHUB_RAW_HOST.$uri;
   if (strtolower(trim($response))=="not found")
   {
-    privmsg($items["destination"],$items["nick"],"source not found");
-    return;
+    if ($nomsg==False)
+    {
+      privmsg($items["destination"],$items["nick"],"source not found");
+    }
+    return False;
   }
   $target_file=__DIR__."/".$trailing;
   if (file_put_contents($target_file,$response)===False)
   {
-    privmsg($items["destination"],$items["nick"],"error writing file \"$target_file\"");
+    if ($nomsg==False)
+    {
+      privmsg($items["destination"],$items["nick"],"error writing file \"$target_file\"");
+    }
+    return False;
   }
   else
   {
-    privmsg($items["destination"],$items["nick"],"successfully downloaded \"$source_file\" to \"$target_file\"");
+    if ($nomsg==False)
+    {
+      privmsg($items["destination"],$items["nick"],"successfully downloaded \"$source_file\" to \"$target_file\"");
+    }
+    return True;
   }
 }
 
