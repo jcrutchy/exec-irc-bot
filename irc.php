@@ -1006,6 +1006,7 @@ function process_scripts($items,$reserved="")
   global $handles;
   global $exec_list;
   global $alias_locks;
+  var_dump($items);
   $nick=trim($items["nick"]);
   $destination=trim($items["destination"]);
   $data=trim($items["data"]);
