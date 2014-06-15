@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 14-june-2014
+# 15-june-2014
 
 # irc.php
 
@@ -12,13 +12,13 @@
 #####################################################################################################
 
 # installation-specific settings
-define("NICK","exec");
-define("PASSWORD",file_get_contents("../pwd/".NICK));
+define("NICK","_exec");
+define("PASSWORD",file_get_contents("../pwd/exec"));
 define("BUCKETS_FILE","../data/buckets");
-define("EXEC_FILE","exec.txt");
-define("INIT_CHAN_LIST","#exec,#civ");
-define("LOG_PATH","/var/www/irciv.us.to/exec_logs/");
-define("IRC_HOST","irc.sylnt.us");
+define("EXEC_FILE","exec_freenode.txt");
+define("INIT_CHAN_LIST","#botters");
+define("LOG_PATH","/var/www/irciv.us.to/exec_logs_freenode/");
+define("IRC_HOST","chat.freenode.net");
 define("IRC_PORT","6667");
 define("MEMORY_LIMIT","128M");
 
@@ -34,7 +34,7 @@ define("MAX_MSG_LENGTH",800);
 define("IGNORE_TIME",20); # seconds (flood control)
 define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
-define("CHANNEL_MONITOR","#exec");
+define("CHANNEL_MONITOR","#_exec");
 
 # stdout bot directives
 define("DIRECTIVE_QUIT","<<quit>>");
@@ -91,7 +91,7 @@ $dest_overrides=array(); # optionally stores a destination for each nick, which 
 $admin_data="";
 $admin_nick="";
 
-$monitor_enabled=True;
+$monitor_enabled=False;
 
 $throttle_flag=False;
 $rawmsg_times=array();
@@ -125,7 +125,7 @@ if ($socket===False)
 }
 stream_set_blocking($socket,0);
 rawmsg("NICK ".NICK);
-rawmsg("USER ".NICK." hostname servername :".NICK.".bot");
+rawmsg("USER execbot hostname servername :exec.bot");
 
 # main program loop
 while (True)
