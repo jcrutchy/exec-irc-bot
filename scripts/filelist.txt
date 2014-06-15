@@ -1,8 +1,6 @@
 # used by ~get-source *
 
 exec.txt
-irc_lt.php
-exec_lt.txt
 irc.php
 script_template.php
 
@@ -33,7 +31,6 @@ scripts/test.php
 scripts/blocks.php
 scripts/definitions.php
 scripts/help.php
-scripts/monitor.php
 scripts/recurse.php
 scripts/time.php
 scripts/bsod.php
