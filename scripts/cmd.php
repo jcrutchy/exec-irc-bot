@@ -20,6 +20,13 @@ $alias=$argv[7];
 
 require_once("lib.php");
 
+$chans=get_bucket(NICK_SEDBOT."_channel_list");
+if ($chans=="")
+{
+  echo "IRC_RAW WHOIS ".NICK_SEDBOT."\n";
+  sleep(1);
+}
+
 switch ($cmd)
 {
   case "330": # is logged in as

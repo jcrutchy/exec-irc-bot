@@ -34,6 +34,7 @@ function get_source($file,$nomsg=False)
       return;
     }
     $lines=explode("\n",$data);
+    $m=0;
     $n=0;
     for ($i=0;$i<count($lines);$i++)
     {
@@ -50,8 +51,12 @@ function get_source($file,$nomsg=False)
       {
         $n++;
       }
+      else
+      {
+        $m++;
+      }
     }
-    privmsg("$n files downloaded");
+    privmsg("$n files successfully downloaded. $m failed");
     return;
   }
   $fp=fsockopen("ssl://".GITHUB_RAW_HOST,443);
@@ -73,11 +78,12 @@ function get_source($file,$nomsg=False)
     $response=$response.fgets($fp,1024);
   }
   fclose($fp);
+  $source_file="https://".GITHUB_RAW_HOST.$uri;
   $delim="\r\n\r\n";
   $i=strpos($response,$delim);
   if ($i===False)
   {
-    $msg="headers not detected";
+    $msg="headers not detected in source file \"$source_file\"";
     if ($nomsg==False)
     {
       privmsg($msg);
@@ -88,7 +94,7 @@ function get_source($file,$nomsg=False)
   $response=substr($response,$i+strlen($delim));
   if ($response=="")
   {
-    $msg="source is empty";
+    $msg="source file \"$source_file\" is empty";
     if ($nomsg==False)
     {
       privmsg($msg);
@@ -96,8 +102,7 @@ function get_source($file,$nomsg=False)
     term_echo($msg);
     return False;
   }
-  $source_file="https://".GITHUB_RAW_HOST.$uri;
-  if (strtolower(trim($response))=="not found")
+  if (strtolower(trim($response))=="source file \"$source_file\" not found")
   {
     $msg="source not found";
     if ($nomsg==False)
