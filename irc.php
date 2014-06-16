@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 14-june-2014
+# 15-june-2014
 
 # irc.php
 
@@ -16,7 +16,7 @@ define("NICK","exec");
 define("PASSWORD",file_get_contents("../pwd/".NICK));
 define("BUCKETS_FILE","../data/buckets");
 define("EXEC_FILE","exec.txt");
-define("INIT_CHAN_LIST","#exec,#civ");
+define("INIT_CHAN_LIST","#exec,#");
 define("LOG_PATH","/var/www/irciv.us.to/exec_logs/");
 define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6667");
@@ -91,7 +91,7 @@ $dest_overrides=array(); # optionally stores a destination for each nick, which 
 $admin_data="";
 $admin_nick="";
 
-$monitor_enabled=True;
+$monitor_enabled=False;
 
 $throttle_flag=False;
 $rawmsg_times=array();

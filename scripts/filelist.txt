@@ -4,6 +4,11 @@ exec.txt
 irc.php
 script_template.php
 
+website/favicon.ico
+website/index.inc
+website/irciv.png
+website/template
+
 scripts/filelist.txt
 scripts/about.php
 scripts/cmd.php

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 14-june-2014
+# 16-june-2014
 
 #####################################################################################################
 
@@ -19,13 +19,6 @@ $nick=$argv[6];
 $alias=$argv[7];
 
 require_once("lib.php");
-
-$chans=get_bucket(NICK_SEDBOT."_channel_list");
-if ($chans=="")
-{
-  echo "IRC_RAW WHOIS ".NICK_SEDBOT."\n";
-  sleep(1);
-}
 
 switch ($cmd)
 {
@@ -55,6 +48,12 @@ switch ($cmd)
     $parts=explode("=",$params);
     if (count($parts)==2)
     {
+      $chans=get_bucket(NICK_SEDBOT."_channel_list");
+      if ($chans=="")
+      {
+        echo "IRC_RAW WHOIS ".NICK_SEDBOT."\n";
+        sleep(1);
+      }
       $game_chans=get_bucket("IRCIV_GAME_CHANNELS");
       if ((trim($parts[0])==NICK_EXEC) and ($game_chans!==False))
       {
@@ -164,7 +163,8 @@ switch ($cmd)
     break;
   case "MODE":
     break;
-  case "INVITE":
+  case "INVITE": # :crutchy!~crutchy@709-27-2-01.cust.aussiebb.net INVITE exec :#0
+    echo "IRC_RAW JOIN $trailing\n";
     break;
   case "PING":
     break;

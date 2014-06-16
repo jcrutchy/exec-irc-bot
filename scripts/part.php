@@ -2,9 +2,9 @@
 
 # gpl2
 # by crutchy
-# 14-june-2014
+# 15-june-2014
 
-$locked_chans=array("#exec");
+$locked_chans=array("#exec","#");
 
 if (in_array(strtolower($argv[1]),$locked_chans)==True)
 {
