@@ -32,8 +32,8 @@
 ~test-rss|15|0|0|1|crutchy|php scripts/feeds.php %%trailing%% %%nick%% %%dest%%
 
 # NON-TILDE ALIASES
-rofl|5|0|1|1||fortune -s -o
-karma|5|0|0|0|php scripts/comments.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~rofl|5|0|1|1||fortune -s -o
+~karma|5|0|0|0|php scripts/comments.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 # GENERAL USAGE ALIASES
 exec|5|0|1|1||php scripts/about.php %%trailing%%
