@@ -36,6 +36,7 @@
 ~karma|5|0|0|0|php scripts/comments.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 # GENERAL USAGE ALIASES
+~stats-lines|120|0|0|1||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec|5|0|1|1||php scripts/about.php %%trailing%%
 ~|5|0|1|1||php scripts/about.php %%trailing%%
 ~cowsay|10|0|1|0||cowsay %%trailing%%
