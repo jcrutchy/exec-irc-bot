@@ -38,6 +38,7 @@
 # GENERAL USAGE ALIASES
 ~stats-lines|120|0|0|1||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec|5|0|1|1||php scripts/about.php %%trailing%%
+~bewbs|5|0|1|1||php scripts/bewbs.php
 ~|5|0|1|1||php scripts/about.php %%trailing%%
 ~cowsay|10|0|1|0||cowsay %%trailing%%
 ~moo|10|0|1|1||apt-get moo
