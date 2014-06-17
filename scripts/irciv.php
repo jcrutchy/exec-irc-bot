@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 5-june-2014
+# 17-june-2014
 
 # irciv.php
 
@@ -42,6 +42,7 @@ define("ACTION_ADMIN_PART","part");
 
 define("MIN_CITY_SPACING",3);
 
+# d=defense,a=attack,l=land,s=sea,a=air
 # dl,ds,da,al,as,aa
 $unit_strengths["settler"]="2,0,0,0,0,0";
 $unit_strengths["warrior"]="1,0,0,1,0,0";

@@ -83,9 +83,9 @@ switch ($cmd)
     if ($nick==NICK_EXEC)
     {
       $irciv_game_chans=unserialize(get_bucket("IRCIV_GAME_CHANNELS"));
-      for ($i=0;$i<count($irciv_game_chans);$i++)
+      if (in_array($trailing,$irciv_game_chans)==True)
       {
-        echo ":".NICK_EXEC." NOTICE ".$irciv_game_chans[$i]." :~civ-map generate\n";
+        echo ":".NICK_EXEC." NOTICE $trailing :~civ-map generate\n";
       }
     }
     elseif ($nick==NICK_SEDBOT)
