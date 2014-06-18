@@ -36,7 +36,9 @@
 ~karma|5|0|0|0|php scripts/comments.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 # GENERAL USAGE ALIASES
-~stats-lines|120|0|0|1||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~stats-lines|600|0|0|1||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~stats-first|600|0|0|1||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+# the following 'exec' alias is being called unintentionally during startup
 exec|5|0|1|1||php scripts/about.php %%trailing%%
 ~bewbs|5|0|1|1||php scripts/bewbs.php
 ~|5|0|1|1||php scripts/about.php %%trailing%%

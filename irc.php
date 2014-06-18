@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 15-june-2014
+# 18-june-2014
 
 # irc.php
 
@@ -19,7 +19,7 @@ define("EXEC_FILE","exec.txt");
 define("INIT_CHAN_LIST","#exec,#");
 define("LOG_PATH","/var/www/irciv.us.to/exec_logs/");
 define("IRC_HOST","irc.sylnt.us");
-define("IRC_PORT","6667");
+define("IRC_PORT","6697");
 define("MEMORY_LIMIT","128M");
 
 $admin_accounts=array("crutchy");
@@ -117,7 +117,14 @@ if ($exec_list===False)
 }
 
 init();
-$socket=fsockopen(IRC_HOST,IRC_PORT);
+if (IRC_PORT=="6697")
+{
+  $socket=fsockopen("ssl://".IRC_HOST,IRC_PORT);
+}
+else
+{
+  $socket=fsockopen(IRC_HOST,IRC_PORT);
+}
 if ($socket===False)
 {
   term_echo("ERROR CREATING IRC SOCKET");
