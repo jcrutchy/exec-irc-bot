@@ -218,11 +218,10 @@ logout();
 
 function logout()
 {
-  global $host;
-  global $uri;
-  global $port;
   global $agent;
+  $host="soylentnews.org";
   $uri="/my/logout";
+  $port=80;
   wget($host,$uri,$port,$agent);
   die();
 }
