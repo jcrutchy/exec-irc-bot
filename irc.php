@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 18-june-2014
+# 20-june-2014
 
 # irc.php
 
@@ -13,7 +13,7 @@
 
 # installation-specific settings
 define("NICK","exec");
-define("PASSWORD",file_get_contents("../pwd/".NICK));
+define("PASSWORD",trim(file_get_contents("../pwd/".NICK)));
 define("BUCKETS_FILE","../data/buckets");
 define("EXEC_FILE","exec.txt");
 define("INIT_CHAN_LIST","#exec,#");
@@ -207,7 +207,7 @@ function get_list_auth($items)
 function log_data($data)
 {
   $filename=LOG_PATH.date("Ymd",time()).".txt";
-  $line="<<".date("Y-m-d H:i:s",microtime(True)).">> ".rtrim($data)."\n";
+  $line="<<".date("Y-m-d H:i:s",microtime(True)).">> ".trim($data,"\n\r\0\x0B")."\n";
   file_put_contents($filename,$line,FILE_APPEND);
 }
 
@@ -915,7 +915,7 @@ function parse_data($data)
   {
     return False;
   }
-  $sub=trim($data);
+  $sub=trim($data,"\n\r\0\x0B");
   $result["microtime"]=microtime(True);
   $result["time"]=date("Y-m-d H:i:s",$result["microtime"]);
   $result["data"]=$sub;
@@ -935,7 +935,7 @@ function parse_data($data)
   $i=strpos($sub," :");
   if ($i!==False) # trailing found
   {
-    $result["trailing"]=trim(substr($sub,$i+2));
+    $result["trailing"]=substr($sub,$i+2);
     $sub=substr($sub,0,$i);
   }
   $i=strpos($sub," ");
@@ -1018,7 +1018,7 @@ function process_scripts($items,$reserved="")
   global $alias_locks;
   $nick=trim($items["nick"]);
   $destination=trim($items["destination"]);
-  $data=trim($items["data"]);
+  $data=$items["data"];
   $cmd=trim($items["cmd"]);
   $trailing=$items["trailing"];
   if ($reserved=="")
@@ -1036,7 +1036,7 @@ function process_scripts($items,$reserved="")
         return;
       }
       array_shift($parts);
-      $trailing=trim(implode(" ",$parts));
+      $trailing=implode(" ",$parts);
     }
     if (($alias==ALIAS_ALL) or ($alias==ALIAS_INIT) or ($alias==ALIAS_QUIT))
     {

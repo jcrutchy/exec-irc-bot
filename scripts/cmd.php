@@ -2,11 +2,13 @@
 
 # gpl2
 # by crutchy
-# 16-june-2014
+# 20-june-2014
 
 #####################################################################################################
 
 define("NICK_SEDBOT","SedBot");
+define("NICK_BENDER","Bender");
+define("ACCOUNT_BENDER","deadpork");
 
 ini_set("display_errors","on");
 
@@ -30,6 +32,11 @@ switch ($cmd)
       $account=$parts[2];
       if ($nick<>NICK_EXEC)
       {
+        if ($account==ACCOUNT_BENDER)
+        {
+          set_bucket("BENDER_LAST_FEED_MESSAGE_VERIFIED",get_bucket("BENDER_LAST_FEED_MESSAGE"));
+          break;
+        }
         $player_channel_list=explode(" ",get_bucket($nick."_channel_list"));
         $irciv_game_chans=unserialize(get_bucket("IRCIV_GAME_CHANNELS"));
         for ($i=0;$i<count($irciv_game_chans);$i++)
@@ -158,6 +165,15 @@ switch ($cmd)
     #echo ":$nick NOTICE $dest :~bucket_vars_4540691864 $trailing\n";
     #echo ":$nick NOTICE $dest :~grab_9103124086 $trailing\n";
     #echo ":$nick NOTICE $dest :~funnel_0341209204 $trailing\n";
+    if ($nick==NICK_BENDER)
+    {
+      $delim="[SoylentNews] - ";
+      if (substr($trailing,0,strlen($delim))==$delim)
+      {
+        set_bucket("BENDER_LAST_FEED_MESSAGE",$trailing);
+        echo "IRC_RAW WHOIS $nick\n";
+      }
+    }
     break;
   case "NOTICE":
     break;

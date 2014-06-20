@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 4-june-2014
+# 20-june-2014
 
 # lib.php
 
@@ -134,37 +134,44 @@ function wtouch($host,$uri,$port)
 
 #####################################################################################################
 
-function wget($host,$uri,$port)
+function wget_ssl($host,$uri,$agent="",$extra_headers="")
 {
-  $fp=fsockopen($host,$port);
-  if ($fp===False)
-  {
-    $msg="Error connecting to \"$host\".";
-    term_echo($msg);
-    return $msg;
-  }
-  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
-  $response="";
-  while (!feof($fp))
-  {
-    $response=$response.fgets($fp,1024);
-  }
-  fclose($fp);
-  return $response;
+  return wget($host,$uri,443,$agent,$extra_headers);
 }
 
 #####################################################################################################
 
-function wget_ssl($host,$uri)
+function wget($host,$uri,$port=80,$agent="",$extra_headers="")
 {
-  $fp=fsockopen("ssl://$host",443);
+  if ($port==443)
+  {
+    $fp=fsockopen("ssl://$host",443);
+  }
+  else
+  {
+    $fp=fsockopen($host,$port);
+  }
   if ($fp===False)
   {
     $msg="Error connecting to \"$host\".";
     term_echo($msg);
     return $msg;
   }
-  fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
+  $headers="GET $uri HTTP/1.0\r\n";
+  $headers=$headers."Host: $host\r\n";
+  if ($agent<>"")
+  {
+    $headers=$headers."User-Agent: $agent\r\n";
+  }
+  if ($extra_headers<>"")
+  {
+    foreach ($extra_headers as $key => $value)
+    {
+      $headers=$headers.$key.": ".$value."\r\n";
+    }
+  }
+  $headers=$headers."Connection: Close\r\n\r\n";
+  fwrite($fp,$headers);
   $response="";
   while (!feof($fp))
   {
@@ -178,7 +185,14 @@ function wget_ssl($host,$uri)
 
 function wpost($host,$uri,$port,$agent,$params,$extra_headers="")
 {
-  $fp=fsockopen($host,$port);
+  if ($port==443)
+  {
+    $fp=fsockopen("ssl://$host",443);
+  }
+  else
+  {
+    $fp=fsockopen($host,$port);
+  }
   if ($fp===False)
   {
     term_echo("Error connecting to \"$host\".");
@@ -395,6 +409,31 @@ function exec_get_header($response,$header)
       }
     }
   }
+}
+
+#####################################################################################################
+
+function exec_get_cookies($response)
+{
+  $header="Set-Cookie";
+  $values=array();
+  $lines=explode("\n",exec_get_headers($response));
+  for ($i=0;$i<count($lines);$i++)
+  {
+    $line=trim($lines[$i]);
+    $parts=explode(":",$line);
+    if (count($parts)>=2)
+    {
+      $key=trim($parts[0]);
+      array_shift($parts);
+      $value=trim(implode(":",$parts));
+      if (strtolower($key)==strtolower($header))
+      {
+        $values[]=$value;
+      }
+    }
+  }
+  return $values;
 }
 
 #####################################################################################################
