@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 20-june-2014
+# 21-june-2014
 
 #####################################################################################################
 
@@ -20,7 +20,7 @@ $params=$argv[5];
 $nick=$argv[6];
 $alias=$argv[7];
 
-require_once("lib.php");
+require_once("irciv_lib.php"); # also requires lib.php
 
 switch ($cmd)
 {
@@ -38,10 +38,9 @@ switch ($cmd)
           break;
         }
         $player_channel_list=explode(" ",get_bucket($nick."_channel_list"));
-        $irciv_game_chans=unserialize(get_bucket("IRCIV_GAME_CHANNELS"));
-        for ($i=0;$i<count($irciv_game_chans);$i++)
+        for ($i=0;$i<count($game_chans);$i++)
         {
-          if (in_array($irciv_game_chans[$i],$player_channel_list)==True)
+          if (in_array($game_chans[$i],$player_channel_list)==True)
           {
             echo ":".NICK_EXEC." NOTICE :~civ login $nick $account\n";
             break;
@@ -61,11 +60,9 @@ switch ($cmd)
         echo "IRC_RAW WHOIS ".NICK_SEDBOT."\n";
         sleep(1);
       }
-      $game_chans=get_bucket("IRCIV_GAME_CHANNELS");
-      if ((trim($parts[0])==NICK_EXEC) and ($game_chans!==False))
+      if (trim($parts[0])==NICK_EXEC)
       {
-        $irciv_game_chans=unserialize($game_chans);
-        if (in_array(trim($parts[1]),$irciv_game_chans)==True)
+        if (in_array(trim($parts[1]),$game_chans)==True)
         {
           $names=explode(" ",$trailing);
           for ($i=0;$i<count($names);$i++)
@@ -89,8 +86,10 @@ switch ($cmd)
   case "JOIN": # :SedBot!~SedBot@github.com/FoobarBazbot/sedbot JOIN #Soylent
     if ($nick==NICK_EXEC)
     {
-      $irciv_game_chans=unserialize(get_bucket("IRCIV_GAME_CHANNELS"));
-      if (in_array($trailing,$irciv_game_chans)==True)
+
+      #$chans=get_bucket(NICK_EXEC."_channel_list"); # TODO
+
+      if (in_array($trailing,$game_chans)==True)
       {
         echo ":".NICK_EXEC." NOTICE $trailing :~civ-map generate\n";
       }
@@ -102,14 +101,9 @@ switch ($cmd)
     else
     {
       # do a whois if $dest is a game channel
-      $game_chans=get_bucket("IRCIV_GAME_CHANNELS");
-      if ($game_chans!==False)
+      if (in_array($dest,$game_chans)==True)
       {
-        $irciv_game_chans=unserialize($game_chans);
-        if (in_array($dest,$irciv_game_chans)==True)
-        {
-          echo "IRC_RAW WHOIS $nick\n";
-        }
+        echo "IRC_RAW WHOIS $nick\n";
       }
     }
     break;
@@ -121,32 +115,31 @@ switch ($cmd)
     {
       $chans=get_bucket(NICK_SEDBOT."_channel_list");
       unset_bucket(NICK_SEDBOT."_channel_list");
-      # privmsg all channels that sedbot has left (from bucket) to indicate exec sed being enabled
-      echo ":$nick NOTICE $dest :~sed_6705140699 sed_6705140699 $chans\n";
+      # privmsg sedbot channels that exec sed is being enabled
+      $chans=explode(" ",$chans);
+      for ($i=0;$i<count($chans);$i++)
+      {
+        echo "IRC_RAW :".NICK_EXEC." PRIVMSG ".$chans[$i]." :exec sed enabled\n";
+      }
     }
     elseif ($nick<>NICK_EXEC)
     {
-      $game_chans=get_bucket("IRCIV_GAME_CHANNELS");
-      if ($game_chans!==False)
+      if ($dest<>"")
       {
-        $irciv_game_chans=unserialize($game_chans);
-        if ($dest<>"")
+        if (in_array($dest,$game_chans)==True)
         {
-          if (in_array($dest,$irciv_game_chans)==True)
+          echo ":".NICK_EXEC." NOTICE :~civ logout $nick\n";
+        }
+      }
+      else
+      {
+        $player_channel_list=explode(" ",get_bucket($nick."_channel_list"));
+        for ($i=0;$i<count($game_chans);$i++)
+        {
+          if (in_array($game_chans[$i],$player_channel_list)==True)
           {
             echo ":".NICK_EXEC." NOTICE :~civ logout $nick\n";
-          }
-        }
-        else
-        {
-          $player_channel_list=explode(" ",get_bucket($nick."_channel_list"));
-          for ($i=0;$i<count($irciv_game_chans);$i++)
-          {
-            if (in_array($irciv_game_chans[$i],$player_channel_list)==True)
-            {
-              echo ":".NICK_EXEC." NOTICE :~civ logout $nick\n";
-              break;
-            }
+            break;
           }
         }
       }
@@ -156,8 +149,19 @@ switch ($cmd)
     break;
   #case "043": # Sent to the client when their nickname was forced to change due to a collision
   #case "436": # Returned by a server to a client when it detects a nickname collision
-  case "NICK":
-    echo ":".NICK_EXEC." NOTICE :~civ rename $nick $trailing\n";
+  case "NICK": # :juggs!~juggs@Soylent/Users/63/Juggs NICK :juggs|afk
+    $chans=get_bucket($nick."_channel_list");
+    $player_channel_list=explode(" ",$chans);
+    for ($i=0;$i<count($game_chans);$i++)
+    {
+      if (in_array($game_chans[$i],$player_channel_list)==True)
+      {
+        echo ":".NICK_EXEC." NOTICE :~civ rename $nick $trailing\n";
+        break;
+      }
+    }
+    unset_bucket($nick."_channel_list");
+    set_bucket($trailing."_channel_list",$chans);
     break;
   case "PRIVMSG":
     echo ":$nick NOTICE $dest :~sed_6705140699 $trailing\n";
@@ -206,12 +210,15 @@ switch ($cmd)
           $chans[$i]=substr($chans[$i],1);
         }
       }
-      $chans=implode(" ",$chans);
-      set_bucket($parts[1]."_channel_list",$chans);
+      $chan_list=implode(" ",$chans);
+      set_bucket($parts[1]."_channel_list",$chan_list);
       if ($parts[1]==NICK_SEDBOT)
       {
-        # privmsg all channels that sedbot has entered to indicate exec sed being disabled
-        echo ":$nick NOTICE $dest :~sed_6705140699 sed_6705140699 $chans\n";
+        # privmsg sedbot channels that exec sed is being disabled
+        for ($i=0;$i<count($chans);$i++)
+        {
+          echo "IRC_RAW :".NICK_EXEC." PRIVMSG ".$chans[$i]." :exec sed disabled\n";
+        }
       }
     }
     break;

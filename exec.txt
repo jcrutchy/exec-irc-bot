@@ -13,7 +13,7 @@
 <quit>|10|0|0|1||php scripts/quit.php
 
 # REQUIRE NICKSERV IDENTIFIED USER AUTHENTICATION (WHOIS)
-~comment|30|0|0|1|crutchy|php scripts/sn.php %%trailing%% %%dest%% %%nick%%
+#~comment|30|0|0|1|crutchy|php scripts/sn.php %%trailing%% %%dest%% %%nick%%
 ~say|2|0|1|0|crutchy,chromas,monopoly|php scripts/say.php %%trailing%% %%nick%%
 ~bucket|5|0|0|1|crutchy|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 ~wiki|20|0|0|0|crutchy|php scripts/wiki.php %%trailing%% %%dest%% %%nick%%

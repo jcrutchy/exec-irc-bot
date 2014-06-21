@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 20-june-2014
+# 21-june-2014
 
 # irc.php
 
@@ -16,7 +16,7 @@ define("NICK","exec");
 define("PASSWORD",trim(file_get_contents("../pwd/".NICK)));
 define("BUCKETS_FILE","../data/buckets");
 define("EXEC_FILE","exec.txt");
-define("INIT_CHAN_LIST","#exec,#");
+define("INIT_CHAN_LIST","#"); # comma delimited
 define("LOG_PATH","/var/www/irciv.us.to/exec_logs/");
 define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6697");
@@ -34,7 +34,6 @@ define("MAX_MSG_LENGTH",800);
 define("IGNORE_TIME",20); # seconds (flood control)
 define("DELTA_TOLERANCE",1.5); # seconds (flood control)
 define("TEMPLATE_DELIM","%%");
-define("CHANNEL_MONITOR","#exec");
 
 # stdout bot directives
 define("DIRECTIVE_QUIT","<<quit>>");
@@ -60,7 +59,6 @@ define("CMD_ADMIN_BUCKETS_SAVE","~buckets-save"); # save buckets to file
 define("CMD_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
 define("CMD_ADMIN_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
 define("CMD_ADMIN_BUCKETS_LIST","~buckets-list"); # output list of set bucket indexes to the terminal
-define("CMD_ADMIN_TOGGLE_MONITOR","~monitor");
 define("CMD_LOCK","~lock");
 define("CMD_UNLOCK","~unlock");
 define("CMD_LIST","~list");
@@ -91,8 +89,6 @@ $dest_overrides=array(); # optionally stores a destination for each nick, which 
 $admin_data="";
 $admin_nick="";
 
-$monitor_enabled=False;
-
 $throttle_flag=False;
 $rawmsg_times=array();
 
@@ -106,8 +102,7 @@ $admin_commands=array(
   CMD_ADMIN_BUCKETS_SAVE,
   CMD_ADMIN_BUCKETS_LOAD,
   CMD_ADMIN_BUCKETS_FLUSH,
-  CMD_ADMIN_BUCKETS_LIST,
-  CMD_ADMIN_TOGGLE_MONITOR);
+  CMD_ADMIN_BUCKETS_LIST);
 
 $exec_list=exec_load();
 if ($exec_list===False)
@@ -185,7 +180,7 @@ function get_list($items)
 function get_list_auth($items)
 {
   global $exec_list;
-  $msg="~q ~reload ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~monitor ~restart";
+  $msg="~q ~reload ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~restart";
   privmsg($items["destination"],$items["nick"],$msg);
   $msg="";
   foreach ($exec_list as $alias => $data)
@@ -508,21 +503,12 @@ function handle_data($data,$is_sock=False)
   global $admin_nick;
   global $admin_commands;
   global $exec_list;
-  global $monitor_enabled;
   global $throttle_flag;
   echo $data;
   log_data($data);
   $items=parse_data($data);
   if ($items!==False)
   {
-    if (($monitor_enabled==True) and (is_numeric($items["cmd"])==False) and ($is_sock==True))
-    {
-      rawmsg(":".NICK." PRIVMSG ".CHANNEL_MONITOR." :>> $data\n",False);
-    }
-    if ($items["destination"]==CHANNEL_MONITOR)
-    {
-      return;
-    }
     if (($items["prefix"]==IRC_HOST) and (strpos(strtolower($items["trailing"]),"throttled due to flooding")!==False))
     {
       $throttle_flag=True;
@@ -650,21 +636,6 @@ function handle_data($data,$is_sock=False)
           unset($alias_locks[$items["nick"]][$items["destination"]]);
         }
         break;
-      case CMD_ADMIN_TOGGLE_MONITOR:
-        if (count($args)==1)
-        {
-          if ($monitor_enabled==True)
-          {
-            $monitor_enabled=False;
-            privmsg($items["destination"],$items["nick"],"exec incoming data monitor disabled");
-          }
-          else
-          {
-            $monitor_enabled=True;
-            privmsg($items["destination"],$items["nick"],"exec incoming data monitor enabled");
-          }
-        }
-        break;
       case CMD_ADMIN_DEST_OVERRIDE:
         if (count($args)==2)
         {
@@ -748,7 +719,6 @@ function rawmsg($msg,$privmsg=True)
   global $socket;
   global $throttle_flag;
   global $rawmsg_times;
-  global $monitor_enabled;
   $flood_count=6; # messages to allow through without any delays
   if (count($rawmsg_times)>1)
   {
@@ -758,11 +728,6 @@ function rawmsg($msg,$privmsg=True)
     if (($throttle_flag==True) and ($dt<$throttle_time))
     {
       return;
-    }
-    $meta=stream_get_meta_data($socket);
-    if ($meta["unread_bytes"]>0)
-    {
-      term_echo("rawmsg function: socket data unread: ".$meta["unread_bytes"]." bytes");
     }
     $throttle_flag=False;
     $flood_time=0.6; # sec
@@ -782,11 +747,6 @@ function rawmsg($msg,$privmsg=True)
   while (count($rawmsg_times)>$flood_count)
   {
     array_shift($rawmsg_times);
-  }
-  if (($privmsg==True) and ($monitor_enabled==True))
-  {
-    # eventually pipe this to a separate monitoring terminal stdout
-    rawmsg(":".NICK." PRIVMSG ".CHANNEL_MONITOR." :<< $msg",False);
   }
 }
 
