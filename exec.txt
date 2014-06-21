@@ -4,7 +4,7 @@
 # aliases here must be all lower case letters
 
 # EXEC ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
-*|10|0|0|1||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%% %%alias%%
+*|10|0|0|1||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
 
 # EXEC BEFORE IRC CONNECTION - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 <init>|10|0|0|1||php scripts/init.php

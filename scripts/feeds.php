@@ -34,6 +34,13 @@ $trailing=$argv[1];
 $nick=$argv[2];
 $dest=$argv[3];
 
+define("FEED_FILE","feeds.txt");
+
+#$feed_chans=array("#rss-bot");
+$feed_chans=array("#~"); # testing channel
+
+$feed_list=array(); # loaded from FEED_FILE
+
 $html=wget("soylentnews.org","/index.atom",80);
 $html=strip_headers($html);
 
@@ -43,15 +50,11 @@ if ($entries===False)
   privmsg("error parsing atom feed");
 }
 
-term_echo("count: ".count($entries));
-
-# convert_timestamp($value_str,$format)
-
 #####################################################################################################
 
 function parse_atom($html)
 {
-  $parts=explode("<entry>",$html);
+  $parts=explode("<entry",$html);
   array_shift($parts);
   $entries=array();
   for ($i=0;$i<count($parts);$i++)
@@ -87,6 +90,50 @@ function parse_rss($html)
     $items[]=$item;
   }
   return $items;
+}
+
+#####################################################################################################
+
+function load_feeds()
+{
+  global $feed_list;
+  $feed_list=array();
+  $data=file_get_contents(FEED_FILE);
+  if ($data===False)
+  {
+    return False;
+  }
+  $data=explode("\n",$data);
+  for ($i=0;$i<count($data);$i++)
+  {
+    $line=trim($data[$i]);
+    if ($line=="")
+    {
+      continue;
+    }
+    if (substr($line,0,1)=="#")
+    {
+      continue;
+    }
+    $parts=explode("|",$line);
+    if (count($parts)<>2)
+    {
+      continue;
+    }
+    $feed=array();
+    $feed["type"]=trim($parts[0]);
+    $feed["url"]=trim($parts[1]);
+    $feed["host"]="";
+    $feed["uri"]="";
+    $feed["scheme"]="";
+    $feed["port"]="";
+    if (($feed["type"]=="") or ($feed["url"]==""))
+    {
+      continue;
+    }
+    $feed_list[]=$feed;
+  }
+  return $exec_list;
 }
 
 #####################################################################################################

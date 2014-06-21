@@ -6,6 +6,8 @@
 
 #####################################################################################################
 
+# don't var_dump or term_echo in this file cos it will cause a race condition
+
 define("NICK_SEDBOT","SedBot");
 define("NICK_BENDER","Bender");
 define("ACCOUNT_BENDER","deadpork");
@@ -18,7 +20,6 @@ $data=$argv[3];
 $dest=$argv[4];
 $params=$argv[5];
 $nick=$argv[6];
-$alias=$argv[7];
 
 require_once("irciv_lib.php"); # also requires lib.php
 

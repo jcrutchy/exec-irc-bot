@@ -1,14 +1,8 @@
-comp.ai.philosophy
-comp.ai.neural-nets
-machine-learning
-comp.ai.genetic
-comp.ai.fuzzy
-comp.ai.nat-lang
-comp.ai.shells
-semantic_web
-proceduralcontent
-comp.ai.games
-networked-robots
+# EXEC FEEDS SOURCES FILE
+# MODIFIED: JC, 21-JUNE-2014
+# LINE SYNTAX: ATOM/RSS|URL
 
-
-https://groups.google.com/forum/feed/$group/msgs/atom.xml?num=15
+atom|https://groups.google.com/forum/feed/networked-robots/msgs/atom.xml?num=15
+atom|https://groups.google.com/forum/feed/comp.ai.games/msgs/atom.xml?num=15
+atom|https://groups.google.com/forum/feed/comp.ai.nat-lang/msgs/atom.xml?num=15
+atom|http://soylentnews.org/index.atom
