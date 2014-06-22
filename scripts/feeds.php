@@ -33,7 +33,7 @@ $trailing=$argv[1];
 $nick=$argv[2];
 $dest=$argv[3];
 
-$feed_chans=array("#");
+$feed_chans=array("#rss-bot");
 
 define("FEED_FILE",__DIR__."/feeds.txt");
 define("PAST_FEED_FILE","../data/past_feeds");
@@ -96,16 +96,17 @@ for ($i=0;$i<count($feed_list);$i++)
   for ($j=0;$j<count($items);$j++)
   {
     $item=$items[$j];
-    if (in_array($item["url"],$past_feeds)==False)
+    $url=strtolower($item["url"]);
+    if (in_array($url,$past_feeds)==False)
     {
-      $past_feeds[]=$item["url"];
+      $past_feeds[]=$url;
       file_put_contents(PAST_FEED_FILE,$item["url"]."\n",FILE_APPEND);
-      $msg=chr(2)."[".$feed["name"]."]".chr(2)." - ".chr(3)."3".$item["title"].chr(3)." - ".$item["url"];
+      $msg=chr(2)."[".$feed["name"]."]".chr(2)." - ".$item["title"]." - ".$item["url"];
       for ($k=0;$k<count($feed_chans);$k++)
       {
         if ($k>0)
         {
-          sleep(2);
+          sleep(3);
         }
         echo "IRC_RAW :".NICK_EXEC." PRIVMSG ".$feed_chans[$k]." :$msg\n";
         #term_echo($msg);
@@ -131,7 +132,7 @@ function parse_atom($html)
     $entry["type"]="atom_entry";
     $entry["title"]=html_entity_decode(extract_raw_tag($parts[$i],"title"),ENT_QUOTES,"UTF-8");
     $url=trim(extract_void_tag($parts[$i],"link href="),"\"");
-    $entry["url"]=strtolower(get_redirected_url($url));
+    $entry["url"]=get_redirected_url($url);
     $entry["timestamp"]=time();
     if (($entry["title"]===False) or ($entry["url"]===False))
     {
@@ -154,7 +155,7 @@ function parse_rss($html)
     $item=array();
     $item["type"]="rss_item";
     $item["title"]=html_entity_decode(extract_raw_tag($parts[$i],"title"),ENT_QUOTES,"UTF-8");
-    $item["url"]=strtolower(get_redirected_url(extract_raw_tag($parts[$i],"link")));
+    $item["url"]=get_redirected_url(extract_raw_tag($parts[$i],"link"));
     $item["timestamp"]=time();
     if (($item["title"]===False) or ($item["url"]===False))
     {

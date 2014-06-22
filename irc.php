@@ -756,6 +756,7 @@ function rawmsg($msg,$privmsg=True)
 
 function exec_load()
 {
+  global $exec_list;
   $exec_list=array();
   $data=file_get_contents(EXEC_FILE);
   if ($data===False)

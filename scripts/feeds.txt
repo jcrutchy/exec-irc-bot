@@ -2,11 +2,21 @@
 # MODIFIED: JC, 22-JUNE-2014
 # LINE SYNTAX: ATOM/RSS|URL
 
-atom|networked-robots|https://groups.google.com/forum/feed/networked-robots/msgs/atom.xml?num=5
-atom|comp.ai.games|https://groups.google.com/forum/feed/comp.ai.games/msgs/atom.xml?num=5
-atom|comp.ai.nat-lang|https://groups.google.com/forum/feed/comp.ai.nat-lang/msgs/atom.xml?num=5
+atom|GoogleGroups: networked-robots|https://groups.google.com/forum/feed/networked-robots/msgs/atom.xml?num=5
+atom|GoogleGroups: comp.ai.games|https://groups.google.com/forum/feed/comp.ai.games/msgs/atom.xml?num=5
+atom|GoogleGroups: comp.ai.nat-lang|https://groups.google.com/forum/feed/comp.ai.nat-lang/msgs/atom.xml?num=5
 
 #atom|soylentnews.org|http://soylentnews.org/index.atom
 #rss|phys.org|http://phys.org/rss-feed/
 
 rss|SpaceFuture|http://www.spacefuture.com/channel/rss/journal.rss
+
+atom|GoogleGroups: sci.electronics.design|https://groups.google.com/forum/feed/sci.electronics.design/msgs/atom.xml?num=5
+
+
+atom|GoogleGroups: london-hack-space|https://groups.google.com/forum/feed/london-hack-space/msgs/atom.xml?num=5
+
+atom|GoogleGroups: comp.misc|https://groups.google.com/forum/feed/comp.misc/msgs/atom.xml?num=5
+atom|GoogleGroups: comp.arch|https://groups.google.com/forum/feed/comp.arch/msgs/atom.xml?num=5
+
+
