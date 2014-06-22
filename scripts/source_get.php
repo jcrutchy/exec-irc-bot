@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 14-june-2014
+# 22-june-2014
 
 #####################################################################################################
 
@@ -12,11 +12,102 @@ require_once("lib.php");
 $trailing=$argv[1];
 
 define("GITHUB_RAW_HOST","raw.githubusercontent.com");
-define("GITHUB_RAW_URI","/crutchy-/test/master/");
 
-get_source($trailing);
+$blacklist=array("`");
 
-function get_source($file,$nomsg=False)
+/*rmdir
+chmod
+chown
+fopen
+exec
+passthru
+system
+popen
+file
+show_source
+readfile
+import
+dbmopen
+open
+popen
+get
+put
+pclose
+chgrp
+chown
+__
+$_
+link
+pcntl
+apache
+posix
+proc
+preg
+show_source
+phpinfo
+gzinflate
+fsockopen
+pfsockopen
+safe_mode
+include
+require
+ln
+cat
+parse_perms
+dl
+shell
+cmd
+escape
+arg
+mysql
+get_current_user
+getmyuid
+pconnect
+link
+ini
+leak
+syslog
+stream
+socket
+fork
+sig
+pid
+sig
+setenv
+virtual
+upload
+delete
+edit
+write
+cmd
+rename
+mkdir
+mv
+touch
+cp
+cd
+pico
+0x
+hex
+bin
+chr
+ord*/
+
+$github_raw_uri="/crutchy-/test/master/";
+$check_source=False;
+$filename=$trailing;
+
+$parts=explode(" ",$trailing);
+if (count($parts)==2)
+{
+  $check_source=True;
+  $github_raw_uri=$parts[0];
+  $filename=$parts[1];
+}
+
+get_source($filename,False,$check_source);
+
+function get_source($file,$nomsg,$check_source)
 {
   $target_dir="/var/include/vhosts/irciv.us.to/inc/";
   if ($file=="*")
@@ -47,7 +138,7 @@ function get_source($file,$nomsg=False)
       {
         continue;
       }
-      if (get_source($line,True)==True)
+      if (get_source($line,True,$check_source)==True)
       {
         $n++;
       }
@@ -70,7 +161,7 @@ function get_source($file,$nomsg=False)
     term_echo($msg);
     return False;
   }
-  $uri=GITHUB_RAW_URI.$file;
+  $uri=$github_raw_uri.$file;
   fwrite($fp,"GET $uri HTTP/1.0\r\nHost: ".GITHUB_RAW_HOST."\r\nConnection: Close\r\n\r\n");
   $response="";
   while (!feof($fp))
@@ -111,6 +202,10 @@ function get_source($file,$nomsg=False)
     }
     term_echo($msg);
     return False;
+  }
+  if ($check_source==True)
+  {
+    # file is from a foreign repository so make sure its not going to be naughty
   }
   $target_file=$target_dir.$file;
   if (file_put_contents($target_file,$response)===False)

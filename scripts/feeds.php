@@ -60,11 +60,10 @@ $nick=$argv[2];
 $dest=$argv[3];
 $alias=$argv[4];
 
-#$feed_chans=array("#rss-bot");
-$feed_chans=array("#");
+$feed_chans=array("#~");
 
 define("FEED_FILE",__DIR__."/feeds.txt");
-define("PAST_FEED_FILE","../data/past_feeds");
+define("PAST_FEED_FILE","/var/www/irciv.us.to/exec_logs/feeds.txt");
 
 $feed_list=load_feeds();
 if ($feed_list===False)

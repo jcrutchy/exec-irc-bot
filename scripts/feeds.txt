@@ -8,5 +8,3 @@ atom|GoogleGroups: comp.arch|https://groups.google.com/forum/feed/comp.arch/msgs
 rss|The Daily WTF|http://syndication.thedailywtf.com/TheDailyWtf
 rss|Japan Aerospace Exploration Agency (JAXA)|http://global.jaxa.jp/rss/press.rdf
 rss|space.io9.com|http://space.io9.com/rss
-atom|Canadian Space Agency|http://www.asc-csa.gc.ca/rss/default_eng.xml
-rss|Sci/Tech - Google News|http://news.google.com/news?cf=all&ned=us&hl=en&topic=t&output=rss

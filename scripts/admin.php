@@ -9,7 +9,9 @@
 ini_set("display_errors","on");
 require_once("lib.php");
 
-#echo "IRC_RAW :exec MODE #civ +o crutchy\n";
+$dest=$argv[1];
+echo "IRC_RAW :exec MODE $dest +o exec\n";
+echo "IRC_RAW :exec MODE $dest +o crutchy\n";
 
 #####################################################################################################
 

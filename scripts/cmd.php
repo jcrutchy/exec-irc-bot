@@ -97,7 +97,8 @@ switch ($cmd)
     }
     elseif ($nick==NICK_SEDBOT)
     {
-      echo "IRC_RAW WHOIS $nick\n";
+      $chans=get_bucket(NICK_SEDBOT."_channel_list");
+      # TODO
     }
     else
     {
@@ -216,7 +217,7 @@ switch ($cmd)
       }
       $chan_list=implode(" ",$chans);
       set_bucket($parts[1]."_channel_list",$chan_list);
-      if ($parts[1]==NICK_SEDBOT)
+      /*if ($parts[1]==NICK_SEDBOT)
       {
         # privmsg sedbot channels that exec sed is being disabled
         for ($i=0;$i<count($chans);$i++)
@@ -226,7 +227,7 @@ switch ($cmd)
             echo "IRC_RAW :".NICK_EXEC." PRIVMSG ".$chans[$i]." :exec sed disabled\n";
           }
         }
-      }
+      }*/
     }
     break;
   case "401": # :irc.sylnt.us 401 exec SedBot :No such nick/channel
