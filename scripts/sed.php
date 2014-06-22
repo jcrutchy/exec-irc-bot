@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 21-june-2014
+# 22-june-2014
 
 #####################################################################################################
 
@@ -99,6 +99,12 @@ function sed($trailing,$nick,$dest)
     if ($last=="")
     {
       privmsg("last message by \"$sed_nick\" not found");
+    }
+    # ACTION kicks chromas to the kerb
+    $action_delim=chr(1)."ACTION ";
+    if (strtoupper(substr($last,0,strlen($action_delim)))==$action_delim)
+    {
+      $last=trim(substr($last,strlen($action_delim)),chr(1));
     }
     if ($replace_all==True)
     {

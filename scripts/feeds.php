@@ -4,24 +4,50 @@
 # by crutchy
 # 22-june-2014
 
-# add an authenticated alias for adding/removing feeds, and maybe another for adding/removing users that can add/remove feeds
-# add command to output last X feeds from a particular source <- NO
+/*
+Available feeds from Regurgitator:
+!SoylentNews
+!arstechnica
+!bbc-tech
+!bugtraq
+!cnet
+!computerworld
+!darpa
+!forbes-tech
+!itworld
+!krebs
+!mosaicscience
+!nasa
+!nature
+!nist-bioscience
+!nist-buildfire
+!nist-chemistry
+!nist-electronics
+!nist-energy
+!nist-forensics
+!nist-it
+!nist-manufacturing
+!nist-math
+!nist-nano
+!nist-physics
+!nist-standards
+!physorg
+!pipedot
+!sciencedaily_all
+!sciencemag
+!securityweek
+!taosecurity
+!theregister
+!wired-enterprise
+!wired-scie
+*/
+
+# add an authenticated alias for adding/removing feeds
 
 /*
-Bytram, 9-june-14
-it would be nice if you could get together with Juggs and have his Regurgitator
-output not just the raw RSS feed link, but also snag the title, AND follow past
-the feed-redirect-crap to get the REAL URL
-Bytram, 11-june-14
-Those sound interesting. I'm interested in your thoughts on feed scraping. It seems to me that many of the RSS feeds actually contain redirects before you actually get to the destination article.
-For example, take a look at this feed item from The Register:
-    http://go.theregister.com/feed/www.theregister.co.uk/2014/06/11/privacy_invasion_by_the_state_is_far_worse_than_by_private_firms_worstall_weds/
-It would be nice to see that de-referenced to be just:
-    http://www.theregister.co.uk/2014/06/11/privacy_invasion_by_the_state_is_far_worse_than_by_private_firms_worstall_weds/
-I don't know whether this can be abstracted to just following the link and watching return codes (e.g. 501, 502, etc.(IIRC)) or whether a feed-specific filter would be needed.
-In case of any parsing problems, it might be nice to show the before and after URLs, just in case.
-Maybe send as a channel message? Processing: "raw-url"; it has title: "title-text"; it is [not redirected|redirected to "cleaned-url"].
-This would make the URLs more useful when including in a story based on a feed item.
+martyb
+Woods
+juggs
 */
 
 #####################################################################################################
@@ -32,8 +58,10 @@ require_once("lib.php");
 $trailing=$argv[1];
 $nick=$argv[2];
 $dest=$argv[3];
+$alias=$argv[4];
 
-$feed_chans=array("#rss-bot");
+#$feed_chans=array("#rss-bot");
+$feed_chans=array("#");
 
 define("FEED_FILE",__DIR__."/feeds.txt");
 define("PAST_FEED_FILE","../data/past_feeds");
@@ -50,9 +78,26 @@ if (count($feed_list)==0)
   return;
 }
 
+if ($alias=="~feed-sources")
+{
+  $msg="";
+  for ($i=0;$i<count($feed_list);$i++)
+  {
+    if ($msg<>"")
+    {
+      $msg=$msg." ";
+    }
+    $msg=$msg."[".$feed_list[$i]["name"]."]";
+  }
+  if ($msg<>"")
+  {
+    privmsg(chr(2).$msg.chr(2));
+  }
+  return;
+}
+
 $past_feeds=array();
 $past_feeds_bucket=get_bucket("<<PAST_FEEDS>>");
-
 if ($past_feeds_bucket<>"")
 {
   $past_feeds_bucket=unserialize($past_feeds_bucket);
@@ -72,6 +117,8 @@ else
     }
   }
 }
+
+$current_feeds=array();
 
 for ($i=0;$i<count($feed_list);$i++)
 {
@@ -96,28 +143,45 @@ for ($i=0;$i<count($feed_list);$i++)
   for ($j=0;$j<count($items);$j++)
   {
     $item=$items[$j];
-    $url=strtolower($item["url"]);
-    if (in_array($url,$past_feeds)==False)
+    $current_feeds[]=$item["url"];
+    if (in_array($item["url"],$past_feeds)==False)
     {
-      $past_feeds[]=$url;
-      file_put_contents(PAST_FEED_FILE,$item["url"]."\n",FILE_APPEND);
-      $msg=chr(2)."[".$feed["name"]."]".chr(2)." - ".$item["title"]." - ".$item["url"];
+      if ($j>0)
+      {
+        sleep(3);
+      }
+      $past_feeds[]=$item["url"];
+      # <![CDATA[Elon Musk "Hopeful" First People Can Be Taken To Mars in 10-12 Years]]>
+      $delim="<![CDATA[";
+      if (strtoupper(substr($item["title"],0,strlen($delim)))==$delim)
+      {
+        $item["title"]=substr($item["title"],strlen($delim),strlen($item["title"])-strlen($delim)-3);
+      }
+      $item["title"]=str_replace("&apos;","'",$item["title"]);
+      $msg=chr(2)."[".$feed["name"]."]".chr(2)." - ".chr(3)."3".$item["title"].chr(3)." - ".$item["url"];
       for ($k=0;$k<count($feed_chans);$k++)
       {
         if ($k>0)
         {
-          sleep(3);
+          sleep(2);
         }
         echo "IRC_RAW :".NICK_EXEC." PRIVMSG ".$feed_chans[$k]." :$msg\n";
-        #term_echo($msg);
       }
     }
   }
 }
 
-# TODO: clear out old feeds (need to extract timestamp)
-
-set_bucket("<<PAST_FEEDS>>",serialize($past_feeds));
+$data="";
+for ($i=0;$i<count($current_feeds);$i++)
+{
+  if ($data<>"")
+  {
+    $data=$data."\n";
+  }
+  $data=$data.$current_feeds[$i];
+}
+file_put_contents(PAST_FEED_FILE,$data);
+set_bucket("<<PAST_FEEDS>>",serialize($current_feeds));
 
 #####################################################################################################
 
@@ -131,7 +195,7 @@ function parse_atom($html)
     $entry=array();
     $entry["type"]="atom_entry";
     $entry["title"]=html_entity_decode(extract_raw_tag($parts[$i],"title"),ENT_QUOTES,"UTF-8");
-    $url=trim(extract_void_tag($parts[$i],"link href="),"\"");
+    $url=str_replace("&amp;","&",trim(strip_ctrl_chars(extract_void_tag($parts[$i],"link href=")),"\""));
     $entry["url"]=get_redirected_url($url);
     $entry["timestamp"]=time();
     if (($entry["title"]===False) or ($entry["url"]===False))
@@ -155,7 +219,8 @@ function parse_rss($html)
     $item=array();
     $item["type"]="rss_item";
     $item["title"]=html_entity_decode(extract_raw_tag($parts[$i],"title"),ENT_QUOTES,"UTF-8");
-    $item["url"]=get_redirected_url(extract_raw_tag($parts[$i],"link"));
+    $url=str_replace("&amp;","&",strip_ctrl_chars(extract_raw_tag($parts[$i],"link")));
+    $item["url"]=get_redirected_url($url);
     $item["timestamp"]=time();
     if (($item["title"]===False) or ($item["url"]===False))
     {

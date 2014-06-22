@@ -8,6 +8,7 @@
 
 # TODO: per channel alias bans
 # TODO: random timer interval
+# TODO: stdout prefix for notices
 
 #####################################################################################################
 
@@ -944,7 +945,7 @@ function privmsg($destination,$nick,$msg)
   global $dest_overrides;
   if ($destination=="")
   {
-    term_echo("PRIVMSG: DESTINATION NOT SPECIFIED");
+    term_echo("PRIVMSG: DESTINATION NOT SPECIFIED: nick=\"$nick\", msg=\"$msg\"");
     return;
   }
   if ($msg=="")

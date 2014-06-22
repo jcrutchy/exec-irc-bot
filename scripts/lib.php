@@ -59,6 +59,13 @@ function pm($nick,$msg)
 
 #####################################################################################################
 
+function notice($nick,$msg)
+{
+  echo "IRC_RAW :".NICK_EXEC." NOTICE $nick :$msg\n";
+}
+
+#####################################################################################################
+
 function err($msg)
 {
   privmsg($msg);
@@ -132,6 +139,17 @@ function wtouch($host,$uri,$port,$timeout=5)
   $response=fgets($fp,256);
   fclose($fp);
   return trim($response);
+}
+
+#####################################################################################################
+
+function strip_ctrl_chars($url)
+{
+  $url=str_replace("\t","",$url);
+  $url=str_replace("\n","",$url);
+  $url=str_replace("\r","",$url);
+  $url=str_replace("\0","",$url);
+  return str_replace("\x0B","",$url);
 }
 
 #####################################################################################################

@@ -120,7 +120,10 @@ switch ($cmd)
       $chans=explode(" ",$chans);
       for ($i=0;$i<count($chans);$i++)
       {
-        echo "IRC_RAW :".NICK_EXEC." PRIVMSG ".$chans[$i]." :exec sed enabled\n";
+        if (trim($chans[$i])<>"")
+        {
+          echo "IRC_RAW :".NICK_EXEC." PRIVMSG ".$chans[$i]." :exec sed enabled\n";
+        }
       }
     }
     elseif ($nick<>NICK_EXEC)
@@ -218,12 +221,33 @@ switch ($cmd)
         # privmsg sedbot channels that exec sed is being disabled
         for ($i=0;$i<count($chans);$i++)
         {
-          echo "IRC_RAW :".NICK_EXEC." PRIVMSG ".$chans[$i]." :exec sed disabled\n";
+          if (trim($chans[$i])<>"")
+          {
+            echo "IRC_RAW :".NICK_EXEC." PRIVMSG ".$chans[$i]." :exec sed disabled\n";
+          }
         }
       }
     }
     break;
-  case "401": # No such nick/channel
+  case "401": # :irc.sylnt.us 401 exec SedBot :No such nick/channel
+    $parts=explode(" ",$params);
+    if (count($parts)==2)
+    {
+      if ($parts[1]==NICK_SEDBOT)
+      {
+        $chans=get_bucket(NICK_SEDBOT."_channel_list");
+        unset_bucket(NICK_SEDBOT."_channel_list");
+        # privmsg sedbot channels that exec sed is being enabled
+        $chans=explode(" ",$chans);
+        for ($i=0;$i<count($chans);$i++)
+        {
+          if (trim($chans[$i])<>"")
+          {
+            echo "IRC_RAW :".NICK_EXEC." PRIVMSG ".$chans[$i]." :exec sed enabled\n";
+          }
+        }
+      }
+    }
     break;
 }
 
