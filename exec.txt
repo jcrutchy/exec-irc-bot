@@ -30,7 +30,8 @@
 
 # timer scripts
 #~feeds_5714869245|10|30|0|1||php scripts/feeds.php %%trailing%% %%nick%% %%dest%%
-~test-rss|15|0|0|1|crutchy|php scripts/feeds.php %%trailing%% %%nick%% %%dest%%
+#~feed|600|1200|0|1|crutchy|php scripts/feeds.php %%trailing%% %%nick%% %%dest%%
+~feed|50|60|0|1|crutchy|php scripts/feeds.php %%trailing%% %%nick%% %%dest%%
 
 # NON-TILDE ALIASES
 ~rofl|5|0|1|1||fortune -s -o

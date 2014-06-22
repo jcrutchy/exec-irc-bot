@@ -14,6 +14,8 @@ define("VALID_NUMERIC","0123456789");
 
 # VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC
 
+define("ICEWEASEL_UA","Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20140429 Firefox/24.0 Iceweasel/24.5.0");
+
 #####################################################################################################
 
 function random_string($length)
@@ -106,30 +108,162 @@ function unset_bucket($index)
 
 #####################################################################################################
 
-function wtouch($host,$uri,$port)
+function wtouch($host,$uri,$port,$timeout=5)
 {
   $errno=0;
   $errstr="";
   if ($port==80)
   {
-    $fp=fsockopen($host,80,$errno,$errstr,5);
+    $fp=fsockopen($host,80,$errno,$errstr,$timeout);
   }
   elseif ($port==443)
   {
-    $fp=fsockopen("ssl://$host",443,$errno,$errstr,5);
+    $fp=fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
   }
   else
   {
-    $fp=fsockopen($host,$port,$errno,$errstr,5);
+    $fp=fsockopen($host,$port,$errno,$errstr,$timeout);
   }
   if ($fp===False)
   {
     return False;
   }
   fwrite($fp,"GET $uri HTTP/1.0\r\nHost: $host\r\nConnection: Close\r\n\r\n");
-  $response=fgets($fp,1024);
+  $response=fgets($fp,256);
   fclose($fp);
   return trim($response);
+}
+
+#####################################################################################################
+
+function get_redirected_url($from_url,$url_list="")
+{
+  $url=trim($from_url);
+  if ($url=="")
+  {
+    return False;
+  }
+  $comp=parse_url($url);
+  $host="";
+  if (isset($comp["host"])==False)
+  {
+    if (is_array($url_list)==True)
+    {
+      if (count($url_list)>0)
+      {
+        $host=parse_url($url_list[count($url_list)-1],PHP_URL_HOST);
+        $scheme=parse_url($url_list[count($url_list)-1],PHP_URL_SCHEME);
+        $url=$scheme."://".$host.$url;
+      }
+    }
+  }
+  else
+  {
+    $host=$comp["host"];
+  }
+  if ($host=="")
+  {
+    term_echo("redirect without host: ".$url);
+    return False;
+  }
+  $uri=$comp["path"];
+  if (isset($comp["query"])==True)
+  {
+    if ($comp["query"]<>"")
+    {
+      $uri=$uri."?".$comp["query"];
+    }
+  }
+  if (isset($comp["fragment"])==True)
+  {
+    if ($comp["fragment"]<>"")
+    {
+      $uri=$uri."#".$comp["fragment"];
+    }
+  }
+  $port=80;
+  if (isset($comp["scheme"])==True)
+  {
+    if ($comp["scheme"]=="https")
+    {
+      $port=443;
+    }
+  }
+  if (($host=="") or ($uri==""))
+  {
+    return False;
+  }
+  $headers=whead($host,$uri,$port,ICEWEASEL_UA,"",10);
+  $location=trim(exec_get_header($headers,"location",False));
+  if ($location=="")
+  {
+    return $url;
+  }
+  else
+  {
+    if (is_array($url_list)==True)
+    {
+      if (in_array($location,$url_list)==True)
+      {
+        return False;
+      }
+      else
+      {
+        $list=$url_list;
+        $list[]=$url;
+        return get_redirected_url($location,$list);
+      }
+    }
+    else
+    {
+      $list=array($url);
+      return get_redirected_url($location,$list);
+    }
+  }
+}
+
+#####################################################################################################
+
+function whead($host,$uri,$port=80,$agent="",$extra_headers="",$timeout=20)
+{
+  $errno=0;
+  $errstr="";
+  if ($port==443)
+  {
+    $fp=fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
+  }
+  else
+  {
+    $fp=fsockopen($host,$port,$errno,$errstr,$timeout);
+  }
+  if ($fp===False)
+  {
+    $msg="Error connecting to \"$host\".";
+    term_echo($msg);
+    return $msg;
+  }
+  $headers="HEAD $uri HTTP/1.0\r\n";
+  $headers=$headers."Host: $host\r\n";
+  if ($agent<>"")
+  {
+    $headers=$headers."User-Agent: $agent\r\n";
+  }
+  if ($extra_headers<>"")
+  {
+    foreach ($extra_headers as $key => $value)
+    {
+      $headers=$headers.$key.": ".$value."\r\n";
+    }
+  }
+  $headers=$headers."Connection: Close\r\n\r\n";
+  fwrite($fp,$headers);
+  $response="";
+  while (!feof($fp))
+  {
+    $response=$response.fgets($fp,1024);
+  }
+  fclose($fp);
+  return $response;
 }
 
 #####################################################################################################
@@ -141,15 +275,17 @@ function wget_ssl($host,$uri,$agent="",$extra_headers="")
 
 #####################################################################################################
 
-function wget($host,$uri,$port=80,$agent="",$extra_headers="")
+function wget($host,$uri,$port=80,$agent="",$extra_headers="",$timeout=20)
 {
+  $errno=0;
+  $errstr="";
   if ($port==443)
   {
-    $fp=fsockopen("ssl://$host",443);
+    $fp=fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
   }
   else
   {
-    $fp=fsockopen($host,$port);
+    $fp=fsockopen($host,$port,$errno,$errstr,$timeout);
   }
   if ($fp===False)
   {
@@ -185,13 +321,15 @@ function wget($host,$uri,$port=80,$agent="",$extra_headers="")
 
 function wpost($host,$uri,$port,$agent,$params,$extra_headers="")
 {
+  $errno=0;
+  $errstr="";
   if ($port==443)
   {
-    $fp=fsockopen("ssl://$host",443);
+    $fp=fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
   }
   else
   {
-    $fp=fsockopen($host,$port);
+    $fp=fsockopen($host,$port,$errno,$errstr,$timeout);
   }
   if ($fp===False)
   {
@@ -283,7 +421,6 @@ function extract_void_tag($html,$tag)
     return False;
   }
   $html=substr($html,$i+strlen($delim1));
-
   $i=strpos($html,$delim2);
   if ($i===False)
   {
@@ -391,9 +528,17 @@ function exec_get_headers($response)
 
 #####################################################################################################
 
-function exec_get_header($response,$header)
+function exec_get_header($response,$header,$extract_headers=True)
 {
-  $lines=explode("\n",exec_get_headers($response));
+  if ($extract_headers==True)
+  {
+    $headers=exec_get_headers($response);
+  }
+  else
+  {
+    $headers=$response;
+  }
+  $lines=explode("\n",$headers);
   for ($i=0;$i<count($lines);$i++)
   {
     $line=trim($lines[$i]);
@@ -409,6 +554,7 @@ function exec_get_header($response,$header)
       }
     }
   }
+  return "";
 }
 
 #####################################################################################################

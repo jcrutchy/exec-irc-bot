@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 21-june-2014
+# 22-june-2014
 
 # irc.php
 
@@ -107,7 +107,7 @@ $admin_commands=array(
 $exec_list=exec_load();
 if ($exec_list===False)
 {
-  term_echo("error loading exec");
+  term_echo("error loading exec file");
   return;
 }
 
@@ -256,6 +256,7 @@ function handle_stdout($handle)
   {
     $msg=substr($msg,0,strlen($msg)-1);
   }
+  log_data($msg);
   if ($handle["auto_privmsg"]==1)
   {
     privmsg($handle["destination"],$handle["nick"],$msg);
@@ -303,6 +304,7 @@ function handle_stderr($handle)
   {
     $msg=substr($msg,0,strlen($msg)-1);
   }
+  log_data($msg);
   term_echo($msg);
 }
 
@@ -583,7 +585,7 @@ function handle_data($data,$is_sock=False)
       }
       else
       {
-        term_echo("authenticating admin");
+        term_echo("authenticating...");
         $admin_data=$items["data"];
         rawmsg("WHOIS ".$items["nick"]);
         return;
@@ -754,7 +756,6 @@ function rawmsg($msg,$privmsg=True)
 
 function exec_load()
 {
-  global $exec_list;
   $exec_list=array();
   $data=file_get_contents(EXEC_FILE);
   if ($data===False)
@@ -788,6 +789,10 @@ function exec_load()
     if ($accounts_str<>"")
     {
       $accounts=explode(",",$accounts_str); # comma-delimited list of NickServ accounts authorised to run script (or empty)
+      if (in_array(NICK,$accounts)==False)
+      {
+        $accounts[]=NICK;
+      }
     }
     for ($j=0;$j<=5;$j++)
     {
@@ -862,7 +867,6 @@ function pingpong($data)
 function term_echo($msg)
 {
   echo "\033[31m$msg\033[0m\n";
-  log_data($msg);
 }
 
 #####################################################################################################

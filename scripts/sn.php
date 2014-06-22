@@ -4,6 +4,14 @@
 # by crutchy
 # 20-june-2014
 
+/*
+- the bot could keeep track of irc comments and if you type something like
+  "~comment Bytram, i think you're right" the bot could tack it to the end of Bytram's last comment posting
+- if two people are having an irc discussion about tfa, and they are triggering comment posting,
+  the bot would prolly just treat it like they were replying to each other's comments
+- if they wanted to start a new thread it might need some kind of separate trigger
+*/
+
 #####################################################################################################
 
 ini_set("display_errors","on");
@@ -54,7 +62,7 @@ $bender_msg=substr($bender_msg,$i+strlen($host));
 $parts=explode(" ",$bender_msg);
 $uri=$parts[0];
 
-$agent="Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20140429 Firefox/24.0 Iceweasel/24.5.0";
+$agent=ICEWEASEL_UA;
 
 $response=wget($host,$uri,80,$agent);
 

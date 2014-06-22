@@ -63,9 +63,9 @@ if (isset($lterms[strtolower($msg)])==True)
 }
 else
 {
-  if (urbandictionary($msg)==False)
+  if (wolframalpha($msg)==False)
   {
-    if (wolframalpha($msg)==False)
+    if (urbandictionary($msg)==False)
     {
       if (stoacademy($msg)==False)
       {
@@ -102,7 +102,7 @@ function wolframalpha($msg)
   }
   else
   {
-    privmsg("[wolframalpha] $msg: $def");
+    privmsg("[wolframalpha] ".chr(3)."3$msg".chr(3).": $def");
     return True;
   }
 }
@@ -145,7 +145,7 @@ function urbandictionary($msg)
   }
   else
   {
-    privmsg("[urbandictionary] $msg: ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
+    privmsg("[urbandictionary] ".chr(3)."3$msg".chr(3).": ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
     return True;
   }
 }
@@ -180,7 +180,7 @@ function stoacademy($msg)
   }
   else
   {
-    privmsg("[stoacademy] $msg: ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
+    privmsg("[stoacademy] ".chr(3)."3$msg".chr(3).": ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
     return True;
   }
 }

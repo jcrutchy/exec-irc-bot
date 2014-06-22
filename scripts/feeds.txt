@@ -1,8 +1,12 @@
 # EXEC FEEDS SOURCES FILE
-# MODIFIED: JC, 21-JUNE-2014
+# MODIFIED: JC, 22-JUNE-2014
 # LINE SYNTAX: ATOM/RSS|URL
 
-atom|https://groups.google.com/forum/feed/networked-robots/msgs/atom.xml?num=15
-atom|https://groups.google.com/forum/feed/comp.ai.games/msgs/atom.xml?num=15
-atom|https://groups.google.com/forum/feed/comp.ai.nat-lang/msgs/atom.xml?num=15
-atom|http://soylentnews.org/index.atom
+atom|networked-robots|https://groups.google.com/forum/feed/networked-robots/msgs/atom.xml?num=5
+atom|comp.ai.games|https://groups.google.com/forum/feed/comp.ai.games/msgs/atom.xml?num=5
+atom|comp.ai.nat-lang|https://groups.google.com/forum/feed/comp.ai.nat-lang/msgs/atom.xml?num=5
+
+#atom|soylentnews.org|http://soylentnews.org/index.atom
+#rss|phys.org|http://phys.org/rss-feed/
+
+rss|SpaceFuture|http://www.spacefuture.com/channel/rss/journal.rss
