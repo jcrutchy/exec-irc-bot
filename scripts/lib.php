@@ -2,9 +2,11 @@
 
 # gpl2
 # by crutchy
-# 20-june-2014
+# 23-june-2014
 
 # lib.php
+
+ini_set("display_errors","on");
 
 define("NICK_EXEC","exec");
 

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 22-june-2014
+# 23-june-2014
 
 # irc.php
 
@@ -45,25 +45,27 @@ define("ALIAS_INIT","<init>");
 define("ALIAS_QUIT","<quit>");
 
 # bucket messages (buckets is an array filled by pipes)
-define("BUCKET_GET","BUCKET_GET");
-define("BUCKET_SET","BUCKET_SET");
-define("BUCKET_UNSET","BUCKET_UNSET");
+define("CMD_BUCKET_GET","BUCKET_GET");
+define("CMD_BUCKET_SET","BUCKET_SET");
+define("CMD_BUCKET_UNSET","BUCKET_UNSET");
 
-# internal command aliases (can also use in exec file with alias locking, but that would be just weird)
-define("CMD_ADMIN_QUIT","~q");
-define("CMD_ADMIN_RESTART","~restart");
-define("CMD_ADMIN_RELOAD","~reload");
-define("CMD_ADMIN_DEST_OVERRIDE","~dest-override");
-define("CMD_ADMIN_DEST_CLEAR","~dest-clear");
-define("CMD_ADMIN_BUCKETS_DUMP","~buckets-dump"); # dump buckets to terminal
-define("CMD_ADMIN_BUCKETS_SAVE","~buckets-save"); # save buckets to file
-define("CMD_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
-define("CMD_ADMIN_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
-define("CMD_ADMIN_BUCKETS_LIST","~buckets-list"); # output list of set bucket indexes to the terminal
-define("CMD_LOCK","~lock");
-define("CMD_UNLOCK","~unlock");
-define("CMD_LIST","~list");
-define("CMD_LIST_AUTH","~list-auth");
+define("CMD_INTERNAL","INTERNAL");
+
+# internal aliases (can also use in exec file with alias locking, but that would be just weird)
+define("ALIAS_ADMIN_QUIT","~q");
+define("ALIAS_ADMIN_RESTART","~restart");
+define("ALIAS_ADMIN_RELOAD","~reload");
+define("ALIAS_ADMIN_DEST_OVERRIDE","~dest-override");
+define("ALIAS_ADMIN_DEST_CLEAR","~dest-clear");
+define("ALIAS_ADMIN_BUCKETS_DUMP","~buckets-dump"); # dump buckets to terminal
+define("ALIAS_ADMIN_BUCKETS_SAVE","~buckets-save"); # save buckets to file
+define("ALIAS_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
+define("ALIAS_ADMIN_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
+define("ALIAS_ADMIN_BUCKETS_LIST","~buckets-list"); # output list of set bucket indexes to the terminal
+define("ALIAS_LOCK","~lock");
+define("ALIAS_UNLOCK","~unlock");
+define("ALIAS_LIST","~list");
+define("ALIAS_LIST_AUTH","~list-auth");
 
 # exec file shell command templates (replaced by the bot with actual values before executing)
 define("TEMPLATE_TRAILING","trailing");
@@ -93,17 +95,44 @@ $admin_nick="";
 $throttle_flag=False;
 $rawmsg_times=array();
 
-$admin_commands=array(
-  CMD_ADMIN_QUIT,
-  CMD_ADMIN_RESTART,
-  CMD_ADMIN_RELOAD,
-  CMD_ADMIN_DEST_OVERRIDE,
-  CMD_ADMIN_DEST_CLEAR,
-  CMD_ADMIN_BUCKETS_DUMP,
-  CMD_ADMIN_BUCKETS_SAVE,
-  CMD_ADMIN_BUCKETS_LOAD,
-  CMD_ADMIN_BUCKETS_FLUSH,
-  CMD_ADMIN_BUCKETS_LIST);
+$admin_aliases=array(
+  ALIAS_ADMIN_QUIT,
+  ALIAS_ADMIN_RESTART,
+  ALIAS_ADMIN_RELOAD,
+  ALIAS_ADMIN_DEST_OVERRIDE,
+  ALIAS_ADMIN_DEST_CLEAR,
+  ALIAS_ADMIN_BUCKETS_DUMP,
+  ALIAS_ADMIN_BUCKETS_SAVE,
+  ALIAS_ADMIN_BUCKETS_LOAD,
+  ALIAS_ADMIN_BUCKETS_FLUSH,
+  ALIAS_ADMIN_BUCKETS_LIST);
+
+/*
+"000" = <command>
+"001" = <command> :<trailing>
+"010" = <command> <params>
+"011" = <command> <params> :<trailing>
+"100" = :<prefix> <command>
+"101" = :<prefix> <command> :<trailing>
+"110" = :<prefix> <command> <params>
+"111" = :<prefix> <command> <params> :<trailing>
+*/
+$valid_data_cmd=array(
+  CMD_INTERNAL=>array("100","101","110","111"),
+  CMD_BUCKET_GET=>array("001","101"),
+  CMD_BUCKET_SET=>array("001","101"),
+  CMD_BUCKET_UNSET=>array("001","101"),
+  "#"=>array("101","110","111"),
+  "INVITE"=>array("111"),
+  "JOIN"=>array("110","111"),
+  "KICK"=>array("110","111"),
+  "KILL"=>array("101"),
+  "MODE"=>array("101","110","111"),
+  "NICK"=>array("101"),
+  "NOTICE"=>array("111"),
+  "PART"=>array("110","111"),
+  "PRIVMSG"=>array("111"),
+  "QUIT"=>array("100","101"));
 
 $exec_list=exec_load();
 if ($exec_list===False)
@@ -343,7 +372,7 @@ function handle_buckets($data,$handle)
   $trailing=$items["trailing"];
   switch ($items["cmd"])
   {
-    case BUCKET_GET:
+    case CMD_BUCKET_GET:
       $index=$trailing;
       if (isset($buckets[$index])==True)
       {
@@ -364,7 +393,7 @@ function handle_buckets($data,$handle)
         term_echo("BUCKET_GET [$index]: BUCKET NOT SET");
       }
       return True;
-    case BUCKET_SET:
+    case CMD_BUCKET_SET:
       $parts=explode(" ",$trailing);
       if (count($parts)<2)
       {
@@ -379,7 +408,7 @@ function handle_buckets($data,$handle)
         term_echo("BUCKET_SET [$index]: SUCCESS");
       }
       return True;
-    case BUCKET_UNSET:
+    case CMD_BUCKET_UNSET:
       $index=$trailing;
       if (isset($buckets[$index])==True)
       {
@@ -504,7 +533,7 @@ function handle_data($data,$is_sock=False)
   global $admin_accounts;
   global $admin_data;
   global $admin_nick;
-  global $admin_commands;
+  global $admin_aliases;
   global $exec_list;
   global $throttle_flag;
   echo $data;
@@ -526,14 +555,14 @@ function handle_data($data,$is_sock=False)
         $account=$parts[2];
         $admin_items=parse_data($admin_data);
         $args=explode(" ",$admin_items["trailing"]);
-        $cmd=$args[0];
+        $alias=$args[0];
         if ($admin_items["nick"]==$nick)
         {
-          if (has_account_list($cmd)==True)
+          if (has_account_list($alias)==True)
           {
-            if ((in_array($account,$exec_list[$cmd]["accounts"])==False) and (in_array($account,$admin_accounts)==False) and ($account<>NICK))
+            if ((in_array($account,$exec_list[$alias]["accounts"])==False) and (in_array($account,$admin_accounts)==False) and ($account<>NICK))
             {
-              term_echo("authentication failure: \"$account\" attempted to run \"$cmd\" but is not in exec line account list");
+              term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in exec line account list");
               $admin_nick="";
               $admin_data="";
               return;
@@ -543,7 +572,7 @@ function handle_data($data,$is_sock=False)
           {
             if (in_array($account,$admin_accounts)==False)
             {
-              term_echo("authentication failure: \"$account\" attempted to run \"$cmd\" but is not in admin account list");
+              term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in admin account list");
               $admin_nick="";
               $admin_data="";
               return;
@@ -577,7 +606,7 @@ function handle_data($data,$is_sock=False)
       return;
     }
     $args=explode(" ",$items["trailing"]);
-    if ((in_array($args[0],$admin_commands)==True) or (has_account_list($args[0])==True))
+    if ((in_array($args[0],$admin_aliases)==True) or (has_account_list($args[0])==True))
     {
       if ($admin_nick==$items["nick"])
       {
@@ -592,16 +621,17 @@ function handle_data($data,$is_sock=False)
         return;
       }
     }
-    switch ($args[0])
+    $alias=$args[0];
+    switch ($alias)
     {
-      case CMD_ADMIN_QUIT:
+      case ALIAS_ADMIN_QUIT:
         if (count($args)==1)
         {
           process_scripts($items,ALIAS_QUIT);
         }
         break;
-      case CMD_LIST:
-        if (check_nick($items,CMD_LOCK)==True)
+      case ALIAS_LIST:
+        if (check_nick($items,$alias)==True)
         {
           if (count($args)==1)
           {
@@ -609,8 +639,8 @@ function handle_data($data,$is_sock=False)
           }
         }
         break;
-      case CMD_LIST_AUTH:
-        if (check_nick($items,CMD_LOCK)==True)
+      case ALIAS_LIST_AUTH:
+        if (check_nick($items,$alias)==True)
         {
           if (count($args)==1)
           {
@@ -618,8 +648,8 @@ function handle_data($data,$is_sock=False)
           }
         }
         break;
-      case CMD_LOCK:
-        if (check_nick($items,CMD_LOCK)==True)
+      case ALIAS_LOCK:
+        if (check_nick($items,$alias)==True)
         {
           if (count($args)==2)
           {
@@ -628,18 +658,18 @@ function handle_data($data,$is_sock=False)
           }
           else
           {
-            privmsg($items["destination"],$items["nick"],"syntax: ".CMD_LOCK." <alias>");
+            privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_LOCK." <alias>");
           }
         }
         break;
-      case CMD_UNLOCK:
-        if ((check_nick($items,CMD_UNLOCK)==True) and (isset($alias_locks[$items["nick"]][$items["destination"]])==True))
+      case ALIAS_UNLOCK:
+        if ((check_nick($items,$alias)==True) and (isset($alias_locks[$items["nick"]][$items["destination"]])==True))
         {
           privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]][$items["destination"]]."\" unlocked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
           unset($alias_locks[$items["nick"]][$items["destination"]]);
         }
         break;
-      case CMD_ADMIN_DEST_OVERRIDE:
+      case ALIAS_ADMIN_DEST_OVERRIDE:
         if (count($args)==2)
         {
           privmsg($items["destination"],$items["nick"],"destination override \"".$args[1]."\" set for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
@@ -647,10 +677,10 @@ function handle_data($data,$is_sock=False)
         }
         else
         {
-          privmsg($items["destination"],$items["nick"],"syntax: ".CMD_ADMIN_DEST_OVERRIDE." <dest>");
+          privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_ADMIN_DEST_OVERRIDE." <dest>");
         }
         break;
-      case CMD_ADMIN_DEST_CLEAR:
+      case ALIAS_ADMIN_DEST_CLEAR:
         if (isset($dest_overrides[$items["nick"]][$items["destination"]])==True)
         {
           $override=$dest_overrides[$items["nick"]][$items["destination"]];
@@ -658,7 +688,7 @@ function handle_data($data,$is_sock=False)
           privmsg($items["destination"],$items["nick"],"destination override \"$override\" cleared for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
         }
         break;
-      case CMD_ADMIN_RELOAD:
+      case ALIAS_ADMIN_RELOAD:
         if (count($args)==1)
         {
           if (exec_load()===False)
@@ -672,40 +702,41 @@ function handle_data($data,$is_sock=False)
           }
         }
         break;
-      case CMD_ADMIN_BUCKETS_DUMP:
+      case ALIAS_ADMIN_BUCKETS_DUMP:
         if (count($args)==1)
         {
           buckets_dump($items);
         }
         break;
-      case CMD_ADMIN_BUCKETS_SAVE:
+      case ALIAS_ADMIN_BUCKETS_SAVE:
         if (count($args)==1)
         {
           buckets_save($items);
         }
         break;
-      case CMD_ADMIN_BUCKETS_LOAD:
+      case ALIAS_ADMIN_BUCKETS_LOAD:
         if (count($args)==1)
         {
           buckets_load($items);
         }
         break;
-      case CMD_ADMIN_BUCKETS_FLUSH:
+      case ALIAS_ADMIN_BUCKETS_FLUSH:
         if (count($args)==1)
         {
           buckets_flush($items);
         }
         break;
-      case CMD_ADMIN_BUCKETS_LIST:
+      case ALIAS_ADMIN_BUCKETS_LIST:
         if (count($args)==1)
         {
           buckets_list($items);
         }
         break;
-      case CMD_ADMIN_RESTART:
+      case ALIAS_ADMIN_RESTART:
         if (count($args)==1)
         {
-          doquit(True);
+          define("RESTART",True);
+          process_scripts($items,ALIAS_QUIT);
         }
         break;
       default:
@@ -817,7 +848,7 @@ function exec_load()
 
 #####################################################################################################
 
-function doquit($restart=False)
+function doquit()
 {
   global $handles;
   global $socket;
@@ -834,7 +865,7 @@ function doquit($restart=False)
   rawmsg("QUIT");
   fclose($socket);
   term_echo("QUITTING SCRIPT");
-  if ($restart==True)
+  if (defined("RESTART")==True)
   {
     pcntl_exec($_SERVER["_"],$argv);
   }
@@ -875,6 +906,7 @@ function term_echo($msg)
 
 function parse_data($data)
 {
+  global $valid_data_cmd;
   # :<prefix> <command> <params> :<trailing>
   # the only required part of the message is the command name
   if ($data=="")
@@ -934,6 +966,44 @@ function parse_data($data)
       $prefix=substr($prefix,$i+1);
       $result["hostname"]=$prefix;
     }
+  }
+  $mask=construct_mask($result);
+  $cmd=$result["cmd"];
+  if ($cmd=="#")
+  {
+    return False;
+  }
+  if (is_numeric($cmd)==True)
+  {
+    $cmd="#";
+  }
+  if (isset($valid_data_cmd[$cmd])==False)
+  {
+    return False;
+  }
+  if (in_array($mask,$valid_data_cmd[$cmd])==False)
+  {
+    return False;
+  }
+  return $result;
+}
+
+#####################################################################################################
+
+function construct_mask($items)
+{
+  $result="000";
+  if ($items["prefix"]<>"")
+  {
+    $result[0]="1";
+  }
+  if ($items["params"]<>"")
+  {
+    $result[1]="1";
+  }
+  if ($items["trailing"]<>"")
+  {
+    $result[2]="1";
   }
   return $result;
 }
@@ -1070,11 +1140,11 @@ function process_scripts($items,$reserved="")
 function check_nick($items,$alias)
 {
   global $time_deltas;
-  if ($items["cmd"]<>"PRIVMSG")
+  if (($items["nick"]==NICK) or ($alias=="*"))
   {
     return True;
   }
-  if (($items["nick"]==NICK) or ($alias=="*"))
+  if (($items["cmd"]<>"PRIVMSG") and ($items["cmd"]<>"NOTICE"))
   {
     return True;
   }
@@ -1132,7 +1202,7 @@ function process_timed_execs()
         continue;
       }
     }
-    $data=":exec NOTICE :$alias";
+    $data=":exec ".CMD_INTERNAL." :$alias";
     $items=parse_data($data);
     if ($items===False)
     {
