@@ -42,28 +42,28 @@ function term_echo($msg)
 
 function privmsg($msg)
 {
-  echo "IRC_MSG $msg\n";
+  echo "/PRIVMSG $msg\n";
 }
 
 #####################################################################################################
 
 function rawmsg($msg)
 {
-  echo "IRC_RAW $msg\n";
+  echo "/IRC $msg\n";
 }
 
 #####################################################################################################
 
 function pm($nick,$msg)
 {
-  echo "IRC_RAW :".NICK_EXEC." PRIVMSG $nick :$msg\n";
+  echo "/IRC :".NICK_EXEC." PRIVMSG $nick :$msg\n";
 }
 
 #####################################################################################################
 
 function notice($nick,$msg)
 {
-  echo "IRC_RAW :".NICK_EXEC." NOTICE $nick :$msg\n";
+  echo "/IRC :".NICK_EXEC." NOTICE $nick :$msg\n";
 }
 
 #####################################################################################################

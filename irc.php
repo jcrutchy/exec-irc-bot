@@ -2,19 +2,15 @@
 
 # gpl2
 # by crutchy
-# 23-june-2014
+# 24-june-2014
 
 # irc.php
-
-# TODO: per channel alias bans
-# TODO: random timer interval
-# TODO: stdout prefix for notices
 
 #####################################################################################################
 
 # installation-specific settings
 define("NICK","exec");
-define("PASSWORD",trim(file_get_contents("../pwd/".NICK)));
+define("PASSWORD_FILE","../pwd/".NICK);
 define("BUCKETS_FILE","../data/buckets");
 define("EXEC_FILE","exec.txt");
 define("INIT_CHAN_LIST","#"); # comma delimited
@@ -28,9 +24,8 @@ $admin_accounts=array("crutchy");
 #####################################################################################################
 
 define("EXEC_DELIM","|");
-define("STDOUT_PREFIX_RAW","IRC_RAW"); # if script stdout is prefixed with this, will be output to irc socket (raw)
-define("STDOUT_PREFIX_MSG","IRC_MSG"); # if script stdout is prefixed with this, will be output to irc socket as privmsg
-define("STDOUT_PREFIX_TERM","TERM"); # if script stdout is prefixed with this, will be output to the terminal only
+define("STDOUT_PREFIX_OPERATOR","/");
+define("STDOUT_PREFIX_IRC","IRC");
 define("MAX_MSG_LENGTH",800);
 define("IGNORE_TIME",20); # seconds (flood control)
 define("DELTA_TOLERANCE",1.5); # seconds (flood control)
@@ -83,6 +78,12 @@ ini_set("display_errors","on"); # output errors to stdout
 
 define("START_TIME",microtime(True)); # used for %%start%% template
 
+if (file_exists(PASSWORD_FILE)==False)
+{
+  term_echo("bot NickServ password file not found. quitting");
+  return;
+}
+
 $alias_locks=array(); # optionally stores an alias for each nick, which then treats every privmsg by that nick as being prefixed by the set alias
 $handles=array(); # stores executed process information
 $time_deltas=array(); # keeps track of how often nicks call an alias (used for flood control)
@@ -116,6 +117,8 @@ $admin_aliases=array(
 "101" = :<prefix> <command> :<trailing>
 "110" = :<prefix> <command> <params>
 "111" = :<prefix> <command> <params> :<trailing>
+ORDER MASKS IN ORDER FROM 000 TO 111: STDOUT PREFIX WILL SELECT LAST (MOST VERBOSE) MASK FOR OUTPUT TO IRC
+# = NUMERIC
 */
 $valid_data_cmd=array(
   CMD_INTERNAL=>array("100","101","110","111"),
@@ -248,7 +251,7 @@ function handle_process($handle)
     proc_close($handle["process"]);
     if ($handle["alias"]<>"*")
     {
-      term_echo("process terminated normally");
+      term_echo("process terminated normally: ".$handle["command"]);
     }
     return False;
   }
@@ -257,7 +260,7 @@ function handle_process($handle)
     if ((microtime(True)-$handle["start"])>$handle["timeout"])
     {
       proc_close($handle["process"]);
-      privmsg($handle["destination"],$handle["nick"],"error: command timed out");
+      privmsg($handle["destination"],$handle["nick"],"process timed out: ".$handle["command"]);
       return False;
     }
   }
@@ -268,6 +271,7 @@ function handle_process($handle)
 
 function handle_stdout($handle)
 {
+  global $valid_data_cmd;
   if (is_resource($handle["pipe_stdout"])==False)
   {
     return;
@@ -297,22 +301,52 @@ function handle_stdout($handle)
     $prefix=$parts[0];
     array_shift($parts);
     $prefix_msg=implode(" ",$parts);
-    if ($prefix==STDOUT_PREFIX_RAW)
+    $prefix_parts=explode(STDOUT_PREFIX_OPERATOR,$prefix);
+    if (($prefix_parts[0]=="") and (count($prefix_parts)==2))
     {
-      rawmsg($prefix_msg);
+      $prefix_cmd=strtoupper($prefix_parts[1]);
+      if ($prefix_cmd==STDOUT_PREFIX_IRC)
+      {
+        rawmsg($prefix_msg);
+        return;
+      }
+      if (($prefix_cmd=="PRIVMSG") and ($handle["destination"]<>"") and ($handle["nick"]<>"") and ($prefix_msg<>""))
+      {
+        privmsg($handle["destination"],$handle["nick"],$prefix_msg);
+        return;
+      }
+      if (isset($valid_data_cmd[$prefix_cmd])==True)
+      {
+        $masks=$valid_data_cmd[$prefix_cmd];
+        $mask=$masks[count($masks)-1];
+        $rawmsg=$prefix_cmd;
+        $mask_rawmsg="000";
+        if (($mask[0]=="1") and ($handle["nick"]<>""))
+        {
+          $rawmsg=":".$handle["nick"]." ".$rawmsg;
+          $mask_rawmsg[0]="1";
+        }
+        if (($mask[1]=="1") and ($handle["destination"]<>""))
+        {
+          $rawmsg=$rawmsg." ".$handle["destination"];
+          $mask_rawmsg[1]="1";
+        }
+        if (($mask[2]=="1") and ($prefix_msg<>""))
+        {
+          $rawmsg=$rawmsg." :".$prefix_msg;
+          $mask_rawmsg[2]="1";
+        }
+        if ($mask==$mask_rawmsg)
+        {
+          rawmsg($rawmsg);
+          return;
+        }
+      }
     }
-    elseif ($prefix==STDOUT_PREFIX_MSG)
+    if (handle_buckets($msg,$handle)==False)
     {
-      privmsg($handle["destination"],$handle["nick"],$prefix_msg);
+      handle_data($buf);
     }
-    elseif ($prefix==STDOUT_PREFIX_TERM)
-    {
-      term_echo($prefix_msg);
-    }
-  }
-  if (handle_buckets($msg,$handle)==False)
-  {
-    handle_data($buf);
   }
 }
 
@@ -536,7 +570,7 @@ function handle_data($data,$is_sock=False)
   global $admin_aliases;
   global $exec_list;
   global $throttle_flag;
-  echo $data;
+  echo "\033[33m".date("Y-m-d H:i:s",microtime(True))." > \033[0m$data";
   log_data($data);
   $items=parse_data($data);
   if ($items!==False)
@@ -602,7 +636,7 @@ function handle_data($data,$is_sock=False)
     }
     if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]=="You have 60 seconds to identify to your nickname before it is changed."))
     {
-      rawmsg("NickServ IDENTIFY ".PASSWORD,False);
+      rawmsg("NickServ IDENTIFY ".trim(file_get_contents(PASSWORD_FILE)));
       return;
     }
     $args=explode(" ",$items["trailing"]);
@@ -748,7 +782,7 @@ function handle_data($data,$is_sock=False)
 
 #####################################################################################################
 
-function rawmsg($msg,$privmsg=True)
+function rawmsg($msg)
 {
   global $socket;
   global $throttle_flag;
@@ -790,6 +824,10 @@ function exec_load()
 {
   global $exec_list;
   $exec_list=array();
+  if (file_exists(EXEC_FILE)==False)
+  {
+    return False;
+  }
   $data=file_get_contents(EXEC_FILE);
   if ($data===False)
   {
@@ -808,7 +846,7 @@ function exec_load()
       continue;
     }
     $parts=explode(EXEC_DELIM,$line);
-    if (count($parts)<7)
+    if (count($parts)<9)
     {
       continue;
     }
@@ -827,7 +865,19 @@ function exec_load()
         $accounts[]=NICK;
       }
     }
-    for ($j=0;$j<=5;$j++)
+    $cmds=array();
+    $cmds_str=strtoupper(trim($parts[6]));
+    if ($cmds_str<>"")
+    {
+      $cmds=explode(",",$cmds_str);
+    }
+    $dests=array();
+    $dests_str=strtolower(trim($parts[7]));
+    if ($dests_str<>"")
+    {
+      $dests=explode(",",$dests_str);
+    }
+    for ($j=0;$j<=7;$j++)
     {
       array_shift($parts);
     }
@@ -841,6 +891,8 @@ function exec_load()
     $exec_list[$alias]["auto"]=$auto;
     $exec_list[$alias]["empty"]=$empty;
     $exec_list[$alias]["accounts"]=$accounts;
+    $exec_list[$alias]["cmds"]=$cmds;
+    $exec_list[$alias]["dests"]=$dests;
     $exec_list[$alias]["cmd"]=$cmd;
   }
   return $exec_list;
@@ -856,9 +908,12 @@ function doquit()
   $n=count($handles);
   for ($i=0;$i<$n;$i++)
   {
-    if (is_resource($handles[$i]["process"])==True)
+    if (isset($handles[$i])==True) # have had a "Undefined offset: 0" notice on this line
     {
-      proc_close($handles[$i]["process"]);
+      if (is_resource($handles[$i]["process"])==True)
+      {
+        proc_close($handles[$i]["process"]);
+      }
     }
   }
   rawmsg("NickServ LOGOUT");
@@ -888,7 +943,7 @@ function pingpong($data)
   {
     if ($parts[0]=="PING")
     {
-      rawmsg("PONG ".$parts[1],False);
+      rawmsg("PONG ".$parts[1]);
       return True;
     }
   }
@@ -899,7 +954,7 @@ function pingpong($data)
 
 function term_echo($msg)
 {
-  echo "\033[31m$msg\033[0m\n";
+  echo "\033[33m".date("Y-m-d H:i:s",microtime(True))." > \033[31m$msg\033[0m\n";
 }
 
 #####################################################################################################
@@ -1020,7 +1075,7 @@ function privmsg($destination,$nick,$msg)
   }
   if ($msg=="")
   {
-    term_echo("PRIVMSG: NO TEXT TO SEND");
+    term_echo("PRIVMSG: NO TEXT TO SEND: nick=\"$nick\", destination=\"$destination\"");
     return;
   }
   $msg=substr($msg,0,MAX_MSG_LENGTH);
@@ -1042,7 +1097,7 @@ function privmsg($destination,$nick,$msg)
       rawmsg($data);
     }
   }
-  term_echo($msg);
+  term_echo("PRIVMSG: ".$msg);
 }
 
 #####################################################################################################
@@ -1087,6 +1142,22 @@ function process_scripts($items,$reserved="")
   {
     return;
   }
+  if (count($exec_list[$alias]["cmds"])>0)
+  {
+    if (in_array(strtoupper($cmd),$exec_list[$alias]["cmds"])==False)
+    {
+      term_echo("cmd-restricted alias \"$alias\" triggered on non-permitted cmd \"$cmd\" by \"$nick\"");
+      return;
+    }
+  }
+  if (count($exec_list[$alias]["dests"])>0)
+  {
+    if (in_array(strtolower($destination),$exec_list[$alias]["dests"])==False)
+    {
+      term_echo("dest-restricted alias \"$alias\" triggered from non-permitted dest \"$destination\" by \"$nick\"");
+      return;
+    }
+  }
   if (check_nick($items,$alias)==False)
   {
     return;
@@ -1112,7 +1183,7 @@ function process_scripts($items,$reserved="")
   $descriptorspec=array(0=>array("pipe","r"),1=>array("pipe","w"),2=>array("pipe","w"));
   if ($alias<>"*")
   {
-    term_echo($command);
+    term_echo("EXEC: ".$command);
   }
   $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
   $start=microtime(True);
