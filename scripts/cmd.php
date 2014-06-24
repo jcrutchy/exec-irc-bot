@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 23-june-2014
+# 24-june-2014
 
 #####################################################################################################
 
@@ -18,7 +18,7 @@ $nick=$argv[6];
 switch ($cmd)
 {
   case "PRIVMSG":
-    echo ":$nick INTERNAL $dest :~sed $trailing\n";
+    #echo ":$nick INTERNAL $dest :~sed $trailing\n";
     break;
 }
 
