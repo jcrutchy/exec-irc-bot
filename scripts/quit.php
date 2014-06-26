@@ -2,11 +2,11 @@
 
 # gpl2
 # by crutchy
-# 23-may-2014
+# 26-may-2014
 
 #####################################################################################################
 
-ini_set("display_errors","on");
+require_once("lib.php");
 
 # THIS SCRIPT IS CALLED BY ~q BUT NOT WHEN EXEC QUITS DUE TO BAD ~reload
 # IRC COMMANDS ARE STILL AVAILABLE, AND EXEC WILL NOT QUIT UNTIL <<quit>> DIRECTIVE IS ECHOED

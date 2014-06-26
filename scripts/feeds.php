@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 22-june-2014
+# 26-june-2014
 
 /*
 Available feeds from Regurgitator:
@@ -52,7 +52,6 @@ juggs
 
 #####################################################################################################
 
-ini_set("display_errors","on");
 require_once("lib.php");
 
 $trailing=$argv[1];

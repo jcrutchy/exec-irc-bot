@@ -2,9 +2,8 @@
 
 # gpl2
 # by crutchy
-# 31-may-2014
+# 26-june-2014
 
-ini_set("display_errors","on");
 require_once("lib.php");
 $host=trim($argv[1]);
 $port=80;

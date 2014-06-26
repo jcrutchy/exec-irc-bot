@@ -14,7 +14,6 @@
 <quit>|10|0|0|1||||php scripts/quit.php
 
 # REQUIRE NICKSERV IDENTIFIED USER AUTHENTICATION (WHOIS)
-#~comment|30|0|0|1|crutchy|||php scripts/sn.php %%trailing%% %%dest%% %%nick%%
 ~say|2|0|1|0|crutchy,chromas,monopoly|||php scripts/say.php %%trailing%% %%nick%%
 ~bucket|5|0|0|1|crutchy|||php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 #~wiki|20|0|0|0|crutchy|||php scripts/wiki.php %%trailing%% %%dest%% %%nick%%
@@ -31,6 +30,7 @@
 #~feed-del|5|0|0|1||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~stats-lines|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~stats-first|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+
 ~|5|0|1|1||||php scripts/about.php %%trailing%%
 ~cowsay|10|0|1|0||||cowsay %%trailing%%
 ~moo|10|0|1|1||||apt-get moo
@@ -40,8 +40,9 @@
 ~invite|5|0|0|0||||php scripts/join.php %%trailing%%
 ~part|5|0|0|1||||php scripts/part.php %%dest%% %%trailing%%
 ~isup|30|0|0|0||||php scripts/isup.php %%trailing%%
-~time|30|0|0|0||notice|#soylent|php scripts/time.php %%trailing%%
+~time|30|0|0|0||||php scripts/time.php %%trailing%%
 ~rainbow|5|0|0|0||||php scripts/rainbow.php %%trailing%%
+
 ~translate|10|0|0|0||||php scripts/translate.php %%trailing%% %%alias%%
 ~translate-sl|10|0|0|0||||php scripts/translate.php %%trailing%% %%alias%%
 
@@ -60,3 +61,10 @@
 #~civ-admin|120|0|0|1|crutchy|||php scripts/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
 #~civ-map|300|0|0|1|crutchy|||php scripts/irciv_map.php %%nick%% %%trailing%% %%dest%%
 #~civ-save|5|1200|0|1||||php scripts/irciv.php '<<SAVE>>'
+
+
+
+
+
+#~comment|30|0|0|1|crutchy|||php scripts/sn.php %%trailing%% %%dest%% %%nick%%
+

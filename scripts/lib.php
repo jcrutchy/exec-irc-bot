@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 23-june-2014
+# 26-june-2014
 
 # lib.php
 
@@ -78,7 +78,7 @@ function err($msg)
 
 function get_bucket($index)
 {
-  echo ":".NICK_EXEC." BUCKET_GET :$index\n";
+  echo "/BUCKET_GET $index\n";
   $f=fopen("php://stdin","r");
   $data="";
   while (True)
@@ -105,14 +105,14 @@ function get_bucket($index)
 
 function set_bucket($index,$data)
 {
-  echo ":".NICK_EXEC." BUCKET_SET :$index $data\n";
+  echo "/BUCKET_SET $index $data\n";
 }
 
 #####################################################################################################
 
 function unset_bucket($index)
 {
-  echo ":".NICK_EXEC." BUCKET_UNSET :$index\n";
+  echo "/BUCKET_UNSET $index\n";
 }
 
 #####################################################################################################

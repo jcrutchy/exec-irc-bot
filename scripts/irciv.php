@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 17-june-2014
+# 26-june-2014
 
 # irciv.php
 
@@ -10,7 +10,6 @@
 
 #####################################################################################################
 
-ini_set("display_errors","on");
 date_default_timezone_set("UTC");
 require_once("irciv_lib.php");
 

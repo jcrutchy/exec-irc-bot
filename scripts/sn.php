@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 20-june-2014
+# 26-june-2014
 
 /*
 - the bot could keeep track of irc comments and if you type something like
@@ -14,7 +14,6 @@
 
 #####################################################################################################
 
-ini_set("display_errors","on");
 require_once("lib.php");
 
 $trailing=$argv[1];

@@ -2,11 +2,11 @@
 
 # gpl2
 # by crutchy
-# 24-june-2014
+# 26-june-2014
 
 #####################################################################################################
 
-require_once("lib.php"); # also requires lib.php
+require_once("lib.php");
 
 $cmd=$argv[1];
 $trailing=$argv[2];
@@ -15,11 +15,22 @@ $dest=$argv[4];
 $params=$argv[5];
 $nick=$argv[6];
 
-# don't handle a command by echoing the a line with the same command (will end up in a loop)
+#####################################################################################################
+#                                                                                                   #
+#                                          ~~~ CAUTION ~~~                                          #
+#                                                                                                   #
+#   THIS SCRIPT IS CALLED ON EVERY IRC EVENT, INCLUDING THOSE ORIGINATING FROM THIS SCRIPT.         #
+#                                                                                                   #
+#   INFINITE LOOPS CAN RESULT FROM:
+
+#     (1) ECHOING A COMAND IN IT'S OWN HANDLER
+#                                                                                                   #
+#####################################################################################################
+
 switch (strtoupper($cmd))
 {
   case "INTERNAL":
-    #privmsg("internal command called");
+
     break;
   case "BUCKET_GET":
 
@@ -30,10 +41,10 @@ switch (strtoupper($cmd))
   case "BUCKET_UNSET":
 
     break;
-  case "INVITE":
+  case "INVITE": # :crutchy!~crutchy@709-27-2-01.cust.aussiebb.net INVITE exec :#~
 
     break;
-  case "JOIN":
+  case "JOIN": # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
 
     break;
   case "KICK":
@@ -55,7 +66,7 @@ switch (strtoupper($cmd))
 
     break;
   case "PRIVMSG":
-    echo ":$nick INTERNAL $dest :~sed $trailing\n";
+    echo "/INTERNAL ~sed $trailing\n";
     break;
   case "QUIT":
 

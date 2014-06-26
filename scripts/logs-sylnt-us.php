@@ -2,11 +2,10 @@
 
 # gpl2
 # by crutchy
-# 18-june-2014
+# 26-june-2014
 
 #####################################################################################################
 
-ini_set("display_errors","on");
 date_default_timezone_set("UTC");
 require_once("lib.php");
 

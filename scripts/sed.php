@@ -2,11 +2,10 @@
 
 # gpl2
 # by crutchy
-# 22-june-2014
+# 26-june-2014
 
 #####################################################################################################
 
-ini_set("display_errors","on");
 require_once("lib.php");
 
 $trailing=$argv[1];
@@ -21,13 +20,10 @@ if ($nick<>NICK_EXEC)
   {
     sed($trailing,$nick,$dest);
   }
-  $index="last_".strtolower($nick)."_".$dest;
-  set_bucket($index,$trailing);
+  set_bucket("last_".strtolower($nick)."_".$dest,$trailing);
 }
 
 #####################################################################################################
-
-# http://pastebin.com/UUYu9dGG (thanks SirFinkus)
 
 function sed($trailing,$nick,$dest)
 {

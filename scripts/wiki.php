@@ -2,16 +2,13 @@
 
 # gpl2
 # by crutchy
-# 12-june-2014
-
-# wiki.php
+# 26-june-2014
 
 # http://www.mediawiki.org/wiki/Manual:Bots
 # http://en.wikipedia.org/wiki/Wikipedia:Creating_a_bot
 
 #####################################################################################################
 
-ini_set("display_errors","on");
 require_once("lib.php");
 $trailing=$argv[1];
 $dest=$argv[2];

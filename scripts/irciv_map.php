@@ -2,13 +2,12 @@
 
 # gpl2
 # by crutchy
-# 17-june-2014
+# 26-june-2014
 
 # irciv_map.php
 
 #####################################################################################################
 
-ini_set("display_errors","on");
 require_once("irciv_lib.php");
 
 define("CMD_GENERATE","generate");

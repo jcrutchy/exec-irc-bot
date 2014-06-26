@@ -2,16 +2,17 @@
 
 # gpl2
 # by crutchy
-# 11-june-2014
+# 26-june-2014
 
 # definitions.php
 
 # http://api.urbandictionary.com/v0/define?term=shitton
 # thanks weirdpercent
 
+# https://encyclopediadramatica.es
+
 #####################################################################################################
 
-ini_set("display_errors","on");
 require_once("lib.php");
 $msg=$argv[1];
 $alias=$argv[2];

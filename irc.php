@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-june-2014
+# 26-june-2014
 
 # irc.php
 
@@ -24,8 +24,6 @@ $admin_accounts=array("crutchy");
 #####################################################################################################
 
 define("EXEC_DELIM","|");
-define("STDOUT_PREFIX_OPERATOR","/");
-define("STDOUT_PREFIX_IRC","IRC");
 define("MAX_MSG_LENGTH",800);
 define("IGNORE_TIME",20); # seconds (flood control)
 define("DELTA_TOLERANCE",1.5); # seconds (flood control)
@@ -39,12 +37,19 @@ define("ALIAS_ALL","*");
 define("ALIAS_INIT","<init>");
 define("ALIAS_QUIT","<quit>");
 
-# bucket messages (buckets is an array filled by pipes)
+# commands intercepted from stdout
 define("CMD_BUCKET_GET","BUCKET_GET");
 define("CMD_BUCKET_SET","BUCKET_SET");
 define("CMD_BUCKET_UNSET","BUCKET_UNSET");
-
 define("CMD_INTERNAL","INTERNAL");
+
+define("PREFIX_DELIM","/");
+define("PREFIX_IRC",PREFIX_DELIM."IRC");
+define("PREFIX_PRIVMSG",PREFIX_DELIM."PRIVMSG");
+define("PREFIX_BUCKET_GET",PREFIX_DELIM.CMD_BUCKET_GET);
+define("PREFIX_BUCKET_SET",PREFIX_DELIM.CMD_BUCKET_SET);
+define("PREFIX_BUCKET_UNSET",PREFIX_DELIM.CMD_BUCKET_UNSET);
+define("PREFIX_INTERNAL",PREFIX_DELIM.CMD_INTERNAL);
 
 # internal aliases (can also use in exec file with alias locking, but that would be just weird)
 define("ALIAS_ADMIN_QUIT","~q");
@@ -127,7 +132,7 @@ $valid_data_cmd=array(
   CMD_BUCKET_UNSET=>array("001","101"),
   "#"=>array("101","110","111"),
   "INVITE"=>array("111"),
-  "JOIN"=>array("110","111"),
+  "JOIN"=>array("110"),
   "KICK"=>array("110","111"),
   "KILL"=>array("101"),
   "MODE"=>array("101","110","111"),
@@ -260,7 +265,8 @@ function handle_process($handle)
     if ((microtime(True)-$handle["start"])>$handle["timeout"])
     {
       proc_close($handle["process"]);
-      privmsg($handle["destination"],$handle["nick"],"process timed out: ".$handle["command"]);
+      term_echo("process timed out: ".$handle["command"]);
+      privmsg($handle["destination"],$handle["nick"],"process timed out: ".$handle["trailing"]);
       return False;
     }
   }
@@ -271,7 +277,6 @@ function handle_process($handle)
 
 function handle_stdout($handle)
 {
-  global $valid_data_cmd;
   if (is_resource($handle["pipe_stdout"])==False)
   {
     return;
@@ -298,49 +303,34 @@ function handle_stdout($handle)
   else
   {
     $parts=explode(" ",$msg);
-    $prefix=$parts[0];
+    $prefix=strtoupper($parts[0]);
     array_shift($parts);
     $prefix_msg=implode(" ",$parts);
-    $prefix_parts=explode(STDOUT_PREFIX_OPERATOR,$prefix);
-    if (($prefix_parts[0]=="") and (count($prefix_parts)==2))
+    if ($prefix_msg<>"")
     {
-      $prefix_cmd=strtoupper($prefix_parts[1]);
-      if ($prefix_cmd==STDOUT_PREFIX_IRC)
+      switch ($prefix)
       {
-        rawmsg($prefix_msg);
-        return;
-      }
-      if (($prefix_cmd=="PRIVMSG") and ($handle["destination"]<>"") and ($handle["nick"]<>"") and ($prefix_msg<>""))
-      {
-        privmsg($handle["destination"],$handle["nick"],$prefix_msg);
-        return;
-      }
-      if (isset($valid_data_cmd[$prefix_cmd])==True)
-      {
-        $masks=$valid_data_cmd[$prefix_cmd];
-        $mask=$masks[count($masks)-1];
-        $rawmsg=$prefix_cmd;
-        $mask_rawmsg="000";
-        if (($mask[0]=="1") and ($handle["nick"]<>""))
-        {
-          $rawmsg=":".$handle["nick"]." ".$rawmsg;
-          $mask_rawmsg[0]="1";
-        }
-        if (($mask[1]=="1") and ($handle["destination"]<>""))
-        {
-          $rawmsg=$rawmsg." ".$handle["destination"];
-          $mask_rawmsg[1]="1";
-        }
-        if (($mask[2]=="1") and ($prefix_msg<>""))
-        {
-          $rawmsg=$rawmsg." :".$prefix_msg;
-          $mask_rawmsg[2]="1";
-        }
-        if ($mask==$mask_rawmsg)
-        {
-          rawmsg($rawmsg);
+        case PREFIX_IRC:
+          rawmsg($prefix_msg);
           return;
-        }
+        case PREFIX_PRIVMSG:
+          if (($handle["destination"]<>"") and ($handle["nick"]<>""))
+          {
+            privmsg($handle["destination"],$handle["nick"],$prefix_msg);
+          }
+          return;
+        case PREFIX_BUCKET_GET:
+          handle_buckets(CMD_BUCKET_GET." :".$prefix_msg."\n",$handle);
+          return;
+        case PREFIX_BUCKET_SET:
+          handle_buckets(CMD_BUCKET_SET." :".$prefix_msg."\n",$handle);
+          return;
+        case PREFIX_BUCKET_UNSET:
+          handle_buckets(CMD_BUCKET_UNSET." :".$prefix_msg."\n",$handle);
+          return;
+        case PREFIX_INTERNAL:
+          handle_data(":".$handle["nick"]." ".CMD_INTERNAL." ".$handle["destination"]." :".$prefix_msg."\n");
+          return;
       }
     }
     if (handle_buckets($msg,$handle)==False)
@@ -1201,7 +1191,8 @@ function process_scripts($items,$reserved="")
     "auto_privmsg"=>$exec_list[$alias]["auto"],
     "start"=>$start,
     "nick"=>$items["nick"],
-    "destination"=>$items["destination"]);
+    "destination"=>$items["destination"],
+    "trailing"=>$trailing);
   stream_set_blocking($pipes[1],0);
   stream_set_blocking($pipes[2],0);
 }

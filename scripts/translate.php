@@ -2,11 +2,10 @@
 
 # gpl2
 # by crutchy
-# 8-june-2014
+# 26-june-2014
 
 #####################################################################################################
 
-ini_set("display_errors","on");
 require_once("lib.php");
 
 $trailing=$argv[1];
