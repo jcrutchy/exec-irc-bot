@@ -24,6 +24,8 @@ $nick=$argv[6];
 #   INFINITE LOOPS CAN RESULT FROM:
 
 #     (1) ECHOING A COMAND IN IT'S OWN HANDLER
+
+#     (2) ECHOING A COMMAND WHOSE HANDLER ECHOES THE ORIGINAL COMMAND
 #                                                                                                   #
 #####################################################################################################
 
@@ -66,7 +68,7 @@ switch (strtoupper($cmd))
 
     break;
   case "PRIVMSG":
-    echo "/INTERNAL ~sed $trailing\n";
+    #echo "/INTERNAL ~sed $trailing\n";
     break;
   case "QUIT":
 
