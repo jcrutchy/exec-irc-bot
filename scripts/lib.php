@@ -339,7 +339,7 @@ function wget($host,$uri,$port=80,$agent="",$extra_headers="",$timeout=20)
 
 #####################################################################################################
 
-function wpost($host,$uri,$port,$agent,$params,$extra_headers="")
+function wpost($host,$uri,$port,$agent,$params,$extra_headers="",$timeout=20)
 {
   $errno=0;
   $errstr="";

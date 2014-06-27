@@ -19,7 +19,7 @@ $alias=$argv[4];
 define("WIKI_USER_AGENT","IRC-Executive/0.01 (https://github.com/crutchy-/test/blob/master/scripts/wiki.php; jared.crutchfield@hotmail.com)");
 define("WIKI_HOST","wiki.soylentnews.org");
 
-$cookie=get_bucket("wiki_login_cookie");
+$cookie=get_bucket("wiki_login_cookieprefix");
 
 if ($cookie=="")
 {
@@ -101,9 +101,9 @@ function login()
   {
     $msg=$msg.", username=".$data["login"]["lgusername"]." (userid=".$data["login"]["lguserid"].")";
   }
+  set_bucket("wiki_login_cookieprefix",$data["login"]["cookieprefix"]);
+  set_bucket("wiki_login_sessionid",$data["login"]["sessionid"]);
   privmsg($msg);
-  set_bucket("wiki_login_cookieprefix",$headers["cookieprefix"]);
-  set_bucket("wiki_login_sessionid",$headers["sessionid"]);
 }
 
 #####################################################################################################
@@ -111,32 +111,55 @@ function login()
 function edit()
 {
 
-  $params=array(
-    "action"=>"edit",
-    "format"=>"php",
-    "title"=>"Talk:Main_Page",
-    "section"=>"new",
-    "summary"=>"Hello%20World",
-    "text"=>"Hello%20everyone!",
-    "watch"=>"",
-    "basetimestamp"=>"2008-03-20T17:26:39Z",
-    "token"=>"cecded1f35005d22904a35cc7b736e18%2B%5C");
-
-  $uri="";
-  foreach ($params as $key => $value)
+  $cookieprefix=get_bucket("wiki_login_cookieprefix");
+  $sessionid=get_bucket("wiki_login_sessionid");
+  if (($cookieprefix=="") or ($sessionid==""))
   {
-    if ($uri<>"")
-    {
-      $uri=$uri."&";
-    }
-    $uri=$uri.$key."=".urlencode($value);
+    privmsg("edit: not logged in");
+    return;
   }
-  $uri="/w/api.php?".$uri;
+  $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
 
-  $response=wget(WIKI_HOST,$uri,80);
+  $uri="/w/api.php?action=tokens&format=php";
 
-  var_dump($response);
+  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
 
+  $data=unserialize(strip_headers($response));
+
+  if (isset($data["tokens"]["edittoken"])==False)
+  {
+    privmsg("edit: error getting edittoken");
+    return;
+  }
+
+  $token=$data["tokens"]["edittoken"];
+
+  $uri="/w/api.php?action=edit";
+
+  # http://www.mediawiki.org/wiki/API:Edit#Parameters
+  $params=array(
+    "format"=>"php",
+    "title"=>"Sandbox",
+    #"section"=>"new",
+    #"sectiontitle"=>"exec test",
+    "section"=>"exec test",
+    "summary"=>"exec test",
+    "text"=>"trying something else",
+    #"appendtext"=>"Hello world!",
+    "bot"=>"",
+    "token"=>$token);
+
+  $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
+
+  $data=unserialize(strip_headers($response));
+
+  $msg="wiki edit=".$data["edit"]["result"];
+  if ($data["edit"]["result"]=="Success")
+  {
+    $msg=$msg.", oldrevid=".$data["edit"]["oldrevid"].", newrevid=".$data["edit"]["newrevid"];
+  }
+
+  var_dump($data);
 }
 
 #####################################################################################################
