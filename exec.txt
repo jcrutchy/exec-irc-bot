@@ -17,7 +17,7 @@
 ~say|2|0|1|0|crutchy,chromas,monopoly|||php scripts/say.php %%trailing%% %%nick%%
 ~bucket|5|0|0|1|crutchy|||php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 
-~wiki|20|0|0|0|crutchy|||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~wiki|40|0|0|0|crutchy|||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 # called from other scripts via INTERNAL cmd
 ~sed|5|0|0|0||INTERNAL||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%cmd%%
@@ -43,6 +43,8 @@
 ~isup|30|0|0|0||||php scripts/isup.php %%trailing%%
 ~time|30|0|0|0||||php scripts/time.php %%trailing%%
 ~rainbow|5|0|0|0||||php scripts/rainbow.php %%trailing%%
+
+~google|20|0|0|0||||php scripts/google.php %%trailing%%
 
 ~translate|10|0|0|0||||php scripts/translate.php %%trailing%% %%alias%%
 ~translate-sl|10|0|0|0||||php scripts/translate.php %%trailing%% %%alias%%

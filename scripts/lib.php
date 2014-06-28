@@ -497,6 +497,22 @@ function strip_first_tag(&$html,$tag)
 
 #####################################################################################################
 
+function strip_comments(&$html)
+{
+  $i=strpos($html,"<!--");
+  $end="-->";
+  $j=strpos($html,$end);
+  if (($i===False) or ($j===False))
+  {
+    return False;
+  }
+  $html=substr($html,0,$i).substr($html,$j+strlen($end));
+  strip_comments($html);
+  return True;
+}
+
+#####################################################################################################
+
 function strip_all_tag(&$html,$tag)
 {
   while (strip_first_tag($html,$tag)==True)

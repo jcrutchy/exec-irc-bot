@@ -7,6 +7,9 @@
 # http://www.mediawiki.org/wiki/Manual:Bots
 # http://en.wikipedia.org/wiki/Wikipedia:Creating_a_bot
 
+# ~wiki edit title|section|text
+# ~wiki edit title|section| (deletes section)
+
 #####################################################################################################
 
 require_once("lib.php");
@@ -51,6 +54,23 @@ else
       $section=$parts[1];
       $text=$parts[2];
       edit($title,$section,$text);
+      break;
+    case "get":
+      array_shift($parts);
+      $trailing=implode(" ",$parts);
+      $parts=explode("|",$trailing);
+      if ((count($parts)<>1) and (count($parts)<>2))
+      {
+        privmsg("syntax: ~wiki title[|section]");
+        return;
+      }
+      $title=$parts[0];
+      $section="";
+      if (isset($parts[1])==True)
+      {
+        $section=$parts[1];
+      }
+      get_text($title,$section);
       break;
     case "logout":
       logout();
@@ -137,6 +157,7 @@ function edit($title,$section,$text)
   $uri="/w/api.php?action=tokens&format=php";
   $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
   $data=unserialize(strip_headers($response));
+  var_dump($data);
   if (isset($data["tokens"]["edittoken"])==False)
   {
     privmsg("wiki: edit=error getting edittoken");
@@ -175,6 +196,10 @@ function edit($title,$section,$text)
       return;
     }
     $index=$sections[$index]["index"];
+    if ($text<>"")
+    {
+      $text="==$section==\n$text";
+    }
   }
   $uri="/w/api.php?action=edit";
   # http://www.mediawiki.org/wiki/API:Edit#Parameters
@@ -205,6 +230,60 @@ function edit($title,$section,$text)
     }
   }
   privmsg($msg);
+}
+
+#####################################################################################################
+
+function get_text($title,$section)
+{
+  if ($title=="")
+  {
+    privmsg("wiki: edit=invalid title");
+    return;
+  }
+  $index=-1;
+  if ($section<>"")
+  {
+    $uri="/w/api.php?action=parse&format=php&page=".urlencode($title)."&prop=sections";
+    $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT);
+    $data=unserialize(strip_headers($response));
+    if (isset($data["parse"]["sections"])==False)
+    {
+      privmsg("wiki: edit=error getting sections for page \"".$title."\"");
+      return;
+    }
+    $sections=$data["parse"]["sections"];
+    for ($i=0;$i<count($sections);$i++)
+    {
+      $line=$sections[$i]["line"];
+      if (strtolower($section)==strtolower($line))
+      {
+        $index=$sections[$i]["index"];
+        break;
+      }
+    }
+  }
+  $uri="/w/api.php?action=parse&format=php&page=".urlencode($title)."&prop=text";
+  if ($index>0)
+  {
+    $uri=$uri."&section=$index";
+  }
+  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT);
+  $data=unserialize(strip_headers($response));
+  if (isset($data["parse"]["text"]["*"])==True)
+  {
+    $text=$data["parse"]["text"]["*"];
+  }
+  else
+  {
+    privmsg("wiki: edit=section not found");
+    return;
+  }
+  strip_comments($text);
+  strip_all_tag($text,"h2");
+  $text=strip_tags($text);
+  $text=trim($text," \t\n\r\0\x0B\"");
+  privmsg($text);
 }
 
 #####################################################################################################

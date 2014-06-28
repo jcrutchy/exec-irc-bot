@@ -2,7 +2,9 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
+# 27-june-2014
+
+# http://wiki.soylentnews.org/wiki/Rss_sources
 
 /*
 Available feeds from Regurgitator:
