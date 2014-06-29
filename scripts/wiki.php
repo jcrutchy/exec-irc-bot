@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 27-june-2014
+# 29-june-2014
 
 # http://www.mediawiki.org/wiki/Manual:Bots
 # http://en.wikipedia.org/wiki/Wikipedia:Creating_a_bot
@@ -24,18 +24,11 @@ define("WIKI_HOST","wiki.soylentnews.org");
 
 $login=get_bucket("wiki_login_cookieprefix");
 
-if ($login=="")
+if (strtolower($trailing)=="login")
 {
-  switch (strtolower($trailing))
-  {
-    case "login":
-      login();
-      break;
-    default:
-      privmsg("wiki: not logged in");
-  }
+  login();
 }
-else
+elseif ($login<>"")
 {
   $parts=explode(" ",$trailing);
   $action=$parts[0];
@@ -78,6 +71,10 @@ else
     default:
       privmsg("wiki: no action specified");
   }
+}
+else
+{
+  privmsg("wiki: not logged in");
 }
 
 #####################################################################################################

@@ -1,10 +1,1 @@
-atom|GoogleGroups: networked-robots|https://groups.google.com/forum/feed/networked-robots/msgs/atom.xml?num=5
-atom|GoogleGroups: comp.ai.games|https://groups.google.com/forum/feed/comp.ai.games/msgs/atom.xml?num=5
-atom|GoogleGroups: comp.ai.nat-lang|https://groups.google.com/forum/feed/comp.ai.nat-lang/msgs/atom.xml?num=5
-rss|SpaceFuture|http://www.spacefuture.com/channel/rss/journal.rss
-atom|GoogleGroups: sci.electronics.design|https://groups.google.com/forum/feed/sci.electronics.design/msgs/atom.xml?num=5
-atom|GoogleGroups: comp.misc|https://groups.google.com/forum/feed/comp.misc/msgs/atom.xml?num=5
-atom|GoogleGroups: comp.arch|https://groups.google.com/forum/feed/comp.arch/msgs/atom.xml?num=5
-rss|The Daily WTF|http://syndication.thedailywtf.com/TheDailyWtf
-rss|Japan Aerospace Exploration Agency (JAXA)|http://global.jaxa.jp/rss/press.rdf
-rss|space.io9.com|http://space.io9.com/rss
+rss|Ars Technica|http://feeds.arstechnica.com/arstechnica/index?format=xml

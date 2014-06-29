@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
+# 29-june-2014
 
 # irc.php
 
@@ -96,7 +96,6 @@ $buckets=array(); # common place for scripts to store stuff
 $dest_overrides=array(); # optionally stores a destination for each nick, which treats every privmsg by that nick as having the set destination
 
 $admin_data="";
-$admin_nick="";
 
 $throttle_flag=False;
 $rawmsg_times=array();
@@ -556,7 +555,6 @@ function handle_data($data,$is_sock=False)
   global $dest_overrides;
   global $admin_accounts;
   global $admin_data;
-  global $admin_nick;
   global $admin_aliases;
   global $exec_list;
   global $throttle_flag;
@@ -570,53 +568,58 @@ function handle_data($data,$is_sock=False)
       $throttle_flag=True;
       return;
     }
+    $admin_nick="";
+    if ($items["cmd"]==311)
+    {
+
+    }
     if ($items["cmd"]==330) # is logged in as
     {
+      term_echo("\033[32mdetected cmd 330: $admin_data\033[0m");
       $parts=explode(" ",$items["params"]);
-      if (($admin_data<>"") and (count($parts)==3) and ($parts[0]==NICK))
+      if ($admin_data<>"")
       {
-        $nick=$parts[1];
-        $account=$parts[2];
-        $admin_items=parse_data($admin_data);
-        $args=explode(" ",$admin_items["trailing"]);
-        $alias=$args[0];
-        if ($admin_items["nick"]==$nick)
+        if ((count($parts)==3) and ($parts[0]==NICK))
         {
-          if (has_account_list($alias)==True)
+          $nick=$parts[1];
+          $account=$parts[2];
+          $admin_items=parse_data($admin_data);
+          $args=explode(" ",$admin_items["trailing"]);
+          $alias=$args[0];
+          if ($admin_items["nick"]==$nick)
           {
-            if ((in_array($account,$exec_list[$alias]["accounts"])==False) and (in_array($account,$admin_accounts)==False) and ($account<>NICK))
+            if (has_account_list($alias)==True)
             {
-              term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in exec line account list");
-              $admin_nick="";
-              $admin_data="";
-              return;
+              if ((in_array($account,$exec_list[$alias]["accounts"])==False) and (in_array($account,$admin_accounts)==False) and ($account<>NICK))
+              {
+                term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in exec line account list");
+                $admin_data="";
+                return;
+              }
             }
+            else
+            {
+              if (in_array($account,$admin_accounts)==False)
+              {
+                term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in admin account list");
+                $admin_data="";
+                return;
+              }
+            }
+            $admin_nick=$nick;
+            $items=$admin_items;
+            $args=explode(" ",$items["trailing"]);
           }
           else
           {
-            if (in_array($account,$admin_accounts)==False)
-            {
-              term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in admin account list");
-              $admin_nick="";
-              $admin_data="";
-              return;
-            }
+            $admin_data="";
+            return;
           }
-          $admin_nick=$nick;
-          $items=$admin_items;
-          $args=explode(" ",$items["trailing"]);
         }
         else
         {
-          $admin_nick="";
           $admin_data="";
-          return;
         }
-      }
-      else
-      {
-        $admin_nick="";
-        $admin_data="";
       }
     }
     if ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
@@ -626,15 +629,14 @@ function handle_data($data,$is_sock=False)
     }
     if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]=="You have 60 seconds to identify to your nickname before it is changed."))
     {
-      rawmsg("NickServ IDENTIFY ".trim(file_get_contents(PASSWORD_FILE)));
+      rawmsg("NickServ IDENTIFY ".trim(file_get_contents(PASSWORD_FILE)),True);
       return;
     }
     $args=explode(" ",$items["trailing"]);
     if ((in_array($args[0],$admin_aliases)==True) or (has_account_list($args[0])==True))
     {
-      if ($admin_nick==$items["nick"])
+      if (($admin_data<>"") and ($admin_nick<>"") and ($admin_nick==$items["nick"]))
       {
-        $admin_nick="";
         $admin_data="";
       }
       else
@@ -772,7 +774,7 @@ function handle_data($data,$is_sock=False)
 
 #####################################################################################################
 
-function rawmsg($msg)
+function rawmsg($msg,$obfuscate=False)
 {
   global $socket;
   global $throttle_flag;
@@ -805,6 +807,14 @@ function rawmsg($msg)
   while (count($rawmsg_times)>$flood_count)
   {
     array_shift($rawmsg_times);
+  }
+  if ($obfuscate==False)
+  {
+    term_echo("RAWMSG: ".$msg);
+  }
+  else
+  {
+    term_echo("RAWMSG: (obfuscated)");
   }
 }
 
@@ -933,7 +943,7 @@ function pingpong($data)
   {
     if ($parts[0]=="PING")
     {
-      rawmsg("PONG ".$parts[1]);
+      rawmsg("PONG ".trim($parts[1]));
       return True;
     }
   }

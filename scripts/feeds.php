@@ -2,55 +2,9 @@
 
 # gpl2
 # by crutchy
-# 27-june-2014
+# 29-june-2014
 
 # http://wiki.soylentnews.org/wiki/Rss_sources
-
-/*
-Available feeds from Regurgitator:
-!SoylentNews
-!arstechnica
-!bbc-tech
-!bugtraq
-!cnet
-!computerworld
-!darpa
-!forbes-tech
-!itworld
-!krebs
-!mosaicscience
-!nasa
-!nature
-!nist-bioscience
-!nist-buildfire
-!nist-chemistry
-!nist-electronics
-!nist-energy
-!nist-forensics
-!nist-it
-!nist-manufacturing
-!nist-math
-!nist-nano
-!nist-physics
-!nist-standards
-!physorg
-!pipedot
-!sciencedaily_all
-!sciencemag
-!securityweek
-!taosecurity
-!theregister
-!wired-enterprise
-!wired-scie
-*/
-
-# add an authenticated alias for adding/removing feeds
-
-/*
-martyb
-Woods
-juggs
-*/
 
 #####################################################################################################
 
@@ -63,10 +17,16 @@ $alias=$argv[4];
 
 $feed_chans=array("#~");
 
-define("FEED_FILE",__DIR__."/feeds.txt");
+if ($alias=="~feed-sources-wiki-get")
+{
+  echo "/INTERNAL ~wiki-feed-sources\n";
+  return;
+}
+
+define("FEED_FILE","scripts/feeds.txt");
 define("PAST_FEED_FILE","/var/www/irciv.us.to/exec_logs/feeds.txt");
 
-$feed_list=load_feeds();
+$feed_list=load_feeds_from_file(FEED_FILE);
 if ($feed_list===False)
 {
   term_echo("error loading feeds file");
@@ -75,6 +35,12 @@ if ($feed_list===False)
 if (count($feed_list)==0)
 {
   term_echo("no valid sources in feeds file");
+  return;
+}
+
+if ($alias=="~feed-sources-wiki") # called by wiki after saving sources to bucket
+{
+
   return;
 }
 
@@ -96,92 +62,129 @@ if ($alias=="~feed-sources")
   return;
 }
 
-$past_feeds=array();
-$past_feeds_bucket=get_bucket("<<PAST_FEEDS>>");
-if ($past_feeds_bucket<>"")
+if ($alias=="~feed-wiki")
 {
-  $past_feeds_bucket=unserialize($past_feeds_bucket);
-  if ($past_feeds_bucket!==False)
+  echo "/INTERNAL ~wiki login\n";
+  sleep(3);
+  $items=get_new_items($feed_list);
+  $c=count($items);
+  for ($i=0;$i<$c;$i++)
   {
-    $past_feeds=$past_feeds_bucket;
+    $item=$items[$i];
+    $title="Feeds";
+    $section=$item["feed_name"].": ".$item["title"];
+    $text=$item["url"];
+    echo "/INTERNAL ~wiki edit $title|$section|$text\n";
+    sleep(10);
+  }
+  echo "/INTERNAL ~wiki logout\n";
+  return;
+}
+
+$items=get_new_items($feed_list);
+var_dump($items);
+$c=min(3,count($items));
+for ($i=0;$i<$c;$i++)
+{
+  for ($j=0;$j<count($feed_chans);$j++)
+  {
+    if ($j>0)
+    {
+      sleep(2);
+    }
+    $item=$items[$i];
+    $msg=chr(2)."[".$item["feed_name"]."]".chr(2)." - ".chr(3)."3".$item["title"].chr(3)." - ".$item["url"];
+    echo "/IRC :".NICK_EXEC." PRIVMSG ".$feed_chans[$j]." :$msg\n";
   }
 }
-else
+
+#####################################################################################################
+
+function get_new_items($feed_list)
 {
-  if (file_exists(PAST_FEED_FILE)==True)
+  $results=array();
+  $past_feeds=array();
+  $past_feeds_bucket=get_bucket("<<PAST_FEEDS>>");
+  if ($past_feeds_bucket<>"")
   {
-    $data=file_get_contents(PAST_FEED_FILE);
-    if ($data!==False)
+    $past_feeds_bucket=unserialize($past_feeds_bucket);
+    if ($past_feeds_bucket!==False)
     {
-      $past_feeds=explode("\n",$data);
+      $past_feeds=$past_feeds_bucket;
     }
   }
-}
-
-$current_feeds=array();
-
-for ($i=0;$i<count($feed_list);$i++)
-{
-  $feed=$feed_list[$i];
-  term_echo("processing ".$feed["name"]." ".$feed["type"]." feed @ \"".$feed["url"]."\"");
-  $response=wget($feed["host"],$feed["uri"],$feed["port"]);
-  $html=strip_headers($response);
-  $items=array();
-  if ($feed["type"]=="atom")
+  else
   {
-    $items=parse_atom($html);
-  }
-  elseif ($feed["type"]=="rss")
-  {
-    $items=parse_rss($html);
-  }
-  if ($items===False)
-  {
-    term_echo("feed parse error");
-    continue;
-  }
-  for ($j=0;$j<count($items);$j++)
-  {
-    $item=$items[$j];
-    $current_feeds[]=$item["url"];
-    if (in_array($item["url"],$past_feeds)==False)
+    if (file_exists(PAST_FEED_FILE)==True)
     {
-      if ($j>0)
+      $data=file_get_contents(PAST_FEED_FILE);
+      if ($data!==False)
       {
-        sleep(3);
+        $past_feeds=explode("\n",$data);
       }
-      $past_feeds[]=$item["url"];
-      # <![CDATA[Elon Musk "Hopeful" First People Can Be Taken To Mars in 10-12 Years]]>
-      $delim="<![CDATA[";
-      if (strtoupper(substr($item["title"],0,strlen($delim)))==$delim)
+    }
+  }
+  $current_feeds=array();
+  for ($i=0;$i<count($feed_list);$i++)
+  {
+    $feed=$feed_list[$i];
+    term_echo("processing ".$feed["name"]." ".$feed["type"]." feed @ \"".$feed["url"]."\"");
+    $response=wget($feed["host"],$feed["uri"],$feed["port"]);
+    $html=strip_headers($response);
+    $items=array();
+    if ($feed["type"]=="atom")
+    {
+      $items=parse_atom($html);
+    }
+    elseif ($feed["type"]=="rss")
+    {
+      $items=parse_rss($html);
+    }
+    if ($items===False)
+    {
+      term_echo("feed parse error");
+      continue;
+    }
+    for ($j=0;$j<count($items);$j++)
+    {
+      $item=$items[$j];
+      $current_feeds[]=$item["url"];
+      if (in_array($item["url"],$past_feeds)==False)
       {
-        $item["title"]=substr($item["title"],strlen($delim),strlen($item["title"])-strlen($delim)-3);
-      }
-      $item["title"]=str_replace("&apos;","'",$item["title"]);
-      $msg=chr(2)."[".$feed["name"]."]".chr(2)." - ".chr(3)."3".$item["title"].chr(3)." - ".$item["url"];
-      for ($k=0;$k<count($feed_chans);$k++)
-      {
-        if ($k>0)
+        if ($j>0)
         {
-          sleep(2);
+          sleep(3);
         }
-        echo "IRC_RAW :".NICK_EXEC." PRIVMSG ".$feed_chans[$k]." :$msg\n";
+        $past_feeds[]=$item["url"];
+        $delim1="<![CDATA[";
+        $delim2="]]>";
+        if (strtoupper(substr($item["title"],0,strlen($delim1)))==$delim1)
+        {
+          $item["title"]=substr($item["title"],strlen($delim1),strlen($item["title"])-strlen($delim1)-strlen($delim2));
+        }
+        $item["title"]=str_replace("&apos;","'",$item["title"]);
+        $item["feed_name"]=$feed["name"];
+        $results[]=$item;
+        if (count($results)>=3)
+        {
+          break;
+        }
       }
     }
   }
-}
-
-$data="";
-for ($i=0;$i<count($current_feeds);$i++)
-{
-  if ($data<>"")
+  $data="";
+  for ($i=0;$i<count($current_feeds);$i++)
   {
-    $data=$data."\n";
+    if ($data<>"")
+    {
+      $data=$data."\n";
+    }
+    $data=$data.$current_feeds[$i];
   }
-  $data=$data.$current_feeds[$i];
+  file_put_contents(PAST_FEED_FILE,$data);
+  set_bucket("<<PAST_FEEDS>>",serialize($current_feeds));
+  return $results;
 }
-file_put_contents(PAST_FEED_FILE,$data);
-set_bucket("<<PAST_FEEDS>>",serialize($current_feeds));
 
 #####################################################################################################
 
@@ -233,20 +236,36 @@ function parse_rss($html)
 
 #####################################################################################################
 
-function load_feeds()
+function load_feeds_from_file($filename)
 {
-  $feed_list=array();
-  if (file_exists(FEED_FILE)==False)
+  if (file_exists($filename)==False)
   {
     return False;
   }
-  $data=file_get_contents(FEED_FILE);
+  $data=file_get_contents($filename);
   if ($data===False)
   {
     return False;
   }
   $data=explode("\n",$data);
-  for ($i=0;$i<count($data);$i++)
+  return load_feeds($data);
+}
+
+#####################################################################################################
+
+function load_feeds_from_wiki($title)
+{
+  $data="";
+  return load_feeds($data);
+}
+
+#####################################################################################################
+
+function load_feeds($data)
+{
+  $feed_list=array();
+  $c=count($data);
+  for ($i=0;$i<$c;$i++)
   {
     $line=trim($data[$i]);
     if ($line=="")
@@ -299,6 +318,54 @@ function load_feeds()
   }
   return $feed_list;
 }
+
+#####################################################################################################
+
+/*
+Available feeds from Regurgitator:
+!SoylentNews
+!arstechnica
+!bbc-tech
+!bugtraq
+!cnet
+!computerworld
+!darpa
+!forbes-tech
+!itworld
+!krebs
+!mosaicscience
+!nasa
+!nature
+!nist-bioscience
+!nist-buildfire
+!nist-chemistry
+!nist-electronics
+!nist-energy
+!nist-forensics
+!nist-it
+!nist-manufacturing
+!nist-math
+!nist-nano
+!nist-physics
+!nist-standards
+!physorg
+!pipedot
+!sciencedaily_all
+!sciencemag
+!securityweek
+!taosecurity
+!theregister
+!wired-enterprise
+!wired-scie
+*/
+
+# add an authenticated alias for adding/removing feeds
+
+/*
+martyb
+Woods
+juggs
+*/
 
 #####################################################################################################
 

@@ -2,9 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
-
-# lib.php
+# 28-june-2014
 
 ini_set("display_errors","on");
 
