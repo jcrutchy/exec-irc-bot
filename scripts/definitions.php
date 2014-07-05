@@ -136,7 +136,7 @@ function source_define($host,$term,$params)
     }
     else
     {
-      $new_term=extract_get($location,$get_param);
+      $new_term=extract_get($location,$params["get_param"]);
       if ($new_term<>$term)
       {
         return source_define($host,$new_term,$params);
