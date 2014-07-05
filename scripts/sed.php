@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
+# 2-july-2014
 
 #####################################################################################################
 
@@ -11,12 +11,64 @@ require_once("lib.php");
 $trailing=$argv[1];
 $nick=$argv[2];
 $dest=$argv[3];
-$cmd=$argv[4];
+$alias=$argv[4];
 
-if ($nick<>NICK_EXEC)
+$default_channels=array("#test","#");
+
+$channels=get_bucket("<<EXEC_SED_CHANNELS>>");
+term_echo("### <<EXEC_SED_CHANNELS>> = \"$channels\" ###");
+if ($channels=="")
+{
+  $channels=$default_channels;
+}
+else
+{
+  $channels=unserialize($channels);
+  if ($channels===False)
+  {
+    $channels=$default_channels;
+  }
+}
+set_bucket("<<EXEC_SED_CHANNELS>>",serialize($channels));
+if ($alias=="~sed")
+{
+  switch (strtolower($trailing))
+  {
+    case "on":
+      if (in_array($dest,$channels)==False)
+      {
+        $channels[]=$dest;
+        set_bucket("<<EXEC_SED_CHANNELS>>",serialize($channels));
+        privmsg("exec sed enabled for \"$dest\"");
+      }
+      else
+      {
+        privmsg("exec sed already enabled for \"$dest\"");
+        term_echo("\"$dest\" already in <<EXEC_SED_CHANNELS>> bucket");
+      }
+      return;
+    case "off":
+      $i=array_search($dest,$channels);
+      if ($i!==False)
+      {
+        unset($channels[$i]);
+        $channels=array_values($channels);
+        set_bucket("<<EXEC_SED_CHANNELS>>",serialize($channels));
+        privmsg("exec sed disabled for \"$dest\"");
+      }
+      else
+      {
+        privmsg("exec sed already disabled for \"$dest\"");
+        term_echo("\"$dest\" not found in <<EXEC_SED_CHANNELS>> bucket");
+      }
+      return;
+  }
+}
+
+if (($nick<>NICK_EXEC) and ($alias=="~sed-internal"))
 {
   $sedbot_channels=get_bucket("SedBot_channel_list");
-  if (strpos($sedbot_channels,$dest)===False)
+  if ((strpos($sedbot_channels,$dest)===False) and (in_array($dest,$channels)==True))
   {
     sed($trailing,$nick,$dest);
   }
@@ -91,6 +143,7 @@ function sed($trailing,$nick,$dest)
       $sed_nick=$nick;
     }
     $index="last_".strtolower($sed_nick)."_".$dest;
+    $last=get_bucket($index); # dunno why this is needed but on 2-july-14 it just stopped working (kept showing last message not found) and this was the workaround that seemed to fix
     $last=get_bucket($index);
     if ($last=="")
     {

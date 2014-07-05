@@ -10,7 +10,8 @@ require_once("lib.php");
 $msg=$argv[1];
 $msg=str_replace("_","-",$msg);
 $msg=filter($msg,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC."-");
-$filename="/var/include/vhosts/irciv.us.to/data/php_manual/php-chunked-xhtml/function.".$msg.".html";
+#$filename="/var/include/vhosts/irciv.us.to/data/php_manual/php-chunked-xhtml/function.".$msg.".html";
+$filename="../data/php_manual/php-chunked-xhtml/function.".$msg.".html";
 if (file_exists($filename)==False)
 {
   privmsg("function not found");

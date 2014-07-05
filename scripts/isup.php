@@ -2,16 +2,31 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
+# 2-july-2014
 
 require_once("lib.php");
 $host=trim($argv[1]);
 $port=80;
-$parts=explode(":",$host);
-if (count($parts)==2)
+$delim443="https://";
+$delim80="http://";
+if (substr($host,0,strlen($delim443))==$delim443)
 {
-  $host=trim($parts[0]);
-  $port=trim($parts[1]);
+  $host=substr($host,strlen($delim443));
+  $port=443;
+}
+elseif (substr($host,0,strlen($delim80))==$delim80)
+{
+  $host=substr($host,strlen($delim80));
+  $port=80;
+}
+else
+{
+  $parts=explode(":",$host);
+  if (count($parts)==2)
+  {
+    $host=trim($parts[0]);
+    $port=trim($parts[1]);
+  }
 }
 $response=wtouch($host,"/",$port);
 if ($response===False)

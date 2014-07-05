@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
+# 1-july-2014
 
 # irciv.php
 
@@ -16,6 +16,49 @@ require_once("irciv_lib.php");
 if ($argv[1]=="<<SAVE>>")
 {
   irciv_save_data();
+  return;
+}
+
+$nick=$argv[1];
+$trailing=$argv[2];
+$dest=$argv[3];
+$start=$argv[4];
+$alias=$argv[5];
+
+if ($alias=="civ-dispatch")
+{
+  # ~civ-dispatch cmd trailing
+  switch ($cmd)
+  {
+    case "JOIN": # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
+      # do a whois if $dest is a game channel
+      if (in_array($dest,$game_chans)==True)
+      {
+        echo "IRC_RAW WHOIS $nick\n";
+      }
+      break;
+    case "KICK":
+      logout();
+      break;
+    case "KILL":
+      logout();
+      break;
+    case "NICK":
+      rename();
+      break;
+    case "PART":
+      logout();
+      break;
+    case "QUIT":
+      logout();
+      break;
+    case "330": # :irc.sylnt.us 330 exec crutchy crutchy :is logged in as
+      login($params);
+      break;
+    case "353": # channel names list
+
+      break;
+  }
   return;
 }
 
@@ -53,12 +96,6 @@ $admin_alias="~civ-admin";
 $map_coords="";
 $map_data=array();
 $players=array();
-
-$nick=$argv[1];
-$trailing=$argv[2];
-$dest=$argv[3];
-$start=$argv[4];
-$alias=$argv[5];
 
 if (($trailing=="") or ((in_array($dest,$game_chans)==False) and ($nick<>NICK_EXEC)))
 {
@@ -122,68 +159,6 @@ switch ($action)
     if (count($parts)==1)
     {
       output_help();
-    }
-    break;
-  case ACTION_LOGIN:
-    if ((count($parts)==3) and ($nick==NICK_EXEC))
-    {
-      $player=$parts[1];
-      $account=$parts[2];
-      if (isset($players[$player])==False)
-      {
-        $player_id=get_new_player_id();
-        $players[$player]["account"]=$account;
-        $players[$player]["player_id"]=$player_id;
-        player_init($player);
-        privmsg_player_game_chans($player,"login: welcome new player \"$player\"");
-      }
-      else
-      {
-        privmsg_player_game_chans($player,"login: welcome back \"$player\"");
-      }
-      $players[$player]["login_time"]=microtime(True);
-      $players[$player]["logged_in"]=True;
-      $update_players=True;
-      irciv_term_echo("PLAYER \"$player\" LOGIN");
-    }
-    break;
-  case ACTION_RENAME:
-    if ((count($parts)==3) and (($nick==NICK_EXEC) or ($alias==$admin_alias)))
-    {
-      $old=$parts[1];
-      $new=$parts[2];
-      if ((isset($players[$old])==True) and (isset($players[$new])==False))
-      {
-        $player_data=$players[$old];
-        $players[$new]=$player_data;
-        unset($players[$old]);
-        $update_players=True;
-        privmsg_player_game_chans($old,"player \"$old\" renamed to \"$new\"");
-        $chan_list=get_bucket($old."_channel_list");
-        if ($chan_list<>"")
-        {
-          set_bucket($new."_channel_list",$chan_list);
-        }
-        irciv_term_echo("PLAYER \"$old\" RENAMED TO \"$new\"");
-      }
-      else
-      {
-        if (isset($players[$old])==True)
-        {
-          privmsg_player_game_chans($old,"error renaming player \"$old\" to \"$new\"");
-        }
-      }
-    }
-    else
-    {
-      if ($nick<>NICK_EXEC)
-      {
-        irciv_term_echo("ACTION_RENAME: only exec can perform logins");
-      }
-      else
-      {
-        irciv_term_echo("ACTION_RENAME: invalid login message");
-      }
     }
     break;
   case ACTION_LOGOUT:
@@ -536,6 +511,100 @@ if ($update_players==True)
     irciv_unset_bucket("players");
     irciv_set_bucket("players",$players_bucket);
   }
+}
+
+#####################################################################################################
+
+function rename()
+{
+
+  case ACTION_RENAME:
+    if ((count($parts)==3) and (($nick==NICK_EXEC) or ($alias==$admin_alias)))
+    {
+      $old=$parts[1];
+      $new=$parts[2];
+      if ((isset($players[$old])==True) and (isset($players[$new])==False))
+      {
+        $player_data=$players[$old];
+        $players[$new]=$player_data;
+        unset($players[$old]);
+        $update_players=True;
+        privmsg_player_game_chans($old,"player \"$old\" renamed to \"$new\"");
+        $chan_list=get_bucket($old."_channel_list");
+        if ($chan_list<>"")
+        {
+          set_bucket($new."_channel_list",$chan_list);
+        }
+        irciv_term_echo("PLAYER \"$old\" RENAMED TO \"$new\"");
+      }
+      else
+      {
+        if (isset($players[$old])==True)
+        {
+          privmsg_player_game_chans($old,"error renaming player \"$old\" to \"$new\"");
+        }
+      }
+    }
+    else
+    {
+      if ($nick<>NICK_EXEC)
+      {
+        irciv_term_echo("ACTION_RENAME: only exec can perform logins");
+      }
+      else
+      {
+        irciv_term_echo("ACTION_RENAME: invalid login message");
+      }
+    }
+    break;
+
+}
+
+#####################################################################################################
+
+function login($params)
+{
+      $parts=explode(" ",$params);
+      if ((count($parts)==3) and ($parts[0]==NICK_EXEC))
+      {
+        $nick=$parts[1];
+        $account=$parts[2];
+        if ($nick<>NICK_EXEC)
+        {
+          $player_channel_list=explode(" ",get_bucket($nick."_channel_list"));
+          for ($i=0;$i<count($game_chans);$i++)
+          {
+            if (in_array($game_chans[$i],$player_channel_list)==True)
+            {
+              echo "/INTERNAL ~civ login $nick $account\n";
+
+    if ((count($parts)==3) and ($nick==NICK_EXEC))
+    {
+      $player=$parts[1];
+      $account=$parts[2];
+      if (isset($players[$player])==False)
+      {
+        $player_id=get_new_player_id();
+        $players[$player]["account"]=$account;
+        $players[$player]["player_id"]=$player_id;
+        player_init($player);
+        privmsg_player_game_chans($player,"login: welcome new player \"$player\"");
+      }
+      else
+      {
+        privmsg_player_game_chans($player,"login: welcome back \"$player\"");
+      }
+      $players[$player]["login_time"]=microtime(True);
+      $players[$player]["logged_in"]=True;
+      $update_players=True;
+      irciv_term_echo("PLAYER \"$player\" LOGIN");
+    }
+
+              break;
+            }
+          }
+        }
+      }
 }
 
 #####################################################################################################

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
+# 5-july-2014
 
 # definitions.php
 
@@ -14,10 +14,34 @@
 #####################################################################################################
 
 require_once("lib.php");
-$msg=$argv[1];
+$trailing=$argv[1];
 $alias=$argv[2];
 define("DEFINITIONS_FILE","../data/definitions");
 define("MAX_DEF_LENGTH",200);
+
+$sources=array(
+  "www.wolframalpha.com"=>array(
+    "port"=>80,
+    "uri"=>"/input/?i=define%3A%%term%%",
+    "template"=>"%%term%%",
+    "get_param"=>"",
+    "delim_start"=>"context.jsonArray.popups.pod_0200.push( {\"stringified\": \"",
+    "delim_end"=>"\",\"mInput\": \"\",\"mOutput\": \"\", \"popLinks\": {} });"),
+  "www.urbandictionary.com"=>array(
+    "port"=>80,
+    "uri"=>"/define.php?term=%%term%%",
+    "template"=>"%%term%%",
+    "get_param"=>"term",
+    "delim_start"=>"<div class='meaning'>",
+    "delim_end"=>"</div>"),
+  "www.stoacademy.com"=>array(
+    "port"=>80,
+    "uri"=>"/datacore/dictionary.php?searchTerm=%%term%%",
+    "template"=>"%%term%%",
+    "get_param"=>"",
+    "delim_start"=>"<b><u>",
+    "delim_end"=>"<p>"));
+
 $terms=unserialize(file_get_contents(DEFINITIONS_FILE));
 if ($alias=="~define-count")
 {
@@ -29,14 +53,19 @@ if ($alias=="~define-sources")
   privmsg("definition sources in order of preference: www.urbandictionary.com > www.wolframalpha.com > www.stoacademy.com");
   return;
 }
+if ($alias=="~define-source")
+{
+  # add source using syntax: ~define-source $host|$port|$uri|$delim_start|$delim_end|$template|$get_param
+  return;
+}
 if ($alias=="~define-add")
 {
-  $parts=explode(" ",$msg);
+  $parts=explode(",",$trailing);
   if (count($parts)>1)
   {
     $term=trim($parts[0]);
     array_shift($parts);
-    $def=trim(implode(" ",$parts));
+    $def=trim(implode(",",$parts));
     $terms[$term]=$def;
     if (file_put_contents(DEFINITIONS_FILE,serialize($terms))===False)
     {
@@ -57,131 +86,70 @@ foreach ($terms as $term => $def)
 {
   $lterms[strtolower($term)]=$term;
 }
-if (isset($lterms[strtolower($msg)])==True)
+if (isset($lterms[strtolower($trailing)])==True)
 {
-  $def=$terms[$lterms[strtolower($msg)]];
-  privmsg("[soylent] $msg: $def");
+  $def=$terms[$lterms[strtolower($trailing)]];
+  privmsg("[soylent] $trailing: $def");
 }
 else
 {
-  if (wolframalpha($msg)==False)
+  foreach ($sources as $host => $params)
   {
-    if (urbandictionary($msg)==False)
+    if (source_define($host,$params["port"],$params["uri"],$trailing,$params["template"],$params["delim_start"],$params["delim_end"],$params["get_param"])==True)
     {
-      if (stoacademy($msg)==False)
+      return;
+    }
+  }
+  privmsg("$trailing: unable to find definition");
+}
+
+#####################################################################################################
+
+function source_define($host,$port,$uri,$term,$template,$delim1,$delim2,$get_param)
+{
+  $real_uri=str_replace($template,urlencode($term),$uri);
+  $response=wget($host,$real_uri,$port);
+  $html=strip_headers($response);
+  $i=strpos($html,$delim1);
+  $def="";
+  if ($i!==False)
+  {
+    $html=substr($html,$i+strlen($delim1));
+    $i=strpos($html,$delim2);
+    if ($i!==False)
+    {
+      $def=trim(strip_tags(substr($html,0,$i)));
+      $def=str_replace(array("\n","\r")," ",$def);
+      $def=str_replace("  "," ",$def);
+      if (strlen($def)>MAX_DEF_LENGTH)
       {
-        privmsg("$msg: unable to find definition");
+        $def=substr($def,0,MAX_DEF_LENGTH)."...";
       }
     }
   }
-}
-
-#####################################################################################################
-
-function wolframalpha($msg)
-{
-  $html=wget("www.wolframalpha.com","/input/?i=define%3A".urlencode($msg),80);
-  $html=strip_headers($html);
-  if ((strpos($html,"Wolfram|Alpha doesn't know how to interpret your input.")!==False) or (strpos($html,"Using closest Wolfram|Alpha interpretation:")!==False))
-  {
-    term_echo("wolframalpha: term not defined");
-    return False;
-  }
-  $delim1="context.jsonArray.popups.pod_0200.push( {\"stringified\": \"";
-  $delim2="\",\"mInput\": \"\",\"mOutput\": \"\", \"popLinks\": {} });";
-  $i=strpos($html,$delim1)+strlen($delim1);
-  $html=substr($html,$i);
-  $i=strpos($html,$delim2);
-  $def=trim(substr($html,0,$i));
-  if (strlen($def)>MAX_DEF_LENGTH)
-  {
-    $def=substr($def,0,MAX_DEF_LENGTH)."...";
-  }
   if ($def=="")
   {
-    return False;
-  }
-  else
-  {
-    privmsg("[wolframalpha] ".chr(3)."3$msg".chr(3).": $def");
-    return True;
-  }
-}
-
-#####################################################################################################
-
-function urbandictionary($msg)
-{
-  # http://www.urbandictionary.com/define.php?term=Rule+34
-  $html=wget("www.urbandictionary.com","/define.php?term=".urlencode($msg),80);
-  $html2=strip_headers($html);
-  if (strpos($html,"<i>".htmlspecialchars($msg)."</i> isn't defined.")!==False)
-  {
-    term_echo("urbandictionary: term not defined");
-    return False;
-  }
-  $delim1="<div class='meaning'>";
-  $delim2="</div>";
-  $i=strpos($html2,$delim1);
-  $html2=substr($html2,$i+strlen($delim1));
-  $i=strpos($html2,$delim2);
-  $def=trim(strip_tags(substr($html2,0,$i)));
-  $def=str_replace(array("\n","\r")," ",$def);
-  $def=str_replace("  "," ",$def);
-  if (strlen($def)>MAX_DEF_LENGTH)
-  {
-    $def=substr($def,0,MAX_DEF_LENGTH)."...";
-  }
-  if ($def=="")
-  {
-    $location=exec_get_header($html,"location");
+    $location=exec_get_header($response,"location");
     if ($location=="")
     {
       return False;
     }
     else
     {
-      return urbandictionary(extract_get($location,"term"));
+      $new_term=extract_get($location,$get_param);
+      if ($new_term<>$term)
+      {
+        return source_define($host,$port,$uri,$new_term,$template,$delim1,$delim2,$get_param);
+      }
+      else
+      {
+        return False;
+      }
     }
   }
   else
   {
-    privmsg("[urbandictionary] ".chr(3)."3$msg".chr(3).": ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
-    return True;
-  }
-}
-
-#####################################################################################################
-
-function stoacademy($msg)
-{
-  # http://www.stoacademy.com/datacore/dictionary.php?searchTerm=borg
-  $html=wget("www.stoacademy.com","/datacore/dictionary.php?searchTerm=".urlencode($msg),80);
-  $html2=strip_headers($html);
-  if (strpos($html,"Sorry no results found.")!==False)
-  {
-    term_echo("stoacademy: term not defined");
-    return False;
-  }
-  $delim1="<b><u>";
-  $delim2="<p>";
-  $i=strpos($html2,$delim1);
-  $html2=substr($html2,$i+strlen($delim1));
-  $i=strpos($html2,$delim2);
-  $def=trim(strip_tags(substr($html2,0,$i)));
-  $def=str_replace(array("\n","\r")," ",$def);
-  $def=str_replace("  "," ",$def);
-  if (strlen($def)>MAX_DEF_LENGTH)
-  {
-    $def=substr($def,0,MAX_DEF_LENGTH)."...";
-  }
-  if ($def=="")
-  {
-    return False;
-  }
-  else
-  {
-    privmsg("[stoacademy] ".chr(3)."3$msg".chr(3).": ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
+    privmsg("[$host] ".chr(3)."3$term".chr(3).": ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
     return True;
   }
 }

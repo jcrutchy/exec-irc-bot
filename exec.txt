@@ -20,10 +20,11 @@
 ~comment-dump|120|0|0|1|crutchy|||php scripts/sn-tfa-comments.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 ~wiki|40|0|0|0|crutchy|||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
-~feed-wiki|600|1800|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#~feed-wiki|600|1800|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 # called from other scripts via INTERNAL cmd
-~sed|5|0|0|0||INTERNAL||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%cmd%%
+~sed-internal|5|0|0|0||INTERNAL||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~sed|5|0|0|0||||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 # timer scripts
 #~feed|500|1800|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
@@ -64,12 +65,12 @@
 ~help|5|0|0|0||||php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~help-script|5|0|0|0||||php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
-#~civ|120|0|0|1||||php scripts/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
-#~civ-admin|120|0|0|1|crutchy|||php scripts/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
-#~civ-map|300|0|0|1|crutchy|||php scripts/irciv_map.php %%nick%% %%trailing%% %%dest%%
-#~civ-save|5|1200|0|1||||php scripts/irciv.php '<<SAVE>>'
+#~civ|120|0|0|1||||php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
+#~civ-admin|120|0|0|1|crutchy|||php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
+#~civ-map|300|0|0|1|crutchy|||php scripts/irciv/irciv_map.php %%nick%% %%trailing%% %%dest%%
+#~civ-save|5|1200|0|1||||php scripts/irciv/irciv.php '<<SAVE>>'
 
-
+#~civ-dispatch|120|0|0|1||||php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
 
 
 

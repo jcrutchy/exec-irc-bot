@@ -44,19 +44,19 @@ function translate($lang_from,$lang_to,$msg)
   $html=wget_ssl("translate.google.com","/?sl=".urlencode($lang_from)."&tl=".urlencode($lang_to)."&js=n&ie=UTF-8&text=".urlencode($msg));
   $html=strip_headers($html);
   strip_all_tag($html,"head");
-  strip_all_tag($html,"script");
+  #strip_all_tag($html,"script");
   strip_all_tag($html,"style");
   strip_all_tag($html,"a");
   $html=strip_tags($html,"<div>");
-  $delim1="<div dir=\"ltr\" style=\"zoom:1\"><div id=\"tts_button\" style=\"display:none\" class=\"\"></div>";
-  $delim2="</div></div>";
+  $delim1="TRANSLATED_TEXT='";
+  $delim2="';";
   $i=strpos($html,$delim1)+strlen($delim1);
   $html=substr($html,$i);
   $i=strpos($html,$delim2);
   $def=trim(substr($html,0,$i));
-  if (strlen($def)>700)
+  if (strlen($def)>500)
   {
-    $def=substr($def,0,700)."...";
+    $def=substr($def,0,500)."...";
   }
   if ($def<>"")
   {
