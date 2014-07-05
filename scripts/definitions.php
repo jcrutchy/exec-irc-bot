@@ -95,7 +95,6 @@ else
 {
   foreach ($sources as $host => $params)
   {
-    ,,,$params["get_param"])==True)
     if (source_define($host,$trailing,$params)==True)
     {
       return;
