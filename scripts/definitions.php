@@ -95,7 +95,8 @@ else
 {
   foreach ($sources as $host => $params)
   {
-    if (source_define($host,$params["port"],$params["uri"],$trailing,$params["template"],$params["delim_start"],$params["delim_end"],$params["get_param"])==True)
+    ,,,$params["get_param"])==True)
+    if (source_define($host,$trailing,$params)==True)
     {
       return;
     }
@@ -105,17 +106,17 @@ else
 
 #####################################################################################################
 
-function source_define($host,$port,$uri,$term,$template,$delim1,$delim2,$get_param)
+function source_define($host,$term,$params)
 {
-  $real_uri=str_replace($template,urlencode($term),$uri);
-  $response=wget($host,$real_uri,$port);
+  $uri=str_replace($params["template"],urlencode($term),$params["uri"]);
+  $response=wget($host,$uri,$params["port"]);
   $html=strip_headers($response);
-  $i=strpos($html,$delim1);
+  $i=strpos($html,$params["delim_start"]);
   $def="";
   if ($i!==False)
   {
-    $html=substr($html,$i+strlen($delim1));
-    $i=strpos($html,$delim2);
+    $html=substr($html,$i+strlen($params["delim_start"]));
+    $i=strpos($html,$params["delim_end"]);
     if ($i!==False)
     {
       $def=trim(strip_tags(substr($html,0,$i)));
@@ -139,7 +140,7 @@ function source_define($host,$port,$uri,$term,$template,$delim1,$delim2,$get_par
       $new_term=extract_get($location,$get_param);
       if ($new_term<>$term)
       {
-        return source_define($host,$port,$uri,$new_term,$template,$delim1,$delim2,$get_param);
+        return source_define($host,$new_term,$params);
       }
       else
       {
