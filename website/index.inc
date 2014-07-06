@@ -1,5 +1,17 @@
 <?php
 
+# gpl2
+# by crutchy
+# 6-july-2014
+
+#####################################################################################################
+
+if (isset($_GET["stats"])==True)
+{
+  require_once(__DIR__."/stats.inc");
+  return;
+}
+
 define("MAPS_PATH","../maps");
 
 if ((isset($_POST["exec_key"])==True) and (isset($_FILES["image"])==True))

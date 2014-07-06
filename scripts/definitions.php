@@ -2,9 +2,9 @@
 
 # gpl2
 # by crutchy
-# 5-july-2014
+# 6-july-2014
 
-# definitions.php
+# maybe eventually change to ~query
 
 # http://api.urbandictionary.com/v0/define?term=shitton
 # thanks weirdpercent
@@ -17,91 +17,124 @@ require_once("lib.php");
 $trailing=$argv[1];
 $alias=$argv[2];
 define("DEFINITIONS_FILE","../data/definitions");
+define("DEFINE_SOURCES_FILE","../data/define_sources");
 define("MAX_DEF_LENGTH",200);
-
-$sources=array(
-  "www.wolframalpha.com"=>array(
-    "port"=>80,
-    "uri"=>"/input/?i=define%3A%%term%%",
-    "template"=>"%%term%%",
-    "get_param"=>"",
-    "delim_start"=>"context.jsonArray.popups.pod_0200.push( {\"stringified\": \"",
-    "delim_end"=>"\",\"mInput\": \"\",\"mOutput\": \"\", \"popLinks\": {} });"),
-  "www.urbandictionary.com"=>array(
-    "port"=>80,
-    "uri"=>"/define.php?term=%%term%%",
-    "template"=>"%%term%%",
-    "get_param"=>"term",
-    "delim_start"=>"<div class='meaning'>",
-    "delim_end"=>"</div>"),
-  "www.stoacademy.com"=>array(
-    "port"=>80,
-    "uri"=>"/datacore/dictionary.php?searchTerm=%%term%%",
-    "template"=>"%%term%%",
-    "get_param"=>"",
-    "delim_start"=>"<b><u>",
-    "delim_end"=>"<p>"));
-
-$terms=unserialize(file_get_contents(DEFINITIONS_FILE));
-if ($alias=="~define-count")
+if (file_exists(DEFINE_SOURCES_FILE)==False)
 {
-  privmsg("custom definition count: ".count($terms));
-  return;
-}
-if ($alias=="~define-sources")
-{
-  privmsg("definition sources in order of preference: www.urbandictionary.com > www.wolframalpha.com > www.stoacademy.com");
-  return;
-}
-if ($alias=="~define-source")
-{
-  # add source using syntax: ~define-source $host|$port|$uri|$delim_start|$delim_end|$template|$get_param
-  return;
-}
-if ($alias=="~define-add")
-{
-  $parts=explode(",",$trailing);
-  if (count($parts)>1)
-  {
-    $term=trim($parts[0]);
-    array_shift($parts);
-    $def=trim(implode(",",$parts));
-    $terms[$term]=$def;
-    if (file_put_contents(DEFINITIONS_FILE,serialize($terms))===False)
-    {
-      privmsg("error writing definitions file");
-    }
-    else
-    {
-      privmsg("definition for term \"$term\" set to \"$def\"");
-    }
-  }
-  else
-  {
-    privmsg("syntax: ~define-add <term> <definition>");
-  }
-  return;
-}
-foreach ($terms as $term => $def)
-{
-  $lterms[strtolower($term)]=$term;
-}
-if (isset($lterms[strtolower($trailing)])==True)
-{
-  $def=$terms[$lterms[strtolower($trailing)]];
-  privmsg("[soylent] $trailing: $def");
+  $sources=array(
+    "www.wolframalpha.com"=>array(
+      "port"=>80,
+      "uri"=>"/input/?i=define%3A%%term%%",
+      "template"=>"%%term%%",
+      "get_param"=>"",
+      "order"=>2,
+      "delim_start"=>"context.jsonArray.popups.pod_0200.push( {\"stringified\": \"",
+      "delim_end"=>"\",\"mInput\": \"\",\"mOutput\": \"\", \"popLinks\": {} });"),
+    "www.urbandictionary.com"=>array(
+      "port"=>80,
+      "uri"=>"/define.php?term=%%term%%",
+      "template"=>"%%term%%",
+      "get_param"=>"term",
+      "order"=>1,
+      "delim_start"=>"<div class='meaning'>",
+      "delim_end"=>"</div>"),
+    "www.stoacademy.com"=>array(
+      "port"=>80,
+      "uri"=>"/datacore/dictionary.php?searchTerm=%%term%%",
+      "template"=>"%%term%%",
+      "get_param"=>"",
+      "order"=>3,
+      "delim_start"=>"<b><u>",
+      "delim_end"=>"<p>"));
 }
 else
 {
-  foreach ($sources as $host => $params)
-  {
-    if (source_define($host,$trailing,$params)==True)
-    {
-      return;
-    }
-  }
-  privmsg("$trailing: unable to find definition");
+  $sources=unserialize(file_get_contents(DEFINE_SOURCES_FILE));
 }
+uasort($sources,"sort_source_order_compare");
+$terms=unserialize(file_get_contents(DEFINITIONS_FILE));
+switch($alias)
+{
+  case "~define-count":
+    privmsg("custom definition count: ".count($terms));
+    break;
+  case "~define-sources":
+    $out="";
+    foreach ($sources as $host => $params)
+    {
+      if ($out<>"")
+      {
+        $out=$out.", ";
+      }
+      $out=$out.$host;
+    }
+    privmsg("definition sources: $out");
+    break;
+  case "~define-source-edit":
+
+    break;
+  case "~define-source-add":
+    # add source using syntax: ~define-source-add $host|$port|$uri|$delim_start|$delim_end|$template|$get_param|$order
+    $params=explode("|",$trailing);
+    if (count($params)==8)
+    {
+
+    }
+    else
+    {
+      privmsg("syntax: ~define-source-add host|port|uri|delim_start|delim_end|template|get_param|order");
+      privmsg("example: ~define-source-add www.urbandictionary.com|80|/define.php?term=%%term%%|delim_start|delim_end|template|get_param|order");
+    }
+    break;
+  case "~define-source-delete":
+
+    break;
+  case "~define-add":
+    $parts=explode(",",$trailing);
+    if (count($parts)>1)
+    {
+      $term=trim($parts[0]);
+      array_shift($parts);
+      $def=trim(implode(",",$parts));
+      $terms[$term]=$def;
+      if (file_put_contents(DEFINITIONS_FILE,serialize($terms))===False)
+      {
+        privmsg("error writing definitions file");
+      }
+      else
+      {
+        privmsg("definition for term \"$term\" set to \"$def\"");
+      }
+    }
+    else
+    {
+      privmsg("syntax: ~define-add <term>, <definition>");
+    }
+    break;
+  case "~define":
+    foreach ($terms as $term => $def)
+    {
+      $lterms[strtolower($term)]=$term;
+    }
+    if (isset($lterms[strtolower($trailing)])==True)
+    {
+      $def=$terms[$lterms[strtolower($trailing)]];
+      privmsg("[soylent] $trailing: $def");
+    }
+    else
+    {
+      foreach ($sources as $host => $params)
+      {
+        if (source_define($host,$trailing,$params)==True)
+        {
+          return;
+        }
+      }
+      privmsg("$trailing: unable to find definition");
+    }
+    break;
+}
+file_put_contents(DEFINE_SOURCES_FILE,serialize($sources));
 
 #####################################################################################################
 
@@ -151,6 +184,24 @@ function source_define($host,$term,$params)
   {
     privmsg("[$host] ".chr(3)."3$term".chr(3).": ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
     return True;
+  }
+}
+
+#####################################################################################################
+
+function sort_source_order_compare($a,$b)
+{
+  if ($a["order"]==$b["order"])
+  {
+    return 0;
+  }
+  elseif ($a["order"]<$b["order"])
+  {
+    return -1;
+  }
+  else
+  {
+    return 1;
   }
 }
 

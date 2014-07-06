@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>exec stats</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<style type="text/css"></style>
+<script type="text/javascript"></script>
+</head>
+<body>
+<p>%%blah%%</p>
+
+<table>
+<tr><th>heading</th></tr>
+<tr><td>stuff</td></tr>
+<tr><td>stuff</td></tr>
+<tr><td>stuff</td></tr>
+<tr><td>stuff</td></tr>
+</table>
+
+</body>
+</html>

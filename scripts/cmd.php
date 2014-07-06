@@ -2,18 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
-
-#####################################################################################################
-
-require_once("lib.php");
-
-$cmd=$argv[1];
-$trailing=$argv[2];
-$data=$argv[3];
-$dest=$argv[4];
-$params=$argv[5];
-$nick=$argv[6];
+# 6-july-2014
 
 #####################################################################################################
 #                                                                                                   #
@@ -27,6 +16,15 @@ $nick=$argv[6];
 #     (2) ECHOING A COMMAND WHOSE HANDLER ECHOES THE ORIGINAL COMMAND                               #
 #                                                                                                   #
 #####################################################################################################
+
+require_once("lib.php");
+
+$cmd=$argv[1];
+$trailing=$argv[2];
+$data=$argv[3];
+$dest=$argv[4];
+$params=$argv[5];
+$nick=$argv[6];
 
 switch (strtoupper($cmd))
 {
