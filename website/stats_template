@@ -3,18 +3,33 @@
 <head>
 <title>exec stats</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<style type="text/css"></style>
+<style type="text/css">
+table
+  {
+    border-collapse: collapse;
+  }
+th
+  {
+    border: 1px black solid;
+    background-color: #AAAAAA;
+  }
+td
+  {
+    border: 1px black solid;
+  }
+</style>
 <script type="text/javascript"></script>
 </head>
 <body>
-<p>%%blah%%</p>
+
+<p>%%item_count%%</p>
+
+<p>%%ts_start%%</p>
+<p>%%ts_end%%</p>
 
 <table>
-<tr><th>heading</th></tr>
-<tr><td>stuff</td></tr>
-<tr><td>stuff</td></tr>
-<tr><td>stuff</td></tr>
-<tr><td>stuff</td></tr>
+<tr><th>alias</th><th>%%nicks%%</th></tr>
+%%rows%%
 </table>
 
 </body>

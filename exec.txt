@@ -4,6 +4,8 @@
 # aliases here must be all lower case letters
 # account, cmd and dest lists are all comma-separated
 
+~remind|99999|0|0|0||||php scripts/remind.php %%trailing%% %%nick%% %%dest%% %%alias%%
+
 # EXEC ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 *|10|0|0|1||||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
 

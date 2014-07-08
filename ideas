@@ -1,0 +1,13 @@
+EXEC IDEAS
+==========
+
+
+~karma on|off (works like ~sed)
+
+
+~remind
+set bucket with start time
+if exec restarts, check all remind buckets to see if any haven't expired yet
+and reset them with new sleep time to trigger at correct intended time
+
+

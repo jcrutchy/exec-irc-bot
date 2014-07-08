@@ -23,6 +23,7 @@ if (file_exists(DEFINE_SOURCES_FILE)==False)
 {
   $sources=array(
     "www.wolframalpha.com"=>array(
+      "name"=>"wolframalpha",
       "port"=>80,
       "uri"=>"/input/?i=define%3A%%term%%",
       "template"=>"%%term%%",
@@ -31,6 +32,7 @@ if (file_exists(DEFINE_SOURCES_FILE)==False)
       "delim_start"=>"context.jsonArray.popups.pod_0200.push( {\"stringified\": \"",
       "delim_end"=>"\",\"mInput\": \"\",\"mOutput\": \"\", \"popLinks\": {} });"),
     "www.urbandictionary.com"=>array(
+      "name"=>"urbandictionary",
       "port"=>80,
       "uri"=>"/define.php?term=%%term%%",
       "template"=>"%%term%%",
@@ -39,6 +41,7 @@ if (file_exists(DEFINE_SOURCES_FILE)==False)
       "delim_start"=>"<div class='meaning'>",
       "delim_end"=>"</div>"),
     "www.stoacademy.com"=>array(
+      "name"=>"stoacademy",
       "port"=>80,
       "uri"=>"/datacore/dictionary.php?searchTerm=%%term%%",
       "template"=>"%%term%%",
@@ -182,7 +185,7 @@ function source_define($host,$term,$params)
   }
   else
   {
-    privmsg("[$host] ".chr(3)."3$term".chr(3).": ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
+    privmsg("[".$params["name"]."] ".chr(3)."3$term".chr(3).": ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
     return True;
   }
 }

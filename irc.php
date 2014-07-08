@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 6-july-2014
+# 7-july-2014
 
 #####################################################################################################
 
@@ -112,34 +112,7 @@ $admin_aliases=array(
   ALIAS_ADMIN_BUCKETS_FLUSH,
   ALIAS_ADMIN_BUCKETS_LIST);
 
-/*
-"000" = <command>
-"001" = <command> :<trailing>
-"010" = <command> <params>
-"011" = <command> <params> :<trailing>
-"100" = :<prefix> <command>
-"101" = :<prefix> <command> :<trailing>
-"110" = :<prefix> <command> <params>
-"111" = :<prefix> <command> <params> :<trailing>
-ORDER MASKS IN ORDER FROM 000 TO 111: STDOUT PREFIX WILL SELECT LAST (MOST VERBOSE) MASK FOR OUTPUT TO IRC
-# = NUMERIC
-*/
-$valid_data_cmd=array(
-  CMD_INTERNAL=>array("100","101","110","111"),
-  CMD_BUCKET_GET=>array("001","101"),
-  CMD_BUCKET_SET=>array("001","101"),
-  CMD_BUCKET_UNSET=>array("001","101"),
-  "#"=>array("101","110","111"),
-  "INVITE"=>array("111"),
-  "JOIN"=>array("110"),
-  "KICK"=>array("110","111"),
-  "KILL"=>array("101"),
-  "MODE"=>array("101","110","111"),
-  "NICK"=>array("101"),
-  "NOTICE"=>array("111"),
-  "PART"=>array("110","111"),
-  "PRIVMSG"=>array("111"),
-  "QUIT"=>array("100","101"));
+$valid_data_cmd=get_valid_data_cmd();
 
 $exec_list=exec_load();
 if ($exec_list===False)
