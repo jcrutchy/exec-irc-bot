@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 7-july-2014
+# 10-july-2014
 
 #####################################################################################################
 
@@ -96,6 +96,7 @@ $buckets=array(); # common place for scripts to store stuff
 $dest_overrides=array(); # optionally stores a destination for each nick, which treats every privmsg by that nick as having the set destination
 
 $admin_data="";
+$admin_is_sock="";
 
 $throttle_flag=False;
 $rawmsg_times=array();

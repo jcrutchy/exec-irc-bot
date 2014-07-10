@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 6-july-2014
+# 10-july-2014
 
 #####################################################################################################
 #                                                                                                   #
@@ -44,31 +44,33 @@ switch (strtoupper($cmd))
     echo "/IRC JOIN $trailing\n";
     break;
   case "JOIN": # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
-    echo "/INTERNAL ~civ-dispatch JOIN $trailing\n";
+    echo "/INTERNAL ~nickserv JOIN $params\n";
     break;
-  case "KICK":
-    echo "/INTERNAL ~civ-dispatch KICK $trailing\n";
+  case "KICK": # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
+    echo "/INTERNAL ~nickserv KICK $params\n";
+    echo "/INTERNAL ~sed-internal KICK $params\n";
     break;
   case "KILL":
-    echo "/INTERNAL ~civ-dispatch KILL $trailing\n";
+
     break;
   case "MODE":
 
     break;
-  case "NICK":
-    echo "/INTERNAL ~civ-dispatch NICK $trailing\n";
+  case "NICK": # :Landon_!~Landon@Soylent/Staff/IRC/Landon NICK :Landon
+    echo "/INTERNAL ~nickserv NICK $trailing\n";
     break;
   case "NOTICE":
 
     break;
-  case "PART":
-    echo "/INTERNAL ~civ-dispatch PART $trailing\n";
+  case "PART": # :Drop!~Drop___@via1-vhat2-0-3-jppz214.perr.cable.virginm.net PART #Soylent :Leaving
+    echo "/INTERNAL ~nickserv PART $dest\n";
+    echo "/INTERNAL ~sed-internal PART $dest\n";
     break;
   case "PRIVMSG":
-    echo "/INTERNAL ~sed-internal $trailing\n";
+    echo "/INTERNAL ~sed-internal PRIVMSG $trailing\n";
     break;
   case "QUIT":
-    echo "/INTERNAL ~civ-dispatch QUIT $trailing\n";
+    echo "/INTERNAL ~nickserv QUIT\n";
     break;
   case "043": # nickname was forced to change due to a collision
 
@@ -80,13 +82,13 @@ switch (strtoupper($cmd))
 
     break;
   case "319": # :irc.sylnt.us 319 exec crutchy :#wiki +#test #sublight #help @#exec #derp @#civ @#1 @#0 ## @#/ @#> @#~ @#
-    set_chan_list($params,$trailing);
+    echo "/INTERNAL ~nickserv 319 $params $trailing\n";
     break;
   case "330": # :irc.sylnt.us 330 exec crutchy crutchy :is logged in as
-    echo "/INTERNAL ~civ-dispatch 330 $trailing\n";
+    echo "/INTERNAL ~nickserv 330 $params\n";
     break;
-  case "353": # channel names list
-    echo "/INTERNAL ~civ-dispatch 353 $trailing\n";
+  case "353": # :irc.sylnt.us 353 exec = #civ :exec @crutchy chromas arti
+    echo "/INTERNAL ~nickserv 353 $trailing\n";
     break;
   case "401": # :irc.sylnt.us 401 exec SedBot :No such nick/channel
 
@@ -97,27 +99,6 @@ switch (strtoupper($cmd))
   case "471": # attempting to join a channel which is set +l and is already full
 
     break;
-}
-
-#####################################################################################################
-
-function set_chan_list($params,$trailing)
-{
-  # :irc.sylnt.us 319 exec crutchy :#wiki +#test #sublight #help @#exec
-  $parts=explode(" ",$params);
-  if (count($parts)==2)
-  {
-    $chans=explode(" ",$trailing);
-    for ($i=0;$i<count($chans);$i++)
-    {
-      if ((substr($chans[$i],0,1)=="+") or (substr($chans[$i],0,1)=="@"))
-      {
-        $chans[$i]=substr($chans[$i],1);
-      }
-    }
-    $chan_list=implode(" ",$chans);
-    set_bucket($parts[1]."_channel_list",$chan_list);
-  }
 }
 
 #####################################################################################################

@@ -406,17 +406,25 @@ function has_account_list($alias)
 
 #####################################################################################################
 
-function handle_data($data,$is_sock=False)
+function handle_data($data,$is_sock=False,$auth=False)
 {
   global $alias_locks;
   global $dest_overrides;
   global $admin_accounts;
   global $admin_data;
+  global $admin_is_sock;
   global $admin_aliases;
   global $exec_list;
   global $throttle_flag;
-  echo "\033[33m".date("Y-m-d H:i:s",microtime(True))." > \033[0m$data";
-  log_data($data);
+  if ($auth==False)
+  {
+    echo "\033[33m".date("Y-m-d H:i:s",microtime(True))." > \033[0m$data";
+    log_data($data);
+  }
+  else
+  {
+    term_echo("*** auth = true");
+  }
   $items=parse_data($data);
   if ($items!==False)
   {
@@ -424,11 +432,6 @@ function handle_data($data,$is_sock=False)
     {
       $throttle_flag=True;
       return;
-    }
-    $admin_nick="";
-    if ($items["cmd"]==311)
-    {
-
     }
     if ($items["cmd"]==330) # is logged in as
     {
@@ -451,7 +454,15 @@ function handle_data($data,$is_sock=False)
               {
                 term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in exec line account list");
                 $admin_data="";
-                return;
+                $admin_is_sock="";
+              }
+              else
+              {
+                $tmp_data=$admin_data;
+                $tmp_is_sock=$admin_is_sock;
+                $admin_data="";
+                $admin_is_sock="";
+                handle_data($tmp_data,$tmp_is_sock,True);
               }
             }
             else
@@ -460,46 +471,47 @@ function handle_data($data,$is_sock=False)
               {
                 term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in admin account list");
                 $admin_data="";
-                return;
+                $admin_is_sock="";
+              }
+              else
+              {
+                $tmp_data=$admin_data;
+                $tmp_is_sock=$admin_is_sock;
+                $admin_data="";
+                $admin_is_sock="";
+                handle_data($tmp_data,$tmp_is_sock,True);
               }
             }
-            $admin_nick=$nick;
-            $items=$admin_items;
-            $args=explode(" ",$items["trailing"]);
           }
           else
           {
             $admin_data="";
-            return;
+            $admin_is_sock="";
           }
         }
         else
         {
           $admin_data="";
+          $admin_is_sock="";
         }
       }
     }
     if ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
     {
       dojoin(INIT_CHAN_LIST);
-      return;
     }
     if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]=="You have 60 seconds to identify to your nickname before it is changed."))
     {
       rawmsg("NickServ IDENTIFY ".trim(file_get_contents(PASSWORD_FILE)),True);
-      return;
     }
     $args=explode(" ",$items["trailing"]);
     if ((in_array($args[0],$admin_aliases)==True) or (has_account_list($args[0])==True))
     {
-      if (($admin_data<>"") and ($admin_nick<>"") and ($admin_nick==$items["nick"]))
+      if ($auth==False)
       {
-        $admin_data="";
-      }
-      else
-      {
-        term_echo("authenticating...");
+        term_echo("authenticating \"".$args[0]."\"...");
         $admin_data=$items["data"];
+        $admin_is_sock=$is_sock;
         rawmsg("WHOIS ".$items["nick"]);
         return;
       }

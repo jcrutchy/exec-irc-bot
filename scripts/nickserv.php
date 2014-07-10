@@ -2,13 +2,54 @@
 
 # gpl2
 # by crutchy
-# 8-july-2014
-
-require_once("lib.php");
+# 10-july-2014
 
 #####################################################################################################
 
-function nickserv_rename()
+require_once("lib.php");
+
+$trailing=$argv[1];
+$nick=$argv[2];
+$dest=$argv[3];
+$alias=$argv[4];
+
+$parts=explode(" ",$trailing);
+$cmd=strtoupper($parts[0]);
+array_shift($parts);
+$trailing=implode(" ",$parts);
+unset($parts);
+
+switch ($cmd)
+{
+  case "JOIN":
+
+    break;
+  case "KICK":
+
+    break;
+  case "NICK":
+
+    break;
+  case "PART":
+
+    break;
+  case "QUIT":
+
+    break;
+  case "319":
+
+    break;
+  case "330":
+
+    break;
+  case "353":
+
+    break;
+}
+
+#####################################################################################################
+
+/*function nickserv_rename()
 {
     if ((count($parts)==3) and (($nick==NICK_EXEC) or ($alias==$admin_alias)))
     {
@@ -48,12 +89,11 @@ function nickserv_rename()
       }
     }
     break;
-
-}
+}*/
 
 #####################################################################################################
 
-function nickserv_login($params)
+/*function nickserv_login($params)
 {
       $parts=explode(" ",$params);
       if ((count($parts)==3) and ($parts[0]==NICK_EXEC))
@@ -96,11 +136,11 @@ function nickserv_login($params)
           }
         }
       }
-}
+}*/
 
 #####################################################################################################
 
-function nickserv_validate_logins()
+/*function nickserv_validate_logins()
 {
   global $players;
   global $start;
@@ -114,11 +154,11 @@ function nickserv_validate_logins()
       }
     }
   }
-}
+}*/
 
 #####################################################################################################
 
-function nickserv_is_logged_in($nick)
+/*function nickserv_is_logged_in($nick)
 {
   global $players;
   if (isset($players[$nick]["logged_in"])==False)
@@ -133,7 +173,27 @@ function nickserv_is_logged_in($nick)
   {
     return True;
   }
-}
+}*/
+
+#####################################################################################################
+
+/*function set_chan_list($params,$trailing)
+{
+  $parts=explode(" ",$params);
+  if (count($parts)==2)
+  {
+    $chans=explode(" ",$trailing);
+    for ($i=0;$i<count($chans);$i++)
+    {
+      if ((substr($chans[$i],0,1)=="+") or (substr($chans[$i],0,1)=="@"))
+      {
+        $chans[$i]=substr($chans[$i],1);
+      }
+    }
+    $chan_list=implode(" ",$chans);
+    set_bucket($parts[1]."_channel_list",$chan_list);
+  }
+}*/
 
 #####################################################################################################
 

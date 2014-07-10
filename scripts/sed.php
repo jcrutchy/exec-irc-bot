@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 2-july-2014
+# 9-july-2014
 
 #####################################################################################################
 
@@ -13,23 +13,23 @@ $nick=$argv[2];
 $dest=$argv[3];
 $alias=$argv[4];
 
-$default_channels=array("#test","#");
+define("SED_CHANNELS_BUCKET","<<EXEC_SED_CHANNELS>>");
 
-$channels=get_bucket("<<EXEC_SED_CHANNELS>>");
-term_echo("### <<EXEC_SED_CHANNELS>> = \"$channels\" ###");
-if ($channels=="")
-{
-  $channels=$default_channels;
-}
-else
+$channels=get_bucket(SED_CHANNELS_BUCKET);
+if ($channels<>"")
 {
   $channels=unserialize($channels);
   if ($channels===False)
   {
-    $channels=$default_channels;
+    $channels=array();
+    save_channels($channels);
   }
 }
-set_bucket("<<EXEC_SED_CHANNELS>>",serialize($channels));
+else
+{
+  $channels=array();
+  save_channels($channels);
+}
 if ($alias=="~sed")
 {
   switch (strtolower($trailing))
@@ -38,41 +38,89 @@ if ($alias=="~sed")
       if (in_array($dest,$channels)==False)
       {
         $channels[]=$dest;
-        set_bucket("<<EXEC_SED_CHANNELS>>",serialize($channels));
-        privmsg("exec sed enabled for \"$dest\"");
+        save_channels($channels);
+        privmsg("exec sed enabled for ".chr(3)."8$dest");
       }
       else
       {
-        privmsg("exec sed already enabled for \"$dest\"");
-        term_echo("\"$dest\" already in <<EXEC_SED_CHANNELS>> bucket");
+        privmsg("exec sed already enabled for ".chr(3)."8$dest");
       }
-      return;
+      break;
     case "off":
-      $i=array_search($dest,$channels);
-      if ($i!==False)
+      if (channel_off($channels,$dest)==True)
       {
-        unset($channels[$i]);
-        $channels=array_values($channels);
-        set_bucket("<<EXEC_SED_CHANNELS>>",serialize($channels));
-        privmsg("exec sed disabled for \"$dest\"");
+        privmsg("exec sed disabled for ".chr(3)."8$dest");
       }
       else
       {
-        privmsg("exec sed already disabled for \"$dest\"");
-        term_echo("\"$dest\" not found in <<EXEC_SED_CHANNELS>> bucket");
+        privmsg("exec sed already disabled for ".chr(3)."8$dest");
       }
-      return;
+      break;
+  }
+}
+elseif ($alias=="~sed-internal")
+{
+  $parts=explode(" ",$trailing);
+  $command=strtolower($parts[0]);
+  array_shift($parts);
+  $msg=implode(" ",$parts);
+  switch ($command)
+  {
+    case "kick":
+      if (count($parts)==2)
+      {
+        if ($parts[1]==NICK_EXEC)
+        {
+          channel_off($channels,$parts[0]);
+          term_echo("channel \"".$parts[0]."\" deleted from ".SED_CHANNELS_BUCKET." because exec was kicked from channel");
+        }
+      }
+      break;
+    case "part":
+      if ($nick==NICK_EXEC)
+      {
+        channel_off($channels,$msg);
+        term_echo("channel \"".$parts[0]."\" deleted from ".SED_CHANNELS_BUCKET." because exec parted channel");
+      }
+      break;
+    case "privmsg":
+      if ($nick<>NICK_EXEC)
+      {
+        if (in_array($dest,$channels)==True)
+        {
+          sed($msg,$nick,$dest);
+        }
+        set_bucket("last_".strtolower($nick)."_".$dest,$msg);
+      }
+      break;
+  }
+}
+return;
+
+#####################################################################################################
+
+function channel_off(&$channels,$chan)
+{
+  $i=array_search($chan,$channels);
+  if ($i!==False)
+  {
+    unset($channels[$i]);
+    $channels=array_values($channels);
+    save_channels($channels);
+    return True;
+  }
+  else
+  {
+    return False;
   }
 }
 
-if (($nick<>NICK_EXEC) and ($alias=="~sed-internal"))
+#####################################################################################################
+
+function save_channels($channels)
 {
-  $sedbot_channels=get_bucket("SedBot_channel_list");
-  if ((strpos($sedbot_channels,$dest)===False) and (in_array($dest,$channels)==True))
-  {
-    sed($trailing,$nick,$dest);
-  }
-  set_bucket("last_".strtolower($nick)."_".$dest,$trailing);
+  $channels=serialize($channels);
+  set_bucket(SED_CHANNELS_BUCKET,$channels);
 }
 
 #####################################################################################################
@@ -147,9 +195,8 @@ function sed($trailing,$nick,$dest)
     $last=get_bucket($index);
     if ($last=="")
     {
-      privmsg("last message by \"$sed_nick\" not found");
+      privmsg("last message by ".chr(3)."8$sed_nick".chr(3)." not found");
     }
-    # ACTION kicks chromas to the kerb
     $action_delim=chr(1)."ACTION ";
     if (strtoupper(substr($last,0,strlen($action_delim)))==$action_delim)
     {
@@ -189,7 +236,7 @@ function sed($trailing,$nick,$dest)
 
 function sed_help()
 {
-  privmsg("syntax: [nick[:] ]s/old/new[/[g]]");
+  privmsg("syntax: ".chr(3)."8[nick[:] ]s/old/new[/[g]]");
 }
 
 #####################################################################################################
