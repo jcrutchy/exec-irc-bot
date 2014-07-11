@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 6-july-2014
+# 12-july-2014
 
 # maybe eventually change to ~query
 
@@ -21,6 +21,7 @@ define("DEFINE_SOURCES_FILE","../data/define_sources");
 define("MAX_DEF_LENGTH",200);
 if (file_exists(DEFINE_SOURCES_FILE)==False)
 {
+  # if you change this array you need to delete (or amend) the define_sources file in the data path of whatever machine exec is running on
   $sources=array(
     "www.wolframalpha.com"=>array(
       "name"=>"wolframalpha",

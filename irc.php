@@ -12,7 +12,8 @@ define("PASSWORD_FILE","../pwd/".NICK);
 define("BUCKETS_FILE","../data/buckets");
 define("EXEC_FILE","exec.txt");
 define("INIT_CHAN_LIST","#"); # comma delimited
-define("LOG_PATH","/var/www/irciv.us.to/exec_logs/");
+define("EXEC_LOG_PATH","/var/www/irciv.us.to/exec_logs/");
+define("IRC_LOG_PATH","/var/www/irciv.us.to/irc_logs/");
 define("IRC_HOST_CONNECT","50.116.18.95");
 define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6697");
