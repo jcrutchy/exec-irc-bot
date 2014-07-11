@@ -435,66 +435,7 @@ function handle_data($data,$is_sock=False,$auth=False)
     }
     if ($items["cmd"]==330) # is logged in as
     {
-      term_echo("\033[32mdetected cmd 330: $admin_data\033[0m");
-      $parts=explode(" ",$items["params"]);
-      if ($admin_data<>"")
-      {
-        if ((count($parts)==3) and ($parts[0]==NICK))
-        {
-          $nick=$parts[1];
-          $account=$parts[2];
-          $admin_items=parse_data($admin_data);
-          $args=explode(" ",$admin_items["trailing"]);
-          $alias=$args[0];
-          if ($admin_items["nick"]==$nick)
-          {
-            if (has_account_list($alias)==True)
-            {
-              if ((in_array($account,$exec_list[$alias]["accounts"])==False) and (in_array($account,$admin_accounts)==False) and ($account<>NICK))
-              {
-                term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in exec line account list");
-                $admin_data="";
-                $admin_is_sock="";
-              }
-              else
-              {
-                $tmp_data=$admin_data;
-                $tmp_is_sock=$admin_is_sock;
-                $admin_data="";
-                $admin_is_sock="";
-                handle_data($tmp_data,$tmp_is_sock,True);
-              }
-            }
-            else
-            {
-              if (in_array($account,$admin_accounts)==False)
-              {
-                term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in admin account list");
-                $admin_data="";
-                $admin_is_sock="";
-              }
-              else
-              {
-                $tmp_data=$admin_data;
-                $tmp_is_sock=$admin_is_sock;
-                $admin_data="";
-                $admin_is_sock="";
-                handle_data($tmp_data,$tmp_is_sock,True);
-              }
-            }
-          }
-          else
-          {
-            $admin_data="";
-            $admin_is_sock="";
-          }
-        }
-        else
-        {
-          $admin_data="";
-          $admin_is_sock="";
-        }
-      }
+      authenticate($items);
     }
     if ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
     {
@@ -1153,6 +1094,76 @@ function process_timed_execs()
     if ($time_set==True)
     {
       process_scripts($items);
+    }
+  }
+}
+
+#####################################################################################################
+
+function authenticate($items)
+{
+  global $exec_list;
+  global $admin_data;
+  global $admin_is_sock;
+  global $admin_accounts;
+  term_echo("\033[32mdetected cmd 330: $admin_data\033[0m");
+  $parts=explode(" ",$items["params"]);
+  if ($admin_data<>"")
+  {
+    if ((count($parts)==3) and ($parts[0]==NICK))
+    {
+      $nick=$parts[1];
+      $account=$parts[2];
+      $admin_items=parse_data($admin_data);
+      $args=explode(" ",$admin_items["trailing"]);
+      $alias=$args[0];
+      if ($admin_items["nick"]==$nick)
+      {
+        if (has_account_list($alias)==True)
+        {
+          if ((in_array($account,$exec_list[$alias]["accounts"])==False) and (in_array($account,$admin_accounts)==False) and ($account<>NICK))
+          {
+            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in exec line account list");
+            $admin_data="";
+            $admin_is_sock="";
+          }
+          else
+          {
+            $tmp_data=$admin_data;
+            $tmp_is_sock=$admin_is_sock;
+            $admin_data="";
+            $admin_is_sock="";
+            handle_data($tmp_data,$tmp_is_sock,True);
+          }
+        }
+        else
+        {
+          if (in_array($account,$admin_accounts)==False)
+          {
+            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in admin account list");
+            $admin_data="";
+            $admin_is_sock="";
+          }
+          else
+          {
+            $tmp_data=$admin_data;
+            $tmp_is_sock=$admin_is_sock;
+            $admin_data="";
+            $admin_is_sock="";
+            handle_data($tmp_data,$tmp_is_sock,True);
+          }
+        }
+      }
+      else
+      {
+        $admin_data="";
+        $admin_is_sock="";
+      }
+    }
+    else
+    {
+      $admin_data="";
+      $admin_is_sock="";
     }
   }
 }

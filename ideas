@@ -4,6 +4,8 @@ EXEC IDEAS
 
 ~karma on|off (works like ~sed)
 
+github repository change monitoring (kinda like feeds)
+
 
 ~remind
 set bucket with start time
