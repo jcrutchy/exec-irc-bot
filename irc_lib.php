@@ -104,6 +104,7 @@ function log_data($data,$dest="")
   {
     $filename=IRC_LOG_PATH.$dest."_".date("Ymd",time()).".txt";
     $line="<<".date("Y-m-d H:i:s",microtime(True)).">> ".trim($data,"\n\r\0\x0B")."\n";
+    term_echo($line);
   }
   file_put_contents($filename,$line,FILE_APPEND);
 }
