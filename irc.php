@@ -13,7 +13,8 @@ define("BUCKETS_FILE","../data/buckets");
 define("EXEC_FILE","exec.txt");
 define("INIT_CHAN_LIST","#"); # comma delimited
 define("LOG_PATH","/var/www/irciv.us.to/exec_logs/");
-define("IRC_HOST","50.116.18.95");
+define("IRC_HOST_CONNECT","50.116.18.95");
+define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6697");
 define("MEMORY_LIMIT","128M");
 
@@ -125,11 +126,11 @@ if ($exec_list===False)
 init();
 if (IRC_PORT=="6697")
 {
-  $socket=fsockopen("ssl://".IRC_HOST,IRC_PORT);
+  $socket=fsockopen("ssl://".IRC_HOST_CONNECT,IRC_PORT);
 }
 else
 {
-  $socket=fsockopen(IRC_HOST,IRC_PORT);
+  $socket=fsockopen(IRC_HOST_CONNECT,IRC_PORT);
 }
 if ($socket===False)
 {
