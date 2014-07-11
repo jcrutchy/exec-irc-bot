@@ -1,11 +1,12 @@
-test
-====
+test readme
+===========
 
-this is the home of crutchy's 'exec' bot source code
+This is the home of crutchy's 'exec' bot source code which lurks on irc.sylnt.us (SoylentNews IRC).
 
-the bot script is 'irc.php' (contains constants and main loop), which requires 'irc_lib.php' (contains only bot functions)
+The bot script is 'irc.php' (contains constants and main loop), which requires 'irc_lib.php' (contains only bot functions).
 
-alias scripts are stored under the 'scripts' directory
+Alias scripts are stored under the 'scripts' directory.
 
 
-crutchy: do 'git up' to rsync to webserver and push to github
+developer notes:
+do 'git up' to rsync to webserver and push to github
