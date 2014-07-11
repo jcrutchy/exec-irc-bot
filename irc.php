@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 10-july-2014
+# 12-july-2014
 
 #####################################################################################################
 
@@ -13,7 +13,7 @@ define("BUCKETS_FILE","../data/buckets");
 define("EXEC_FILE","exec.txt");
 define("INIT_CHAN_LIST","#"); # comma delimited
 define("LOG_PATH","/var/www/irciv.us.to/exec_logs/");
-define("IRC_HOST","irc.sylnt.us");
+define("IRC_HOST","50.116.18.95");
 define("IRC_PORT","6697");
 define("MEMORY_LIMIT","128M");
 
