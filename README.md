@@ -10,4 +10,5 @@ Alias scripts are stored under the 'scripts' directory.
 
 
 rsync to webserver and push to github:
+
 git up "description of changes"
