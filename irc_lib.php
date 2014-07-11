@@ -436,7 +436,7 @@ function handle_data($data,$is_sock=False,$auth=False)
   $items=parse_data($data);
   if ($items!==False)
   {
-    if (($auth==False) and ($is_sock==True) and ($items["destination"]<>"") and ($items["nick"]<>"") and ($items["trailing"]<>""))
+    if (($auth==False) and ($is_sock==True) and ($items["destination"]<>"") and ($items["nick"]<>"") and (trim($items["trailing"])<>"") and (substr($items["destination"],0,1)=="#")))
     {
       $log_msg="<".$items["nick"]."> ".$items["trailing"];
       log_data($log_msg,$items["destination"]);
