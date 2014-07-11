@@ -8,5 +8,6 @@ The bot script is 'irc.php' (contains constants and main loop), which requires '
 Alias scripts are stored under the 'scripts' directory.
 
 
-developer notes:
-do 'git up' to rsync to webserver and push to github
+
+rsync to webserver and push to github:
+git up "description of changes"
