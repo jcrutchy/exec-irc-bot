@@ -14,6 +14,8 @@ define("EXEC_FILE","exec.txt");
 define("INIT_CHAN_LIST","#"); # comma delimited
 define("EXEC_LOG_PATH","/var/www/irciv.us.to/exec_logs/");
 define("IRC_LOG_PATH","/var/www/irciv.us.to/irc_logs/");
+define("IRC_LOG_INDEX_FILE","/var/www/irciv.us.to/irc_logs/index.php");
+define("IRC_LOG_INDEX_FILE_HTML","/var/www/irciv.us.to/irc_logs/index.html");
 define("IRC_HOST_CONNECT","50.116.18.95");
 define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6697");
@@ -43,6 +45,9 @@ define("CMD_BUCKET_SET","BUCKET_SET");
 define("CMD_BUCKET_UNSET","BUCKET_UNSET");
 define("CMD_INTERNAL","INTERNAL");
 
+define("IRC_INDEX_SOURCE","<?php include(\"".IRC_LOG_INDEX_FILE_HTML."\"); ?>");
+define("IRC_INDEX_HTML_HEAD","<!DOCTYPE HTML>\n<html>\n<head>\n<title>SoylentNews IRC Log Index</title>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\n<style type=\"text/css\"></style>\n<script type=\"text/javascript\"></script>\n</head>\n<body>\n<p>\n");
+define("IRC_CHAN_INDEX_HEAD","<!DOCTYPE HTML>\n<html>\n<head>\n<title>%%title%%</title>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\n<style type=\"text/css\"></style>\n<script type=\"text/javascript\"></script>\n</head>\n<body>\n<p>\n");
 define("IRC_LOG_HEAD","<!DOCTYPE HTML>\n<html>\n<head>\n<title>%%title%%</title>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\n<style type=\"text/css\"></style>\n<script type=\"text/javascript\"></script>\n</head>\n<body>\n<p>\n");
 
 define("PREFIX_DELIM","/");

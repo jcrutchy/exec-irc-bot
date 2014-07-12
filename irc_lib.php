@@ -102,14 +102,44 @@ function log_data($data,$dest="")
   }
   else
   {
+    if (file_exists(IRC_LOG_INDEX_FILE)==False)
+    {
+      file_put_contents(IRC_LOG_INDEX_FILE,IRC_INDEX_SOURCE);
+    }
+    if (file_exists(IRC_LOG_INDEX_FILE_HTML)==False)
+    {
+      file_put_contents(IRC_LOG_INDEX_FILE_HTML,IRC_INDEX_HTML_HEAD);
+    }
+    $contents=file_get_contents(IRC_LOG_INDEX_FILE_HTML);
+    if (strpos($contents,$dest)===False)
+    {
+      $chan_enc=urlencode($dest);
+      $line="<a href=\"index_$chan_enc.html\">$dest</a><br>\n";
+      file_put_contents(IRC_LOG_INDEX_FILE_HTML,$line,FILE_APPEND);
+    }
     $timestamp=date("H:i:s",microtime(True));
     $timestamp_name=date("His",microtime(True));
     $filename=IRC_LOG_PATH.$dest."_".date("Ymd",time()).".html";
+    $filename_href=urlencode($dest)."_".date("Ymd",time()).".html";
+    $href_caption=date("Y-m-d",time());
     $line="<a href=\"#$timestamp_name\" name=\"$timestamp_name\" class=\"time\">[$timestamp]</a> ".trim($data,"\n\r\0\x0B")."<br>\n";
     if (file_exists($filename)==False)
     {
+      $chan_index_filename=IRC_LOG_PATH.$dest.".html";
+      if (file_exists($chan_index_filename)==False)
+      {
+        $head=IRC_CHAN_INDEX_HEAD;
+        $head=str_replace("%%title%%","$dest | SoylentNews IRC Log",$head);
+        file_put_contents($chan_index_filename,$head);
+      }
+      $contents=file_get_contents($chan_index_filename);
+      if (strpos($contents,$filename_href)===False)
+      {
+        $line="<a href=\"$filename_href\">$href_caption</a><br>\n";
+        file_put_contents($chan_index_filename,$line,FILE_APPEND);
+      }
       $head=IRC_LOG_HEAD;
-      $head=str_replace("%%title%%","$dest | SoylentNews IRC Log",$head);
+      $head=str_replace("%%title%%","$dest | $href_caption",$head);
       file_put_contents($filename,$head);
     }
   }
