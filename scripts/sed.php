@@ -84,14 +84,14 @@ elseif ($alias=="~sed-internal")
       }
       break;
     case "privmsg":
-      if ($nick<>NICK_EXEC)
-      {
+      #if ($nick<>NICK_EXEC)
+      #{
         if (in_array($dest,$channels)==True)
         {
           sed($msg,$nick,$dest);
         }
         set_bucket("last_".strtolower($nick)."_".$dest,$msg);
-      }
+      #}
       break;
   }
 }

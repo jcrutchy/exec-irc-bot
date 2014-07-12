@@ -52,7 +52,7 @@ function get_valid_data_cmd()
 function get_list($items)
 {
   global $exec_list;
-  $msg="~list ~list-auth ~lock ~unlock";
+  $msg="~list ~list-auth ~log ~lock ~unlock";
   privmsg($items["destination"],$items["nick"],$msg);
   $msg="";
   foreach ($exec_list as $alias => $data)

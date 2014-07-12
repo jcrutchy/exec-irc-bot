@@ -69,6 +69,7 @@ define("ALIAS_ADMIN_BUCKETS_SAVE","~buckets-save"); # save buckets to file
 define("ALIAS_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
 define("ALIAS_ADMIN_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
 define("ALIAS_ADMIN_BUCKETS_LIST","~buckets-list"); # output list of set bucket indexes to the terminal
+define("ALIAS_LOG","~log");
 define("ALIAS_LOCK","~lock");
 define("ALIAS_UNLOCK","~unlock");
 define("ALIAS_LIST","~list");
@@ -106,6 +107,8 @@ $dest_overrides=array(); # optionally stores a destination for each nick, which 
 
 $admin_data="";
 $admin_is_sock="";
+
+$log_chans=array();
 
 $throttle_flag=False;
 $rawmsg_times=array();
