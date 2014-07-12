@@ -125,7 +125,7 @@ function log_data($data,$dest="")
     $line="<a href=\"#$timestamp_name\" name=\"$timestamp_name\" class=\"time\">[$timestamp]</a> ".trim($data,"\n\r\0\x0B")."<br>\n";
     if (file_exists($filename)==False)
     {
-      $chan_index_filename=IRC_LOG_PATH.$dest.".html";
+      $chan_index_filename=IRC_LOG_PATH."index_".$dest.".html";
       if (file_exists($chan_index_filename)==False)
       {
         $head=IRC_CHAN_INDEX_HEAD;
