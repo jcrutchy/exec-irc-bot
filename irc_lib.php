@@ -111,9 +111,9 @@ function log_data($data,$dest="")
       file_put_contents(IRC_LOG_INDEX_FILE_HTML,IRC_INDEX_HTML_HEAD);
     }
     $contents=file_get_contents(IRC_LOG_INDEX_FILE_HTML);
+    $chan_enc=urlencode($dest);
     if (strpos($contents,$dest)===False)
     {
-      $chan_enc=urlencode($dest);
       $line="<a href=\"index_$chan_enc.html\">$dest</a><br>\n";
       file_put_contents(IRC_LOG_INDEX_FILE_HTML,$line,FILE_APPEND);
     }
