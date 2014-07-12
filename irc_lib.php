@@ -581,7 +581,15 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
             if (($state=="on") or ($state=="off"))
             {
               $log_chans[$dest]=$state;
-              privmsg($dest,$items["nick"],"logging for ".chr(3)."8".$dest.chr(3)." is $state");
+              if ($state=="on")
+              {
+                privmsg($dest,$items["nick"],"logging enabled for ".chr(3)."8".$dest.chr(3));
+                privmsg($dest,$items["nick"],IRC_LOG_URL);
+              }
+              else
+              {
+                privmsg($dest,$items["nick"],"logging disabled for ".chr(3)."8".$dest.chr(3));
+              }
             }
             else
             {
