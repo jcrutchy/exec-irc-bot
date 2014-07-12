@@ -17,8 +17,6 @@ $trailing=$argv[2];
   }
 }*/
 
-term_echo("part working");
-
 if ($trailing=="")
 {
   echo "/IRC PART $dest :bye\n";
