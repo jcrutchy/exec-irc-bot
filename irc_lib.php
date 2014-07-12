@@ -577,7 +577,7 @@ function handle_data($data,$is_sock=False,$auth=False)
             if (($state=="on") or ($state=="off"))
             {
               $log_chans[$dest]=$state;
-              privmsg($dest,$items["nick"],"logging for ".char(3)."8".$dest.char(3)." is $state");
+              privmsg($dest,$items["nick"],"logging for ".chr(3)."8".$dest.chr(3)." is $state");
             }
             else
             {
