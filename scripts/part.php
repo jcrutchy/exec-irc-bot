@@ -6,18 +6,21 @@
 
 $locked_chans=array("#");
 
-if (in_array(strtolower($argv[1]),$locked_chans)==True)
+$dest=strtolower($argv[1]);
+$trailing=$argv[2];
+
+if (in_array($dest,$locked_chans)==True)
 {
   return;
 }
 
-if ($argv[2]=="")
+if ($trailing=="")
 {
-  echo "/IRC PART ".$argv[1]." :bye\n";
+  echo "/IRC PART $dest :bye\n";
 }
 else
 {
-  echo "/PRIVMSG this command must have no additional parameters and must be executed in the channel you want exec to leave\n";
+  echo "/IRC PART $trailing :bye\n";
 }
 
 ?>
