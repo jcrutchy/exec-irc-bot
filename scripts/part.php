@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 25-june-2014
+# 12-july-2014
 
 $locked_chans=array("#");
 
@@ -11,7 +11,10 @@ $trailing=$argv[2];
 
 if (in_array($dest,$locked_chans)==True)
 {
-  return;
+  if ($trailing<>"") or (in_array($trailing,$locked_chans)==True))
+  {
+    return;
+  }
 }
 
 if ($trailing=="")
