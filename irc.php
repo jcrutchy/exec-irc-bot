@@ -43,6 +43,8 @@ define("CMD_BUCKET_SET","BUCKET_SET");
 define("CMD_BUCKET_UNSET","BUCKET_UNSET");
 define("CMD_INTERNAL","INTERNAL");
 
+define("IRC_LOG_HEAD","<!DOCTYPE HTML>\n<html>\n<head>\n<title>%%title%%</title>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\n<style type=\"text/css\"></style>\n<script type=\"text/javascript\"></script>\n</head>\n<body>\n<p>\n");
+
 define("PREFIX_DELIM","/");
 define("PREFIX_IRC",PREFIX_DELIM."IRC");
 define("PREFIX_PRIVMSG",PREFIX_DELIM."PRIVMSG");

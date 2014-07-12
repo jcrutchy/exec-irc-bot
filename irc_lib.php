@@ -102,9 +102,16 @@ function log_data($data,$dest="")
   }
   else
   {
-    $filename=IRC_LOG_PATH.$dest."_".date("Ymd",time()).".txt";
-    $line="<<".date("Y-m-d H:i:s",microtime(True)).">> ".trim($data,"\n\r\0\x0B")."\n";
-    term_echo($line);
+    $timestamp=date("H:i:s",microtime(True));
+    $timestamp_name=date("His",microtime(True));
+    $filename=IRC_LOG_PATH.$dest."_".date("Ymd",time()).".html";
+    $line="<a href=\"#$timestamp_name\" name=\"$timestamp_name\" class=\"time\">[$timestamp]</a> ".trim($data,"\n\r\0\x0B")."<br>\n";
+    if (file_exists($filename)==False)
+    {
+      $head=IRC_LOG_HEAD;
+      $head=str_replace("%%title%%","$dest | SoylentNews IRC Log",$head);
+      file_put_contents($filename,$head);
+    }
   }
   file_put_contents($filename,$line,FILE_APPEND);
 }
