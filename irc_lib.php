@@ -135,8 +135,8 @@ function log_data($data,$dest="")
       $contents=file_get_contents($chan_index_filename);
       if (strpos($contents,$filename_href)===False)
       {
-        $line="<a href=\"$filename_href\">$href_caption</a><br>\n";
-        file_put_contents($chan_index_filename,$line,FILE_APPEND);
+        $line_chan_index="<a href=\"$filename_href\">$href_caption</a><br>\n";
+        file_put_contents($chan_index_filename,$line_chan_index,FILE_APPEND);
       }
       $head=IRC_LOG_HEAD;
       $head=str_replace("%%title%%","$dest | $href_caption",$head);
