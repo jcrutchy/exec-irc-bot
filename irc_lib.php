@@ -462,7 +462,7 @@ function has_account_list($alias)
 
 #####################################################################################################
 
-function handle_data($data,$is_sock=False,$auth=False)
+function handle_data($data,$is_sock=False,$auth=False,$exec=False)
 {
   global $log_chans;
   global $alias_locks;
@@ -698,6 +698,7 @@ function rawmsg($msg,$obfuscate=False)
     }
   }
   fputs($socket,$msg."\n");
+  handle_data($msg."\n",True,False,True);
   $rawmsg_times[]=microtime(True);
   while (count($rawmsg_times)>$flood_count)
   {
