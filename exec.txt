@@ -19,6 +19,7 @@
 # REQUIRE NICKSERV IDENTIFIED USER AUTHENTICATION (WHOIS)
 ~say|2|0|1|0|crutchy,chromas,monopoly|||php scripts/say.php %%trailing%% %%nick%%
 ~bucket|5|0|0|1|crutchy|||php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
+~op|5|0|0|1|crutchy|||php scripts/admin.php %%dest%%
 
 ~comment-dump|120|0|0|1|crutchy|||php scripts/sn-tfa-comments.php %%trailing%% %%dest%% %%nick%% %%alias%%
 

@@ -140,6 +140,7 @@ function log_data($data,$dest="")
       }
       $head=IRC_LOG_HEAD;
       $head=str_replace("%%title%%","$dest | $href_caption",$head);
+      $head=str_replace("%%index_href%%","index_$chan_enc.html",$head);
       file_put_contents($filename,$head);
     }
   }
