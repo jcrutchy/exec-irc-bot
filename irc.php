@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-july-2014
+# 13-july-2014
 
 #####################################################################################################
 
@@ -19,7 +19,8 @@ define("IRC_LOG_INDEX_FILE_HTML","/var/www/irciv.us.to/irc_logs/index.html");
 define("IRC_LOG_URL","http://irciv.us.to/irc_logs/");
 define("IRC_HOST_CONNECT","50.116.18.95");
 define("IRC_HOST","irc.sylnt.us");
-define("IRC_PORT","6697");
+#define("IRC_PORT","6697");
+define("IRC_PORT","6667");
 define("MEMORY_LIMIT","128M");
 
 $admin_accounts=array("crutchy");

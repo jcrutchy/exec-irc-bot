@@ -93,17 +93,27 @@ function get_list_auth($items)
 
 #####################################################################################################
 
-function log_data($data,$dest="")
+function log_data($data)
+{
+  $filename=EXEC_LOG_PATH.date("Ymd",time()).".txt";
+  $line="<<".date("Y-m-d H:i:s",microtime(True)).">> ".trim($data,"\n\r\0\x0B")."\n";
+  file_put_contents($filename,$line,FILE_APPEND);
+}
+
+#####################################################################################################
+
+/*
+    if (($auth==False) and ($is_sock==True) and ($items["destination"]<>"") and ($items["nick"]<>"") and (trim($items["trailing"])<>"") and (substr($items["destination"],0,1)=="#") and (strpos($items["destination"]," ")===False))
+    {
+      $log_msg="&lt;".$items["nick"]."&gt; ".$items["trailing"];
+      log_item($log_msg,$items["destination"]);
+    }
+*/
+
+function log_items($items)
 {
   global $log_chans;
-  if ($dest=="")
-  {
-    $filename=EXEC_LOG_PATH.date("Ymd",time()).".txt";
-    $line="<<".date("Y-m-d H:i:s",microtime(True)).">> ".trim($data,"\n\r\0\x0B")."\n";
-    file_put_contents($filename,$line,FILE_APPEND);
-  }
-  else
-  {
+
     if (isset($log_chans[$dest])==True)
     {
       if ($log_chans[$dest]=="off")
@@ -489,10 +499,9 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
   $items=parse_data($data);
   if ($items!==False)
   {
-    if (($auth==False) and ($is_sock==True) and ($items["destination"]<>"") and ($items["nick"]<>"") and (trim($items["trailing"])<>"") and (substr($items["destination"],0,1)=="#") and (strpos($items["destination"]," ")===False))
+    if (($auth==False) and ($is_sock==True))
     {
-      $log_msg="&lt;".$items["nick"]."&gt; ".$items["trailing"];
-      log_data($log_msg,$items["destination"]);
+      log_items($items);
     }
     if (($items["prefix"]==IRC_HOST) and (strpos(strtolower($items["trailing"]),"throttled due to flooding")!==False))
     {
