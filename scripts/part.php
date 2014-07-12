@@ -17,6 +17,8 @@ if (in_array($dest,$locked_chans)==True)
   }
 }
 
+term_echo("part working");
+
 if ($trailing=="")
 {
   echo "/IRC PART $dest :bye\n";
