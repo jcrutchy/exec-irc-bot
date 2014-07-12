@@ -702,7 +702,6 @@ function rawmsg($msg,$obfuscate=False)
     }
   }
   fputs($socket,$msg."\n");
-  handle_data($msg."\n",True,False,True);
   $rawmsg_times[]=microtime(True);
   while (count($rawmsg_times)>$flood_count)
   {
@@ -710,7 +709,7 @@ function rawmsg($msg,$obfuscate=False)
   }
   if ($obfuscate==False)
   {
-    term_echo("RAWMSG: ".$msg);
+    handle_data($msg."\n",True,False,True);
   }
   else
   {
