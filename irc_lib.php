@@ -111,6 +111,10 @@ function log_data($data,$dest="")
         return;
       }
     }
+    else
+    {
+      return;
+    }
     if (file_exists(IRC_LOG_INDEX_FILE)==False)
     {
       file_put_contents(IRC_LOG_INDEX_FILE,IRC_INDEX_SOURCE);
