@@ -446,7 +446,7 @@ function handle_data($data,$is_sock=False,$auth=False)
   {
     if (($auth==False) and ($is_sock==True) and ($items["destination"]<>"") and ($items["nick"]<>"") and (trim($items["trailing"])<>"") and (substr($items["destination"],0,1)=="#") and (strpos($items["destination"]," ")===False))
     {
-      $log_msg="<".$items["nick"]."> ".$items["trailing"];
+      $log_msg="&lt;".$items["nick"]."&gt; ".$items["trailing"];
       log_data($log_msg,$items["destination"]);
     }
     if (($items["prefix"]==IRC_HOST) and (strpos(strtolower($items["trailing"]),"throttled due to flooding")!==False))
