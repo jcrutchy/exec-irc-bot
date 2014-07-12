@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 9-july-2014
+# 12-july-2014
 
 #####################################################################################################
 
@@ -39,21 +39,21 @@ if ($alias=="~sed")
       {
         $channels[]=$dest;
         save_channels($channels);
-        privmsg("exec sed enabled for ".chr(3)."8$dest");
+        privmsg("sed enabled for ".chr(3)."8$dest");
       }
       else
       {
-        privmsg("exec sed already enabled for ".chr(3)."8$dest");
+        privmsg("sed already enabled for ".chr(3)."8$dest");
       }
       break;
     case "off":
       if (channel_off($channels,$dest)==True)
       {
-        privmsg("exec sed disabled for ".chr(3)."8$dest");
+        privmsg("sed disabled for ".chr(3)."8$dest");
       }
       else
       {
-        privmsg("exec sed already disabled for ".chr(3)."8$dest");
+        privmsg("sed already disabled for ".chr(3)."8$dest");
       }
       break;
   }

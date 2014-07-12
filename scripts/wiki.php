@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 29-june-2014
+# 12-july-2014
 
 # http://www.mediawiki.org/wiki/Manual:Bots
 # http://en.wikipedia.org/wiki/Wikipedia:Creating_a_bot
@@ -216,11 +216,11 @@ function edit($title,$section,$text)
   var_dump($data);
   if (isset($data["error"])==True)
   {
-    $msg="wiki edit=".$data["error"]["code"];
+    $msg="wiki: edit=".$data["error"]["code"];
   }
   else
   {
-    $msg="wiki edit=".$data["edit"]["result"];
+    $msg="wiki: edit=".$data["edit"]["result"];
     if ($data["edit"]["result"]=="Success")
     {
       $msg=$msg.", oldrevid=".$data["edit"]["oldrevid"].", newrevid=".$data["edit"]["newrevid"];
