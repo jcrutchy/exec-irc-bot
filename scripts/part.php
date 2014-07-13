@@ -14,6 +14,11 @@ if ((in_array($dest,$locked_chans)==True) and ($trailing==""))
   return;
 }
 
+if ((in_array($trailing,$locked_chans)==True) and ($trailing<>""))
+{
+  return;
+}
+
 if ($trailing=="")
 {
   echo "/IRC PART $dest :bye\n";
