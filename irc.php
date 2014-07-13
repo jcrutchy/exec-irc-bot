@@ -14,8 +14,7 @@ define("EXEC_FILE","exec.txt");
 define("INIT_CHAN_LIST","#"); # comma delimited
 define("EXEC_LOG_PATH","/var/www/irciv.us.to/exec_logs/");
 define("IRC_LOG_URL","http://irciv.us.to/irc_logs/");
-define("IRC_HOST_CONNECT","50.116.18.95");
-#define("IRC_HOST_CONNECT","irc.sylnt.us");
+define("IRC_HOST_CONNECT","irc.sylnt.us");
 define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6697");
 define("MEMORY_LIMIT","128M");
