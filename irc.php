@@ -43,12 +43,6 @@ define("CMD_BUCKET_SET","BUCKET_SET");
 define("CMD_BUCKET_UNSET","BUCKET_UNSET");
 define("CMD_INTERNAL","INTERNAL");
 
-define("HTML_NO_CACHE","<meta http-equiv=\"cache-control\" content=\"max-age=0\">\n<meta http-equiv=\"cache-control\" content=\"no-cache\">\n<meta http-equiv=\"expires\" content=\"0\">\n<meta http-equiv=\"expires\" content=\"Tue, 01 Jan 1980 1:00:00 GMT\">\n<meta http-equiv=\"pragma\" content=\"no-cache\">\n");
-define("IRC_INDEX_SOURCE","<?php include(\"".IRC_LOG_INDEX_FILE_HTML."\"); ?>");
-define("IRC_INDEX_HTML_HEAD","<!DOCTYPE HTML>\n<html>\n<head>\n<title>SoylentNews IRC Log Index</title>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\n".HTML_NO_CACHE."<style type=\"text/css\"></style>\n<script type=\"text/javascript\"></script>\n</head>\n<body>\n<p>\n");
-define("IRC_CHAN_INDEX_HEAD","<!DOCTYPE HTML>\n<html>\n<head>\n<title>%%title%%</title>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\n".HTML_NO_CACHE."<style type=\"text/css\"></style>\n<script type=\"text/javascript\"></script>\n</head>\n<body>\n<p><a href=\"index.html\">return to channel index</a></p>\n<p>\n");
-define("IRC_LOG_HEAD","<!DOCTYPE HTML>\n<html>\n<head>\n<title>%%title%%</title>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\n".HTML_NO_CACHE."<style type=\"text/css\"></style>\n<script type=\"text/javascript\"></script>\n</head>\n<body>\n<p><a href=\"%%index_href%%\">return to date index</a></p>\n<p>\n");
-
 define("PREFIX_DELIM","/");
 define("PREFIX_IRC",PREFIX_DELIM."IRC");
 define("PREFIX_PRIVMSG",PREFIX_DELIM."PRIVMSG");

@@ -3,6 +3,12 @@ define("IRC_LOG_INDEX_FILE","/var/www/irciv.us.to/irc_logs/index.php");
 define("IRC_LOG_INDEX_FILE_HTML","/var/www/irciv.us.to/irc_logs/index.html");
 define("IRC_LOG_URL","http://irciv.us.to/irc_logs/");
 
+define("HTML_NO_CACHE","<meta http-equiv=\"cache-control\" content=\"max-age=0\">\n<meta http-equiv=\"cache-control\" content=\"no-cache\">\n<meta http-equiv=\"expires\" content=\"0\">\n<meta http-equiv=\"expires\" content=\"Tue, 01 Jan 1980 1:00:00 GMT\">\n<meta http-equiv=\"pragma\" content=\"no-cache\">\n");
+define("IRC_INDEX_SOURCE","<?php include(\"".IRC_LOG_INDEX_FILE_HTML."\"); ?>");
+define("IRC_INDEX_HTML_HEAD","<!DOCTYPE HTML>\n<html>\n<head>\n<title>SoylentNews IRC Log Index</title>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\n".HTML_NO_CACHE."<style type=\"text/css\"></style>\n<script type=\"text/javascript\"></script>\n</head>\n<body>\n<p>\n");
+define("IRC_CHAN_INDEX_HEAD","<!DOCTYPE HTML>\n<html>\n<head>\n<title>%%title%%</title>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\n".HTML_NO_CACHE."<style type=\"text/css\"></style>\n<script type=\"text/javascript\"></script>\n</head>\n<body>\n<p><a href=\"index.html\">return to channel index</a></p>\n<p>\n");
+define("IRC_LOG_HEAD","<!DOCTYPE HTML>\n<html>\n<head>\n<title>%%title%%</title>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\n".HTML_NO_CACHE."<style type=\"text/css\"></style>\n<script type=\"text/javascript\"></script>\n</head>\n<body>\n<p><a href=\"%%index_href%%\">return to date index</a></p>\n<p>\n");
+
 function log_items($items)
 {
   global $log_chans;
