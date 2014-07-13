@@ -12,19 +12,20 @@ $trailing=strip_ctrl_chars(trim(substr($argv[1],0,200)));
 $nick=$argv[2];
 $dest=$argv[3];
 
-define("IDEAS_FILE","ideas");
-
-if (file_exists(IDEAS_FILE)==False)
-{
-  privmsg("ideas file not found");
-  return;
-}
+define("REQUESTS_FILE","../data/requests");
 
 $timestamp=date("Y-m-d H:i:s",microtime(True));
 
 $line="[$timestamp] <$nick> $dest :$trailing\n";
 
-file_put_contents(IDEAS_FILE,$line,FILE_APPEND);
+if (file_put_contents(REQUESTS_FILE,$line,FILE_APPEND)==True)
+{
+  privmsg("*** successfully appended request");
+}
+else
+{
+  privmsg("*** error appending request");
+}
 
 #####################################################################################################
 
