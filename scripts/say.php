@@ -11,10 +11,10 @@
 ini_set("display_errors","on");
 require_once("lib.php");
 
-if ((substr($argv[1],0,1)=="/") and (substr($argv[1],1,1)<>"/"))
+/*if ((substr($argv[1],0,1)=="/") and (substr($argv[1],1,1)<>"/"))
 {
   return;
-}
+}*/
 
 echo $argv[1]."\n";
 
