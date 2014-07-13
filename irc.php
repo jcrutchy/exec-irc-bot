@@ -13,14 +13,9 @@ define("BUCKETS_FILE","../data/buckets");
 define("EXEC_FILE","exec.txt");
 define("INIT_CHAN_LIST","#"); # comma delimited
 define("EXEC_LOG_PATH","/var/www/irciv.us.to/exec_logs/");
-define("IRC_LOG_PATH","/var/www/irciv.us.to/irc_logs/");
-define("IRC_LOG_INDEX_FILE","/var/www/irciv.us.to/irc_logs/index.php");
-define("IRC_LOG_INDEX_FILE_HTML","/var/www/irciv.us.to/irc_logs/index.html");
-define("IRC_LOG_URL","http://irciv.us.to/irc_logs/");
 define("IRC_HOST_CONNECT","50.116.18.95");
 define("IRC_HOST","irc.sylnt.us");
-#define("IRC_PORT","6697");
-define("IRC_PORT","6667");
+define("IRC_PORT","6697");
 define("MEMORY_LIMIT","128M");
 
 $admin_accounts=array("crutchy");
@@ -38,6 +33,7 @@ define("DIRECTIVE_QUIT","<<quit>>");
 
 # reserved aliases
 define("ALIAS_ALL","*");
+define("ALIAS_LOG","<log>");
 define("ALIAS_INIT","<init>");
 define("ALIAS_QUIT","<quit>");
 

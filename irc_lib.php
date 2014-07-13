@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-july-2014
+# 13-july-2014
 
 #####################################################################################################
 
@@ -102,72 +102,21 @@ function log_data($data)
 
 #####################################################################################################
 
-/*
-    if (($auth==False) and ($is_sock==True) and ($items["destination"]<>"") and ($items["nick"]<>"") and (trim($items["trailing"])<>"") and (substr($items["destination"],0,1)=="#") and (strpos($items["destination"]," ")===False))
-    {
-      $log_msg="&lt;".$items["nick"]."&gt; ".$items["trailing"];
-      log_item($log_msg,$items["destination"]);
-    }
-*/
-
 function log_items($items)
 {
   global $log_chans;
-
-    if (isset($log_chans[$dest])==True)
-    {
-      if ($log_chans[$dest]=="off")
-      {
-        return;
-      }
-    }
-    else
+  if (isset($log_chans[$dest])==True)
+  {
+    if ($log_chans[$dest]=="off")
     {
       return;
     }
-    if (file_exists(IRC_LOG_INDEX_FILE)==False)
-    {
-      file_put_contents(IRC_LOG_INDEX_FILE,IRC_INDEX_SOURCE);
-    }
-    if (file_exists(IRC_LOG_INDEX_FILE_HTML)==False)
-    {
-      file_put_contents(IRC_LOG_INDEX_FILE_HTML,IRC_INDEX_HTML_HEAD);
-    }
-    $contents=file_get_contents(IRC_LOG_INDEX_FILE_HTML);
-    $chan_enc=urlencode($dest);
-    if (strpos($contents,$dest)===False)
-    {
-      $line="<a href=\"index_$chan_enc.html\">$dest</a><br>\n";
-      file_put_contents(IRC_LOG_INDEX_FILE_HTML,$line,FILE_APPEND);
-    }
-    $timestamp=date("H:i:s",microtime(True));
-    $timestamp_name=date("His",microtime(True));
-    $filename=IRC_LOG_PATH.$dest."_".date("Ymd",time()).".html";
-    $filename_href=urlencode($dest)."_".date("Ymd",time()).".html";
-    $href_caption=date("Y-m-d",time());
-    $line="<a href=\"#$timestamp_name\" name=\"$timestamp_name\" class=\"time\">[$timestamp]</a> ".trim($data,"\n\r\0\x0B")."<br>\n";
-    if (file_exists($filename)==False)
-    {
-      $chan_index_filename=IRC_LOG_PATH."index_".$dest.".html";
-      if (file_exists($chan_index_filename)==False)
-      {
-        $head=IRC_CHAN_INDEX_HEAD;
-        $head=str_replace("%%title%%","$dest | SoylentNews IRC Log",$head);
-        file_put_contents($chan_index_filename,$head);
-      }
-      $contents=file_get_contents($chan_index_filename);
-      if (strpos($contents,$filename_href)===False)
-      {
-        $line_chan_index="<a href=\"$filename_href\">$href_caption</a><br>\n";
-        file_put_contents($chan_index_filename,$line_chan_index,FILE_APPEND);
-      }
-      $head=IRC_LOG_HEAD;
-      $head=str_replace("%%title%%","$dest | $href_caption",$head);
-      $head=str_replace("%%index_href%%","index_$chan_enc.html",$head);
-      file_put_contents($filename,$head);
-    }
-    file_put_contents($filename,$line,FILE_APPEND);
   }
+  else
+  {
+    return;
+  }
+  process_scripts($items,ALIAS_LOG);
 }
 
 #####################################################################################################
@@ -918,7 +867,6 @@ function parse_data($data)
   {
     return False;
   }
-  $result["destination"]=$result["params"];
   if ($result["prefix"]<>"")
   {
     # prefix format: nick!user@hostname
@@ -940,6 +888,18 @@ function parse_data($data)
   }
   $mask=construct_mask($result);
   $cmd=$result["cmd"];
+  $param_parts=explode(" ",$result["params"]);
+  if (count($param_parts)==2)
+  {
+    if ((substr($param_parts[0],0,1)=="#") or (substr($param_parts[0],0,1)=="&"))
+    {
+      $result["destination"]=$param_parts[0];
+    }
+  }
+  elseif (count($param_parts)==1)
+  {
+    $result["destination"]=$result["params"];
+  }
   if ($cmd=="#")
   {
     return False;
@@ -1045,7 +1005,7 @@ function process_scripts($items,$reserved="")
       array_shift($parts);
       $trailing=implode(" ",$parts);
     }
-    if (($alias==ALIAS_ALL) or ($alias==ALIAS_INIT) or ($alias==ALIAS_QUIT))
+    if (($alias==ALIAS_ALL) or ($alias==ALIAS_INIT) or ($alias==ALIAS_QUIT) or ($alias==ALIAS_LOG))
     {
       return;
     }

@@ -78,6 +78,9 @@ switch (strtoupper($cmd))
   case "263": # server dropped command without processing it
 
     break;
+  case "303": # ison
+
+    break;
   case "311": # :irc.sylnt.us 311 exec tme520 ~TME520 218-883-738-54.tpgi.com.au * :TME520
 
     break;
