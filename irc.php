@@ -13,7 +13,9 @@ define("BUCKETS_FILE","../data/buckets");
 define("EXEC_FILE","exec.txt");
 define("INIT_CHAN_LIST","#"); # comma delimited
 define("EXEC_LOG_PATH","/var/www/irciv.us.to/exec_logs/");
+define("IRC_LOG_URL","http://irciv.us.to/irc_logs/");
 define("IRC_HOST_CONNECT","50.116.18.95");
+#define("IRC_HOST_CONNECT","irc.sylnt.us");
 define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6697");
 define("MEMORY_LIMIT","128M");
@@ -62,6 +64,7 @@ define("ALIAS_ADMIN_BUCKETS_SAVE","~buckets-save"); # save buckets to file
 define("ALIAS_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
 define("ALIAS_ADMIN_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
 define("ALIAS_ADMIN_BUCKETS_LIST","~buckets-list"); # output list of set bucket indexes to the terminal
+define("ALIAS_MSG","~msg");
 define("ALIAS_LOG","~log");
 define("ALIAS_LOCK","~lock");
 define("ALIAS_UNLOCK","~unlock");

@@ -321,6 +321,7 @@ function handle_buckets($data,$handle)
       }
       return True;
   }
+  return False;
 }
 
 #####################################################################################################
@@ -528,6 +529,19 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         {
           privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]][$items["destination"]]."\" unlocked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
           unset($alias_locks[$items["nick"]][$items["destination"]]);
+        }
+        break;
+      case ALIAS_MSG:
+        if (check_nick($items,$alias)==True)
+        {
+          if (count($args)==2)
+          {
+            #$handle=???;
+            #$result=handle_stdin($handle,$items["trailing"]);
+            global $handles;
+            #proc_get_status
+            var_dump($handles);
+          }
         }
         break;
       case ALIAS_LOG:
