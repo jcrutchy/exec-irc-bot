@@ -2,19 +2,16 @@
 
 # gpl2
 # by crutchy
-# 12-july-2014
+# 13-july-2014
 
 $locked_chans=array("#");
 
 $dest=strtolower($argv[1]);
 $trailing=$argv[2];
 
-if (in_array($dest,$locked_chans)==True)
+if ((in_array($dest,$locked_chans)==True) and ($trailing==""))
 {
-  if (($trailing<>"") and (in_array($trailing,$locked_chans)==True))
-  {
-    return;
-  }
+  return;
 }
 
 if ($trailing=="")
