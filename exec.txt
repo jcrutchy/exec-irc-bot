@@ -38,8 +38,8 @@
 #~feed-sources|5|0|0|1||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed-add|5|0|0|1||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed-del|5|0|0|1||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#~stats-lines|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#~stats-first|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~stats-lines|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~stats-first|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~remind|99999|0|0|0||||php scripts/remind.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~|5|0|1|1||||php scripts/about.php %%trailing%%
 ~cowsay|10|0|1|0||||cowsay %%trailing%%
