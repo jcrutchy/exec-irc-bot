@@ -105,6 +105,7 @@ function log_data($data)
 function log_items($items)
 {
   global $log_chans;
+  $dest=$items["destination"];
   if (isset($log_chans[$dest])==True)
   {
     if ($log_chans[$dest]=="off")
