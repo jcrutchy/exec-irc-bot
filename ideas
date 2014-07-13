@@ -13,3 +13,6 @@ if exec restarts, check all remind buckets to see if any haven't expired yet
 and reset them with new sleep time to trigger at correct intended time
 
 
+FEATURE REQUESTS:
+
+<stderr> Feature request for exec: Convert "0.7 hrs" to minutes

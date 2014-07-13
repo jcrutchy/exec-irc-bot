@@ -22,25 +22,29 @@ unset($parts);
 switch ($cmd)
 {
   case "JOIN":
-
+    # $nick = joining_nick
+    # $trailing = channel
     break;
   case "KICK":
-
+    # $nick = kicking_op
+    # $trailing = chan kicked_nick
     break;
   case "NICK":
-
+    # $nick = old
+    # $trailing = new
     break;
   case "PART":
-
+    # $nick = parting_nick
+    # $trailing = channel
     break;
   case "QUIT":
-
+    # $nick = quitting_nick
     break;
   case "319":
-
+    # $trailing = whois_call_nick whois_subject_nick space_delimited_chanlist
     break;
   case "330":
-
+    # $trailing = whois_call_nick whois_subject_nick whois_subject_account
     break;
   case "353":
 
