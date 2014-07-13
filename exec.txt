@@ -53,7 +53,7 @@
 ~time|30|0|0|0||||php scripts/time.php %%trailing%%
 ~rainbow|5|0|0|0||||php scripts/rainbow.php %%trailing%%
 
-~reqest|5|0|0|0||||php scripts/exec_request.php %%trailing%% %%nick%% %%dest%%
+~request|5|0|0|0||||php scripts/exec_request.php %%trailing%% %%nick%% %%dest%%
 
 ~google|20|0|0|0||||php scripts/google.php %%trailing%%
 
