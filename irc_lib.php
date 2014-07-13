@@ -1006,7 +1006,7 @@ function process_scripts($items,$reserved="")
       array_shift($parts);
       $trailing=implode(" ",$parts);
     }
-    if (($alias==ALIAS_ALL) or ($alias==ALIAS_INIT) or ($alias==ALIAS_QUIT) or ($alias==ALIAS_LOG))
+    if (($alias==ALIAS_ALL) or ($alias==ALIAS_INIT) or ($alias==ALIAS_QUIT) or ($alias==ALIAS_LOG_ITEMS))
     {
       return;
     }

@@ -33,7 +33,7 @@ define("DIRECTIVE_QUIT","<<quit>>");
 
 # reserved aliases
 define("ALIAS_ALL","*");
-define("ALIAS_LOG","<log>");
+define("ALIAS_LOG_ITEMS","<log>");
 define("ALIAS_INIT","<init>");
 define("ALIAS_QUIT","<quit>");
 
