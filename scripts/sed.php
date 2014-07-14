@@ -14,11 +14,6 @@ $dest=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];
 
-if ($cmd=="INTERNAL")
-{
-  return;
-}
-
 define("SED_CHANNELS_BUCKET","<<EXEC_SED_CHANNELS>>");
 
 $channels=get_bucket(SED_CHANNELS_BUCKET);
