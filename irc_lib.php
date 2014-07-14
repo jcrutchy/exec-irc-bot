@@ -991,7 +991,6 @@ function privmsg($destination,$nick,$msg)
       rawmsg($data);
     }
   }
-  term_echo("PRIVMSG: ".$msg);
 }
 
 #####################################################################################################
