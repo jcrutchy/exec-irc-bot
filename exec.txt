@@ -23,7 +23,7 @@
 
 ~comment-dump|120|0|0|1|crutchy|||php scripts/sn-tfa-comments.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
-~wiki|40|0|0|0|crutchy|||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#~wiki|40|0|0|0|crutchy|||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~feed-wiki|600|1800|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 # called from other scripts via INTERNAL cmd
