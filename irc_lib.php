@@ -287,7 +287,7 @@ function handle_buckets($data,$handle)
         }
         else
         {
-          term_echo("BUCKET_GET [$index]: SUCCESS ($size)");
+          #term_echo("BUCKET_GET [$index]: SUCCESS ($size)");
         }
       }
       else
@@ -308,7 +308,7 @@ function handle_buckets($data,$handle)
         unset($parts[0]);
         $trailing=implode(" ",$parts);
         $buckets[$index]=$trailing;
-        term_echo("BUCKET_SET [$index]: SUCCESS");
+        #term_echo("BUCKET_SET [$index]: SUCCESS");
       }
       return True;
     case CMD_BUCKET_UNSET:
@@ -316,7 +316,7 @@ function handle_buckets($data,$handle)
       if (isset($buckets[$index])==True)
       {
         unset($buckets[$index]);
-        term_echo("BUCKET_UNSET [$index]: SUCCESS");
+        #term_echo("BUCKET_UNSET [$index]: SUCCESS");
       }
       else
       {
