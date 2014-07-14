@@ -189,7 +189,6 @@ function sed($trailing,$nick,$dest)
       $sed_nick=$nick;
     }
     $index="last_".strtolower($sed_nick)."_".$dest;
-    $last=get_bucket($index); # dunno why this is needed but on 2-july-14 it just stopped working (kept showing last message not found) and this was the workaround that seemed to fix
     $last=get_bucket($index);
     if ($last=="")
     {
