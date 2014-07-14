@@ -19,7 +19,7 @@ define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6697");
 define("MEMORY_LIMIT","128M");
 
-$admin_accounts=array("crutchy");
+$admin_accounts=array("crutchy","chromas");
 
 #####################################################################################################
 
