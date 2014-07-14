@@ -2,13 +2,13 @@
 
 # gpl2
 # by crutchy
-# 12-july-2014
+# 14-july-2014
 
 #####################################################################################################
 
 require_once("lib.php");
 
-$trailing=$argv[1];
+$trailing=rtrim($argv[1]);
 $nick=$argv[2];
 $dest=$argv[3];
 $alias=$argv[4];
@@ -84,14 +84,11 @@ elseif ($alias=="~sed-internal")
       }
       break;
     case "privmsg":
-      #if ($nick<>NICK_EXEC)
-      #{
-        if (in_array($dest,$channels)==True)
-        {
-          sed($msg,$nick,$dest);
-        }
-        set_bucket("last_".strtolower($nick)."_".$dest,$msg);
-      #}
+      if (in_array($dest,$channels)==True)
+      {
+        sed($msg,$nick,$dest);
+      }
+      set_bucket("last_".strtolower($nick)."_".$dest,$msg);
       break;
   }
 }
