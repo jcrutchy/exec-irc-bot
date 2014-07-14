@@ -85,7 +85,7 @@ elseif ($alias=="~sed-internal")
       }
       break;
     case "privmsg":
-      if (in_array($dest,$channels)==True)
+      if ((in_array($dest,$channels)==True) and ($nick<>NICK_EXEC))
       {
         sed($msg,$nick,$dest);
       }
