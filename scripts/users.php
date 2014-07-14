@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 10-july-2014
+# 14-july-2014
 
 #####################################################################################################
 
@@ -19,15 +19,36 @@ array_shift($parts);
 $trailing=implode(" ",$parts);
 unset($parts);
 
+$users=array();
+
 switch ($cmd)
 {
   case "JOIN":
     # $nick = joining_nick
     # $trailing = channel
+    $chan=strtolower($trailing);
+    if (isset($users[$nick])==False)
+    {
+      $users[$nick]["channels"]=array();
+    }
+    if (in_array($trailing,$users[$nick]["channels"])==False)
+    {
+      $users[$nick]["channels"][]=$chan;
+    }
     break;
   case "KICK":
     # $nick = kicking_op
     # $trailing = chan kicked_nick
+    $parts=explode(" ",$trailing);
+    if (count($parts)==2)
+    {
+      $chan=$parts[0];
+      $kicked_nick=$parts[1];
+      if (isset($users[$kicked_nick])==True)
+      {
+
+      }
+    }
     break;
   case "NICK":
     # $nick = old

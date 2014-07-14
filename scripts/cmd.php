@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 10-july-2014
+# 14-july-2014
 
 #####################################################################################################
 #                                                                                                   #
@@ -44,10 +44,10 @@ switch (strtoupper($cmd))
     echo "/IRC JOIN $trailing\n";
     break;
   case "JOIN": # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
-    echo "/INTERNAL ~nickserv JOIN $params\n";
+    #echo "/INTERNAL ~nickserv JOIN $params\n";
     break;
   case "KICK": # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
-    echo "/INTERNAL ~nickserv KICK $params\n";
+    #echo "/INTERNAL ~nickserv KICK $params\n";
     echo "/INTERNAL ~sed-internal KICK $params\n";
     break;
   case "KILL":
@@ -57,20 +57,20 @@ switch (strtoupper($cmd))
 
     break;
   case "NICK": # :Landon_!~Landon@Soylent/Staff/IRC/Landon NICK :Landon
-    echo "/INTERNAL ~nickserv NICK $trailing\n";
+    #echo "/INTERNAL ~nickserv NICK $trailing\n";
     break;
   case "NOTICE":
 
     break;
   case "PART": # :Drop!~Drop___@via1-vhat2-0-3-jppz214.perr.cable.virginm.net PART #Soylent :Leaving
-    echo "/INTERNAL ~nickserv PART $dest\n";
+    #echo "/INTERNAL ~nickserv PART $dest\n";
     echo "/INTERNAL ~sed-internal PART $dest\n";
     break;
   case "PRIVMSG":
     echo "/INTERNAL ~sed-internal PRIVMSG $trailing\n";
     break;
   case "QUIT":
-    echo "/INTERNAL ~nickserv QUIT\n";
+    #echo "/INTERNAL ~nickserv QUIT\n";
     break;
   case "043": # nickname was forced to change due to a collision
 
@@ -85,13 +85,13 @@ switch (strtoupper($cmd))
 
     break;
   case "319": # :irc.sylnt.us 319 exec crutchy :#wiki +#test #sublight #help @#exec #derp @#civ @#1 @#0 ## @#/ @#> @#~ @#
-    echo "/INTERNAL ~nickserv 319 $params $trailing\n";
+    #echo "/INTERNAL ~nickserv 319 $params $trailing\n";
     break;
   case "330": # :irc.sylnt.us 330 exec crutchy crutchy :is logged in as
-    echo "/INTERNAL ~nickserv 330 $params\n";
+    #echo "/INTERNAL ~nickserv 330 $params\n";
     break;
   case "353": # :irc.sylnt.us 353 exec = #civ :exec @crutchy chromas arti
-    echo "/INTERNAL ~nickserv 353 $trailing\n";
+    #echo "/INTERNAL ~nickserv 353 $trailing\n";
     break;
   case "401": # :irc.sylnt.us 401 exec SedBot :No such nick/channel
 
