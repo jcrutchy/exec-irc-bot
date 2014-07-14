@@ -12,6 +12,12 @@ $trailing=rtrim($argv[1]);
 $nick=$argv[2];
 $dest=$argv[3];
 $alias=$argv[4];
+$cmd=$argv[5];
+
+if ($cmd=="INTERNAL")
+{
+  return;
+}
 
 define("SED_CHANNELS_BUCKET","<<EXEC_SED_CHANNELS>>");
 
