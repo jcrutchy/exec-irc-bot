@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 13-july-2014
+# 14-july-2014
 
 #####################################################################################################
 
@@ -142,7 +142,10 @@ function handle_process($handle)
     {
       proc_close($handle["process"]);
       term_echo("process timed out: ".$handle["command"]);
-      privmsg($handle["destination"],$handle["nick"],"process timed out: ".$handle["trailing"]);
+      if ($handle["alias"]<>"*")
+      {
+        privmsg($handle["destination"],$handle["nick"],"process timed out: ".$handle["trailing"]);
+      }
       return False;
     }
   }
