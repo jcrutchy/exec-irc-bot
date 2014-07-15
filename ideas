@@ -12,6 +12,17 @@ set bucket with start time
 if exec restarts, check all remind buckets to see if any haven't expired yet
 and reset them with new sleep time to trigger at correct intended time
 
+~define -f term
+uses cprivmsg to output more (avoids flood control if exec is channel operator)
+or something like !more to output some more content
+
+
+SoylentNews comment feed
+- similar to bender but outputs comment summaries
+- nicks can use ~mod to moderate last comment
+(if a trial run is positive, maybe ask staff for moderation priveliges for the exec user)
+- poll to see if exec has mod points before output feed
+
 
 FEATURE REQUESTS:
 

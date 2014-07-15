@@ -13,9 +13,6 @@
 # EXEC ON QUIT - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 <quit>|10|0|0|1||||php scripts/quit.php
 
-# INTERNAL ALIASES
-~nickserv|5|0|0|||INTERNAL||php scripts/nickserv.php %%trailing%% %%nick%% %%dest%% %%alias%%
-
 # REQUIRE NICKSERV IDENTIFIED USER AUTHENTICATION (WHOIS)
 ~say|2|0|1|0|crutchy,chromas,monopoly|||php scripts/say.php %%trailing%% %%nick%%
 ~bucket|5|0|0|1|crutchy|||php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
@@ -28,13 +25,14 @@
 
 # called from other scripts via INTERNAL cmd
 ~sed-internal|10|0|0|0||INTERNAL||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
-~sed|10|0|0|0||||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
+~users-internal|5|0|0|||INTERNAL||php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 # timer scripts
 #~feed|500|1800|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~feed|120|0|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 # GENERAL USAGE ALIASES
+~sed|10|0|0|0||||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
 #~feed-sources|5|0|0|1||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed-add|5|0|0|1||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed-del|5|0|0|1||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
