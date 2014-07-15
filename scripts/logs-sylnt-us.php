@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
+# 15-july-2014
 
 #####################################################################################################
 
@@ -12,7 +12,7 @@ require_once("lib.php");
 define("CACHE_PATH","/var/www/irciv.us.to/logs.sylnt.us/");
 
 $trailing=$argv[1];
-$nick=$argv[2];
+$nick=trim($argv[2]);
 $dest=strtolower($argv[3]);
 $alias=$argv[4];
 

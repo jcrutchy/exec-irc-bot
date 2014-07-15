@@ -34,6 +34,8 @@ switch ($cmd)
     if (in_array($trailing,$users[$nick]["channels"])==False)
     {
       $users[$nick]["channels"][]=$chan;
+      on_join($nick,$chan);
+      whois($nick);
     }
     break;
   case "KICK":
@@ -46,7 +48,8 @@ switch ($cmd)
       $kicked_nick=$parts[1];
       if (isset($users[$kicked_nick])==True)
       {
-
+        unset($users[$kicked_nick]);
+        on_kick();
       }
     }
     break;
