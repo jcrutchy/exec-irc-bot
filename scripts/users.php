@@ -13,6 +13,8 @@ $nick=$argv[2];
 $dest=$argv[3];
 $alias=$argv[4];
 
+term_echo("users.php started");
+
 $parts=explode(" ",$trailing);
 $cmd=strtoupper($parts[0]);
 array_shift($parts);

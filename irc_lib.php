@@ -208,7 +208,14 @@ function handle_stdout($handle)
           handle_buckets(CMD_BUCKET_UNSET." :".$prefix_msg."\n",$handle);
           return;
         case PREFIX_INTERNAL:
-          handle_data(":".$handle["nick"]." ".CMD_INTERNAL." ".$handle["destination"]." :".$prefix_msg."\n");
+          if ($handle["destination"]=="")
+          {
+            handle_data(":".$handle["nick"]." ".CMD_INTERNAL." :".$prefix_msg."\n");
+          }
+          else
+          {
+            handle_data(":".$handle["nick"]." ".CMD_INTERNAL." ".$handle["destination"]." :".$prefix_msg."\n");
+          }
           return;
       }
     }
