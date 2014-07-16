@@ -87,8 +87,7 @@ switch ($cmd)
     break;
   case "QUIT":
     # $nick = "quitting_nick"
-    term_echo("quit");
-    /*if (isset($users[$nick])==True)
+    if (isset($users[$nick])==True)
     {
       for ($i=0;$i<count($users[$nick]["channels"]);$i++)
       {
@@ -96,7 +95,7 @@ switch ($cmd)
       }
       unset($users[$nick]);
       on_quit($nick);
-    }*/
+    }
     break;
   case "319":
     # $trailing = "whois_call_nick whois_subject_nick space_delimited_chanlist"
