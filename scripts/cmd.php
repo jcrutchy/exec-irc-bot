@@ -54,7 +54,7 @@ switch (strtoupper($cmd))
 
     break;
   case "MODE":
-
+    #echo "/INTERNAL ~users-internal...
     break;
   case "NICK": # :Landon_!~Landon@Soylent/Staff/IRC/Landon NICK :Landon
     echo "/INTERNAL ~users-internal NICK $trailing\n";
