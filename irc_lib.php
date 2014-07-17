@@ -160,6 +160,18 @@ function handle_stdout($handle)
   {
     return;
   }
+  $read=array($handle["pipe_stdout"]);
+  $write=NULL;
+  $except=NULL;
+  $changed=stream_select($read,$write,$except,0);
+  if ($changed===False)
+  {
+    return;
+  }
+  if ($changed<=0)
+  {
+    return;
+  }
   $buf=fgets($handle["pipe_stdout"]);
   if ($buf===False)
   {
@@ -231,6 +243,18 @@ function handle_stdout($handle)
 function handle_stderr($handle)
 {
   if (is_resource($handle["pipe_stderr"])==False)
+  {
+    return;
+  }
+  $read=array($handle["pipe_stderr"]);
+  $write=NULL;
+  $except=NULL;
+  $changed=stream_select($read,$write,$except,0);
+  if ($changed===False)
+  {
+    return;
+  }
+  if ($changed<=0)
   {
     return;
   }

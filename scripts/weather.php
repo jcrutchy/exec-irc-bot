@@ -83,7 +83,7 @@ function process_weather($location)
   }
   $loc_query=filter($loc,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC.",");
   # http://weather.gladstonefamily.net/site/search?site=melbourne&search=Search
-  $search=wget("weather.gladstonefamily.net","/site/search?site=".urlencode($loc_query)."&search=Search",80);
+  $search=wget("weather.gladstonefamily.net","/site/search?site=".urlencode($loc_query)."&search=Search",80,ICEWEASEL_UA,"",8);
   if (strpos($search,"Pick one of the following")===False)
   {
     privmsg("Weather for \"$loc\" not found. Check spelling or try another nearby location.");

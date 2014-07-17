@@ -249,7 +249,7 @@ function get_redirected_url($from_url,$url_list="")
 
 #####################################################################################################
 
-function whead($host,$uri,$port=80,$agent="",$extra_headers="",$timeout=20)
+function whead($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout=20)
 {
   $errno=0;
   $errstr="";

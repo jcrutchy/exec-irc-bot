@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 15-july-2014
+# 17-july-2014
 
 #####################################################################################################
 #                                                                                                   #
@@ -101,6 +101,12 @@ switch (strtoupper($cmd))
     break;
   case "471": # attempting to join a channel which is set +l and is already full
 
+    break;
+  case "354": # :irc.sylnt.us 354 crutchy 152 #Soylent mrcoolbp H@+
+    echo "/INTERNAL ~users-internal 354 $params\n";
+    break;
+  case "322": # :irc.sylnt.us 322 crutchy # 8 :exec's home base and proving ground. testing of other bots and general chit chat welcome :-)
+    echo "/INTERNAL ~users-internal 322 $params\n";
     break;
 }
 

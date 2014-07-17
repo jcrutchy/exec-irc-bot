@@ -7,6 +7,14 @@ EXEC IDEAS
 github repository change monitoring (kinda like feeds)
 
 
+github/slashcode issue submission/listing
+
+
+SN crawler/mapper
+
+~proc count|list|kill|etc (inside bot)
+
+
 ~remind
 set bucket with start time
 if exec restarts, check all remind buckets to see if any haven't expired yet
@@ -22,6 +30,23 @@ SoylentNews comment feed
 - nicks can use ~mod to moderate last comment
 (if a trial run is positive, maybe ask staff for moderation priveliges for the exec user)
 - poll to see if exec has mod points before output feed
+
+
+
+EXEC MODULARISATION:
+- bot.php
+  executes irc.php in separate process
+  executes bucket_manager.php in separate process
+  passes data between processes
+- bot_lib.php
+  contains common bot functions and constant declarations
+- irc.php
+  contains irc program loop. passes all unprocessed data string to line.php as separate process
+- line.php
+  takes raw irc line, parses it, and executes aliases as required (uses same process management functions as irc.php)
+- bucket_manager.php
+  stores bucket data in process memory. handles bucket requests
+
 
 
 FEATURE REQUESTS:
