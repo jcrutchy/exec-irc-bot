@@ -73,10 +73,11 @@ else
 }
 
 term_echo($cmd);
+term_echo($trailing);
 
 switch ($cmd)
 {
-  case "var_dump":
+  case "VAR_DUMP":
     if (trim($trailing)=="users")
     {
       var_dump($users);
