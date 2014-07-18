@@ -72,6 +72,8 @@ else
   }
 }
 
+term_echo($cmd);
+
 switch ($cmd)
 {
   case "var_dump":
