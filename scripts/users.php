@@ -80,7 +80,7 @@ switch ($cmd)
   case "VAR_DUMP":
     if (trim($trailing)=="users")
     {
-      var_dump($users);
+      var_dump($users["crutchy"]);
       return;
     }
     if (trim($trailing)=="channels")
