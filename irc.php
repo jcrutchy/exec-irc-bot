@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 13-july-2014
+# 18-july-2014
 
 #####################################################################################################
 
@@ -19,7 +19,7 @@ define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6697");
 define("MEMORY_LIMIT","128M");
 
-$admin_accounts=array("crutchy","chromas");
+$admin_accounts=array("crutchy","xlefay","chromas");
 
 #####################################################################################################
 

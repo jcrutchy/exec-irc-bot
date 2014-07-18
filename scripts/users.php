@@ -74,6 +74,18 @@ else
 
 switch ($cmd)
 {
+  case "var_dump":
+    if (trim($trailing)=="users")
+    {
+      var_dump($users);
+      return;
+    }
+    if (trim($trailing)=="channels")
+    {
+      var_dump($channels);
+      return;
+    }
+    break;
   case "JOIN":
     # $nick = "joining_nick"
     # $trailing = "chan"
