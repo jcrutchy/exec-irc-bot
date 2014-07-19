@@ -44,7 +44,7 @@ $users=get_array_bucket(BUCKET_USERS);
 
 switch ($cmd)
 {
-  case "admin":
+  case "ADMIN":
     if (trim($trailing)=="users")
     {
       var_dump($users);

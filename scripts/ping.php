@@ -18,7 +18,6 @@ $t=microtime(True);
 if ($trailing<>"")
 {
   set_bucket(BUCKET_PONG,$trailing);
-  #pm("#","PONG $trailing");
 }
 else
 {
@@ -32,7 +31,6 @@ else
   }
   set_bucket(BUCKET_PING,$t);
   $msg="PING $t";
-  #pm("#",$msg);
   rawmsg($msg);
 }
 
