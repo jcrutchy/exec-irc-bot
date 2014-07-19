@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 14-july-2014
+# 19-july-2014
 
 #####################################################################################################
 
@@ -705,6 +705,10 @@ function rawmsg($msg,$obfuscate=False)
   global $socket;
   global $throttle_flag;
   global $rawmsg_times;
+  if ($socket===False)
+  {
+    return;
+  }
   $flood_count=6; # messages to allow through without any delays
   if (count($rawmsg_times)>1)
   {

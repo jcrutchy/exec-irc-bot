@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 18-july-2014
+# 19-july-2014
 
 #####################################################################################################
 
@@ -142,11 +142,13 @@ else
 if ($socket===False)
 {
   term_echo("ERROR CREATING IRC SOCKET");
-  #die();
 }
-stream_set_blocking($socket,0);
-rawmsg("NICK ".NICK);
-rawmsg("USER ".NICK." hostname servername :".NICK.".bot");
+else
+{
+  stream_set_blocking($socket,0);
+  rawmsg("NICK ".NICK);
+  rawmsg("USER ".NICK." hostname servername :".NICK.".bot");
+}
 
 # main program loop
 while (True)
