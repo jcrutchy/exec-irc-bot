@@ -43,7 +43,7 @@ function get_valid_data_cmd()
     "NOTICE"=>array("111"),
     "PART"=>array("110","111"),
     "PRIVMSG"=>array("111"),
-    "QUIT"=>array("100","101"));
+    "QUIT"=>array("100","101"),
     "PONG"=>array("110","111"));
   return $result;
 }
