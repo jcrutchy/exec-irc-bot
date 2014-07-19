@@ -20,7 +20,7 @@ if ($trailing<>"")
     return;
   }
   $delta=$t-$ping_lag;
-  pm("#","lag = $delta sec");
+  #pm("#","lag = $delta sec");
   if ($delta>10)
   {
     term_echo("==================== PING TIMEOUT DETECTED ====================");
@@ -39,7 +39,7 @@ else
   }
   set_bucket(BUCKET_PING_LAG,$t);
   $msg="PING $t";
-  pm("#",$msg);
+  #pm("#",$msg);
   rawmsg($msg);
 }
 
