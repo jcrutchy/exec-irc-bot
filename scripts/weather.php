@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
+# 19-july-2014
 
 # requested by kobach: weather request, Spirit Of Saint Louis, Missouri (38.7°N/90.7°W), Updated: 1:54 PM CST (December 23, 2013), Conditions: Mostly Cloudy, Temperature: 26°F (-3.3°C), Windchill: 16°F (-9°C), High/Low: 26/9°F (-3.3/-12.8°C), UV: 1/16, Humidity: 66%, Dew Point: 16°F (-8.9°C), Pressure: 30.51 in/1033 hPa, Wind: WNW at 10 MPH (17 KPH)
 
@@ -38,14 +38,14 @@ switch ($argv[1])
       $code=trim($parts[0]);
       array_shift($parts);
       $location=trim(implode(" ",$parts));
-      $codes[$code]=$location;
+      $codes[strtolower($code)]=$location;
       if (file_put_contents(CODES_FILE,serialize($codes))===False)
       {
-        privmsg("code \"$code\" set for location \"".$codes[$code]."\" but there was an error writing the codes file");
+        privmsg("code \"$code\" set for location \"".$codes[strtolower($code)]."\" but there was an error writing the codes file");
       }
       else
       {
-        privmsg("code \"$code\" set for location \"".$codes[$code]."\"");
+        privmsg("code \"$code\" set for location \"".$codes[strtolower($code)]."\"");
       }
     }
     break;
@@ -73,9 +73,9 @@ switch ($argv[1])
 function process_weather($location)
 {
   global $codes;
-  if (isset($codes[$location])==True)
+  if (isset($codes[strtolower($location)])==True)
   {
-    $loc=$codes[$location];
+    $loc=$codes[strtolower($location)];
   }
   else
   {
