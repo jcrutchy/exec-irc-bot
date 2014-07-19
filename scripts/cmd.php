@@ -29,7 +29,7 @@ $nick=$argv[6];
 switch (strtoupper($cmd))
 {
   case "PONG":
-    echo "/IRC :exec INTERNAL :~ping $params\n";
+    echo "/INTERNAL ~ping $params\n";
     break;
   case "INTERNAL":
 
