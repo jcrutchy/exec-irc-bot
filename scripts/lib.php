@@ -41,7 +41,16 @@ function get_array_bucket($bucket)
 
 function set_array_bucket($array,$bucket)
 {
-
+  $bucket_data=serialize($array);
+  if ($bucket_data===False)
+  {
+    term_echo("error serializing \"$bucket\" bucket");
+  }
+  else
+  {
+    unset_bucket($bucket);
+    set_bucket($bucket,$bucket_data);
+  }
 }
 
 #####################################################################################################

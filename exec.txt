@@ -25,9 +25,9 @@
 
 # called from other scripts via INTERNAL cmd
 ~sed-internal|10|0|0|0||INTERNAL||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
-~users-internal|240|0|0|0||INTERNAL||php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~users-internal|240|0|0|0||INTERNAL||php scripts/users/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
-~users|10|0|0|0|crutchy|||php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~users|10|0|0|0|crutchy|||php scripts/users/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 # timer scripts
 #~feed|500|1800|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%

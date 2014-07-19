@@ -234,27 +234,8 @@ switch ($cmd)
     break;
 }
 
-$channels_bucket=serialize($channels);
-if ($channels_bucket===False)
-{
-  term_echo("error serializing channels bucket");
-}
-else
-{
-  unset_bucket(BUCKET_CHANNELS);
-  set_bucket(BUCKET_CHANNELS,$channels_bucket);
-}
-
-$users_bucket=serialize($users);
-if ($users_bucket===False)
-{
-  term_echo("error serializing users bucket");
-}
-else
-{
-  unset_bucket(BUCKET_USERS);
-  set_bucket(BUCKET_USERS,$users_bucket);
-}
+set_array_bucket($channels,BUCKET_CHANNELS);
+set_array_bucket($users,BUCKET_USERS);
 
 #####################################################################################################
 
