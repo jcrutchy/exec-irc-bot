@@ -27,7 +27,7 @@ else
     if ($ping<>$pong)
     {
       term_echo("==================== PING TIMEOUT DETECTED ====================");
-      echo "/INTERNAL ~restart\n";
+      echo "/INTERNAL ~restart-internal\n";
     }
   }
   set_bucket(BUCKET_PING,$t);

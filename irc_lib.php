@@ -673,6 +673,13 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
           buckets_list($items);
         }
         break;
+      case ALIAS_INTERNAL_RESTART:
+        if ((count($args)==1) and ($items["cmd"]==CMD_INTERNAL))
+        {
+          define("RESTART",True);
+          process_scripts($items,ALIAS_QUIT);
+        }
+        break;
       case ALIAS_ADMIN_RESTART:
         if (count($args)==1)
         {

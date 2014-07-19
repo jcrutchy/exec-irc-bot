@@ -53,6 +53,7 @@ define("PREFIX_BUCKET_UNSET",PREFIX_DELIM.CMD_BUCKET_UNSET);
 define("PREFIX_INTERNAL",PREFIX_DELIM.CMD_INTERNAL);
 
 # internal aliases (can also use in exec file with alias locking, but that would be just weird)
+define("ALIAS_INTERNAL_RESTART","~restart-internal");
 define("ALIAS_ADMIN_QUIT","~q");
 define("ALIAS_ADMIN_RESTART","~restart");
 define("ALIAS_ADMIN_RELOAD","~reload");
