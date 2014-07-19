@@ -142,7 +142,7 @@ else
 if ($socket===False)
 {
   term_echo("ERROR CREATING IRC SOCKET");
-  die();
+  #die();
 }
 stream_set_blocking($socket,0);
 rawmsg("NICK ".NICK);

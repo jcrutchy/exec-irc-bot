@@ -435,6 +435,10 @@ function buckets_list($items)
 
 function handle_socket($socket)
 {
+  if ($socket===False)
+  {
+    return;
+  }
   $data=fgets($socket);
   if ($data!==False)
   {
