@@ -32,7 +32,7 @@
 # timer scripts
 #~feed|500|1800|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed|120|0|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~ping|60|0|0|1|exec|||php scripts/ping.php %%trailing%%
+~ping|10|60|0|0|exec|||php scripts/ping.php %%trailing%%
 
 # GENERAL USAGE ALIASES
 ~sed|10|0|0|0||||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
