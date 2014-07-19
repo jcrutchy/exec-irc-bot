@@ -20,7 +20,7 @@ if ($trailing<>"")
     return;
   }
   $delta=$t-$ping_lag;
-  pm("#","lag = $delta sec");
+  #pm("#","lag = $delta sec");
   if ($delta>20)
   {
     term_echo("==================== PING TIMEOUT DETECTED ====================");
