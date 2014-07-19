@@ -16,9 +16,7 @@ $t=time();
 if ($trailing<>"")
 {
   $ping_lag=get_bucket(BUCKET_PING_LAG);
-  $d=date_parse_from_format("YMdHis",$ping_lag);
-  $last=mktime($d["hour"],$d["minute"],$d["second"],$d["month"],$d["day"],$d["year"]);
-  $delta=$t-$last;
+  $delta=$t-$ping_lag;
   if ($delta>20)
   {
     term_echo("==================== PING TIMEOUT DETECTED ====================");
@@ -27,9 +25,8 @@ if ($trailing<>"")
 }
 else
 {
-  $ping_lag=gmdate("YMdHis",$t);
-  set_bucket(BUCKET_PING_LAG,$ping_lag);
-  rawmsg("PING $ping_lag");
+  set_bucket(BUCKET_PING_LAG,$t);
+  rawmsg("PING $t");
 }
 
 #####################################################################################################
