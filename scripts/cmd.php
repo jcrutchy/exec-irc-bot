@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 17-july-2014
+# 19-july-2014
 
 #####################################################################################################
 #                                                                                                   #
@@ -28,6 +28,9 @@ $nick=$argv[6];
 
 switch (strtoupper($cmd))
 {
+  case "PONG":
+    echo "/INTERNAL ~ping $params\n";
+    break;
   case "INTERNAL":
 
     break;

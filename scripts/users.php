@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 17-july-2014
+# 18-july-2014
 
 #####################################################################################################
 
@@ -33,59 +33,21 @@ $nick=$argv[2];
 $dest=$argv[3];
 $alias=$argv[4];
 
-define("BUCKET_CHANNELS","<<channels>>");
-define("BUCKET_USERS","<<users>>");
-
 $parts=explode(" ",$trailing);
 $cmd=strtoupper($parts[0]);
 array_shift($parts);
 $trailing=implode(" ",$parts);
 unset($parts);
 
-$channels=array();
-$channels_bucket=get_bucket(BUCKET_CHANNELS);
-if ($channels_bucket=="")
-{
-  term_echo("channels bucket contains no data");
-}
-else
-{
-  $channels=unserialize($channels_bucket);
-  if ($channels===False)
-  {
-    err("error unserializing channels bucket data");
-  }
-}
-
-$users=array();
-$users_bucket=get_bucket(BUCKET_USERS);
-if ($users_bucket=="")
-{
-  term_echo("users bucket contains no data");
-}
-else
-{
-  $users=unserialize($users_bucket);
-  if ($users===False)
-  {
-    err("error unserializing users bucket data");
-  }
-}
-
-term_echo($cmd);
-term_echo($trailing);
+$channels=get_array_bucket(BUCKET_CHANNELS);
+$users=get_array_bucket(BUCKET_USERS);
 
 switch ($cmd)
 {
-  case "VAR_DUMP":
+  case "admin":
     if (trim($trailing)=="users")
     {
-      var_dump($users["crutchy"]);
-      return;
-    }
-    if (trim($trailing)=="channels")
-    {
-      var_dump($channels);
+      var_dump($users);
       return;
     }
     break;
@@ -98,12 +60,20 @@ switch ($cmd)
     {
       $users[$nick]["channels"]=array();
     }
+    if (isset($channels[$chan])==False)
+    {
+      $channels[$chan]["nicks"]=array();
+    }
     if (in_array($trailing,$users[$nick]["channels"])==False)
     {
       $users[$nick]["channels"][]=$chan;
-      on_join($nick,$chan);
-      whois($nick);
     }
+    if (in_array($trailing,$channels[$chan]["nicks"])==False)
+    {
+      $users[$nick]["channels"][]=$chan;
+    }
+    on_join($nick,$chan);
+    whois($nick);
     break;
   case "KICK":
     # $nick = "op_nick"
@@ -186,6 +156,10 @@ switch ($cmd)
       for ($i=0;$i<count($parts);$i++)
       {
         $loop_chan=$parts[$i];
+        if (isset($channels[$loop_chan])==False)
+        {
+          $channels[$loop_chan]["nicks"]=array();
+        }
         if ((substr($loop_chan,0,1)=="+") or (substr($loop_chan,0,1)=="@"))
         {
           $loop_chan=substr($loop_chan,1);
