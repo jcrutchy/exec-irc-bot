@@ -29,7 +29,8 @@ $nick=$argv[6];
 switch (strtoupper($cmd))
 {
   case "PONG":
-    echo "/INTERNAL ~ping $params\n";
+    pm("#","server pong");
+    #echo "/INTERNAL ~ping $params\n";
     break;
   case "INTERNAL":
 
