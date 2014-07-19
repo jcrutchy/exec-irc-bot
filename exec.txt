@@ -13,6 +13,9 @@
 # EXEC ON QUIT - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 <quit>|10|0|0|1||||php scripts/quit.php
 
+# RESERVED ALIAS FOR LOGGING ITEMS
+<log>|10|0|0|1||||php scripts/log.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%exec%% %%params%%
+
 # REQUIRE NICKSERV IDENTIFIED USER AUTHENTICATION (WHOIS)
 ~say|2|0|1|0|crutchy,chromas,monopoly|||php scripts/say.php %%trailing%% %%nick%%
 ~bucket|5|0|0|1|crutchy|||php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
