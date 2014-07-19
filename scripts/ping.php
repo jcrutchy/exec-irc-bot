@@ -11,10 +11,10 @@ date_default_timezone_set("UTC");
 require_once("lib.php");
 $trailing=trim($argv[1]);
 define("BUCKET_PING_LAG","<<PING_LAG>>");
+$ping_lag=get_bucket(BUCKET_PING_LAG);
 $t=time();
 if ($trailing<>"")
 {
-  $ping_lag=get_bucket(BUCKET_PING_LAG);
   if ($ping_lag=="")
   {
     return;
@@ -29,6 +29,14 @@ if ($trailing<>"")
 }
 else
 {
+  if ($ping_lag<>"")
+  {
+    if ($ping_lag==$t)
+    {
+      term_echo("==================== PING TIMEOUT DETECTED ====================");
+      echo "/INTERNAL ~restart\n";
+    }
+  }
   set_bucket(BUCKET_PING_LAG,$t);
   $msg="PING $t";
   #pm("#",$msg);
