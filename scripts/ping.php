@@ -16,6 +16,10 @@ $t=time();
 if ($trailing<>"")
 {
   $ping_lag=get_bucket(BUCKET_PING_LAG);
+  if ($ping_lag=="")
+  {
+    return;
+  }
   $delta=$t-$ping_lag;
   if ($delta>20)
   {
