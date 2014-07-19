@@ -6,7 +6,7 @@
 
 #####################################################################################################
 
-require_once("lib.php");
+require_once("../lib.php");
 
 define("BUCKET_CHANNELS","<<channels>>");
 define("BUCKET_USERS","<<users>>");
