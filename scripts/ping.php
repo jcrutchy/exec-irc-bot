@@ -11,6 +11,7 @@ date_default_timezone_set("UTC");
 require_once("lib.php");
 $trailing=trim($argv[1]);
 define("BUCKET_PING_LAG","<<PING_LAG>>");
+pm("#","ping test");
 $t=time();
 if ($trailing<>"")
 {
