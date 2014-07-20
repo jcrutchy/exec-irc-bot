@@ -31,7 +31,7 @@ SoylentNews comment feed
 (if a trial run is positive, maybe ask staff for moderation priveliges for the exec user)
 - poll to see if exec has mod points before output feed
 
-
+~time-add
 
 EXEC MODULARISATION:
 - bot.php

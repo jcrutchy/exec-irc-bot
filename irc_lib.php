@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 19-july-2014
+# 20-july-2014
 
 #####################################################################################################
 
@@ -127,9 +127,24 @@ function handle_process($handle)
 {
   handle_stdout($handle);
   handle_stderr($handle);
-  $meta=stream_get_meta_data($handle["pipe_stdout"]);
-  if ($meta["eof"]==True)
+  $flag=False;
+  if ($handle["pipe_stdout"]===Null)
   {
+    $flag=True;
+  }
+  else
+  {
+    $meta=stream_get_meta_data($handle["pipe_stdout"]);
+    if ($meta["eof"]==True)
+    {
+      $flag=True;
+    }
+  }
+  if ($flag==True)
+  {
+    fclose($handle["pipe_stdin"]);
+    fclose($handle["pipe_stdout"]);
+    fclose($handle["pipe_stderr"]);
     proc_close($handle["process"]);
     if ($handle["alias"]<>"*")
     {
@@ -141,7 +156,7 @@ function handle_process($handle)
   {
     if ((microtime(True)-$handle["start"])>$handle["timeout"])
     {
-      proc_close($handle["process"]);
+      kill_process($handle);
       term_echo("process timed out: ".$handle["command"]);
       if ($handle["alias"]<>"*")
       {
@@ -174,6 +189,7 @@ function handle_stdout($handle)
     return;
   }
   $buf=fgets($handle["pipe_stdout"]);
+  #$buf=stream_get_line($handle["pipe_stdout"],0,"\n");
   if ($buf===False)
   {
     return;
@@ -531,6 +547,18 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
           process_scripts($items,ALIAS_QUIT);
         }
         break;
+      case ALIAS_ADMIN_PS:
+        if (count($args)==1)
+        {
+          ps($items);
+        }
+        break;
+      case ALIAS_ADMIN_KILL:
+        if (count($args)==2)
+        {
+          kill($items,$args[1]);
+        }
+        break;
       case ALIAS_LIST:
         if (check_nick($items,$alias)==True)
         {
@@ -568,19 +596,6 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         {
           privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]][$items["destination"]]."\" unlocked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
           unset($alias_locks[$items["nick"]][$items["destination"]]);
-        }
-        break;
-      case ALIAS_MSG:
-        if (check_nick($items,$alias)==True)
-        {
-          if (count($args)==2)
-          {
-            #$handle=???;
-            #$result=handle_stdin($handle,$items["trailing"]);
-            global $handles;
-            #proc_get_status
-            var_dump($handles);
-          }
         }
         break;
       case ALIAS_LOG:
@@ -835,6 +850,7 @@ function doquit()
   global $handles;
   global $socket;
   global $argv;
+  sleep(3);
   $n=count($handles);
   for ($i=0;$i<$n;$i++)
   {
@@ -842,12 +858,12 @@ function doquit()
     {
       if (is_resource($handles[$i]["process"])==True)
       {
-        proc_close($handles[$i]["process"]);
+        kill_process($handles[$i]);
       }
     }
   }
   rawmsg("NickServ LOGOUT");
-  rawmsg("QUIT");
+  rawmsg("QUIT :dafuq");
   fclose($socket);
   term_echo("QUITTING SCRIPT");
   if (defined("RESTART")==True)
@@ -1127,9 +1143,11 @@ function process_scripts($items,$reserved="")
   }
   $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
   $start=microtime(True);
+  $status=proc_get_status($process);
   $handles[]=array(
     "process"=>$process,
     "command"=>$command,
+    "pid"=>$status["pid"],
     "pipe_stdin"=>$pipes[0],
     "pipe_stdout"=>$pipes[1],
     "pipe_stderr"=>$pipes[2],
@@ -1296,6 +1314,96 @@ function authenticate($items)
       $admin_is_sock="";
     }
   }
+}
+
+#####################################################################################################
+
+function ps($items)
+{
+  global $handles;
+  $n=0;
+  foreach ($handles as $index => $data)
+  {
+    if ($data["alias"]=="*")
+    {
+      continue;
+    }
+    $n++;
+    privmsg($items["destination"],$items["nick"]," [".$data["pid"]."] ".$data["command"]);
+  }
+  if ($n==0)
+  {
+    privmsg($items["destination"],$items["nick"],"no child processes currently running");
+  }
+}
+
+#####################################################################################################
+
+function kill($items,$pid)
+{
+  global $handles;
+  foreach ($handles as $index => $handle)
+  {
+    if ($handle["pid"]==$pid)
+    {
+      if (kill_process($handle)==True)
+      {
+        unset($handles[$index]);
+        privmsg($items["destination"],$items["nick"],"successfully terminated process with pid = $pid");
+      }
+      else
+      {
+        privmsg($items["destination"],$items["nick"],"error terminating process with pid = $pid");
+      }
+      return;
+    }
+  }
+  privmsg($items["destination"],$items["nick"],"unable to find process with pid = $pid");
+}
+
+#####################################################################################################
+
+function kill_process($handle)
+{
+  #fclose($handle["pipe_stdin"]);
+  #fclose($handle["pipe_stdout"]);
+  #fclose($handle["pipe_stderr"]);
+  $lines=explode("\n",shell_exec("ps -aF"));
+  kill_recurse($handle["pid"],$lines);
+  proc_close($handle["process"]);
+  return True;
+}
+
+#####################################################################################################
+
+function kill_recurse($pid,$lines)
+{
+  for ($i=0;$i<count($lines);$i++)
+  {
+    $parts=explode(" ",trim($lines[$i]));
+    for ($j=0;$j<count($parts);$j++)
+    {
+      if (trim($parts[$j])=="")
+      {
+        unset($parts[$j]);
+      }
+    }
+    $parts=array_values($parts);
+    if (count($parts)<3)
+    {
+      continue;
+    }
+    $ipid=trim($parts[1]);
+    $ppid=trim($parts[2]);
+    if (($ppid<>$pid) or ($ipid==""))
+    {
+      continue;
+    }
+    echo "*** CHILD PROCESS FOUND: ".$lines[$i]."\n";
+    kill_recurse($ipid,$lines);
+  }
+  echo "*** KILLING PROCESS ID $pid\n";
+  posix_kill($pid,SIGKILL);
 }
 
 #####################################################################################################

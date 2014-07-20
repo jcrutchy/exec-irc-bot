@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 19-july-2014
+# 20-july-2014
 
 #####################################################################################################
 
@@ -55,6 +55,8 @@ define("PREFIX_INTERNAL",PREFIX_DELIM.CMD_INTERNAL);
 # internal aliases (can also use in exec file with alias locking, but that would be just weird)
 define("ALIAS_INTERNAL_RESTART","~restart-internal");
 define("ALIAS_ADMIN_QUIT","~q");
+define("ALIAS_ADMIN_PS","~ps");
+define("ALIAS_ADMIN_KILL","~kill");
 define("ALIAS_ADMIN_RESTART","~restart");
 define("ALIAS_ADMIN_RELOAD","~reload");
 define("ALIAS_ADMIN_DEST_OVERRIDE","~dest-override");
@@ -64,7 +66,6 @@ define("ALIAS_ADMIN_BUCKETS_SAVE","~buckets-save"); # save buckets to file
 define("ALIAS_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
 define("ALIAS_ADMIN_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
 define("ALIAS_ADMIN_BUCKETS_LIST","~buckets-list"); # output list of set bucket indexes to the terminal
-define("ALIAS_MSG","~msg");
 define("ALIAS_LOG","~log");
 define("ALIAS_LOCK","~lock");
 define("ALIAS_UNLOCK","~unlock");
@@ -112,6 +113,8 @@ $rawmsg_times=array();
 $admin_aliases=array(
   ALIAS_ADMIN_QUIT,
   ALIAS_ADMIN_RESTART,
+  ALIAS_ADMIN_PS,
+  ALIAS_ADMIN_KILL,
   ALIAS_ADMIN_RELOAD,
   ALIAS_ADMIN_DEST_OVERRIDE,
   ALIAS_ADMIN_DEST_CLEAR,
@@ -155,6 +158,10 @@ while (True)
 {
   for ($i=0;$i<count($handles);$i++)
   {
+    if (isset($handles[$i])==False)
+    {
+      continue;
+    }
     if (handle_process($handles[$i])==False)
     {
       unset($handles[$i]);
