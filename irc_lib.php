@@ -1121,7 +1121,7 @@ function process_scripts($items,$reserved="")
   $cwd=NULL;
   $env=NULL;
   $descriptorspec=array(0=>array("pipe","r"),1=>array("pipe","w"),2=>array("pipe","w"));
-  if ($alias<>"*")
+  if (($alias<>ALIAS_ALL) and ($alias<>ALIAS_LOG_ITEMS))
   {
     term_echo("EXEC: ".$command);
   }

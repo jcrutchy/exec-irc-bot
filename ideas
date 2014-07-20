@@ -47,7 +47,7 @@ EXEC MODULARISATION:
 - bucket_manager.php
   stores bucket data in process memory. handles bucket requests
 
-
+watchdog process - prospectacle
 
 FEATURE REQUESTS:
 
