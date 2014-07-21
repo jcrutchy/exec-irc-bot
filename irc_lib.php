@@ -75,7 +75,7 @@ function get_list($items)
 function get_list_auth($items)
 {
   global $exec_list;
-  $msg="~q ~reload ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~restart";
+  $msg="~q ~rehash ~ps ~kill ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~restart";
   privmsg($items["destination"],$items["nick"],$msg);
   $msg="";
   foreach ($exec_list as $alias => $data)
@@ -152,7 +152,7 @@ function handle_process($handle)
     }
     return False;
   }
-  if ($handle["timeout"]>=0)
+  if ($handle["timeout"]>0)
   {
     if ((microtime(True)-$handle["start"])>$handle["timeout"])
     {
@@ -648,7 +648,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
           privmsg($items["destination"],$items["nick"],"destination override \"$override\" cleared for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
         }
         break;
-      case ALIAS_ADMIN_RELOAD:
+      case ALIAS_ADMIN_REHASH:
         if (count($args)==1)
         {
           if (exec_load()===False)

@@ -1,1 +1,7 @@
-rss|Ars Technica|http://feeds.arstechnica.com/arstechnica/index?format=xml
+#rss|Ars Technica|http://feeds.arstechnica.com/arstechnica/index?format=xml (Regurgitator)
+rss|NASA|http://www.nasa.gov/rss/dyn/breaking_news.rss
+rss|SpaceFuture|http://www.spacefuture.com/channel/rss/journal.rss
+rss|TechRadar|http://feeds.feedburner.com/techradar/allnews
+rss|TechCrunch|http://feeds.feedburner.com/TechCrunch/
+rss|ZDNet|http://www.zdnet.com/news/rss.xml
+rss|ComputerWeekly|http://www.computerweekly.com/rss/All-Computer-Weekly-content.xml

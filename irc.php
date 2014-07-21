@@ -58,7 +58,7 @@ define("ALIAS_ADMIN_QUIT","~q");
 define("ALIAS_ADMIN_PS","~ps");
 define("ALIAS_ADMIN_KILL","~kill");
 define("ALIAS_ADMIN_RESTART","~restart");
-define("ALIAS_ADMIN_RELOAD","~reload");
+define("ALIAS_ADMIN_REHASH","~rehash");
 define("ALIAS_ADMIN_DEST_OVERRIDE","~dest-override");
 define("ALIAS_ADMIN_DEST_CLEAR","~dest-clear");
 define("ALIAS_ADMIN_BUCKETS_DUMP","~buckets-dump"); # dump buckets to terminal
@@ -115,7 +115,7 @@ $admin_aliases=array(
   ALIAS_ADMIN_RESTART,
   ALIAS_ADMIN_PS,
   ALIAS_ADMIN_KILL,
-  ALIAS_ADMIN_RELOAD,
+  ALIAS_ADMIN_REHASH,
   ALIAS_ADMIN_DEST_OVERRIDE,
   ALIAS_ADMIN_DEST_CLEAR,
   ALIAS_ADMIN_BUCKETS_DUMP,

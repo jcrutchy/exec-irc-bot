@@ -477,23 +477,35 @@ function extract_void_tag($html,$tag)
 {
   $delim1="<$tag";
   $delim2=">";
-  $i=strpos(strtolower($html),strtolower($delim1));
-  if ($i===False)
+  $html=extract_text($html,$delim1,$delim2);
+  if ($html===False)
   {
     return False;
   }
-  $html=substr($html,$i+strlen($delim1));
-  $i=strpos($html,$delim2);
-  if ($i===False)
-  {
-    return False;
-  }
-  $html=substr($html,0,$i);
   if (substr($html,strlen($html)-1,1)=="/")
   {
     $html=substr($html,0,strlen($html)-1);
   }
   return trim($html);
+}
+
+#####################################################################################################
+
+function extract_text($text,$delim1,$delim2)
+{
+  $i=strpos(strtolower($text),strtolower($delim1));
+  if ($i===False)
+  {
+    return False;
+  }
+  $text=substr($text,$i+strlen($delim1));
+  $i=strpos($text,$delim2);
+  if ($i===False)
+  {
+    return False;
+  }
+  $text=substr($text,0,$i);
+  return trim($text);
 }
 
 #####################################################################################################

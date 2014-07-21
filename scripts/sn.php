@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
+# 21-july-2014
 
 /*
 - the bot could keeep track of irc comments and if you type something like
@@ -19,77 +19,68 @@ require_once("lib.php");
 $trailing=$argv[1];
 $dest=$argv[2];
 $nick=$argv[3];
-
-$subject="comment from $dest @ irc.sylnt.us";
-$comment="<b>$nick</b> says in <b>$dest</b> on irc.sylnt.us:<br><br><i>$trailing</i>";
-
-$bender_msg=get_bucket("BENDER_LAST_FEED_MESSAGE_VERIFIED");
-if ($bender_msg=="")
-{
-  privmsg("Last feed message posted by Bender not found.");
-  return;
-}
-
-if (strtolower($trailing)=="tfa")
-{
-  privmsg($bender_msg);
-  return;
-}
-
-if (strlen($trailing)<30)
-{
-  privmsg("Comment must be at least 30 characters.");
-  return;
-}
-
-if (strtolower($dest)<>"#soylent")
-{
-  privmsg("Comments may only be posted from the #Soylent channel.");
-  return;
-}
-
-# [SoylentNews] - What a Warp-Speed Spaceship Might Look Like - http://sylnt.us/yvt2q - its-nice-to-dream
-
-$host="sylnt.us";
-$i=strpos($bender_msg,$host);
-if ($i===False)
-{
-  privmsg("http://sylnt.us/ not found in Bender's last feed message.");
-  return;
-}
-$bender_msg=substr($bender_msg,$i+strlen($host));
-$parts=explode(" ",$bender_msg);
-$uri=$parts[0];
+$alias=$argv[4];
 
 $agent=ICEWEASEL_UA;
 
-$response=wget($host,$uri,80,$agent);
-
-$redirect_url=exec_get_header($response,"Location");
-if ($redirect_url=="")
+if ($alias=="~comment")
 {
-  privmsg("Location header not found @ http://".$host.$uri);
-  return;
+  $subject="comment from $dest @ irc.sylnt.us";
+  $comment="<b>$nick</b> says in <b>$dest</b> on irc.sylnt.us:<br><br><i>$trailing</i>";
+  $bender_msg=get_bucket("BENDER_LAST_FEED_MESSAGE_VERIFIED");
+  if ($bender_msg=="")
+  {
+    privmsg("Last feed message posted by Bender not found.");
+    return;
+  }
+  if (strtolower($trailing)=="tfa")
+  {
+    privmsg($bender_msg);
+    return;
+  }
+  if (strlen($trailing)<30)
+  {
+    privmsg("Comment must be at least 30 characters.");
+    return;
+  }
+  if (strtolower($dest)<>"#soylent")
+  {
+    privmsg("Comments may only be posted from the #Soylent channel.");
+    return;
+  }
+  # [SoylentNews] - What a Warp-Speed Spaceship Might Look Like - http://sylnt.us/yvt2q - its-nice-to-dream
+  $host="sylnt.us";
+  $i=strpos($bender_msg,$host);
+  if ($i===False)
+  {
+    privmsg("http://sylnt.us/ not found in Bender's last feed message.");
+    return;
+  }
+  $bender_msg=substr($bender_msg,$i+strlen($host));
+  $parts=explode(" ",$bender_msg);
+  $uri=$parts[0];
+  $response=wget($host,$uri,80,$agent);
+  $redirect_url=exec_get_header($response,"Location");
+  if ($redirect_url=="")
+  {
+    privmsg("Location header not found @ http://".$host.$uri);
+    return;
+  }
+  term_echo($redirect_url);
+  # http://soylentnews.org/article.pl?sid=14/06/20/0834246&amp;from=rss
+  $delim="sid=";
+  $i=strpos($redirect_url,$delim);
+  if ($i===False)
+  {
+    privmsg("\"sid\" parameter not found in Location header URL");
+    return;
+  }
+  $sid=substr($redirect_url,$i+strlen($delim));
+  $parts=explode("&",$sid);
+  $sid=$parts[0];
+  #$sid="14/04/01/032217"; (for testing)
+  term_echo($sid);
 }
-
-term_echo($redirect_url);
-
-# http://soylentnews.org/article.pl?sid=14/06/20/0834246&amp;from=rss
-
-$delim="sid=";
-$i=strpos($redirect_url,$delim);
-if ($i===False)
-{
-  privmsg("\"sid\" parameter not found in Location header URL");
-  return;
-}
-$sid=substr($redirect_url,$i+strlen($delim));
-$parts=explode("&",$sid);
-$sid=$parts[0];
-
-#$sid="14/04/01/032217"; (for testing)
-
-term_echo($sid);
 
 $host="soylentnews.org";
 $uri="/my/login";
@@ -103,6 +94,22 @@ $params["unickname"]="exec";
 $params["upasswd"]=trim(file_get_contents("/var/include/vhosts/irciv.us.to/pwd/exec"));
 $params["userlogin"]="Log in";
 $response=wpost($host,$uri,$port,$agent,$params);
+
+if ($alias=="~queue")
+{
+  $delim1="send in your scoop</a>. <a href=\"//soylentnews.org/submit.pl?op=list\"> Only <b>";
+  $delim2="</b> submissions in the queue.</a></div>";
+  $count=extract_text($response,$delim1,$delim2);
+  if ($count===False)
+  {
+    privmsg("error extracting queue count from SN home page");
+  }
+  else
+  {
+    privmsg("*** SN article queue: $count");
+  }
+  return;
+}
 
 $cookies=exec_get_cookies($response);
 

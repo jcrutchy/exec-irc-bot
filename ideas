@@ -1,6 +1,8 @@
 EXEC IDEAS
 ==========
 
+<start> reserved alias that triggers after bot nickserv identification
+
 
 ~karma on|off (works like ~sed)
 

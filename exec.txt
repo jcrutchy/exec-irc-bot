@@ -4,6 +4,12 @@
 # aliases here must be all lower case letters
 # account, cmd and dest lists are all comma-separated
 
+~sedbot-ii|0|0|0|1|crutchy|||ii -s irc.sylnt.us -p 6667 -n SedBot2 -f SedBot2
+~sedbot-join|0|0|0|1|crutchy|||echo "/j #soylent" > ~/irc/irc.sylnt.us/in
+~sedbot-awk|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/#soylent/out | ~/irc/sedbot.awk outfile=~/irc/irc.sylnt.us/#soylent/in
+
+~sedbot-talk|0|0|0|0|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/#soylent/in
+
 # EXEC ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 *|10|0|0|1||||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
 
@@ -83,6 +89,6 @@
 #~civ-dispatch|120|0|0|1||||php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
 
 
-
-#~comment|30|0|0|1|crutchy|||php scripts/sn.php %%trailing%% %%dest%% %%nick%%
+~queue|15|0|0|1||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#~comment|30|0|0|1|crutchy|||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
