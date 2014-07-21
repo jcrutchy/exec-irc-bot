@@ -1,10 +1,4 @@
 #!/usr/bin/gawk -f
-# https://github.com/FoobarBazbot/sedbot
-# https://github.com/FoobarBazbot/sedbot/blob/master/LICENSE
-# by FoobarBazbot
-# modified by crutchy
-# https://github.com/crutchy-/test/blob/master/sedbot.awk
-# 21-july-2014
 function lineout(old,new,nouser) {
   if(old!=new) print (nouser?"":"<" tauntuser(user) "> ") new >outfile; close(outfile);
   if(taunt[tolower(user)]>0) taunt[tolower(user)]--;
@@ -14,7 +8,6 @@ function tauntuser(u) {
   return u;
 }
 BEGIN {
-  #outfile=( ENVIRON["HOME"] "/sedbotirc/irc.sylnt.us/#soylent/in");
   line_re="^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2} <([^>]*)> (.*)$";
   blag_re="world wide web|internet|interweb|intersphere|intertubes|interblag|blogosphere|blagonet|blagosphere|blagoblag|webnet|webweb";
   blag_n=split(blag_re,blag_word,/\|/);
