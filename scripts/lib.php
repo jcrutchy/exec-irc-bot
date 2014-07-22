@@ -491,7 +491,7 @@ function extract_void_tag($html,$tag)
 
 #####################################################################################################
 
-function extract_text($text,$delim1,$delim2)
+function extract_text($text,$delim1,$delim2,$delim2opt=False)
 {
   $i=strpos(strtolower($text),strtolower($delim1));
   if ($i===False)
@@ -502,7 +502,14 @@ function extract_text($text,$delim1,$delim2)
   $i=strpos($text,$delim2);
   if ($i===False)
   {
-    return False;
+    if ($delim2opt==True)
+    {
+      return trim($text);
+    }
+    else
+    {
+      return False;
+    }
   }
   $text=substr($text,0,$i);
   return trim($text);

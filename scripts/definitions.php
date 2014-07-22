@@ -28,7 +28,7 @@ if (file_exists(DEFINE_SOURCES_FILE)==False)
       "port"=>80,
       "uri"=>"/input/?i=define%3A%%term%%",
       "template"=>"%%term%%",
-      "get_param"=>"",
+      "get_param"=>"i=define%3A",
       "order"=>2,
       "delim_start"=>"context.jsonArray.popups.pod_0200.push( {\"stringified\": \"",
       "delim_end"=>"\",\"mInput\": \"\",\"mOutput\": \"\", \"popLinks\": {} });"),
@@ -37,7 +37,7 @@ if (file_exists(DEFINE_SOURCES_FILE)==False)
       "port"=>80,
       "uri"=>"/define.php?term=%%term%%",
       "template"=>"%%term%%",
-      "get_param"=>"term",
+      "get_param"=>"term=",
       "order"=>1,
       "delim_start"=>"<div class='meaning'>",
       "delim_end"=>"</div>"),
@@ -46,7 +46,7 @@ if (file_exists(DEFINE_SOURCES_FILE)==False)
       "port"=>80,
       "uri"=>"/datacore/dictionary.php?searchTerm=%%term%%",
       "template"=>"%%term%%",
-      "get_param"=>"",
+      "get_param"=>"searchTerm=",
       "order"=>3,
       "delim_start"=>"<b><u>",
       "delim_end"=>"<p>"));
@@ -230,13 +230,11 @@ function source_define($host,$term,$params)
     }
     else
     {
-      if ($host=="en.wikipedia.org")
-      {
-      }
-      $new_term=extract_get($location,$params["get_param"]);
+      $new_term=extract_text($location,$params["get_param"],"&",True);
+      #$new_term=extract_get($location,$params["get_param"]);
       if ($new_term<>$term)
       {
-        echo "redirecting to \"$location\"\n";
+        term_echo("redirecting to \"$location\"");
         return source_define($host,$new_term,$params);
       }
       else
