@@ -21,7 +21,7 @@ define("DEFINE_SOURCES_FILE","../data/define_sources");
 define("MAX_DEF_LENGTH",200);
 if (file_exists(DEFINE_SOURCES_FILE)==False)
 {
-  # if you change this array you need to delete (or amend) the define_sources file in the data path of whatever machine exec is running on
+  # if you add/remove elements from this array you need to delete (or amend) the define_sources file in the data path of whatever machine exec is running on
   $sources=array(
     "www.wolframalpha.com"=>array(
       "name"=>"wolframalpha",
@@ -55,7 +55,7 @@ else
 {
   $sources=unserialize(file_get_contents(DEFINE_SOURCES_FILE));
 }
-uasort($sources,"sort_source_order_compare");
+reorder($sources);
 $terms=unserialize(file_get_contents(DEFINITIONS_FILE));
 switch($alias)
 {
@@ -78,16 +78,24 @@ switch($alias)
 
     break;
   case "~define-source-add":
-    # add source using syntax: ~define-source-add $host|$port|$uri|$delim_start|$delim_end|$template|$get_param|$order
     $params=explode("|",$trailing);
-    if (count($params)==8)
+    if (count($params)==9)
     {
-
+      $host=$params[0];
+      $sources[$host]["name"]=$params[1];
+      $sources[$host]["port"]=$params[2];
+      $sources[$host]["uri"]=$params[3];
+      $sources[$host]["template"]=$params[4];
+      $sources[$host]["get_param"]=$params[5];
+      $sources[$host]["order"]=$params[6];
+      $sources[$host]["delim_start"]=$params[7];
+      $sources[$host]["delim_end"]=$params[8];
+      reorder($sources);
     }
     else
     {
-      privmsg("syntax: ~define-source-add host|port|uri|delim_start|delim_end|template|get_param|order");
-      privmsg("example: ~define-source-add www.urbandictionary.com|80|/define.php?term=%%term%%|delim_start|delim_end|template|get_param|order");
+      privmsg("syntax: ~define-source-add host|name|port|uri|template|get_param|order|delim_start|delim_end");
+      privmsg("syntax: ~define-source-add www.urbandictionary.com|urbandictionary|80|/define.php?term=%%term%%|%%term%%|term|1|<div class='meaning'>|</div>");
     }
     break;
   case "~define-source-delete":
@@ -188,6 +196,19 @@ function source_define($host,$term,$params)
   {
     privmsg("[".$params["name"]."] ".chr(3)."3$term".chr(3).": ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
     return True;
+  }
+}
+
+#####################################################################################################
+
+function reorder(&$sources)
+{
+  uasort($sources,"sort_source_order_compare");
+  $i=1;
+  foreach ($sources as $host => $params)
+  {
+    $sources[$host]["order"]=$i;
+    $i++;
   }
 }
 

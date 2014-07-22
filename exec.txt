@@ -6,7 +6,8 @@
 
 ~sedbot-ii|0|0|0|1|crutchy|||ii -s irc.sylnt.us -p 6667 -n SedBot2 -f SedBot2
 ~sedbot-join|0|0|0|1|crutchy|||echo "/j #soylent" > ~/irc/irc.sylnt.us/in
-~sedbot-awk|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/#soylent/out | sedbot.awk outfile=~/irc/irc.sylnt.us/#soylent/in
+#~sedbot-awk|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/#soylent/out | sedbot.awk outfile=~/irc/irc.sylnt.us/#soylent/in
+~sedbot|0|0|0|0|crutchy|||./sedbot.awk
 
 ~sedbot-talk|0|0|0|0|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/#soylent/in
 
@@ -74,6 +75,7 @@
 ~define-add|10|0|0|0||||php scripts/definitions.php %%trailing%% %%alias%%
 ~define-count|5|0|0|1||||php scripts/definitions.php %%trailing%% %%alias%%
 ~define-sources|5|0|0|1||||php scripts/definitions.php %%trailing%% %%alias%%
+~define-source-add|5|0|0|1||||php scripts/definitions.php %%trailing%% %%alias%%
 
 ~weather|10|0|0|1||||php scripts/weather.php %%alias%% %%trailing%%
 ~weather-add|10|0|0|1||||php scripts/weather.php %%alias%% %%trailing%%
