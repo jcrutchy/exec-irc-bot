@@ -7,7 +7,7 @@
 ~sedbot-ii|0|0|0|1|crutchy|||ii -s irc.sylnt.us -p 6667 -n SedBot2 -f SedBot2
 ~sedbot-cmd|0|0|0|1|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/in
 ~sedbot-awk1|0|0|0|1|crutchy|||tail -Fn1 /home/jared/irc/irc.sylnt.us/#soylent/out | ./sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#soylent/in
-~sedbot-awk2|0|0|0|1|crutchy|||tail -Fn1 /home/jared/irc/irc.sylnt.us/#soylent/out | ./sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#soylent/in
+~sedbot-awk2|0|0|0|1|crutchy|||tail -Fn1 /home/jared/irc/irc.sylnt.us/##/out | ./sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/##/in
 
 ~sedbot-tail0|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/out
 ~sedbot-tail1|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/#soylent/out
