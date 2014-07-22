@@ -186,6 +186,10 @@ switch($alias)
         {
           return;
         }
+        else
+        {
+          term_echo("$trailing: unable to find definition @ $host");
+        }
       }
       privmsg("$trailing: unable to find definition");
     }
