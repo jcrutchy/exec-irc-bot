@@ -37,6 +37,8 @@ function get_valid_data_cmd()
   # = NUMERIC
   */
   $result=array(
+    "INIT"=>array("000"),
+    "STARTUP"=>array("000"),
     CMD_INTERNAL=>array("100","101","110","111"),
     CMD_BUCKET_GET=>array("001","101"),
     CMD_BUCKET_SET=>array("001","101"),
