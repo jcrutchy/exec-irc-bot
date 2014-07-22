@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 21-july-2014
+# 22-july-2014
 
 /*
 - the bot could keeep track of irc comments and if you type something like
