@@ -32,17 +32,19 @@ if (file_exists(DEFINE_SOURCES_FILE)==False)
       "order"=>2,
       "delim_start"=>"<p>",
       "delim_end"=>"</p>",
-      "ignore"=>"Other reasons this message may be displayed:"),
+      "ignore"=>"Other reasons this message may be displayed:",
+      "space_delim"=>"_"),
     "www.wolframalpha.com"=>array(
       "name"=>"wolframalpha",
       "port"=>80,
       "uri"=>"/input/?i=define%3A%%term%%",
       "template"=>"%%term%%",
       "get_param"=>"i=define%3A",
-      "order"=>2,
+      "order"=>3,
       "delim_start"=>"context.jsonArray.popups.pod_0200.push( {\"stringified\": \"",
       "delim_end"=>"\",\"mInput\": \"\",\"mOutput\": \"\", \"popLinks\": {} });",
-      "ignore"=>""),
+      "ignore"=>"",
+      "space_delim"=>""),
     "www.urbandictionary.com"=>array(
       "name"=>"urbandictionary",
       "port"=>80,
@@ -52,17 +54,19 @@ if (file_exists(DEFINE_SOURCES_FILE)==False)
       "order"=>1,
       "delim_start"=>"<div class='meaning'>",
       "delim_end"=>"</div>",
-      "ignore"=>""),
+      "ignore"=>"",
+      "space_delim"=>""),
     "www.stoacademy.com"=>array(
       "name"=>"stoacademy",
       "port"=>80,
       "uri"=>"/datacore/dictionary.php?searchTerm=%%term%%",
       "template"=>"%%term%%",
       "get_param"=>"searchTerm=",
-      "order"=>3,
+      "order"=>4,
       "delim_start"=>"<b><u>",
       "delim_end"=>"<p>",
-      "ignore"=>""));
+      "ignore"=>"",
+      "space_delim"=>""));
 }
 else
 {
@@ -88,13 +92,13 @@ switch($alias)
     privmsg("definition sources: $out");*/
     foreach ($sources as $host => $params)
     {
-      privmsg("$host => ".$params["name"]."|".$params["port"]."|".$params["uri"]."|".$params["template"]."|".$params["get_param"]."|".$params["order"]."|".$params["delim_start"]."|".$params["delim_end"]."|".$params["ignore"]);
+      privmsg("$host => ".$params["name"]."|".$params["port"]."|".$params["uri"]."|".$params["template"]."|".$params["get_param"]."|".$params["order"]."|".$params["delim_start"]."|".$params["delim_end"]."|".$params["ignore"]."|".$params["space_delim"]);
       usleep(0.5*1e6);
     }
     break;
   case "~define-source-edit":
     $params=explode("|",$trailing);
-    if (count($params)==10)
+    if (count($params)==11)
     {
       $host=trim($params[0]);
       $action="inserted";
@@ -111,13 +115,14 @@ switch($alias)
       $sources[$host]["delim_start"]=trim($params[7]);
       $sources[$host]["delim_end"]=trim($params[8]);
       $sources[$host]["ignore"]=trim($params[9]);
+      $sources[$host]["space_delim"]=trim($params[9]);
       reorder($sources);
       privmsg("source \"$host\" $action");
     }
     else
     {
-      privmsg("syntax: ~define-source-edit host|name|port|uri|template|get_param|order|delim_start|delim_end|ignore");
-      privmsg("example: ~define-source-edit www.urbandictionary.com|urbandictionary|80|/define.php?term=%%term%%|%%term%%|term|1|<div class='meaning'>|</div>|");
+      privmsg("syntax: ~define-source-edit host|name|port|uri|template|get_param|order|delim_start|delim_end|ignore|space_delim");
+      privmsg("example: ~define-source-edit www.urbandictionary.com|urbandictionary|80|/define.php?term=%%term%%|%%term%%|term|1|<div class='meaning'>|</div>||");
     }
     break;
   case "~define-source-param":
@@ -127,8 +132,13 @@ switch($alias)
       $host=trim($params[0]);
       $param=trim($params[1]);
       $value=trim($params[2]);
-      if (isset($sources[$host][$param])==True)
+      if (isset($sources[$host])==True)
       {
+        $action="inserted";
+        if (isset($sources[$host])==True)
+        {
+          $action="updated";
+        }
         $sources[$host][$param]=$value;
         $suffix="";
         if ($param=="order")
@@ -136,11 +146,11 @@ switch($alias)
           reorder($sources);
           $suffix=" (after reoder)";
         }
-        privmsg("param \"$param\" for source \"$host\" changed to \"".$sources[$host][$param]."\"$suffix");
+        privmsg("param \"$param\" for source \"$host\" $action with \"".$sources[$host][$param]."\"$suffix");
       }
       else
       {
-        privmsg("param \"$param\" for source \"$host\" not found");
+        privmsg("source \"$host\" not found");
       }
     }
     else
@@ -215,7 +225,12 @@ file_put_contents(DEFINE_SOURCES_FILE,serialize($sources));
 
 function source_define($host,$term,$params)
 {
-  $uri=str_replace($params["template"],urlencode($term),$params["uri"]);
+  $sterm=$term;
+  if ($params["space_delim"]<>"")
+  {
+    $sterm=str_replace(" ",$params["space_delim"],$sterm);
+  }
+  $uri=str_replace($params["template"],urlencode($sterm),$params["uri"]);
   $response=wget($host,$uri,$params["port"]);
   $html=strip_headers($response);
   $i=strpos($html,$params["delim_start"]);
