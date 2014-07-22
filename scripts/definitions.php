@@ -63,7 +63,7 @@ switch($alias)
     privmsg("custom definition count: ".count($terms));
     break;
   case "~define-sources":
-    $out="";
+    /*$out="";
     foreach ($sources as $host => $params)
     {
       if ($out<>"")
@@ -72,7 +72,12 @@ switch($alias)
       }
       $out=$out.$host;
     }
-    privmsg("definition sources: $out");
+    privmsg("definition sources: $out");*/
+    foreach ($sources as $host => $params)
+    {
+      privmsg("  $host => ".$params["name"]."|".$params["port"]."|".$params["uri"]."|".$params["template"]."|".$params["get_param"]."|".$params["order"]."|".$params["delim_start"]."|".$params["delim_end"]);
+      usleep(0.5*1e6);
+    }
     break;
   case "~define-source-edit":
     $params=explode("|",$trailing);
