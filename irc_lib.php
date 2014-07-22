@@ -249,6 +249,11 @@ function handle_stdout($handle)
           handle_buckets(CMD_BUCKET_UNSET." :".$prefix_msg."\n",$handle);
           return;
         case PREFIX_INTERNAL:
+          $nick=$handle["nick"];
+          if ($nick=="")
+          {
+            $nick=NICK;
+          }
           if ($handle["destination"]=="")
           {
             handle_data(":".$handle["nick"]." ".CMD_INTERNAL." :".$prefix_msg."\n");
@@ -542,7 +547,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
     $args=explode(" ",$items["trailing"]);
     if ((in_array($args[0],$admin_aliases)==True) or (has_account_list($args[0])==True))
     {
-      if ($auth==False)
+      if (($auth==False) and ($is_sock==True))
       {
         term_echo("authenticating \"".$args[0]."\"...");
         $admin_data=$items["data"];
