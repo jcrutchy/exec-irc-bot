@@ -256,11 +256,11 @@ function handle_stdout($handle)
           }
           if ($handle["destination"]=="")
           {
-            handle_data(":".$handle["nick"]." ".CMD_INTERNAL." :".$prefix_msg."\n");
+            handle_data(":$nick ".CMD_INTERNAL." :".$prefix_msg."\n");
           }
           else
           {
-            handle_data(":".$handle["nick"]." ".CMD_INTERNAL." ".$handle["destination"]." :".$prefix_msg."\n");
+            handle_data(":$nick ".CMD_INTERNAL." ".$handle["destination"]." :".$prefix_msg."\n");
           }
           return;
       }
