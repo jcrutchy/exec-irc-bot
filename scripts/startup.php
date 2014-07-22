@@ -13,13 +13,13 @@ require_once("lib.php");
 echo "################ BEGIN STARTUP ################\n";
 echo "/INTERNAL ~sedbot-ii\n";
 sleep(8);
-echo "/INTERNAL ~sedbot-cmd /j #soylent\n";
-echo "/INTERNAL ~sedbot-cmd /j ##\n";
-echo "/INTERNAL ~sedbot-awk1\n";
-echo "/INTERNAL ~sedbot-awk2\n";
-echo "/INTERNAL ~sedbot-tail1\n";
-echo "/INTERNAL ~sedbot-tail2\n";
-echo "/INTERNAL ~join #soylent\n";
+echo "/IRC :".NICK_EXEC." INTERNAL :~sedbot-cmd /j #soylent\n";
+echo "/IRC :".NICK_EXEC." INTERNAL : ~sedbot-cmd /j ##\n";
+echo "/IRC :".NICK_EXEC." INTERNAL : ~sedbot-awk1\n";
+echo "/IRC :".NICK_EXEC." INTERNAL : ~sedbot-awk2\n";
+echo "/IRC :".NICK_EXEC." INTERNAL : ~sedbot-tail1\n";
+echo "/IRC :".NICK_EXEC." INTERNAL : ~sedbot-tail2\n";
+echo "/IRC :".NICK_EXEC." INTERNAL : ~join #soylent\n";
 echo "################# END STARTUP #################\n";
 
 #####################################################################################################
