@@ -205,7 +205,10 @@ function source_define($host,$term,$params)
   $response=wget($host,$uri,$params["port"]);
   $html=strip_headers($response);
   $i=strpos($html,$params["delim_start"]);
-  echo $params["delim_start"]."\n";
+  if ($host=="en.wikipedia.org")
+  {
+    var_dump($html);
+  }
   $def="";
   if ($i!==False)
   {
