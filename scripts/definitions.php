@@ -209,6 +209,7 @@ function source_define($host,$term,$params)
   if ($i!==False)
   {
     $html=substr($html,$i+strlen($params["delim_start"]));
+    echo $html;
     $i=strpos($html,$params["delim_end"]);
     if ($i!==False)
     {
