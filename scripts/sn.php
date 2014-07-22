@@ -106,7 +106,7 @@ if ($alias=="~queue")
   }
   else
   {
-    privmsg("*** SN article queue: $count");
+    privmsg("*** SN submission queue: $count");
   }
   return;
 }
