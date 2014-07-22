@@ -20,7 +20,7 @@ echo "/INTERNAL ~sedbot-awk1\n";
 echo "/INTERNAL ~sedbot-awk2\n";
 echo "/INTERNAL ~sedbot-tail1\n";
 echo "/INTERNAL ~sedbot-tail2\n";
-echo "/INTERNAL ~join #soylent\n";*/
+echo "/INTERNAL ~join #soylent\n";
 echo "################# END STARTUP #################\n";
 
 #####################################################################################################
