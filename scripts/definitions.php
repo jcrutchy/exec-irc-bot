@@ -75,13 +75,15 @@ switch($alias)
     privmsg("definition sources: $out");
     break;
   case "~define-source-edit":
-
-    break;
-  case "~define-source-add":
     $params=explode("|",$trailing);
     if (count($params)==9)
     {
       $host=$params[0];
+      $action="inserted";
+      if (isset($sources[$host])==True)
+      {
+        $action="updated";
+      }
       $sources[$host]["name"]=$params[1];
       $sources[$host]["port"]=$params[2];
       $sources[$host]["uri"]=$params[3];
@@ -91,15 +93,48 @@ switch($alias)
       $sources[$host]["delim_start"]=$params[7];
       $sources[$host]["delim_end"]=$params[8];
       reorder($sources);
+      privmsg("source \"".$params[1]."\" $action");
     }
     else
     {
-      privmsg("syntax: ~define-source-add host|name|port|uri|template|get_param|order|delim_start|delim_end");
-      privmsg("syntax: ~define-source-add www.urbandictionary.com|urbandictionary|80|/define.php?term=%%term%%|%%term%%|term|1|<div class='meaning'>|</div>");
+      privmsg("syntax: ~define-source-edit host|name|port|uri|template|get_param|order|delim_start|delim_end");
+      privmsg("example: ~define-source-edit www.urbandictionary.com|urbandictionary|80|/define.php?term=%%term%%|%%term%%|term|1|<div class='meaning'>|</div>");
+    }
+    break;
+  case "~define-source-param":
+    $params=explode(" ",$trailing);
+    if (count($params)==3)
+    {
+      $host=$params[0];
+      $param=$params[1];
+      $value=$params[2];
+      if (isset($sources[$host][$param])==True)
+      {
+        $sources[$host][$param]=$value;
+        reorder($sources);
+        privmsg("param \"$param\" for source with host \"$host\" changed to \"$value\" (after reoder)");
+      }
+      else
+      {
+        privmsg("param \"$param\" for source with host \"$host\" not found");
+      }
+    }
+    else
+    {
+      privmsg("syntax: ~define-source-param host param value");
     }
     break;
   case "~define-source-delete":
-
+    if (isset($sources[$trailing])==True)
+    {
+      unset($sources[$trailing]);
+      reorder($sources);
+      privmsg("source \"$trailing\" deleted");
+    }
+    else
+    {
+      privmsg("source \"$trailing\" not found");
+    }
     break;
   case "~define-add":
     $parts=explode(",",$trailing);
