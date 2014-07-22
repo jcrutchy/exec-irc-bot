@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 20-july-2014
+# 22-july-2014
 
 #####################################################################################################
 
@@ -10,6 +10,14 @@ function init()
 {
   $items=parse_data("INIT");
   process_scripts($items,ALIAS_INIT);
+}
+
+#####################################################################################################
+
+function startup()
+{
+  $items=parse_data("STARTUP");
+  process_scripts($items,ALIAS_STARTUP);
 }
 
 #####################################################################################################
@@ -53,12 +61,13 @@ function get_valid_data_cmd()
 function get_list($items)
 {
   global $exec_list;
+  global $reserved_aliases;
   $msg="~list ~list-auth ~log ~lock ~unlock";
   privmsg($items["destination"],$items["nick"],$msg);
   $msg="";
   foreach ($exec_list as $alias => $data)
   {
-    if ((count($data["accounts"])==0) and (strlen($alias)<=20) and ($alias<>ALIAS_ALL) and ($alias<>ALIAS_INIT) and ($alias<>ALIAS_QUIT))
+    if ((count($data["accounts"])==0) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False))
     {
       if ($msg<>"")
       {
@@ -75,12 +84,13 @@ function get_list($items)
 function get_list_auth($items)
 {
   global $exec_list;
+  global $reserved_aliases;
   $msg="~q ~rehash ~ps ~kill ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~restart";
   privmsg($items["destination"],$items["nick"],$msg);
   $msg="";
   foreach ($exec_list as $alias => $data)
   {
-    if ((count($data["accounts"])>0) and (strlen($alias)<=20) and ($alias<>ALIAS_ALL) and ($alias<>ALIAS_INIT) and ($alias<>ALIAS_QUIT))
+    if ((count($data["accounts"])>0) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False))
     {
       if ($msg<>"")
       {
@@ -525,6 +535,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
     if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]=="You have 60 seconds to identify to your nickname before it is changed."))
     {
       rawmsg("NickServ IDENTIFY ".trim(file_get_contents(PASSWORD_FILE)),True);
+      startup();
     }
     $args=explode(" ",$items["trailing"]);
     if ((in_array($args[0],$admin_aliases)==True) or (has_account_list($args[0])==True))
@@ -1063,6 +1074,11 @@ function process_scripts($items,$reserved="")
   global $handles;
   global $exec_list;
   global $alias_locks;
+  global $reserved_aliases;
+  if ($items===False)
+  {
+    return;
+  }
   $nick=trim($items["nick"]);
   $destination=trim($items["destination"]);
   $data=$items["data"];
@@ -1085,7 +1101,7 @@ function process_scripts($items,$reserved="")
       array_shift($parts);
       $trailing=implode(" ",$parts);
     }
-    if (($alias==ALIAS_ALL) or ($alias==ALIAS_INIT) or ($alias==ALIAS_QUIT) or ($alias==ALIAS_LOG_ITEMS))
+    if (in_array($alias,$reserved_aliases)==True)
     {
       return;
     }

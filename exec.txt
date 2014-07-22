@@ -22,6 +22,9 @@
 # EXEC ON QUIT - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 <quit>|10|0|0|1||||php scripts/quit.php
 
+# EXEC ON NICKSERV IDENTIFY - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
+<startup>|0|0|0|1||||php scripts/startup.php
+
 # RESERVED ALIAS FOR LOGGING ITEMS
 <log>|10|0|0|1||||php scripts/log.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%exec%% %%params%%
 

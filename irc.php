@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 20-july-2014
+# 22-july-2014
 
 #####################################################################################################
 
@@ -36,6 +36,7 @@ define("DIRECTIVE_QUIT","<<quit>>");
 define("ALIAS_ALL","*");
 define("ALIAS_LOG_ITEMS","<log>");
 define("ALIAS_INIT","<init>");
+define("ALIAS_STARTUP","<startup>");
 define("ALIAS_QUIT","<quit>");
 
 # commands intercepted from stdout
@@ -123,6 +124,13 @@ $admin_aliases=array(
   ALIAS_ADMIN_BUCKETS_LOAD,
   ALIAS_ADMIN_BUCKETS_FLUSH,
   ALIAS_ADMIN_BUCKETS_LIST);
+
+$reserved_aliases=array(
+  ALIAS_ALL,
+  ALIAS_LOG_ITEMS,
+  ALIAS_INIT,
+  ALIAS_STARTUP,
+  ALIAS_QUIT);
 
 $valid_data_cmd=get_valid_data_cmd();
 
