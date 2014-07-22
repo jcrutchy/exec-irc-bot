@@ -12,7 +12,9 @@
 ~sedbot-tail0|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/out
 ~sedbot-tail1|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/#soylent/out
 ~sedbot-tail2|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/##/out
-~sedbot-talk|0|0|0|0|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/#soylent/in
+
+~sedbot-talk1|0|0|0|0|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/#soylent/in
+~sedbot-talk2|0|0|0|0|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/##/in
 
 # EXEC ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 *|10|0|0|1||||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
