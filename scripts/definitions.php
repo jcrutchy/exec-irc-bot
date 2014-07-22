@@ -205,10 +205,6 @@ function source_define($host,$term,$params)
   $response=wget($host,$uri,$params["port"]);
   $html=strip_headers($response);
   $i=strpos($html,$params["delim_start"]);
-  if ($host=="en.wikipedia.org")
-  {
-    echo "$uri\n";
-  }
   $def="";
   if ($i!==False)
   {
@@ -234,9 +230,13 @@ function source_define($host,$term,$params)
     }
     else
     {
+      if ($host=="en.wikipedia.org")
+      {
+      }
       $new_term=extract_get($location,$params["get_param"]);
       if ($new_term<>$term)
       {
+        echo "redirecting to \"$location\"\n";
         return source_define($host,$new_term,$params);
       }
       else
