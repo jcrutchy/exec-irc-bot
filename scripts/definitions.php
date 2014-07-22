@@ -207,7 +207,7 @@ function source_define($host,$term,$params)
   $i=strpos($html,$params["delim_start"]);
   if ($host=="en.wikipedia.org")
   {
-    var_dump($html);
+    echo "$uri\n";
   }
   $def="";
   if ($i!==False)
