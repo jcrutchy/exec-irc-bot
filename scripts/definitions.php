@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-july-2014
+# 22-july-2014
 
 # maybe eventually change to ~query
 
@@ -75,7 +75,7 @@ switch($alias)
     privmsg("definition sources: $out");*/
     foreach ($sources as $host => $params)
     {
-      privmsg("  $host => ".$params["name"]."|".$params["port"]."|".$params["uri"]."|".$params["template"]."|".$params["get_param"]."|".$params["order"]."|".$params["delim_start"]."|".$params["delim_end"]);
+      privmsg("$host => ".$params["name"]."|".$params["port"]."|".$params["uri"]."|".$params["template"]."|".$params["get_param"]."|".$params["order"]."|".$params["delim_start"]."|".$params["delim_end"]);
       usleep(0.5*1e6);
     }
     break;
@@ -116,8 +116,13 @@ switch($alias)
       if (isset($sources[$host][$param])==True)
       {
         $sources[$host][$param]=$value;
-        reorder($sources);
-        privmsg("param \"$param\" for source with host \"$host\" changed to \"$value\" (after reoder)");
+        $suffix="";
+        if ($param=="order")
+        {
+          reorder($sources);
+          $suffix=" (after reoder)";
+        }
+        privmsg("param \"$param\" for source with host \"$host\" changed to \"".$sources[$host][$param]."\"$suffix");
       }
       else
       {
