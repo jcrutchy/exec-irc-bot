@@ -23,6 +23,16 @@ if (file_exists(DEFINE_SOURCES_FILE)==False)
 {
   # if you add/remove elements from this array you need to delete (or amend) the define_sources file in the data path of whatever machine exec is running on
   $sources=array(
+    "en.wikipedia.org"=>array(
+      "name"=>"wikipedia",
+      "port"=>80,
+      "uri"=>"/wiki/%%term%%",
+      "template"=>"%%term%%",
+      "get_param"=>"wiki/",
+      "order"=>2,
+      "delim_start"=>"<p>",
+      "delim_end"=>"</p>",
+      "ignore"=>"Other reasons this message may be displayed:"),
     "www.wolframalpha.com"=>array(
       "name"=>"wolframalpha",
       "port"=>80,
@@ -31,7 +41,8 @@ if (file_exists(DEFINE_SOURCES_FILE)==False)
       "get_param"=>"i=define%3A",
       "order"=>2,
       "delim_start"=>"context.jsonArray.popups.pod_0200.push( {\"stringified\": \"",
-      "delim_end"=>"\",\"mInput\": \"\",\"mOutput\": \"\", \"popLinks\": {} });"),
+      "delim_end"=>"\",\"mInput\": \"\",\"mOutput\": \"\", \"popLinks\": {} });",
+      "ignore"=>""),
     "www.urbandictionary.com"=>array(
       "name"=>"urbandictionary",
       "port"=>80,
@@ -40,7 +51,8 @@ if (file_exists(DEFINE_SOURCES_FILE)==False)
       "get_param"=>"term=",
       "order"=>1,
       "delim_start"=>"<div class='meaning'>",
-      "delim_end"=>"</div>"),
+      "delim_end"=>"</div>",
+      "ignore"=>""),
     "www.stoacademy.com"=>array(
       "name"=>"stoacademy",
       "port"=>80,
@@ -49,7 +61,8 @@ if (file_exists(DEFINE_SOURCES_FILE)==False)
       "get_param"=>"searchTerm=",
       "order"=>3,
       "delim_start"=>"<b><u>",
-      "delim_end"=>"<p>"));
+      "delim_end"=>"<p>",
+      "ignore"=>""));
 }
 else
 {
@@ -75,44 +88,45 @@ switch($alias)
     privmsg("definition sources: $out");*/
     foreach ($sources as $host => $params)
     {
-      privmsg("$host => ".$params["name"]."|".$params["port"]."|".$params["uri"]."|".$params["template"]."|".$params["get_param"]."|".$params["order"]."|".$params["delim_start"]."|".$params["delim_end"]);
+      privmsg("$host => ".$params["name"]."|".$params["port"]."|".$params["uri"]."|".$params["template"]."|".$params["get_param"]."|".$params["order"]."|".$params["delim_start"]."|".$params["delim_end"]."|".$params["ignore"]);
       usleep(0.5*1e6);
     }
     break;
   case "~define-source-edit":
     $params=explode("|",$trailing);
-    if (count($params)==9)
+    if (count($params)==10)
     {
-      $host=$params[0];
+      $host=trim($params[0]);
       $action="inserted";
       if (isset($sources[$host])==True)
       {
         $action="updated";
       }
-      $sources[$host]["name"]=$params[1];
-      $sources[$host]["port"]=$params[2];
-      $sources[$host]["uri"]=$params[3];
-      $sources[$host]["template"]=$params[4];
-      $sources[$host]["get_param"]=$params[5];
-      $sources[$host]["order"]=$params[6];
-      $sources[$host]["delim_start"]=$params[7];
-      $sources[$host]["delim_end"]=$params[8];
+      $sources[$host]["name"]=trim($params[1]);
+      $sources[$host]["port"]=trim($params[2]);
+      $sources[$host]["uri"]=trim($params[3]);
+      $sources[$host]["template"]=trim($params[4]);
+      $sources[$host]["get_param"]=trim($params[5]);
+      $sources[$host]["order"]=trim($params[6]);
+      $sources[$host]["delim_start"]=trim($params[7]);
+      $sources[$host]["delim_end"]=trim($params[8]);
+      $sources[$host]["ignore"]=trim($params[9]);
       reorder($sources);
-      privmsg("source \"".$params[1]."\" $action");
+      privmsg("source \"$host\" $action");
     }
     else
     {
-      privmsg("syntax: ~define-source-edit host|name|port|uri|template|get_param|order|delim_start|delim_end");
-      privmsg("example: ~define-source-edit www.urbandictionary.com|urbandictionary|80|/define.php?term=%%term%%|%%term%%|term|1|<div class='meaning'>|</div>");
+      privmsg("syntax: ~define-source-edit host|name|port|uri|template|get_param|order|delim_start|delim_end|ignore");
+      privmsg("example: ~define-source-edit www.urbandictionary.com|urbandictionary|80|/define.php?term=%%term%%|%%term%%|term|1|<div class='meaning'>|</div>|");
     }
     break;
   case "~define-source-param":
     $params=explode(" ",$trailing);
     if (count($params)==3)
     {
-      $host=$params[0];
-      $param=$params[1];
-      $value=$params[2];
+      $host=trim($params[0]);
+      $param=trim($params[1]);
+      $value=trim($params[2]);
       if (isset($sources[$host][$param])==True)
       {
         $sources[$host][$param]=$value;
@@ -122,11 +136,11 @@ switch($alias)
           reorder($sources);
           $suffix=" (after reoder)";
         }
-        privmsg("param \"$param\" for source with host \"$host\" changed to \"".$sources[$host][$param]."\"$suffix");
+        privmsg("param \"$param\" for source \"$host\" changed to \"".$sources[$host][$param]."\"$suffix");
       }
       else
       {
-        privmsg("param \"$param\" for source with host \"$host\" not found");
+        privmsg("param \"$param\" for source \"$host\" not found");
       }
     }
     else
@@ -231,7 +245,6 @@ function source_define($host,$term,$params)
     else
     {
       $new_term=extract_text($location,$params["get_param"],"&",True);
-      #$new_term=extract_get($location,$params["get_param"]);
       if ($new_term<>$term)
       {
         term_echo("redirecting to \"$location\"");
@@ -245,6 +258,10 @@ function source_define($host,$term,$params)
   }
   else
   {
+    if (($params["ignore"]<>"") and (strpos($def,$params["ignore"])!==False))
+    {
+      return False;
+    }
     privmsg("[".$params["name"]."] ".chr(3)."3$term".chr(3).": ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
     return True;
   }
