@@ -19,6 +19,8 @@
 ~sedbot-talk2|0|0|0|0|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/##/in
 ~sedbot-talk3|0|0|0|0|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/#test/in
 
+~exec|0|0|0|1||INTERNAL||%%trailing%%
+
 # EXEC ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 *|10|0|0|1||||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
 
