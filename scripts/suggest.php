@@ -24,7 +24,7 @@ $utc_str=gmdate("H:i, j F Y",time());
 $title="SoylentNews:Sandbox";
 $section="Suggestions from IRC";
 
-$text=trim(get_text($title,$section,False));
+$text=trim(get_text($title,$section,True));
 if (($text<>"") and ($text!==False))
 {
   $lines=explode("\n",$text);
@@ -32,7 +32,6 @@ if (($text<>"") and ($text!==False))
   $text="* ".$text."\n";
 }
 $text=$text."* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
-return;
 $msg_success="*** suggestion successfully added to wiki - http://wiki.soylentnews.org/wiki/SoylentNews:Sandbox";
 $msg_error="*** error adding suggestion to wiki";
 
