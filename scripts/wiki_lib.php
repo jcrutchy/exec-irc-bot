@@ -16,7 +16,7 @@ function login_cookie($cookieprefix,$sessionid)
 
 #####################################################################################################
 
-function logout()
+function logout($return=False)
 {
   $response=wget(WIKI_HOST,"/w/api.php?action=logout&format=php",80);
   $lines=explode("\n",$response);
@@ -32,19 +32,18 @@ function logout()
   unset_bucket("wiki_login_sessionid");
   if ($loggedout==True)
   {
-    wiki_privmsg("wiki: successfully logged out");
+    wiki_privmsg($return,"wiki: successfully logged out");
   }
   else
   {
-    wiki_privmsg("wiki: logout confirmation not received");
+    wiki_privmsg($return,"wiki: logout confirmation not received");
   }
 }
 
 #####################################################################################################
 
-function login()
+function login($return=False)
 {
-  global $alias;
   $user_params=explode("\n",file_get_contents("../pwd/wiki.bot"));
   $params["lgname"]=$user_params[0];
   $params["lgpassword"]=$user_params[1];
@@ -57,34 +56,33 @@ function login()
   $msg="wiki: login=".$data["login"]["result"];
   if ($data["login"]["result"]=="Success")
   {
+    set_bucket("wiki_login_cookieprefix",$data["login"]["cookieprefix"]);
+    set_bucket("wiki_login_sessionid",$data["login"]["sessionid"]);
     $msg=$msg.", username=".$data["login"]["lgusername"]." (userid=".$data["login"]["lguserid"].")";
+    wiki_privmsg($return,$msg);
+    return True;
   }
-  set_bucket("wiki_login_cookieprefix",$data["login"]["cookieprefix"]);
-  set_bucket("wiki_login_sessionid",$data["login"]["sessionid"]);
-  wiki_privmsg($msg);
-  if ($alias=="~wiki-internal")
+  else
   {
-    global $title;
-    global $section;
-    global $text;
-    return edit($title,$section,$text);
+    wiki_privmsg($return,$msg);
+    return False;
   }
 }
 
 #####################################################################################################
 
-function edit($title,$section,$text)
+function edit($title,$section,$text,$return=False)
 {
   if (($title=="") or ($section==""))
   {
-    wiki_privmsg("wiki: edit=invalid title/section");
+    wiki_privmsg($return,"wiki: edit=invalid title/section");
     return False;
   }
   $cookieprefix=get_bucket("wiki_login_cookieprefix");
   $sessionid=get_bucket("wiki_login_sessionid");
   if (($cookieprefix=="") or ($sessionid==""))
   {
-    wiki_privmsg("wiki: edit=not logged in");
+    wiki_privmsg($return,"wiki: edit=not logged in");
     return False;
   }
   $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
@@ -94,7 +92,7 @@ function edit($title,$section,$text)
   var_dump($data);
   if (isset($data["tokens"]["edittoken"])==False)
   {
-    wiki_privmsg("wiki: edit=error getting edittoken");
+    wiki_privmsg($return,"wiki: edit=error getting edittoken");
     return False;
   }
   $token=$data["tokens"]["edittoken"];
@@ -103,7 +101,7 @@ function edit($title,$section,$text)
   $data=unserialize(strip_headers($response));
   if (isset($data["parse"]["sections"])==False)
   {
-    wiki_privmsg("wiki: edit=error getting sections for page \"".$title."\"");
+    wiki_privmsg($return,"wiki: edit=error getting sections for page \"".$title."\"");
     return False;
   }
   var_dump($data);
@@ -126,7 +124,7 @@ function edit($title,$section,$text)
   {
     if (isset($sections[$index]["index"])==False)
     {
-      wiki_privmsg("wiki: edit=section not found");
+      wiki_privmsg($return,"wiki: edit=section not found");
       return False;
     }
     $index=$sections[$index]["index"];
@@ -153,7 +151,7 @@ function edit($title,$section,$text)
   var_dump($data);
   if (isset($data["error"])==True)
   {
-    wiki_privmsg("wiki: edit=".$data["error"]["code"]);
+    wiki_privmsg($return,"wiki: edit=".$data["error"]["code"]);
     return False;
   }
   else
@@ -163,8 +161,7 @@ function edit($title,$section,$text)
     {
       $msg=$msg.", oldrevid=".$data["edit"]["oldrevid"].", newrevid=".$data["edit"]["newrevid"];
     }
-    wiki_privmsg($msg);
-    logout();
+    wiki_privmsg($return,$msg);
     return True;
   }
 }
@@ -175,10 +172,7 @@ function get_text($title,$section,$return=False)
 {
   if ($title=="")
   {
-    if ($return==False)
-    {
-      privmsg("wiki: edit=invalid title");
-    }
+    wiki_privmsg($return,"wiki: edit=invalid title");
     return False;
   }
   $index=-1;
@@ -189,10 +183,7 @@ function get_text($title,$section,$return=False)
     $data=unserialize(strip_headers($response));
     if (isset($data["parse"]["sections"])==False)
     {
-      if ($return==False)
-      {
-        privmsg("wiki: edit=error getting sections for page \"".$title."\"");
-      }
+      wiki_privmsg($return,"wiki: edit=error getting sections for page \"".$title."\"");
       return False;
     }
     $sections=$data["parse"]["sections"];
@@ -219,29 +210,22 @@ function get_text($title,$section,$return=False)
   }
   else
   {
-    if ($return==False)
-    {
-      privmsg("wiki: edit=section not found");
-    }
+    wiki_privmsg($return,"wiki: edit=section not found");
     return False;
   }
   strip_comments($text);
   strip_all_tag($text,"h2");
   $text=strip_tags($text);
   $text=trim($text," \t\n\r\0\x0B\"");
-  if ($return==False)
-  {
-    privmsg($text);
-  }
+  wiki_privmsg($return,$text);
   return $text;
 }
 
 #####################################################################################################
 
-function wiki_privmsg($msg)
+function wiki_privmsg($return,$msg)
 {
-  global $alias;
-  if ($alias<>"~wiki-internal")
+  if ($return==True)
   {
     privmsg($msg);
   }

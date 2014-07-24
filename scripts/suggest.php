@@ -36,7 +36,20 @@ $text=$text."* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
 $msg_success="*** suggestion successfully added to wiki - http://wiki.soylentnews.org/wiki/SoylentNews:Sandbox";
 $msg_error="*** error adding suggestion to wiki";
 
-echo "/INTERNAL ~wiki-internal $title||$section||$text||$msg_success||$msg_error\n";
+if (login(True)==False)
+{
+  privmsg($msg_error);
+  return;
+}
+if (edit($title,$section,$text,True)==False)
+{
+  privmsg($msg_error);
+}
+else
+{
+  privmsg($msg_success);
+}
+logout(True);
 
 #####################################################################################################
 
