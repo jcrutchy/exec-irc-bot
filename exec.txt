@@ -27,7 +27,7 @@
 ~say|2|0|1|0|crutchy,chromas,monopoly|||php scripts/say.php %%trailing%% %%nick%%
 ~bucket|5|0|0|1|crutchy|||php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 ~op|5|0|0|1|crutchy|||php scripts/admin.php %%dest%%
-~suggest|20|0|0|0|crutchy,mrcoolbp|||php scripts/suggestion.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~suggest|20|0|0|0|crutchy,mrcoolbp|||php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~comment|30|0|0|1|crutchy|||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~comment-dump|120|0|0|1|crutchy|||php scripts/sn-tfa-comments.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~wiki|40|0|0|0|crutchy,mrcoolbp|||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
