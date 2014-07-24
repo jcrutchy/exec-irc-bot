@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 22-july-2014
+# 24-july-2014
 
 #####################################################################################################
 
@@ -87,12 +87,12 @@ function get_list_auth($items)
 {
   global $exec_list;
   global $reserved_aliases;
-  $msg="~q ~rehash ~ps ~kill ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~restart";
+  $msg=" ~q ~rehash ~ps ~kill ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~restart";
   privmsg($items["destination"],$items["nick"],$msg);
   $msg="";
   foreach ($exec_list as $alias => $data)
   {
-    if ((count($data["accounts"])>0) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False))
+    if ((count($data["accounts"])>0) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False) and ((count($data["cmds"])==0) or (in_array("PRIVMSG",$data["cmds"])==True)))
     {
       if ($msg<>"")
       {
@@ -101,7 +101,7 @@ function get_list_auth($items)
       $msg=$msg.$alias;
     }
   }
-  privmsg($items["destination"],$items["nick"],$msg);
+  privmsg($items["destination"],$items["nick"]," ".$msg);
 }
 
 #####################################################################################################
