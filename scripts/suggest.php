@@ -25,13 +25,16 @@ $title="SoylentNews:Sandbox";
 $section="Suggestions from IRC";
 
 $text=trim(get_text($title,$section,True));
-var_dump($text);
 if (($text<>"") and ($text!==False))
 {
   $lines=explode("\n",$text);
   for ($i=0;$i<count($lines);$i++)
   {
     $line=trim($lines[$i]);
+    if ($line=="")
+    {
+      continue;
+    }
     $parts=explode("~",$line);
     if (count($parts)<2)
     {
@@ -54,6 +57,7 @@ if (($text<>"") and ($text!==False))
 }
 $text=$text."\n* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
 
+var_dump($text);
 return;
 
 $msg_success="*** suggestion successfully added to wiki - http://wiki.soylentnews.org/wiki/SoylentNews:Sandbox";
