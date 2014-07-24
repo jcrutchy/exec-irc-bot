@@ -24,7 +24,7 @@ $title="SoylentNews:Sandbox";
 $section="Suggestions from IRC";
 $text="* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
 
-$msg_success="*** suggestion successfully added to wiki (%%url%%)";
+$msg_success="*** suggestion successfully added to wiki - http://wiki.soylentnews.org/wiki/SoylentNews:Sandbox";
 $msg_error="*** error adding suggestion to wiki";
 
 echo "/INTERNAL ~wiki-internal $title||$section||$text||$msg_success||$msg_error\n";
