@@ -24,7 +24,7 @@ define("WIKI_HOST","wiki.soylentnews.org");
 
 if ($alias=="~wiki-internal")
 {
-  $parts=explode("|",$trailing);
+  $parts=explode("||",$trailing);
   if (count($parts)<>5)
   {
     return;

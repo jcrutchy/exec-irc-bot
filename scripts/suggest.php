@@ -27,7 +27,7 @@ $text="* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
 $msg_success="*** suggestion successfully added to wiki (%%url%%)";
 $msg_error="*** error adding suggestion to wiki";
 
-echo "/INTERNAL ~wiki-internal $title|$section|$text|$msg_success|$msg_error\n";
+echo "/INTERNAL ~wiki-internal $title||$section||$text||$msg_success||$msg_error\n";
 
 #####################################################################################################
 
