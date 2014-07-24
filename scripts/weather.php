@@ -157,7 +157,7 @@ function process_weather($location)
           if (($dt>0) and ($data_first[1]<>""))
           {
             $d=round($data_last[1]-$data_first[1],1);
-            $delta_str=" ~ change of $d mb over past $dt hrs"; # TODO: remove "past"
+            $delta_str=" ($d mb over $dt hrs)"; # TODO: remove "past"
           }
           $pressmb=round($data_last[1],1);
           $press=$pressmb." mb".$delta_str;
@@ -214,7 +214,7 @@ function process_weather($location)
           $agestr=" ~ $age hrs ago:";
         }
         privmsg("weather for $name at ".$data_last[0]." (UTC)$agestr");
-        privmsg("temperature: $temp, dewpoint: $dewpoint, bar press: $press, rel humd: $relhumidity, wind: $wind_speed @ $wind_direction");
+        privmsg("temp: ".chr(3)."8$temp".chr(3).", dp: ".chr(3)."8$dewpoint".chr(3).", press: ".chr(3)."8$press".chr(3).", humid: ".chr(3)."8$relhumidity".chr(3).", wind: ".chr(3)."8$wind_speed".chr(3)." @ ".chr(3)."8$wind_direction".chr(3));
         return;
       }
     }
