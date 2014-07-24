@@ -33,6 +33,7 @@
 ~wiki|40|0|0|0|crutchy,mrcoolbp|||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~feed-wiki|600|1800|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~users|10|0|0|0|crutchy|||php scripts/users/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~shelp|10|0|1|0|crutchy|||help %%trailing%%
 
 # ALIASES LIMITED TO SPECIFIC COMMANDS (UNUSALLY INTERNAL)
 ~sed-internal|10|0|0|0||INTERNAL||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
