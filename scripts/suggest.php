@@ -9,7 +9,7 @@
 require_once("lib.php");
 require_once("wiki_lib.php");
 
-$trailing=trim($argv[1]);
+$trailing=trim(strip_tags($argv[1]));
 $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
