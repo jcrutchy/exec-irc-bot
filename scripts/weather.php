@@ -213,7 +213,7 @@ function process_weather($location)
         {
           $agestr=" ~ $age hrs ago:";
         }
-        $color="09";
+        $color="10";
         privmsg("weather for $name at ".$data_last[0]." (UTC)$agestr");
         privmsg("temp: ".chr(3).$color.$temp.chr(3).", dp: ".chr(3).$color.$dewpoint.chr(3).", press: ".chr(3).$color.$press.chr(3).", humid: ".chr(3).$color.$relhumidity.chr(3).", wind: ".chr(3).$color.$wind_speed.chr(3)." @ ".chr(3).$color.$wind_direction.chr(3));
         return;
