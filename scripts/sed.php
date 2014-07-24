@@ -40,21 +40,21 @@ if ($alias=="~sed")
       {
         $channels[]=$dest;
         save_channels($channels);
-        privmsg("sed enabled for ".chr(3)."8$dest");
+        privmsg("sed enabled for ".chr(3)."10$dest");
       }
       else
       {
-        privmsg("sed already enabled for ".chr(3)."8$dest");
+        privmsg("sed already enabled for ".chr(3)."10$dest");
       }
       break;
     case "off":
       if (channel_off($channels,$dest)==True)
       {
-        privmsg("sed disabled for ".chr(3)."8$dest");
+        privmsg("sed disabled for ".chr(3)."10$dest");
       }
       else
       {
-        privmsg("sed already disabled for ".chr(3)."8$dest");
+        privmsg("sed already disabled for ".chr(3)."10$dest");
       }
       break;
   }
