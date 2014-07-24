@@ -60,9 +60,6 @@ if (($text<>"") and ($text!==False))
 }
 $text=$text."\n* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
 
-var_dump($text);
-return;
-
 $msg_success="*** suggestion successfully added to wiki - http://wiki.soylentnews.org/wiki/SoylentNews:Sandbox";
 $msg_error="*** error adding suggestion to wiki";
 
