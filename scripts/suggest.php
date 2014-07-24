@@ -33,6 +33,7 @@ if (($text<>"") and ($text!==False))
     $line=trim($lines[$i]);
     if ($line=="")
     {
+      unset($lines[$i]);
       continue;
     }
     $parts=explode("~",$line);
