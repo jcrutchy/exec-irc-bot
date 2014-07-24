@@ -206,6 +206,7 @@ function get_text($title,$section,$return=False)
   $data=unserialize(strip_headers($response));
   if (isset($data["parse"]["text"]["*"])==True)
   {
+    var_dump($data["parse"]["text"]["*"]);
     $head="<h2><span class=\"mw-headline\" id=\"$section\">$section</span>";
     $text=$data["parse"]["text"]["*"];
     if (substr($text,0,strlen($head))<>$head)
