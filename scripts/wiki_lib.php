@@ -225,7 +225,7 @@ function get_text($title,$section,$return=False)
 
 function wiki_privmsg($return,$msg)
 {
-  if ($return==True)
+  if ($return==False)
   {
     privmsg($msg);
   }
