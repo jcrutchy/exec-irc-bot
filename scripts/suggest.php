@@ -28,8 +28,8 @@ $text=trim(get_text($title,$section,True));
 if ($text<>"")
 {
   $lines=explode("\n",$text);
-  $text=implode("<br />",$lines);
-  $text=$text."<br />";
+  $text=implode("<br />* ",$lines);
+  $text="* ".$text."<br />";
 }
 $text=$text."* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
 
