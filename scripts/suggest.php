@@ -30,13 +30,13 @@ if (($text<>"") and ($text!==False))
   $lines=explode("\n",$text);
   for ($i=0;$i<count($lines);$i++)
   {
-    $line=trim($lines[$i]);
-    if ($line=="")
+    $lines[$i]=trim($lines[$i]);
+    if ($lines[$i]=="")
     {
       unset($lines[$i]);
       continue;
     }
-    $parts=explode("~",$line);
+    $parts=explode("~",$lines[$i]);
     if (count($parts)<2)
     {
       continue;
