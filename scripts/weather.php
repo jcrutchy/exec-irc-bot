@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 20-july-2014
+# 24-july-2014
 
 # requested by kobach: weather request, Spirit Of Saint Louis, Missouri (38.7°N/90.7°W), Updated: 1:54 PM CST (December 23, 2013), Conditions: Mostly Cloudy, Temperature: 26°F (-3.3°C), Windchill: 16°F (-9°C), High/Low: 26/9°F (-3.3/-12.8°C), UV: 1/16, Humidity: 66%, Dew Point: 16°F (-8.9°C), Pressure: 30.51 in/1033 hPa, Wind: WNW at 10 MPH (17 KPH)
 
