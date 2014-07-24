@@ -215,7 +215,7 @@ function process_weather($location)
         }
         $color="10";
         privmsg("weather for ".chr(2).chr(3).$color.$name.chr(3).chr(2)." at ".$data_last[0]." (UTC)$agestr");
-        privmsg("temp: ".chr(3).$color.$temp.chr(3).", dp: ".chr(3).$color.$dewpoint.chr(3).", press: ".chr(3).$color.$press.chr(3).", humid: ".chr(3).$color.$relhumidity.chr(3).", wind: ".chr(3).$color.$wind_speed.chr(3)." @ ".chr(3).$color.$wind_direction.chr(3));
+        privmsg("temp: ".chr(2).chr(3).$color.$temp.chr(3).chr(2).", dp: ".chr(2).chr(3).$color.$dewpoint.chr(3).chr(2).", press: ".chr(2).chr(3).$color.$press.chr(3).chr(2).", humid: ".chr(2).chr(3).$color.$relhumidity.chr(3).chr(2).", wind: ".chr(2).chr(3).$color.$wind_speed.chr(3).chr(2)." @ ".chr(2).chr(3).$color.$wind_direction.chr(3).chr(2));
         return;
       }
     }
