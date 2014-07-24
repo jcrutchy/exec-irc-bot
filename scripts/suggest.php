@@ -28,32 +28,34 @@ $text=trim(get_text($title,$section,True));
 if (($text<>"") and ($text!==False))
 {
   $lines=explode("\n",$text);
+  $nlines=array();
   for ($i=0;$i<count($lines);$i++)
   {
-    $lines[$i]=trim($lines[$i]);
-    if ($lines[$i]=="")
+    $line=trim($lines[$i]);
+    if ($line=="")
     {
-      unset($lines[$i]);
       continue;
     }
-    $parts=explode("~",$lines[$i]);
+    $parts=explode("~",$line);
     if (count($parts)<2)
     {
+      $nlines[]=$line;
       continue;
     }
-    $sig=$parts[count($parts)-1];
+    $sig=trim($parts[count($parts)-1]);
     unset($parts[count($parts)-1]);
     $sug=trim(implode("~",$parts));
     $parts=explode("@",$sig);
     if (count($parts)<>2)
     {
+      $nlines[]=$line;
       continue;
     }
     $nic=trim($parts[0]);
     $utc=trim($parts[1]);
-    $lines[$i]="$sug ~ [[User:$nic|$nic]] @ $utc";
+    $nlines[]="$sug ~ [[User:$nic|$nic]] @ $utc";
   }
-  $text=implode("\n* ",$lines);
+  $text=implode("\n* ",$nlines);
   $text="* ".$text;
 }
 $text=$text."\n* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
