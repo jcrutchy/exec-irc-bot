@@ -48,7 +48,7 @@ if (($text<>"") and ($text!==False))
     $utc=trim($parts[1]);
     $lines[$i]="$sug ~ [[User:$nic|$nic]] @ $utc";
   }
-  $text=implode("\n* ",$lines);
+  $text=implode("\n",$lines);
   $text="* ".$text."\n";
 }
 $text=$text."* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
