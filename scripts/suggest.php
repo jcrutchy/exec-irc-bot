@@ -26,7 +26,7 @@ $section="Suggestions from IRC";
 
 $text=get_text($title,$section,True);
 
-$text=$text."\n<br>* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
+$text=$text."<br>* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
 
 $msg_success="*** suggestion successfully added to wiki - http://wiki.soylentnews.org/wiki/SoylentNews:Sandbox";
 $msg_error="*** error adding suggestion to wiki";
