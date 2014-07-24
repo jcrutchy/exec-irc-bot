@@ -204,10 +204,15 @@ function get_text($title,$section,$return=False)
   }
   $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT);
   $data=unserialize(strip_headers($response));
-  var_dump($data);
   if (isset($data["parse"]["text"]["*"])==True)
   {
+    $head="<h2><span class=\"mw-headline\" id=\"$section\">$section</span>";
     $text=$data["parse"]["text"]["*"];
+    if (substr($text,0,strlen($head))<>$head)
+    {
+      wiki_privmsg($return,"wiki: edit=section span not found");
+      return False;
+    }
   }
   else
   {
@@ -218,6 +223,7 @@ function get_text($title,$section,$return=False)
   strip_all_tag($text,"h2");
   $text=strip_tags($text);
   $text=trim($text," \t\n\r\0\x0B\"");
+  var_dump($text);
   wiki_privmsg($return,$text);
   return $text;
 }
