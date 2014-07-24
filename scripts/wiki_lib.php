@@ -204,6 +204,7 @@ function get_text($title,$section,$return=False)
   }
   $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT);
   $data=unserialize(strip_headers($response));
+  var_dump($data);
   if (isset($data["parse"]["text"]["*"])==True)
   {
     $text=$data["parse"]["text"]["*"];

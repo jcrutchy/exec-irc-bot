@@ -25,7 +25,7 @@ $title="SoylentNews:Sandbox";
 $section="Suggestions from IRC";
 
 $text=trim(get_text($title,$section,True));
-if ($text<>"")
+if (($text<>"") and ($text!==False))
 {
   $lines=explode("\n",$text);
   $text=implode("\n* ",$lines);
