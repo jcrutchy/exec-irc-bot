@@ -28,10 +28,30 @@ $text=trim(get_text($title,$section,True));
 if (($text<>"") and ($text!==False))
 {
   $lines=explode("\n",$text);
+  for ($i=0;$i<count($lines);$i++)
+  {
+    $parts=explode("~",$lines[$i]);
+    if (count($parts)<2)
+    {
+      continue;
+    }
+    $sig=$parts[count($parts)-1];
+    unset($parts[count($parts)-1]);
+    $sug=implode("~",$parts);
+    $parts=explode("@",$sig);
+    if (count($parts)<>2)
+    {
+      continue;
+    }
+    $nic=trim($parts[0]);
+    $utc=trim($parts[1]);
+    $lines[$i]="$sug ~ [[User:$nic|$nic]] @ $utc";
+  }
   $text=implode("\n* ",$lines);
   $text="* ".$text."\n";
 }
 $text=$text."* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
+
 $msg_success="*** suggestion successfully added to wiki - http://wiki.soylentnews.org/wiki/SoylentNews:Sandbox";
 $msg_error="*** error adding suggestion to wiki";
 
