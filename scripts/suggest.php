@@ -25,6 +25,7 @@ $title="SoylentNews:Sandbox";
 $section="Suggestions from IRC";
 
 $text=trim(get_text($title,$section,True));
+var_dump($text);
 if (($text<>"") and ($text!==False))
 {
   $lines=explode("\n",$text);
@@ -52,8 +53,6 @@ if (($text<>"") and ($text!==False))
   $text="* ".$text;
 }
 $text=$text."\n* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
-
-var_dump($text);
 
 return;
 
