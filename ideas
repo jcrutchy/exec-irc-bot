@@ -1,21 +1,15 @@
 EXEC IDEAS
 ==========
 
-<start> reserved alias that triggers after bot nickserv identification
+~admin ignore on|off # completely ignores a channel (including logging)
 
-
-~karma on|off (works like ~sed)
+~karma on|off
 
 github repository change monitoring (kinda like feeds)
 
-
 github/slashcode issue submission/listing
 
-
 SN crawler/mapper
-
-~proc count|list|kill|etc (inside bot)
-
 
 ~remind
 set bucket with start time
@@ -25,7 +19,6 @@ and reset them with new sleep time to trigger at correct intended time
 ~define -f term
 uses cprivmsg to output more (avoids flood control if exec is channel operator)
 or something like !more to output some more content
-
 
 SoylentNews comment feed
 - similar to bender but outputs comment summaries
