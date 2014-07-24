@@ -213,10 +213,8 @@ function process_weather($location)
         {
           $agestr=" ~ $age hrs ago:";
         }
-        privmsg("Weather for $name at ".$data_last[0]." (UTC)$agestr");
-        privmsg("    temperature = $temp    dewpoint = $dewpoint");
-        privmsg("    barometric pressure = $press    relative humdity = $relhumidity");
-        privmsg("    wind speed = $wind_speed    wind direction = $wind_direction");
+        privmsg("weather for $name at ".$data_last[0]." (UTC)$agestr");
+        privmsg("temperature: $temp, dewpoint: $dewpoint, bar press: $press, rel humd: $relhumidity, wind: $wind_speed @ $wind_direction");
         return;
       }
     }
