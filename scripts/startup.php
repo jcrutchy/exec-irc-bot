@@ -31,14 +31,6 @@ echo "/INTERNAL ~sedbot-tail3\n";
 
 echo "/INTERNAL ~join #soylent\n";
 
-pm("#Soylent","SedBot");
-pm("##","SedBot");
-pm("#test","SedBot");
-
-pm("#Soylent","s/SedBot/hello/");
-pm("##","s/SedBot/hello/");
-pm("#test","s/SedBot/hello/");
-
 echo "################# END STARTUP #################\n";
 
 #####################################################################################################

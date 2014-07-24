@@ -24,7 +24,7 @@ $utc_str=gmdate("H:i, j F Y",time());
 $title="SoylentNews:Sandbox";
 $section="Suggestions from IRC";
 
-$text=trim(get_text($title,$section,True));
+$text=trim(get_text($title,$section,False));
 if (($text<>"") and ($text!==False))
 {
   $lines=explode("\n",$text);
