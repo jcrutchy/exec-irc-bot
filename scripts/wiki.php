@@ -264,12 +264,15 @@ function edit($title,$section,$text)
 
 #####################################################################################################
 
-function get_text($title,$section)
+function get_text($title,$section,$return=False)
 {
   if ($title=="")
   {
-    privmsg("wiki: edit=invalid title");
-    return;
+    if ($return==False)
+    {
+      privmsg("wiki: edit=invalid title");
+    }
+    return False;
   }
   $index=-1;
   if ($section<>"")
@@ -279,8 +282,11 @@ function get_text($title,$section)
     $data=unserialize(strip_headers($response));
     if (isset($data["parse"]["sections"])==False)
     {
-      privmsg("wiki: edit=error getting sections for page \"".$title."\"");
-      return;
+      if ($return==False)
+      {
+        privmsg("wiki: edit=error getting sections for page \"".$title."\"");
+      }
+      return False;
     }
     $sections=$data["parse"]["sections"];
     for ($i=0;$i<count($sections);$i++)
@@ -306,14 +312,21 @@ function get_text($title,$section)
   }
   else
   {
-    privmsg("wiki: edit=section not found");
-    return;
+    if ($return==False)
+    {
+      privmsg("wiki: edit=section not found");
+    }
+    return False;
   }
   strip_comments($text);
   strip_all_tag($text,"h2");
   $text=strip_tags($text);
   $text=trim($text," \t\n\r\0\x0B\"");
-  wiki_privmsg($text);
+  if ($return==False)
+  {
+    privmsg($text);
+  }
+  return $text;
 }
 
 #####################################################################################################
