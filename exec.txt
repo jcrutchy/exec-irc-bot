@@ -4,22 +4,7 @@
 # aliases here must be all lower case letters
 # account, cmd and dest lists are all comma-separated
 
-~sedbot-ii|0|0|0|1|crutchy|||ii -s irc.sylnt.us -p 6667 -n SedBot2 -f SedBot2
-~sedbot-cmd|0|0|0|1|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/in
-~sedbot-awk1|0|0|0|1|crutchy|||tail -Fn1 /home/jared/irc/irc.sylnt.us/#soylent/out | ./sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#soylent/in
-~sedbot-awk2|0|0|0|1|crutchy|||tail -Fn1 /home/jared/irc/irc.sylnt.us/##/out | ./sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/##/in
-~sedbot-awk3|0|0|0|1|crutchy|||tail -Fn1 /home/jared/irc/irc.sylnt.us/#test/out | ./sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#test/in
-
-~sedbot-tail0|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/out
-~sedbot-tail1|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/#soylent/out
-~sedbot-tail2|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/##/out
-~sedbot-tail3|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/#test/out
-
-~sedbot-talk1|0|0|0|0|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/#soylent/in
-~sedbot-talk2|0|0|0|0|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/##/in
-~sedbot-talk3|0|0|0|0|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/#test/in
-
-~exec|0|0|0|1||INTERNAL||%%trailing%%
+#####################################################################################################
 
 # EXEC ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 *|10|0|0|1||||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
@@ -36,36 +21,40 @@
 # RESERVED ALIAS FOR LOGGING ITEMS
 <log>|10|0|0|1||||php scripts/log.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%exec%% %%params%%
 
+#####################################################################################################
+
 # REQUIRE NICKSERV IDENTIFIED USER AUTHENTICATION (WHOIS)
 ~say|2|0|1|0|crutchy,chromas,monopoly|||php scripts/say.php %%trailing%% %%nick%%
 ~bucket|5|0|0|1|crutchy|||php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 ~op|5|0|0|1|crutchy|||php scripts/admin.php %%dest%%
-
+~suggest|20|0|0|0|crutchy,mrcoolbp|||php scripts/suggestion.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#~comment|30|0|0|1|crutchy|||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~comment-dump|120|0|0|1|crutchy|||php scripts/sn-tfa-comments.php %%trailing%% %%dest%% %%nick%% %%alias%%
-
-#~wiki|40|0|0|0|crutchy|||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~wiki|40|0|0|0|crutchy,mrcoolbp|||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~feed-wiki|600|1800|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-
-# called from other scripts via INTERNAL cmd
-~sed-internal|10|0|0|0||INTERNAL||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
-~users-internal|240|0|0|0||INTERNAL||php scripts/users/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
-
 ~users|10|0|0|0|crutchy|||php scripts/users/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
-# timer scripts
+# ALIASES LIMITED TO SPECIFIC COMMANDS (UNUSALLY INTERNAL)
+~sed-internal|10|0|0|0||INTERNAL||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
+~users-internal|240|0|0|0||INTERNAL||php scripts/users/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~wiki-internal|40|0|0|0||INTERNAL||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+
+# TIMER SCRIPTS
 #~feed|500|1800|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed|120|0|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~ping|10|60|0|0||INTERNAL||php scripts/ping.php %%trailing%%
 
+#####################################################################################################
+
 # GENERAL USAGE ALIASES
-~sed|10|0|0|0||||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
 #~feed-sources|5|0|0|1||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed-add|5|0|0|1||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed-del|5|0|0|1||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~stats-lines|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~stats-first|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~remind|99999|0|0|0||||php scripts/remind.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#~request|5|0|0|0||||php scripts/exec_request.php %%trailing%% %%nick%% %%dest%%
+#~google|20|0|0|0||||php scripts/google.php %%trailing%%
 ~|5|0|1|1||||php scripts/about.php %%trailing%%
+~sed|10|0|0|0||||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
+~remind|9999|0|0|0||||php scripts/remind.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~cowsay|10|0|1|0||||cowsay %%trailing%%
 ~moo|10|0|1|1||||apt-get moo
 ~fortune|5|0|1|1||||fortune -s
@@ -76,14 +65,23 @@
 ~isup|30|0|0|0||||php scripts/isup.php %%trailing%%
 ~time|30|0|0|0||||php scripts/time.php %%trailing%%
 ~rainbow|5|0|0|0||||php scripts/rainbow.php %%trailing%%
+~queue|15|0|0|1||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
-~request|5|0|0|0||||php scripts/exec_request.php %%trailing%% %%nick%% %%dest%%
-
-~google|20|0|0|0||||php scripts/google.php %%trailing%%
+~stats-lines|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~stats-first|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 ~translate|10|0|0|0||||php scripts/translate.php %%trailing%% %%alias%%
 ~translate-sl|10|0|0|0||||php scripts/translate.php %%trailing%% %%alias%%
 
+~weather|10|0|0|1||||php scripts/weather.php %%alias%% %%trailing%%
+~weather-add|10|0|0|1||||php scripts/weather.php %%alias%% %%trailing%%
+
+~help|5|0|0|0||||php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~help-script|5|0|0|0||||php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
+
+#####################################################################################################
+
+# DEFINITIONS
 ~define|20|0|0|0||||php scripts/definitions.php %%trailing%% %%alias%%
 ~define-add|10|0|0|0||||php scripts/definitions.php %%trailing%% %%alias%%
 ~define-count|5|0|0|1||||php scripts/definitions.php %%trailing%% %%alias%%
@@ -92,20 +90,33 @@
 ~define-source-param|5|0|0|1|crutchy|||php scripts/definitions.php %%trailing%% %%alias%%
 ~define-source-delete|5|0|0|1|crutchy|||php scripts/definitions.php %%trailing%% %%alias%%
 
-~weather|10|0|0|1||||php scripts/weather.php %%alias%% %%trailing%%
-~weather-add|10|0|0|1||||php scripts/weather.php %%alias%% %%trailing%%
+#####################################################################################################
 
-~help|5|0|0|0||||php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
-~help-script|5|0|0|0||||php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
-
+# IRCIV
 #~civ|120|0|0|1||||php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
 #~civ-admin|120|0|0|1|crutchy|||php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
 #~civ-map|300|0|0|1|crutchy|||php scripts/irciv/irciv_map.php %%nick%% %%trailing%% %%dest%%
 #~civ-save|5|1200|0|1||||php scripts/irciv/irciv.php '<<SAVE>>'
-
 #~civ-dispatch|120|0|0|1||||php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
 
+#####################################################################################################
 
-~queue|15|0|0|1||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-#~comment|30|0|0|1|crutchy|||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+# SEDBOT
+~sedbot-ii|0|0|0|1|crutchy|||ii -s irc.sylnt.us -p 6667 -n SedBot2 -f SedBot2
+~sedbot-cmd|0|0|0|1|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/in
+
+~sedbot-awk1|0|0|0|1|crutchy|||tail -Fn1 /home/jared/irc/irc.sylnt.us/#soylent/out | ./sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#soylent/in
+~sedbot-awk2|0|0|0|1|crutchy|||tail -Fn1 /home/jared/irc/irc.sylnt.us/##/out | ./sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/##/in
+~sedbot-awk3|0|0|0|1|crutchy|||tail -Fn1 /home/jared/irc/irc.sylnt.us/#test/out | ./sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#test/in
+
+~sedbot-tail0|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/out
+~sedbot-tail1|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/#soylent/out
+~sedbot-tail2|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/##/out
+~sedbot-tail3|0|0|0|1|crutchy|||tail -Fn1 ~/irc/irc.sylnt.us/#test/out
+
+~sedbot-talk1|0|0|0|0|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/#soylent/in
+~sedbot-talk2|0|0|0|0|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/##/in
+~sedbot-talk3|0|0|0|0|crutchy|||echo %%trailing%% > ~/irc/irc.sylnt.us/#test/in
+
+#####################################################################################################
 

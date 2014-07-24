@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-july-2014
+# 24-july-2014
 
 # http://www.mediawiki.org/wiki/Manual:Bots
 # http://en.wikipedia.org/wiki/Wikipedia:Creating_a_bot
@@ -14,13 +14,36 @@
 
 require_once("lib.php");
 
-$trailing=$argv[1];
+$trailing=trim($argv[1]);
 $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 
 define("WIKI_USER_AGENT","IRC-Executive/0.01 (https://github.com/crutchy-/test/blob/master/scripts/wiki.php; jared.crutchfield@hotmail.com)");
 define("WIKI_HOST","wiki.soylentnews.org");
+
+if ($alias=="~wiki-internal")
+{
+  $parts=explode("|",$trailing);
+  if (count($parts)<>5)
+  {
+    return;
+  }
+  $title=$parts[0];
+  $section=$parts[1];
+  $text=$parts[2];
+  $msg_success=$parts[3];
+  $msg_error=$parts[4];
+  if (login()===True)
+  {
+    privmsg($msg_success);
+  }
+  else
+  {
+    privmsg($msg_error);
+  }
+  return;
+}
 
 $login=get_bucket("wiki_login_cookieprefix");
 
@@ -102,19 +125,19 @@ function logout()
   unset_bucket("wiki_login_sessionid");
   if ($loggedout==True)
   {
-    privmsg("wiki: successfully logged out");
+    wiki_privmsg("wiki: successfully logged out");
   }
   else
   {
-    privmsg("wiki: logout confirmation not received");
+    wiki_privmsg("wiki: logout confirmation not received");
   }
-  return;
 }
 
 #####################################################################################################
 
 function login()
 {
+  global $alias;
   $user_params=explode("\n",file_get_contents("../pwd/wiki.bot"));
   $params["lgname"]=$user_params[0];
   $params["lgpassword"]=$user_params[1];
@@ -131,7 +154,14 @@ function login()
   }
   set_bucket("wiki_login_cookieprefix",$data["login"]["cookieprefix"]);
   set_bucket("wiki_login_sessionid",$data["login"]["sessionid"]);
-  privmsg($msg);
+  wiki_privmsg($msg);
+  if ($alias=="~wiki-internal")
+  {
+    global $title;
+    global $section;
+    global $text;
+    return edit($title,$section,$text);
+  }
 }
 
 #####################################################################################################
@@ -140,15 +170,15 @@ function edit($title,$section,$text)
 {
   if (($title=="") or ($section==""))
   {
-    privmsg("wiki: edit=invalid title/section");
-    return;
+    wiki_privmsg("wiki: edit=invalid title/section");
+    return False;
   }
   $cookieprefix=get_bucket("wiki_login_cookieprefix");
   $sessionid=get_bucket("wiki_login_sessionid");
   if (($cookieprefix=="") or ($sessionid==""))
   {
-    privmsg("wiki: edit=not logged in");
-    return;
+    wiki_privmsg("wiki: edit=not logged in");
+    return False;
   }
   $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
   $uri="/w/api.php?action=tokens&format=php";
@@ -157,8 +187,8 @@ function edit($title,$section,$text)
   var_dump($data);
   if (isset($data["tokens"]["edittoken"])==False)
   {
-    privmsg("wiki: edit=error getting edittoken");
-    return;
+    wiki_privmsg("wiki: edit=error getting edittoken");
+    return False;
   }
   $token=$data["tokens"]["edittoken"];
   $uri="/w/api.php?action=parse&format=php&page=".urlencode($title)."&prop=sections";
@@ -166,8 +196,8 @@ function edit($title,$section,$text)
   $data=unserialize(strip_headers($response));
   if (isset($data["parse"]["sections"])==False)
   {
-    privmsg("wiki: edit=error getting sections for page \"".$title."\"");
-    return;
+    wiki_privmsg("wiki: edit=error getting sections for page \"".$title."\"");
+    return False;
   }
   var_dump($data);
   $sections=$data["parse"]["sections"];
@@ -189,8 +219,8 @@ function edit($title,$section,$text)
   {
     if (isset($sections[$index]["index"])==False)
     {
-      privmsg("wiki: edit=section not found");
-      return;
+      wiki_privmsg("wiki: edit=section not found");
+      return False;
     }
     $index=$sections[$index]["index"];
     if ($text<>"")
@@ -216,7 +246,8 @@ function edit($title,$section,$text)
   var_dump($data);
   if (isset($data["error"])==True)
   {
-    $msg="wiki: edit=".$data["error"]["code"];
+    wiki_privmsg("wiki: edit=".$data["error"]["code"]);
+    return False;
   }
   else
   {
@@ -225,8 +256,10 @@ function edit($title,$section,$text)
     {
       $msg=$msg.", oldrevid=".$data["edit"]["oldrevid"].", newrevid=".$data["edit"]["newrevid"];
     }
+    wiki_privmsg($msg);
+    logout();
+    return True;
   }
-  privmsg($msg);
 }
 
 #####################################################################################################
@@ -280,7 +313,18 @@ function get_text($title,$section)
   strip_all_tag($text,"h2");
   $text=strip_tags($text);
   $text=trim($text," \t\n\r\0\x0B\"");
-  privmsg($text);
+  wiki_privmsg($text);
+}
+
+#####################################################################################################
+
+function wiki_privmsg($msg)
+{
+  global $alias;
+  if ($alias<>"~wiki-internal")
+  {
+    privmsg($msg);
+  }
 }
 
 #####################################################################################################
