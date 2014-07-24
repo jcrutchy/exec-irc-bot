@@ -4,6 +4,9 @@
 # by crutchy
 # 24-july-2014
 
+define("WIKI_USER_AGENT","IRC-Executive/0.01 (https://github.com/crutchy-/test/blob/master/scripts/wiki.php; jared.crutchfield@hotmail.com)");
+define("WIKI_HOST","wiki.soylentnews.org");
+
 #####################################################################################################
 
 function login_cookie($cookieprefix,$sessionid)

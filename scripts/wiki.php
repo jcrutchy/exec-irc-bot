@@ -20,9 +20,6 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 
-define("WIKI_USER_AGENT","IRC-Executive/0.01 (https://github.com/crutchy-/test/blob/master/scripts/wiki.php; jared.crutchfield@hotmail.com)");
-define("WIKI_HOST","wiki.soylentnews.org");
-
 if ($alias=="~wiki-internal")
 {
   $parts=explode("||",$trailing);
