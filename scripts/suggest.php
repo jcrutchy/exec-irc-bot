@@ -30,14 +30,15 @@ if (($text<>"") and ($text!==False))
   $lines=explode("\n",$text);
   for ($i=0;$i<count($lines);$i++)
   {
-    $parts=explode("~",$lines[$i]);
+    $line=trim($lines[$i]);
+    $parts=explode("~",$line);
     if (count($parts)<2)
     {
       continue;
     }
     $sig=$parts[count($parts)-1];
     unset($parts[count($parts)-1]);
-    $sug=implode("~",$parts);
+    $sug=trim(implode("~",$parts));
     $parts=explode("@",$sig);
     if (count($parts)<>2)
     {
