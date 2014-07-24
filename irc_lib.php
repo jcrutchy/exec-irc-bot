@@ -69,7 +69,7 @@ function get_list($items)
   $msg="";
   foreach ($exec_list as $alias => $data)
   {
-    if ((count($data["accounts"])==0) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False))
+    if ((count($data["accounts"])==0) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False) and ((count($data["cmds"])==0) or (in_array("PRIVMSG",$data["cmds"])==True)))
     {
       if ($msg<>"")
       {
