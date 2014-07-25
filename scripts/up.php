@@ -7,7 +7,7 @@
 require_once("lib.php");
 
 $uptime=microtime(True)-$argv[1];
-privmsg("exec up: ".secsToTime($uptime));
+privmsg("uptime: ".secsToTime($uptime));
 
 function secsToTime($secs) # by chromas, 17-april-2014
 {
