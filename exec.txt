@@ -65,6 +65,7 @@
 ~time|30|0|0|0||||php scripts/time.php %%trailing%%
 ~rainbow|5|0|0|0||||php scripts/rainbow.php %%trailing%%
 ~queue|15|0|0|1||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~up|5|0|0|1||||php scripts/up.php %%start%%
 
 ~stats-lines|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~stats-first|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
