@@ -2,10 +2,12 @@
 
 # gpl2
 # by crutchy
-# 23-april-2014
+# 25-july-2014
+
+require_once("lib.php");
 
 $uptime=microtime(True)-$argv[1];
-echo "IRC_MSG exec up: ".secsToTime($uptime)."\n";
+privmsg("exec up: ".secsToTime($uptime));
 
 function secsToTime($secs) # by chromas, 17-april-2014
 {
