@@ -92,14 +92,14 @@ switch (strtoupper($cmd))
 
     break;
   case "319": # :irc.sylnt.us 319 exec crutchy :#wiki +#test #sublight #help @#exec #derp @#civ @#1 @#0 ## @#/ @#> @#~ @#
-    echo "/INTERNAL ~users-internal 319 $params $trailing\n";
+    #echo "/INTERNAL ~users-internal 319 $params $trailing\n";
     break;
   case "330": # :irc.sylnt.us 330 exec crutchy crutchy :is logged in as
     echo "/INTERNAL ~meeting 330 $params\n";
     #echo "/INTERNAL ~users-internal 330 $params\n";
     break;
   case "353": # :irc.sylnt.us 353 exec = #civ :exec @crutchy chromas arti
-    echo "/INTERNAL ~users-internal 353 $params $trailing\n";
+    #echo "/INTERNAL ~users-internal 353 $params $trailing\n";
     break;
   case "401": # :irc.sylnt.us 401 exec SedBot :No such nick/channel
 
@@ -117,11 +117,11 @@ switch (strtoupper($cmd))
     echo "/INTERNAL ~meeting 315 $params\n";
     break;
   case "354": # :irc.sylnt.us 354 crutchy 152 #Soylent mrcoolbp H@+
-    echo "/INTERNAL ~users-internal 354 $params\n";
+    #echo "/INTERNAL ~users-internal 354 $params\n";
     echo "/INTERNAL ~meeting 354 $params\n";
     break;
   case "322": # :irc.sylnt.us 322 crutchy # 8 :exec's home base and proving ground. testing of other bots and general chit chat welcome :-)
-    echo "/INTERNAL ~users-internal 322 $params\n";
+    #echo "/INTERNAL ~users-internal 322 $params\n";
     break;
 }
 
