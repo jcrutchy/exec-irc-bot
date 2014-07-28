@@ -208,7 +208,7 @@ function set_admin_cmd($nick,$dest,$trailing,$cmd)
     $new["trailing"]=$trailing;
     $new["cmd"]=$cmd;
     $commands[]=$new;
-    set_array_bucket($command,"<<MEETING_COMMAND $nick>>");
+    set_array_bucket($commands,"<<MEETING_COMMAND $nick>>");
     rawmsg("WHOIS $nick");
   }
 }
