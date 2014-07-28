@@ -27,7 +27,7 @@ array_shift($parts);
 $trailing=implode(" ",$parts);
 
 $meeting_list=get_array_bucket("<<MEETING_LIST>>");
-if (is_array($meeting_list)==True)
+if (is_array($meeting_list)==False)
 {
   $meeting_list=array();
 }
@@ -35,14 +35,14 @@ $meeting=get_array_bucket("<<MEETING_DATA $dest>>");
 switch ($cmd)
 {
   case "330": # :irc.sylnt.us 330 exec crutchy crutchy :is logged in as
-    if (is_array($meeting)==True)
+    if (count($meeting)>0)
     {
       if ((count($parts)==3) and ($parts[0]==NICK_EXEC))
       {
         $nick=$parts[1];
         $account=$parts[2];
         $commands=get_array_bucket("<<MEETING_COMMAND $nick>>");
-        if (is_array($commands)==True)
+        if (count($commands)>0)
         {
           for ($i=0;$i<count($commands);$i++)
           {
@@ -109,7 +109,7 @@ switch ($cmd)
     {
       $dest=strtolower($parts[1]);
       $meeting=get_array_bucket("<<MEETING_DATA $dest>>");
-      if (is_array($meeting)==True)
+      if (count($meeting)>0)
       {
         if ($meeting["initial nicks complete"]==False)
         {
@@ -130,7 +130,7 @@ switch ($cmd)
       {
         $dest=strtolower($parts[2]);
         $meeting=get_array_bucket("<<MEETING_DATA $dest>>");
-        if (is_array($meeting)==True)
+        if (count($meeting)>0)
         {
           $nick=$parts[3];
           $mode=$parts[4];
@@ -149,7 +149,7 @@ switch ($cmd)
     }
     break;
   case "PRIVMSG":
-    if (is_array($meeting)==True)
+    if (count($meeting)>0)
     {
       $msg["nick"]=$nick;
       $msg["timestamp"]=microtime(True);
@@ -158,7 +158,7 @@ switch ($cmd)
     }
     break;
   case "CLOSE":
-    if (is_array($meeting)==True)
+    if (count($meeting)>0)
     {
       set_admin_cmd($nick,$dest,$trailing,$cmd);
     }
@@ -167,19 +167,19 @@ switch ($cmd)
     set_admin_cmd($nick,$dest,$trailing,$cmd);
     break;
   case "QUIT":
-    if (is_array($meeting)==True)
+    if (count($meeting)>0)
     {
       # verify quorum
     }
     break;
   case "PART":
-    if (is_array($meeting)==True)
+    if (count($meeting)>0)
     {
       # verify quorum
     }
     break;
   case "KICK":
-    if (is_array($meeting)==True)
+    if (count($meeting)>0)
     {
       # verify quorum
     }
@@ -187,7 +187,7 @@ switch ($cmd)
   case "JOIN":
     break;
 }
-if (is_array($meeting)==True)
+if (count($meeting)>0)
 {
   set_array_bucket($meeting,"<<MEETING_DATA $dest>>");
   if (in_array("<<MEETING_DATA $dest>>",$meeting_list)==False)
@@ -202,7 +202,7 @@ if (is_array($meeting)==True)
 function set_admin_cmd($nick,$dest,$trailing,$cmd)
 {
   $commands=get_array_bucket("<<MEETING_COMMAND $nick>>");
-  if (is_array($commands)==True)
+  if (count($commands)>0)
   {
     $new["dest"]=$dest;
     $new["trailing"]=$trailing;
