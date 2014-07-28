@@ -34,6 +34,7 @@ $dest=$argv[3];
 $alias=$argv[4];
 
 $parts=explode(" ",$trailing);
+delete_empty_elements($parts);
 $cmd=strtoupper($parts[0]);
 array_shift($parts);
 $trailing=implode(" ",$parts);

@@ -34,6 +34,8 @@
 #~feed-wiki|600|1800|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~users|10|0|0|0|crutchy|||php scripts/users/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
+~meeting|10|0|0|0||||php scripts/meeting.php %%trailing%% %%dest%% %%nick%%
+
 # ALIASES LIMITED TO SPECIFIC COMMANDS (UNUSALLY INTERNAL)
 ~sed-internal|10|0|0|0||INTERNAL||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
 ~users-internal|240|0|0|0||INTERNAL||php scripts/users/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
@@ -66,6 +68,7 @@
 ~rainbow|5|0|0|0||||php scripts/rainbow.php %%trailing%%
 ~queue|15|0|0|1||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~up|5|0|0|1||||php scripts/up.php %%start%%
+~vote|10|0|0|0||||php scripts/vote.php %%trailing%% %%dest%% %%nick%%
 
 ~stats-lines|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~stats-first|600|0|0|1||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%

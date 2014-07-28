@@ -18,6 +18,20 @@ define("ICEWEASEL_UA","Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20140429 F
 
 #####################################################################################################
 
+function delete_empty_elements(&$array)
+{
+  for ($i=0;$i<count($array);$i++)
+  {
+    if ($array[$i]=="")
+    {
+      unset($array[$i]);
+    }
+  }
+  $array=array_values($array);
+}
+
+#####################################################################################################
+
 function get_array_bucket($bucket)
 {
   $array=array();
