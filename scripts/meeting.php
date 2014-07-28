@@ -25,7 +25,6 @@ delete_empty_elements($parts);
 $cmd=strtoupper($parts[0]);
 array_shift($parts);
 $trailing=implode(" ",$parts);
-unset($parts);
 
 $meeting_list=get_array_bucket("<<MEETING_LIST>>");
 if (is_array($meeting_list)==True)

@@ -35,7 +35,7 @@ function delete_empty_elements(&$array)
 function get_array_bucket($bucket)
 {
   $array=array();
-  $array_bucket=get_bucket(BUCKET_CHANNELS);
+  $array_bucket=get_bucket($bucket);
   if ($array_bucket=="")
   {
     term_echo("\"$bucket\" bucket contains no data");
