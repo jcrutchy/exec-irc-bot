@@ -43,7 +43,7 @@
 # TIMER SCRIPTS
 #~feed|500|1800|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed|120|0|0|1|crutchy|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~ping|10|60|0|0||INTERNAL||php scripts/ping.php %%trailing%%
+~ping|10|30|0|0||INTERNAL||php scripts/ping.php %%trailing%%
 
 #####################################################################################################
 
