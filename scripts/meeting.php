@@ -37,6 +37,7 @@ switch ($cmd)
   case "330": # :irc.sylnt.us 330 exec crutchy crutchy :is logged in as
     if ((count($parts)==3) and ($parts[0]==NICK_EXEC))
     {
+      term_echo("*** SO FAR SO GOOD");
       $nick=$parts[1];
       $account=$parts[2];
       $commands=get_array_bucket("<<MEETING_COMMAND $nick>>");
