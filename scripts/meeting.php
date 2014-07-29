@@ -203,15 +203,12 @@ if (count($meeting)>0)
 function set_admin_cmd($nick,$dest,$trailing,$cmd)
 {
   $commands=get_array_bucket("<<MEETING_COMMAND $nick>>");
-  if (count($commands)>0)
-  {
-    $new["dest"]=$dest;
-    $new["trailing"]=$trailing;
-    $new["cmd"]=$cmd;
-    $commands[]=$new;
-    set_array_bucket($commands,"<<MEETING_COMMAND $nick>>");
-    rawmsg("WHOIS $nick");
-  }
+  $new["dest"]=$dest;
+  $new["trailing"]=$trailing;
+  $new["cmd"]=$cmd;
+  $commands[]=$new;
+  set_array_bucket($commands,"<<MEETING_COMMAND $nick>>");
+  rawmsg("WHOIS $nick");
 }
 
 #####################################################################################################
