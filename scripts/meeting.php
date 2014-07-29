@@ -164,6 +164,7 @@ switch ($cmd)
     }
     break;
   case "OPEN":
+    term_echo("=== MEETING OPEN ===");
     set_admin_cmd($nick,$dest,$trailing,$cmd);
     break;
   case "QUIT":
