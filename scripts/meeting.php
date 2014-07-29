@@ -35,62 +35,61 @@ $meeting=get_array_bucket("<<MEETING_DATA $dest>>");
 switch ($cmd)
 {
   case "330": # :irc.sylnt.us 330 exec crutchy crutchy :is logged in as
-    if (count($meeting)>0)
+    if ((count($parts)==3) and ($parts[0]==NICK_EXEC))
     {
-      if ((count($parts)==3) and ($parts[0]==NICK_EXEC))
+      $nick=$parts[1];
+      $account=$parts[2];
+      $commands=get_array_bucket("<<MEETING_COMMAND $nick>>");
+      if (count($commands)>0)
       {
-        $nick=$parts[1];
-        $account=$parts[2];
-        $commands=get_array_bucket("<<MEETING_COMMAND $nick>>");
-        if (count($commands)>0)
+        for ($i=0;$i<count($commands);$i++)
         {
-          for ($i=0;$i<count($commands);$i++)
+          $dest=$commands[$i]["dest"];
+          $trailing=$commands[$i]["trailing"];
+          $cmd=$commands[$i]["cmd"];
+          switch ($cmd)
           {
-            $dest=$commands[$i]["dest"];
-            $trailing=$commands[$i]["trailing"];
-            $cmd=$commands[$i]["cmd"];
-            switch ($cmd)
-            {
-              case "OPEN":
-                if (in_array($account,$admins)==True)
+            case "OPEN":
+              if (in_array($account,$admins)==True)
+              {
+                $meeting["channel"]=$dest;
+                $meeting["chairs"]=array();
+                $chair["nick"]=$nick;
+                $chair["start"]=microtime(True);
+                $meeting["chairs"][]=$chair;
+                $meeting["finish"]="";
+                $meeting["messages"]=array();
+                $meeting["events"]=array();
+                $meeting["initial nicks"]=array();
+                $meeting["initial nicks complete"]=False;
+                $meeting["final nicks"]=array();
+                $meeting["final nicks complete"]=False;
+                $meeting["quorum"]=False;
+                if ($trailing=="")
                 {
-                  $meeting["channel"]=$dest;
-                  $meeting["chairs"]=array();
-                  $chair["nick"]=$nick;
-                  $chair["start"]=microtime(True);
-                  $meeting["chairs"][]=$chair;
-                  $meeting["finish"]="";
-                  $meeting["messages"]=array();
-                  $meeting["events"]=array();
-                  $meeting["initial nicks"]=array();
-                  $meeting["initial nicks complete"]=False;
-                  $meeting["final nicks"]=array();
-                  $meeting["final nicks complete"]=False;
-                  $meeting["quorum"]=False;
-                  if ($trailing=="")
+                  $trailing=BOARD_MEETING;
+                }
+                $meeting["description"]=$trailing;
+                rawmsg("WHO $dest %ctnf,152");
+                privmsg(chr(3)."10*** $nick has hereby called this $trailing to order");
+                if ($trailing==BOARD_MEETING)
+                {
+                  for ($j=0;$j<count($voting_members);$j++)
                   {
-                    $trailing=BOARD_MEETING;
-                  }
-                  $meeting["description"]=$trailing;
-                  rawmsg("WHO $dest %ctnf,152");
-                  privmsg(chr(3)."10*** $nick has hereby called this $trailing to order");
-                  if ($trailing==BOARD_MEETING)
-                  {
-                    for ($j=0;$j<count($voting_members);$j++)
-                    {
-
-                    }
                   }
                 }
-                break;
-              case "CLOSE":
-                if (in_array($account,$admins)==True)
+              }
+              break;
+            case "CLOSE":
+              if (in_array($account,$admins)==True)
+              {
+                if (count($meeting)>0)
                 {
                   privmsg(chr(3)."10*** $nick hereby declares this $trailing adjourned");
                   rawmsg("WHO $dest %ctnf,152");
                 }
-                break;
-            }
+              }
+              break;
           }
         }
       }
