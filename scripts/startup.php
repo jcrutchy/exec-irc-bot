@@ -29,7 +29,7 @@ echo "/INTERNAL ~sedbot-tail1\n";
 echo "/INTERNAL ~sedbot-tail2\n";
 echo "/INTERNAL ~sedbot-tail3\n";
 
-echo "/INTERNAL ~join #soylent\n";
+#echo "/INTERNAL ~join #soylent\n";
 
 echo "################# END STARTUP #################\n";
 
