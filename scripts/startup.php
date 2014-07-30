@@ -2,13 +2,14 @@
 
 # gpl2
 # by crutchy
-# 24-july-2014
+# 30-july-2014
 
 #####################################################################################################
 
 require_once("lib.php");
 
 # THIS SCRIPT IS CALLED WHEN THE BOT ATTEMPTS TO IDENTIFY WITH NICKSERV
+return;
 
 echo "################ BEGIN STARTUP ################\n";
 
