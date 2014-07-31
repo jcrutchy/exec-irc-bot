@@ -489,7 +489,7 @@ function has_account_list($alias)
   global $exec_list;
   if (isset($exec_list[$alias])==True)
   {
-    if (count($exec_list[$alias]["accounts"])>0)
+    if ((count($exec_list[$alias]["accounts"])>0) or ($exec_list[$alias]["accounts_wildcard"]<>""))
     {
       return True;
     }
@@ -818,14 +818,22 @@ function exec_load()
     $repeat=trim($parts[2]); # seconds
     $auto=trim($parts[3]); # auto privmsg (0 = no, 1 = yes)
     $empty=trim($parts[4]); # empty msg permitted (0 = no, 1 = yes)
+    $accounts_wildcard="";
     $accounts=array();
     $accounts_str=trim($parts[5]);
     if ($accounts_str<>"")
     {
-      $accounts=explode(",",$accounts_str); # comma-delimited list of NickServ accounts authorised to run script (or empty)
-      if (in_array(NICK,$accounts)==False)
+      if ($accounts_str=="*")
       {
-        $accounts[]=NICK;
+        $accounts_wildcard="*";
+      }
+      else
+      {
+        $accounts=explode(",",$accounts_str); # comma-delimited list of NickServ accounts authorised to run script (or empty)
+        if (in_array(NICK,$accounts)==False)
+        {
+          $accounts[]=NICK;
+        }
       }
     }
     $cmds=array();
@@ -840,13 +848,13 @@ function exec_load()
     {
       $dests=explode(",",$dests_str);
     }
-    $nsrestrict=trim($parts[8]); # restrict to NickServ account usage (0 = no, 1 = yes)
+    $reserved=trim($parts[8]); # reserved for later use (0 = no, 1 = yes)
     for ($j=0;$j<=8;$j++)
     {
       array_shift($parts);
     }
     $cmd=trim(implode("|",$parts)); # shell command
-    if (($alias=="") or (is_numeric($timeout)==False) or (is_numeric($repeat)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or (($nsrestrict<>"0") and ($nsrestrict<>"1")) or ($cmd==""))
+    if (($alias=="") or (is_numeric($timeout)==False) or (is_numeric($repeat)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or (($reserved<>"0") and ($reserved<>"1")) or ($cmd==""))
     {
       continue;
     }
@@ -855,9 +863,10 @@ function exec_load()
     $exec_list[$alias]["auto"]=$auto;
     $exec_list[$alias]["empty"]=$empty;
     $exec_list[$alias]["accounts"]=$accounts;
+    $exec_list[$alias]["accounts_wildcard"]=$accounts_wildcard;
     $exec_list[$alias]["cmds"]=$cmds;
     $exec_list[$alias]["dests"]=$dests;
-    $exec_list[$alias]["nsrestrict"]=$nsrestrict;
+    $exec_list[$alias]["reserved"]=$reserved;
     $exec_list[$alias]["cmd"]=$cmd;
   }
   return $exec_list;
@@ -1311,7 +1320,7 @@ function authenticate($items)
         }
         elseif (has_account_list($alias)==True)
         {
-          if ((in_array($account,$exec_list[$alias]["accounts"])==False) and (in_array($account,$admin_accounts)==False))
+          if ((in_array($account,$exec_list[$alias]["accounts"])==False) and ($exec_list[$alias]["accounts_wildcard"]<>"*") and (in_array($account,$admin_accounts)==False))
           {
             term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is in neither exec line account list nor admin account list");
           }
@@ -1324,15 +1333,6 @@ function authenticate($items)
             handle_data($tmp_data,$tmp_is_sock,True);
             return;
           }
-        }
-        elseif ($exec_list[$alias]["nsrestrict"]=="1")
-        {
-          $tmp_data=$admin_data;
-          $tmp_is_sock=$admin_is_sock;
-          $admin_data="";
-          $admin_is_sock="";
-          handle_data($tmp_data,$tmp_is_sock,True);
-          return;
         }
       }
     }

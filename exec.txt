@@ -1,4 +1,4 @@
-# alias|timeout|repeat|auto-privmsg|empty-trailing-allowed|account-list|cmd-list|dest-list|ns-accounts-only|shell-cmd
+# alias|timeout|repeat|auto-privmsg|empty-trailing-allowed|account-list|cmd-list|dest-list|reserved|shell-cmd
 # available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%exec%%, %%params%%
 # %%trailing%% excludes alias
 # aliases here must be all lower case letters
