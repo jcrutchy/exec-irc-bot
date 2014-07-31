@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 14-july-2014
+# 31-july-2014
 
 #####################################################################################################
 
@@ -161,7 +161,7 @@ function sed($trailing,$nick,$dest)
       if (strtolower($start_arr[1])=="s")
       {
         $sed_nick=$start_arr[0];
-        if (substr($sed_nick,strlen($sed_nick)-1)==":")
+        if (strpos(":,>.",substr($sed_nick,strlen($sed_nick)-1))!==False)
         {
           $sed_nick=substr($sed_nick,0,strlen($sed_nick)-1);
         }
@@ -192,7 +192,7 @@ function sed($trailing,$nick,$dest)
     $last=get_bucket($index);
     if ($last=="")
     {
-      privmsg("last message by ".chr(3)."8$sed_nick".chr(3)." not found");
+      privmsg("last message by \"$sed_nick\" not found");
     }
     $action_delim=chr(1)."ACTION ";
     if (strtoupper(substr($last,0,strlen($action_delim)))==$action_delim)

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-july-2014
+# 1-aug-2014
 
 #####################################################################################################
 
@@ -809,7 +809,7 @@ function exec_load()
       continue;
     }
     $parts=explode(EXEC_DELIM,$line);
-    if (count($parts)<9)
+    if (count($parts)<10)
     {
       continue;
     }
@@ -840,12 +840,13 @@ function exec_load()
     {
       $dests=explode(",",$dests_str);
     }
-    for ($j=0;$j<=7;$j++)
+    $nsrestrict=trim($parts[8]); # restrict to NickServ account usage (0 = no, 1 = yes)
+    for ($j=0;$j<=8;$j++)
     {
       array_shift($parts);
     }
     $cmd=trim(implode("|",$parts)); # shell command
-    if (($alias=="") or (is_numeric($timeout)==False) or (is_numeric($repeat)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or ($cmd==""))
+    if (($alias=="") or (is_numeric($timeout)==False) or (is_numeric($repeat)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or (($nsrestrict<>"0") and ($nsrestrict<>"1")) or ($cmd==""))
     {
       continue;
     }
@@ -856,6 +857,7 @@ function exec_load()
     $exec_list[$alias]["accounts"]=$accounts;
     $exec_list[$alias]["cmds"]=$cmds;
     $exec_list[$alias]["dests"]=$dests;
+    $exec_list[$alias]["nsrestrict"]=$nsrestrict;
     $exec_list[$alias]["cmd"]=$cmd;
   }
   return $exec_list;
@@ -1277,6 +1279,7 @@ function authenticate($items)
   global $admin_data;
   global $admin_is_sock;
   global $admin_accounts;
+  global $admin_aliases;
   term_echo("\033[32mdetected cmd 330: $admin_data\033[0m");
   $parts=explode(" ",$items["params"]);
   if ($admin_data<>"")
@@ -1290,30 +1293,11 @@ function authenticate($items)
       $alias=$args[0];
       if ($admin_items["nick"]==$nick)
       {
-        if (has_account_list($alias)==True)
-        {
-          if ((in_array($account,$exec_list[$alias]["accounts"])==False) and (in_array($account,$admin_accounts)==False) and ($account<>NICK))
-          {
-            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in exec line account list");
-            $admin_data="";
-            $admin_is_sock="";
-          }
-          else
-          {
-            $tmp_data=$admin_data;
-            $tmp_is_sock=$admin_is_sock;
-            $admin_data="";
-            $admin_is_sock="";
-            handle_data($tmp_data,$tmp_is_sock,True);
-          }
-        }
-        else
+        if (in_array($alias,$admin_aliases)==True)
         {
           if (in_array($account,$admin_accounts)==False)
           {
             term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in admin account list");
-            $admin_data="";
-            $admin_is_sock="";
           }
           else
           {
@@ -1322,21 +1306,39 @@ function authenticate($items)
             $admin_data="";
             $admin_is_sock="";
             handle_data($tmp_data,$tmp_is_sock,True);
+            return;
           }
         }
+        elseif (has_account_list($alias)==True)
+        {
+          if ((in_array($account,$exec_list[$alias]["accounts"])==False) and (in_array($account,$admin_accounts)==False))
+          {
+            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is in neither exec line account list nor admin account list");
+          }
+          else
+          {
+            $tmp_data=$admin_data;
+            $tmp_is_sock=$admin_is_sock;
+            $admin_data="";
+            $admin_is_sock="";
+            handle_data($tmp_data,$tmp_is_sock,True);
+            return;
+          }
+        }
+        elseif ($exec_list[$alias]["nsrestrict"]=="1")
+        {
+          $tmp_data=$admin_data;
+          $tmp_is_sock=$admin_is_sock;
+          $admin_data="";
+          $admin_is_sock="";
+          handle_data($tmp_data,$tmp_is_sock,True);
+          return;
+        }
       }
-      else
-      {
-        $admin_data="";
-        $admin_is_sock="";
-      }
-    }
-    else
-    {
-      $admin_data="";
-      $admin_is_sock="";
     }
   }
+  $admin_data="";
+  $admin_is_sock="";
 }
 
 #####################################################################################################
