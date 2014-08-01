@@ -2,11 +2,17 @@
 
 # gpl2
 # by crutchy
-# 28-july-2014
+# 1-aug-2014
 
 #####################################################################################################
 
 require_once("lib.php");
+
+if (get_bucket(BUCKET_CONNECTION_ESTABLISHED)<>"1")
+{
+  return;
+}
+
 $trailing=trim($argv[1]);
 define("BUCKET_PING","<<PING>>");
 define("BUCKET_PONG","<<PONG>>");

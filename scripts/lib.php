@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 18-july-2014
+# 1-aug-2014
 
 ini_set("display_errors","on");
 
@@ -15,6 +15,8 @@ define("VALID_NUMERIC","0123456789");
 # VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC
 
 define("ICEWEASEL_UA","Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20140429 Firefox/24.0 Iceweasel/24.5.0");
+
+define("BUCKET_CONNECTION_ESTABLISHED","<<IRC CONNECTION ESTABLISHED>>");
 
 #####################################################################################################
 
