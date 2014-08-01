@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 22-july-2014
+# 1-aug-2014
 
 # maybe eventually change to ~query
 
@@ -10,12 +10,16 @@
 # thanks weirdpercent
 
 # https://encyclopediadramatica.es
+# freeonlinedictionary
+# wiktionary
+# google
 
 #####################################################################################################
 
 require_once("lib.php");
 $trailing=$argv[1];
 $alias=$argv[2];
+$debug=get_bucket("<<DEFINE_DEBUG>>");
 define("DEFINITIONS_FILE","../data/definitions");
 define("DEFINE_SOURCES_FILE","../data/define_sources");
 define("MAX_DEF_LENGTH",200);
@@ -97,6 +101,18 @@ switch($alias)
     }
     break;
   case "~define-source-edit":
+    if ($trailing=="debug on")
+    {
+      set_bucket("<<DEFINE_DEBUG>>","ON");
+      privmsg("define: debug mode enabled");
+      return;
+    }
+    if ($trailing=="debug off")
+    {
+      unset_bucket("<<DEFINE_DEBUG>>");
+      privmsg("define: debug mode disabled");
+      return;
+    }
     $params=explode("|",$trailing);
     if (count($params)==11)
     {
@@ -225,6 +241,7 @@ file_put_contents(DEFINE_SOURCES_FILE,serialize($sources));
 
 function source_define($host,$term,$params)
 {
+  global $debug;
   $sterm=$term;
   if ($params["space_delim"]<>"")
   {
@@ -233,14 +250,36 @@ function source_define($host,$term,$params)
   $uri=str_replace($params["template"],urlencode($sterm),$params["uri"]);
   $response=wget($host,$uri,$params["port"]);
   $html=strip_headers($response);
+  /*strip_all_tag($html,"head");
+  strip_all_tag($html,"script");
+  strip_all_tag($html,"style");
+  strip_all_tag($html,"a");
+  file_put_contents("temp_define_$host",$html);*/
+  if ($debug=="ON")
+  {
+    privmsg("debug [$host]: uri = \"$uri\"");
+    $L=strlen($html);
+    privmsg("debug [$host]: html length = \"$L\"");
+    unset($L);
+    privmsg("debug [$host]: delim_start = \"".$params["delim_start"]."\"");
+    privmsg("debug [$host]: delim_end = ".$params["delim_end"]."\"");
+  }
   $i=strpos($html,$params["delim_start"]);
   $def="";
   if ($i!==False)
   {
+    if ($debug=="ON")
+    {
+      privmsg("debug [$host]: delim_start pos = \"$i\"");
+    }
     $html=substr($html,$i+strlen($params["delim_start"]));
     $i=strpos($html,$params["delim_end"]);
     if ($i!==False)
     {
+      if ($debug=="ON")
+      {
+        privmsg("debug [$host]: delim_end pos = \"$i\"");
+      }
       $def=trim(strip_tags(substr($html,0,$i)));
       $def=str_replace(array("\n","\r")," ",$def);
       $def=str_replace("  "," ",$def);
@@ -263,6 +302,10 @@ function source_define($host,$term,$params)
       if ($new_term<>$term)
       {
         term_echo("redirecting to \"$location\"");
+        if ($debug=="ON")
+        {
+          privmsg("debug [$host]: redirecting to \"$location\"");
+        }
         return source_define($host,$new_term,$params);
       }
       else
