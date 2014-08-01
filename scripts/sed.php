@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 31-july-2014
+# 1-aug-2014
 
 #####################################################################################################
 
@@ -125,7 +125,7 @@ function save_channels($channels)
 
 function sed($trailing,$nick,$dest)
 {
-  # [nick[:] ]s/old/new[/[g]]
+  # [nick[:|,|>|.] ]s/old/new[/[g]]
   $replace_all=False;
   if (substr(strtolower($trailing),strlen($trailing)-2)=="/g")
   {
@@ -136,7 +136,7 @@ function sed($trailing,$nick,$dest)
   {
     $trailing=substr($trailing,0,strlen($trailing)-1);
   }
-  # [nick[:] ]s/old/new
+  # [nick[:|,|>|.] ]s/old/new
   $slash=chr(0).chr(0);
   $trailing=str_replace("\/",$slash,$trailing);
   $parts=explode("/",$trailing);
@@ -201,15 +201,17 @@ function sed($trailing,$nick,$dest)
     }
     if ($replace_all==True)
     {
-      $result=str_ireplace($old,$new,$last);
+      #$result=str_ireplace($old,$new,$last);
+      $result=preg_replace("/".$old."/",$new,$last);
     }
     else
     {
-      $result=replace_first($old,$new,$last);
+      /*$result=replace_first($old,$new,$last);
       if ($result===False)
       {
         return;
-      }
+      }*/
+      $result=preg_replace("/".$old."/",$new,$last,1);
     }
     if ($result<>"")
     {
@@ -233,7 +235,7 @@ function sed($trailing,$nick,$dest)
 
 function sed_help()
 {
-  privmsg("syntax: ".chr(3)."8[nick[:] ]s/old/new[/[g]]");
+  privmsg("syntax: ".chr(3)."8[nick[:|,|>|.] ]s/pattern/replace[/[g]]");
 }
 
 #####################################################################################################
