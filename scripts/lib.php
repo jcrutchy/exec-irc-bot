@@ -2,7 +2,9 @@
 
 # gpl2
 # by crutchy
-# 1-aug-2014
+# 3-aug-2014
+
+#####################################################################################################
 
 ini_set("display_errors","on");
 
@@ -17,6 +19,14 @@ define("VALID_NUMERIC","0123456789");
 define("ICEWEASEL_UA","Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20140429 Firefox/24.0 Iceweasel/24.5.0");
 
 define("BUCKET_CONNECTION_ESTABLISHED","<<IRC CONNECTION ESTABLISHED>>");
+
+#####################################################################################################
+
+function convert_timestamp($time,$format)
+{
+  $arr=date_parse_from_format($format,$time);
+  return mktime($arr["hour"],$arr["minute"],$arr["second"],$arr["month"],$arr["day"],$arr["year"]);
+}
 
 #####################################################################################################
 
@@ -128,7 +138,7 @@ function notice($nick,$msg)
 
 function err($msg)
 {
-  privmsg($msg);
+  term_echo($msg);
   die();
 }
 
@@ -529,14 +539,6 @@ function extract_text($text,$delim1,$delim2,$delim2opt=False)
   }
   $text=substr($text,0,$i);
   return trim($text);
-}
-
-#####################################################################################################
-
-function convert_timestamp($value_str,$format)
-{
-  $ts_arr=date_parse_from_format($format,$value_str);
-  return mktime($ts_arr["hour"],$ts_arr["minute"],$ts_arr["second"],$ts_arr["month"],$ts_arr["day"],$ts_arr["year"]);
 }
 
 #####################################################################################################

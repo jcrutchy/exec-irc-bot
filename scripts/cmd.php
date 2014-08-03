@@ -75,6 +75,7 @@ switch (strtoupper($cmd))
   case "PRIVMSG":
     echo "/INTERNAL ~meeting PRIVMSG $trailing\n";
     echo "/INTERNAL ~sed-internal PRIVMSG $trailing\n";
+    echo "/INTERNAL ~privmsg-internal $trailing\n";
     break;
   case "QUIT":
     #echo "/INTERNAL ~users-internal QUIT\n";

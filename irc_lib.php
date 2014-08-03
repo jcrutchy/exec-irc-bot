@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 1-aug-2014
+# 2-aug-2014
 
 #####################################################################################################
 
@@ -87,7 +87,7 @@ function get_list_auth($items)
 {
   global $exec_list;
   global $reserved_aliases;
-  $msg=" ~q ~rehash ~ps ~kill ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~restart";
+  $msg=" ~q ~rehash ~ps ~kill ~killall ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~restart";
   privmsg($items["destination"],$items["nick"],$msg);
   $msg="";
   foreach ($exec_list as $alias => $data)
@@ -575,6 +575,12 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         if (count($args)==2)
         {
           kill($items,$args[1]);
+        }
+        break;
+      case ALIAS_ADMIN_KILLALL:
+        if (count($args)==1)
+        {
+          killall($items);
         }
         break;
       case ALIAS_LIST:
@@ -1354,11 +1360,39 @@ function ps($items)
       continue;
     }
     $n++;
-    privmsg($items["destination"],$items["nick"]," [".$data["pid"]."] ".$data["command"]);
+    privmsg($items["destination"],$items["nick"],"[".$data["pid"]."] ".$data["command"]);
   }
   if ($n==0)
   {
     privmsg($items["destination"],$items["nick"],"no child processes currently running");
+  }
+}
+
+#####################################################################################################
+
+function killall($items)
+{
+  global $handles;
+  $messages=array();
+  foreach ($handles as $index => $handle)
+  {
+    if ($handle["alias"]==ALIAS_ALL)
+    {
+      continue;
+    }
+    if (kill_process($handle)==True)
+    {
+      $messages[]="terminated pid ".$handle["pid"].": ".$handle["command"];
+      unset($handles[$index]);
+    }
+    else
+    {
+      $messages[]="error terminating pid ".$handle["pid"].": ".$handle["command"];
+    }
+  }
+  for ($i=0;$i<count($messages);$i++)
+  {
+    privmsg($items["destination"],$items["nick"],$messages[$i]);
   }
 }
 
@@ -1374,16 +1408,16 @@ function kill($items,$pid)
       if (kill_process($handle)==True)
       {
         unset($handles[$index]);
-        privmsg($items["destination"],$items["nick"],"successfully terminated process with pid = $pid");
+        privmsg($items["destination"],$items["nick"],"successfully terminated process with pid $pid");
       }
       else
       {
-        privmsg($items["destination"],$items["nick"],"error terminating process with pid = $pid");
+        privmsg($items["destination"],$items["nick"],"error terminating process with pid $pid");
       }
       return;
     }
   }
-  privmsg($items["destination"],$items["nick"],"unable to find process with pid = $pid");
+  privmsg($items["destination"],$items["nick"],"unable to find process with pid $pid");
 }
 
 #####################################################################################################

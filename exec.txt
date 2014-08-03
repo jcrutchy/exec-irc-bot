@@ -34,11 +34,14 @@
 #~feed-wiki|600|1800|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~users|10|0|0|0|crutchy|||0|php scripts/users/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
+~server|0|0|0|1|crutchy|||0|php scripts/server.php %%trailing%% %%dest%% %%nick%%
+
 ~meeting|10|0|0|0||||0|php scripts/meeting.php %%trailing%% %%dest%% %%nick%%
 
 # ALIASES LIMITED TO SPECIFIC COMMANDS (UNUSALLY INTERNAL)
 ~sed-internal|10|0|0|0||INTERNAL||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
 #~users-internal|240|0|0|0||INTERNAL||0|php scripts/users/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~privmsg-internal|5|0|0|0||INTERNAL||0|php scripts/privmsg.php %%trailing%% %%nick%% %%dest%%
 
 # TIMER SCRIPTS
 #~feed|500|1800|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
@@ -76,7 +79,7 @@
 ~translate|10|0|0|0||||0|php scripts/translate.php %%trailing%% %%alias%%
 ~translate-sl|10|0|0|0||||0|php scripts/translate.php %%trailing%% %%alias%%
 
-~weather|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%%
+~weather|20|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%%
 ~weather-add|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%%
 
 ~help|5|0|0|0||||0|php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%

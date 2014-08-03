@@ -2,7 +2,9 @@
 
 # gpl2
 # by crutchy
-# 24-july-2014
+# 3-aug-2014
+
+#####################################################################################################
 
 # requested by kobach: weather request, Spirit Of Saint Louis, Missouri (38.7°N/90.7°W), Updated: 1:54 PM CST (December 23, 2013), Conditions: Mostly Cloudy, Temperature: 26°F (-3.3°C), Windchill: 16°F (-9°C), High/Low: 26/9°F (-3.3/-12.8°C), UV: 1/16, Humidity: 66%, Dew Point: 16°F (-8.9°C), Pressure: 30.51 in/1033 hPa, Wind: WNW at 10 MPH (17 KPH)
 
@@ -20,32 +22,25 @@
 
 #####################################################################################################
 
-define("CODES_FILE","../data/weather.codes");
-define("SEDBOT_EXCLUDE_PREFIX","for ");
 require_once("lib.php");
-if (file_exists(CODES_FILE)==False)
-{
-  term_echo("WEATHER: CODES FILE NOT FOUND");
-  return;
-}
-$codes=unserialize(file_get_contents(CODES_FILE));
+require_once("weather_lib.php");
+
 $parts=explode(" ",$argv[2]);
 switch ($argv[1])
 {
   case "~weather-add":
     if (count($parts)>1)
     {
-      $code=trim($parts[0]);
+      $code=$parts[0];
       array_shift($parts);
-      $location=trim(implode(" ",$parts));
-      $codes[strtolower($code)]=$location;
-      if (file_put_contents(CODES_FILE,serialize($codes))===False)
+      $location=implode(" ",$parts);
+      if (set_location($code,$location)==False)
       {
-        privmsg("code \"$code\" set for location \"".$codes[strtolower($code)]."\" but there was an error writing the codes file");
+        privmsg("error setting code \"$code\" for location \"$location\"");
       }
       else
       {
-        privmsg("code \"$code\" set for location \"".$codes[strtolower($code)]."\"");
+        privmsg("code \"$code\" set for location \"$location\"");
       }
     }
     else
@@ -57,10 +52,7 @@ switch ($argv[1])
     $location=trim($argv[2]);
     if ($location<>"")
     {
-      if (strtolower(substr($location,0,strlen(SEDBOT_EXCLUDE_PREFIX)))<>SEDBOT_EXCLUDE_PREFIX)
-      {
-        process_weather($location);
-      }
+      process_weather($location);
     }
     else
     {
@@ -76,12 +68,8 @@ switch ($argv[1])
 
 function process_weather($location)
 {
-  global $codes;
-  if (isset($codes[strtolower($location)])==True)
-  {
-    $loc=$codes[strtolower($location)];
-  }
-  else
+  $loc=get_location($location);
+  if ($loc===False)
   {
     $loc=$location;
   }
@@ -128,10 +116,8 @@ function process_weather($location)
         if (($data_first[0]<>"") and ($data_last[0]<>""))
         {
           # 2014-04-12 23:00:00
-          $date_arr1=date_parse_from_format("Y-m-d H:i:s",$data_first[0]);
-          $date_arr2=date_parse_from_format("Y-m-d H:i:s",$data_last[0]);
-          $ts1=mktime($date_arr1["hour"],$date_arr1["minute"],$date_arr1["second"],$date_arr1["month"],$date_arr1["day"],$date_arr1["year"]);
-          $ts2=mktime($date_arr2["hour"],$date_arr2["minute"],$date_arr2["second"],$date_arr2["month"],$date_arr2["day"],$date_arr2["year"]);
+          $ts1=convert_timestamp($data_first[0],"Y-m-d H:i:s");
+          $ts2=convert_timestamp($data_last[0],"Y-m-d H:i:s");
           $dt=round(($ts2-$ts1)/60/60,1);
           $utc_str=gmdate("M d Y H:i:s",time());
           $utc=strtotime($utc_str);

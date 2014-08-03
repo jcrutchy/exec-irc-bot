@@ -13,6 +13,7 @@
 # freeonlinedictionary
 # wiktionary
 # google
+# http://en.memory-alpha.org
 
 #####################################################################################################
 

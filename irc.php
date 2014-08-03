@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 22-july-2014
+# 2-aug-2014
 
 #####################################################################################################
 
@@ -58,6 +58,7 @@ define("ALIAS_INTERNAL_RESTART","~restart-internal");
 define("ALIAS_ADMIN_QUIT","~q");
 define("ALIAS_ADMIN_PS","~ps");
 define("ALIAS_ADMIN_KILL","~kill");
+define("ALIAS_ADMIN_KILLALL","~killall");
 define("ALIAS_ADMIN_RESTART","~restart");
 define("ALIAS_ADMIN_REHASH","~rehash");
 define("ALIAS_ADMIN_DEST_OVERRIDE","~dest-override");
@@ -116,6 +117,7 @@ $admin_aliases=array(
   ALIAS_ADMIN_RESTART,
   ALIAS_ADMIN_PS,
   ALIAS_ADMIN_KILL,
+  ALIAS_ADMIN_KILLALL,
   ALIAS_ADMIN_REHASH,
   ALIAS_ADMIN_DEST_OVERRIDE,
   ALIAS_ADMIN_DEST_CLEAR,

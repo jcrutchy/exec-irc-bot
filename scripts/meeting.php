@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 28-july-2014
+# 1-aug-2014
 
 #####################################################################################################
 
@@ -31,18 +31,19 @@ if (is_array($meeting_list)==False)
 {
   $meeting_list=array();
 }
-$meeting=get_array_bucket("<<MEETING_DATA $dest>>");
+$meeting=get_array_bucket("<<MEETING_DATA_$dest>>");
 switch ($cmd)
 {
   case "330": # :irc.sylnt.us 330 exec crutchy crutchy :is logged in as
     if ((count($parts)==3) and ($parts[0]==NICK_EXEC))
     {
-      term_echo("*** CHECKPOINT #1");
+      term_echo("*** CHECKPOINT #1: $trailing");
       $nick=$parts[1];
       $account=$parts[2];
-      $commands=get_array_bucket("<<MEETING_COMMAND $nick>>");
+      $commands=get_array_bucket("<<MEETING_COMMAND_$nick>>");
       if (count($commands)>0)
       {
+        term_echo("*** CHECKPOINT #2: ".count($commands));
         for ($i=0;$i<count($commands);$i++)
         {
           $dest=$commands[$i]["dest"];
@@ -94,21 +95,21 @@ switch ($cmd)
           }
         }
       }
-      unset_bucket("<<MEETING_COMMAND $nick>>");
+      unset_bucket("<<MEETING_COMMAND_$nick>>");
     }
     break;
   case "318": # :irc.sylnt.us 318 exec crutchy :End of /WHOIS list.
     if ((count($parts)==2) and ($parts[0]==NICK_EXEC))
     {
       $nick=$parts[1];
-      unset_bucket("<<MEETING_COMMAND $nick>>");
+      unset_bucket("<<MEETING_COMMAND_$nick>>");
     }
     break;
   case "315": # :irc.sylnt.us 315 crutchy #Soylent :End of /WHO list.
     if ((count($parts)==2) and ($parts[0]==NICK_EXEC))
     {
       $dest=strtolower($parts[1]);
-      $meeting=get_array_bucket("<<MEETING_DATA $dest>>");
+      $meeting=get_array_bucket("<<MEETING_DATA_$dest>>");
       if (count($meeting)>0)
       {
         if ($meeting["initial nicks complete"]==False)
@@ -129,7 +130,7 @@ switch ($cmd)
       if ($parts[1]=="152")
       {
         $dest=strtolower($parts[2]);
-        $meeting=get_array_bucket("<<MEETING_DATA $dest>>");
+        $meeting=get_array_bucket("<<MEETING_DATA_$dest>>");
         if (count($meeting)>0)
         {
           $nick=$parts[3];
@@ -190,10 +191,10 @@ switch ($cmd)
 }
 if (count($meeting)>0)
 {
-  set_array_bucket($meeting,"<<MEETING_DATA $dest>>");
-  if (in_array("<<MEETING_DATA $dest>>",$meeting_list)==False)
+  set_array_bucket($meeting,"<<MEETING_DATA_$dest>>");
+  if (in_array("<<MEETING_DATA_$dest>>",$meeting_list)==False)
   {
-    $meeting_list[]="<<MEETING_DATA $dest>>";
+    $meeting_list[]="<<MEETING_DATA_$dest>>";
   }
   set_array_bucket($meeting_list,"<<MEETING_LIST>>");
 }
@@ -202,12 +203,14 @@ if (count($meeting)>0)
 
 function set_admin_cmd($nick,$dest,$trailing,$cmd)
 {
-  $commands=get_array_bucket("<<MEETING_COMMAND $nick>>");
+  term_echo("meeting: set_admin_cmd($nick,$dest,$trailing,$cmd)");
+  $commands=get_array_bucket("<<MEETING_COMMAND_$nick>>");
   $new["dest"]=$dest;
   $new["trailing"]=$trailing;
   $new["cmd"]=$cmd;
   $commands[]=$new;
-  set_array_bucket($commands,"<<MEETING_COMMAND $nick>>");
+  set_array_bucket($commands,"<<MEETING_COMMAND_$nick>>");
+  var_dump(get_array_bucket("<<MEETING_COMMAND_$nick>>"));
   rawmsg("WHOIS $nick");
 }
 
