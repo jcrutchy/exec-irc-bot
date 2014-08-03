@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 28-july-2014
+# 3-aug-2014
 
 #####################################################################################################
 #                                                                                                   #
@@ -49,11 +49,13 @@ switch (strtoupper($cmd))
   case "JOIN": # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
     #echo "/INTERNAL ~users-internal JOIN $params\n";
     echo "/INTERNAL ~meeting JOIN $params\n";
+    echo "/INTERNAL ~welcome-internal JOIN $params\n";
     break;
   case "KICK": # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
     #echo "/INTERNAL ~users-internal KICK $params\n";
     echo "/INTERNAL ~meeting KICK $params\n";
     echo "/INTERNAL ~sed-internal KICK $params\n";
+    echo "/INTERNAL ~welcome-internal KICK $params\n";
     break;
   case "KILL":
 
@@ -71,6 +73,7 @@ switch (strtoupper($cmd))
     #echo "/INTERNAL ~users-internal PART $dest\n";
     echo "/INTERNAL ~meeting PART $dest\n";
     echo "/INTERNAL ~sed-internal PART $dest\n";
+    echo "/INTERNAL ~welcome-internal PART $dest\n";
     break;
   case "PRIVMSG":
     echo "/INTERNAL ~meeting PRIVMSG $trailing\n";

@@ -2,11 +2,12 @@
 
 # gpl2
 # by crutchy
-# 1-aug-2014
+# 3-aug-2014
 
 #####################################################################################################
 
 require_once("lib.php");
+require_once("switches.php");
 
 $trailing=rtrim($argv[1]);
 $nick=$argv[2];
@@ -14,111 +15,37 @@ $dest=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];
 
-define("SED_CHANNELS_BUCKET","<<EXEC_SED_CHANNELS>>");
-
-$channels=get_bucket(SED_CHANNELS_BUCKET);
-if ($channels<>"")
+$msg="";
+$flag=handle_switch($alias,$dest,$nick,$trailing,"<<EXEC_SED_CHANNELS>>","~sed","~sed-internal",$msg);
+switch ($flag)
 {
-  $channels=unserialize($channels);
-  if ($channels===False)
-  {
-    $channels=array();
-    save_channels($channels);
-  }
-}
-else
-{
-  $channels=array();
-  save_channels($channels);
-}
-if ($alias=="~sed")
-{
-  switch (strtolower($trailing))
-  {
-    case "on":
-      if (in_array($dest,$channels)==False)
-      {
-        $channels[]=$dest;
-        save_channels($channels);
-        privmsg("sed enabled for ".chr(3)."10$dest");
-      }
-      else
-      {
-        privmsg("sed already enabled for ".chr(3)."10$dest");
-      }
-      break;
-    case "off":
-      if (channel_off($channels,$dest)==True)
-      {
-        privmsg("sed disabled for ".chr(3)."10$dest");
-      }
-      else
-      {
-        privmsg("sed already disabled for ".chr(3)."10$dest");
-      }
-      break;
-  }
-}
-elseif ($alias=="~sed-internal")
-{
-  $parts=explode(" ",$trailing);
-  $command=strtolower($parts[0]);
-  array_shift($parts);
-  $msg=implode(" ",$parts);
-  switch ($command)
-  {
-    case "kick":
-      if (count($parts)==2)
-      {
-        if ($parts[1]==NICK_EXEC)
-        {
-          channel_off($channels,$parts[0]);
-          term_echo("channel \"".$parts[0]."\" deleted from ".SED_CHANNELS_BUCKET." because exec was kicked from channel");
-        }
-      }
-      break;
-    case "part":
-      if ($nick==NICK_EXEC)
-      {
-        channel_off($channels,$msg);
-        term_echo("channel \"".$parts[0]."\" deleted from ".SED_CHANNELS_BUCKET." because exec parted channel");
-      }
-      break;
-    case "privmsg":
-      if ((in_array($dest,$channels)==True) and ($nick<>NICK_EXEC))
-      {
-        sed($msg,$nick,$dest);
-      }
-      set_bucket("last_".strtolower($nick)."_".$dest,$msg);
-      break;
-  }
-}
-return;
-
-#####################################################################################################
-
-function channel_off(&$channels,$chan)
-{
-  $i=array_search($chan,$channels);
-  if ($i!==False)
-  {
-    unset($channels[$i]);
-    $channels=array_values($channels);
-    save_channels($channels);
-    return True;
-  }
-  else
-  {
-    return False;
-  }
-}
-
-#####################################################################################################
-
-function save_channels($channels)
-{
-  $channels=serialize($channels);
-  set_bucket(SED_CHANNELS_BUCKET,$channels);
+  case 0:
+    break;
+  case 1:
+    privmsg("sed enabled for ".chr(3)."10$dest");
+    break;
+  case 2:
+    privmsg("sed already enabled for ".chr(3)."10$dest");
+    break;
+  case 3:
+    privmsg("sed disabled for ".chr(3)."10$dest");
+    break;
+  case 4:
+    privmsg("sed already disabled for ".chr(3)."10$dest");
+    break;
+  case 5:
+    # bot was kicked from channel
+    break;
+  case 6:
+    # bot parted channel
+    break;
+  case 7:
+    sed($msg,$nick,$dest);
+    set_bucket("last_".strtolower($nick)."_".$dest,$msg);
+    break;
+  case 8:
+    set_bucket("last_".strtolower($nick)."_".$dest,$msg);
+    break;
 }
 
 #####################################################################################################

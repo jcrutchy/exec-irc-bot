@@ -42,11 +42,12 @@
 ~sed-internal|10|0|0|0||INTERNAL||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
 #~users-internal|240|0|0|0||INTERNAL||0|php scripts/users/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~privmsg-internal|5|0|0|0||INTERNAL||0|php scripts/privmsg.php %%trailing%% %%nick%% %%dest%%
+~welcome-internal|30|0|0|0||INTERNAL||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
 
 # TIMER SCRIPTS
 #~feed|500|1800|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed|120|0|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#~ping|10|120|0|0||INTERNAL||0|php scripts/ping.php %%trailing%%
+#~ping|10|120|0|0||INTERNAL||0|php scripts/ping.php %%trailing%% %%nick%% %%dest%%
 
 #####################################################################################################
 
@@ -58,6 +59,7 @@
 #~google|20|0|0|0||||0|php scripts/google.php %%trailing%%
 ~|5|0|1|1||||0|php scripts/about.php %%trailing%%
 ~sed|10|0|0|0||||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
+~welcome|10|0|0|0||||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
 ~remind|9999|0|0|0||||0|php scripts/remind.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~cowsay|10|0|1|0||||0|cowsay %%trailing%%
 ~moo|10|0|1|1||||0|apt-get moo
@@ -67,7 +69,6 @@
 ~invite|5|0|0|0||||0|php scripts/join.php %%trailing%%
 ~part|5|0|0|1||||0|php scripts/part.php %%dest%% %%trailing%%
 ~isup|30|0|0|0||||0|php scripts/isup.php %%trailing%%
-~time|30|0|0|0||||0|php scripts/time.php %%trailing%%
 ~rainbow|5|0|0|0||||0|php scripts/rainbow.php %%trailing%%
 ~queue|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~up|5|0|0|1||||0|php scripts/up.php %%start%%
@@ -81,6 +82,9 @@
 
 ~weather|20|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%%
 ~weather-add|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%%
+
+~time|20|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%%
+~time-add|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%%
 
 ~help|5|0|0|0||||0|php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~help-script|5|0|0|0||||0|php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
