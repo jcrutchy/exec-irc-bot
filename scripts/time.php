@@ -33,11 +33,11 @@ switch ($alias)
       {
         #privmsg($result);
         $arr=convert_google_location_time($result);
-        privmsg(date("l, j F Y @ h:i:s A",$arr["timestamp"])." ".$arr["timezone"]." - ".$arr["location"]);
+        privmsg(date("l, j F Y @ g:i a",$arr["timestamp"])." ".$arr["timezone"]." - ".$arr["location"]);
       }
       else
       {
-        privmsg("location not found - UTC timestamp: ".date("l, j F Y, h:i:s a"));
+        privmsg("location not found - UTC timestamp: ".date("l, j F Y, g:i a"));
       }
     }
     else

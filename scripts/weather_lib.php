@@ -145,6 +145,7 @@ function process_weather(&$location)
         {
           continue;
         }
+        $results=array();
         $dt=0;
         $age=-1;
         if (($data_first[0]<>"") and ($data_last[0]<>""))
@@ -157,6 +158,8 @@ function process_weather(&$location)
           $utc=strtotime($utc_str);
           $age=round(($utc-$ts2)/60/60,1);
         }
+        $results["temp_C"]=False;
+        $results["temp_F"]=False;
         if ($data_last[2]=="")
         {
           $temp="(no data)";
@@ -165,6 +168,8 @@ function process_weather(&$location)
         {
           $tempF=round($data_last[2],1);
           $tempC=round(($tempF-32)*5/9,1);
+          $results["temp_C"]=$tempC;
+          $results["temp_F"]=$tempF;
           $temp=$tempF."°F (".$tempC."°C)";
         }
         if ($data_last[1]=="")
@@ -236,6 +241,7 @@ function process_weather(&$location)
         $results["name"]=$name;
         $results["utc"]=$data_last[0];
         $results["age"]=$agestr;
+        $results["age_num"]=$age;
         $results["temp"]=$temp;
         $results["dewpoint"]=$dewpoint;
         $results["press"]=$press;

@@ -56,7 +56,11 @@ function show_welcome($nick)
   {
     return;
   }
-  privmsg("$nick, ".$arr["location"].", ".$data["temp"].", ".date("h:i:s A",$arr["timestamp"])." ".$arr["timezone"].", ".date("l, j F Y",$arr["timestamp"]));
+  if (($data["temp_C"]===False) or ($data["temp_F"]===False))
+  {
+    return;
+  }
+  privmsg("$nick: ".$arr["location"].", ".$data["temp_C"]."°C (".$data["temp_F"]."°F), ".date("g:i a",$arr["timestamp"])." ".$arr["timezone"].", ".date("l, j F Y",$arr["timestamp"]));
 }
 
 #####################################################################################################

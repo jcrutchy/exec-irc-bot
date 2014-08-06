@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 3-aug-2014
+# 7-aug-2014
 
 #####################################################################################################
 
@@ -12,6 +12,8 @@
 # EW4841|E4841|EW4841 Murrumbena                    AU|45|  -37.90783|145.07217|GMT|||1||||
 # http://www.wxqa.com/cgi-bin/search1.cgi?keyword=EW4841
 # http://www.findu.com/cgi-bin/wx.cgi?call=EW4841&units=metric
+
+# http://www.wunderground.com/weather/api/
 
 # http://www.worldweather.org/
 # http://www.wmo.int/pages/prog/www/index_en.html
@@ -53,8 +55,7 @@ switch ($alias)
       else
       {
         $color="10";
-        privmsg("weather for ".chr(2).chr(3).$color.$data["name"].chr(3).chr(2)." at ".$data["utc"]." (UTC)".$data["age"]);
-        privmsg("temp: ".chr(2).chr(3).$color.$data["temp"].chr(3).chr(2).", dp: ".chr(2).chr(3).$color.$data["dewpoint"].chr(3).chr(2).", press: ".chr(2).chr(3).$color.$data["press"].chr(3).chr(2).", humid: ".chr(2).chr(3).$color.$data["humidity"].chr(3).chr(2).", wind: ".chr(2).chr(3).$color.$data["wind_speed"].chr(3).chr(2)." @ ".chr(2).chr(3).$color.$data["wind_direction"].chr(3).chr(2));
+        privmsg("weather for ".chr(2).chr(3).$color.$data["name"].chr(3).chr(2)." at ".$data["utc"]." (UTC)".$data["age"]." temp: ".chr(2).chr(3).$color.$data["temp"].chr(3).chr(2).", dp: ".chr(2).chr(3).$color.$data["dewpoint"].chr(3).chr(2).", press: ".chr(2).chr(3).$color.$data["press"].chr(3).chr(2).", humid: ".chr(2).chr(3).$color.$data["humidity"].chr(3).chr(2).", wind: ".chr(2).chr(3).$color.$data["wind_speed"].chr(3).chr(2)." @ ".chr(2).chr(3).$color.$data["wind_direction"].chr(3).chr(2));
       }
     }
     else

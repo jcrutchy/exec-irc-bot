@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 1-aug-2014
+# 7-aug-2014
 
 # maybe eventually change to ~query
 
@@ -286,7 +286,7 @@ function source_define($host,$term,$params)
       $def=str_replace("  "," ",$def);
       if (strlen($def)>MAX_DEF_LENGTH)
       {
-        $def=substr($def,0,MAX_DEF_LENGTH)."...";
+        $def=trim(substr($def,0,MAX_DEF_LENGTH))."...";
       }
     }
   }

@@ -2,13 +2,15 @@
 
 # gpl2
 # by crutchy
-# 24-july-2014
+# 7-aug-2014
 
 # http://www.mediawiki.org/wiki/Manual:Bots
 # http://en.wikipedia.org/wiki/Wikipedia:Creating_a_bot
 
 # ~wiki edit title|section|text
 # ~wiki edit title|section| (deletes section)
+
+# instead of "~wiki login" & "~wiki get page|section" you just type [[page#section]] to get the page/section
 
 #####################################################################################################
 
@@ -75,7 +77,7 @@ elseif ($login<>"")
       $parts=explode("|",$trailing);
       if ((count($parts)<>1) and (count($parts)<>2))
       {
-        privmsg("syntax: ~wiki title[|section]");
+        privmsg("syntax: ~wiki get title[|section]");
         return;
       }
       $title=$parts[0];

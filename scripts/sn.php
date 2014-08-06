@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 22-july-2014
+# 6-aug-2014
 
 /*
 - the bot could keeep track of irc comments and if you type something like
@@ -91,7 +91,7 @@ $params["returnto"]="";
 $params["op"]="userlogin";
 $params["login_temp"]="yes";
 $params["unickname"]="exec";
-$params["upasswd"]=trim(file_get_contents("/var/include/vhosts/irciv.us.to/pwd/exec"));
+$params["upasswd"]=trim(file_get_contents("../pwd/exec"));
 $params["userlogin"]="Log in";
 $response=wpost($host,$uri,$port,$agent,$params);
 
@@ -102,7 +102,16 @@ if ($alias=="~queue")
   $count=extract_text($response,$delim1,$delim2);
   if ($count===False)
   {
-    privmsg("error extracting queue count from SN home page");
+    $test=strpos($response,"<div class=\"logout\">");
+    if ($test===False)
+    {
+      privmsg("the script had a brain fart");
+    }
+    else
+    {
+      privmsg("there are plenty of articles in the queue");
+      privmsg("coffee++");
+    }
   }
   else
   {

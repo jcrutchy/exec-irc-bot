@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-july-2014
+# 7-aug-2014
 
 define("WIKI_USER_AGENT","IRC-Executive/0.01 (https://github.com/crutchy-/test/blob/master/scripts/wiki.php; jared.crutchfield@hotmail.com)");
 define("WIKI_HOST","wiki.soylentnews.org");
@@ -206,12 +206,17 @@ function get_text($title,$section,$return=False)
   $data=unserialize(strip_headers($response));
   if (isset($data["parse"]["text"]["*"])==True)
   {
-    $head="<h2><span class=\"mw-headline\" id=\"".str_replace(" ","_",$section)."\">$section</span>";
     $text=$data["parse"]["text"]["*"];
-    if (substr($text,0,strlen($head))<>$head)
+    var_dump($text);
+    if ($section<>"")
     {
-      wiki_privmsg($return,"wiki: edit=section span not found");
-      return False;
+      $head="<span class=\"mw-headline\" id=\"".str_replace(" ","_",$section)."\">$section</span>";
+
+      if (strpos($text,$head)===False)
+      {
+        wiki_privmsg($return,"wiki: edit=section span not found");
+        return False;
+      }
     }
   }
   else
@@ -220,9 +225,18 @@ function get_text($title,$section,$return=False)
     return False;
   }
   strip_comments($text);
+  $text=replace_ctrl_chars($text," ");
   strip_all_tag($text,"h2");
+  strip_all_tag($text,"h3");
   $text=strip_tags($text);
   $text=trim($text," \t\n\r\0\x0B\"");
+  if (strlen($text)>400)
+  {
+    $text=trim(substr($text,0,400))."...";
+  }
+  term_echo("****************************************");
+  term_echo($text);
+  term_echo("****************************************");
   wiki_privmsg($return,$text);
   return $text;
 }
