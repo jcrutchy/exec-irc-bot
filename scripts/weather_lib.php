@@ -174,11 +174,13 @@ function process_weather(&$location)
           $tempC=round(($tempF-32)*5/9,1);
           $results["temp_C"]=$tempC;
           $results["temp_F"]=$tempF;
-          $temp=$tempF."°F (".$tempC."°C)";
+          $temp=$tempF."°F / ".$tempC."°C";
         }
         if ($data_last[1]=="")
         {
           $press="(no data)";
+          $delta_str="";
+          $pressmb=False;
         }
         else
         {
@@ -186,7 +188,15 @@ function process_weather(&$location)
           if (($dt>0) and ($data_first[1]<>""))
           {
             $d=round($data_last[1]-$data_first[1],1);
-            $delta_str=" ($d mb over $dt hrs)";
+            #$delta_str=" ($d mb over ".round($dt*60,0)." mins)";
+            if ($d>0)
+            {
+              $delta_str=" (+$d mb)";
+            }
+            else
+            {
+              $delta_str=" ($d mb)";
+            }
           }
           $pressmb=round($data_last[1],1);
           $press=$pressmb." mb".$delta_str;
@@ -199,17 +209,7 @@ function process_weather(&$location)
         {
           $tempF=round($data_last[3],1);
           $tempC=round(($data_last[3]-32)*5/9,1);
-          $dewpoint=$tempF."°F (".$tempC."°C)";
-        }
-        if ($data_last[3]=="")
-        {
-          $dewpoint="(no data)";
-        }
-        else
-        {
-          $tempF=round($data_last[3],1);
-          $tempC=round(($tempF-32)*5/9,1);
-          $dewpoint=$tempF."°F (".$tempC."°C)";
+          $dewpoint=$tempF."°F / ".$tempC."°C";
         }
         if ($data_last[4]=="")
         {
@@ -251,6 +251,8 @@ function process_weather(&$location)
         $results["temp"]=$temp;
         $results["dewpoint"]=$dewpoint;
         $results["press"]=$press;
+        $results["delta_str"]=$delta_str;
+        $results["pressmb"]=$pressmb;
         $results["humidity"]=$relhumidity;
         $results["wind_speed"]=$wind_speed;
         $results["wind_direction"]=$wind_direction;
