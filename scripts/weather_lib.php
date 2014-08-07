@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 3-aug-2014
+# 7-aug-2014
 
 #####################################################################################################
 
@@ -158,6 +158,10 @@ function process_weather(&$location)
           $utc=strtotime($utc_str);
           $age=round(($utc-$ts2)/60/60,1);
         }
+        else
+        {
+          continue;
+        }
         $results["temp_C"]=False;
         $results["temp_F"]=False;
         if ($data_last[2]=="")
@@ -236,10 +240,12 @@ function process_weather(&$location)
         $agestr=":";
         if ($age>=0)
         {
-          $agestr=" ~ $age hrs ago:";
+          $age=round($age*60,0);
+          $agestr=" ~ $age mins ago:";
         }
         $results["name"]=$name;
         $results["utc"]=$data_last[0];
+        $results["utc_num"]=$ts2;
         $results["age"]=$agestr;
         $results["age_num"]=$age;
         $results["temp"]=$temp;

@@ -26,8 +26,6 @@ SoylentNews comment feed
 (if a trial run is positive, maybe ask staff for moderation priveliges for the exec user)
 - poll to see if exec has mod points before output feed
 
-~time-add
-
 EXEC MODULARISATION:
 - bot.php
   executes irc.php in separate process
@@ -45,8 +43,4 @@ EXEC MODULARISATION:
 watchdog process - prospectacle
 
 FEATURE REQUESTS:
-
-<stderr> Feature request for exec: Convert "0.7 hrs" to minutes
-
-
 <bytram> re weather crutchy: maybe, instead, try it with the given case, and if it comes back with nothing, then (and only then) try it case insensitive?

@@ -54,8 +54,16 @@ switch ($alias)
       }
       else
       {
+        $time_str=$data["utc"]." (UTC)";
+        $time=get_time($location);
+        if ($time<>"")
+        {
+          $arr=convert_google_location_time($time);
+          $t=$arr["timestamp"]-$data["age_num"]*60;
+          $time_str=date("g:i a",$t)." (".$arr["timezone"].")";
+        }
         $color="10";
-        privmsg("weather for ".chr(2).chr(3).$color.$data["name"].chr(3).chr(2)." at ".$data["utc"]." (UTC)".$data["age"]." temp: ".chr(2).chr(3).$color.$data["temp"].chr(3).chr(2).", dp: ".chr(2).chr(3).$color.$data["dewpoint"].chr(3).chr(2).", press: ".chr(2).chr(3).$color.$data["press"].chr(3).chr(2).", humid: ".chr(2).chr(3).$color.$data["humidity"].chr(3).chr(2).", wind: ".chr(2).chr(3).$color.$data["wind_speed"].chr(3).chr(2)." @ ".chr(2).chr(3).$color.$data["wind_direction"].chr(3).chr(2));
+        privmsg("weather for ".chr(2).chr(3).$color.$data["name"].chr(3).chr(2)." at $time_str".$data["age"]." temp: ".chr(2).chr(3).$color.$data["temp"].chr(3).chr(2).", dp: ".chr(2).chr(3).$color.$data["dewpoint"].chr(3).chr(2).", press: ".chr(2).chr(3).$color.$data["press"].chr(3).chr(2).", humid: ".chr(2).chr(3).$color.$data["humidity"].chr(3).chr(2).", wind: ".chr(2).chr(3).$color.$data["wind_speed"].chr(3).chr(2)." @ ".chr(2).chr(3).$color.$data["wind_direction"].chr(3).chr(2));
       }
     }
     else
