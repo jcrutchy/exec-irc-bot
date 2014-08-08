@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 3-aug-2014
+# 8-aug-2014
 
 #####################################################################################################
 
@@ -20,7 +20,7 @@ define("ICEWEASEL_UA","Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20140429 F
 
 define("BUCKET_CONNECTION_ESTABLISHED","<<IRC CONNECTION ESTABLISHED>>");
 
-$url_blacklist=array("kidd","porn","goat","xxx","sex");
+$url_blacklist=array("kidd","porn","goat","xxx","sex","fuc");
 
 #####################################################################################################
 
