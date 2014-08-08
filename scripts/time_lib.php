@@ -11,13 +11,14 @@ require_once("lib.php");
 function get_time($location)
 {
   $location=trim($location);
-  $html=wget("www.google.com","/search?source=hp&q=time+".urlencode($location),80);
+  $html=wget_ssl("www.google.com","/search?gbv=1&q=time+".urlencode($location));
   $html=strip_headers($html);
   strip_all_tag($html,"head");
   strip_all_tag($html,"script");
   strip_all_tag($html,"style");
   strip_all_tag($html,"a");
   $html=strip_tags($html,"<div>");
+  var_dump($html);
   $result="";
   $delim1="<div id=\"res\"><div id=\"topstuff\"></div><div id=\"search\"><div id=\"ires\"><div>";
   $delim2="</div>";

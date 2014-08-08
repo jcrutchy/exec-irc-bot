@@ -254,6 +254,53 @@ function replace_ctrl_chars($url,$replace)
 
 #####################################################################################################
 
+function get_host_and_uri($url,&$host,&$uri,&$port)
+{
+  $url=trim($url);
+  $comp=parse_url($url);
+  $host="";
+  if (isset($comp["host"])==True)
+  {
+    if ($comp["host"]<>"")
+    {
+      $host=$comp["host"];
+    }
+  }
+  $port=80;
+  if (isset($comp["scheme"])==True)
+  {
+    if ($comp["scheme"]=="https")
+    {
+      $port=443;
+    }
+  }
+  $uri=$comp["path"];
+  if (isset($comp["query"])==True)
+  {
+    if ($comp["query"]<>"")
+    {
+      $uri=$uri."?".$comp["query"];
+    }
+  }
+  if (isset($comp["fragment"])==True)
+  {
+    if ($comp["fragment"]<>"")
+    {
+      $uri=$uri."#".$comp["fragment"];
+    }
+  }
+  if (($host=="") or ($uri==""))
+  {
+    return False;
+  }
+  else
+  {
+    return True;
+  }
+}
+
+#####################################################################################################
+
 function get_redirected_url($from_url,$url_list="")
 {
   $url=trim($from_url);
@@ -390,14 +437,14 @@ function whead($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeou
 
 #####################################################################################################
 
-function wget_ssl($host,$uri,$agent="",$extra_headers="")
+function wget_ssl($host,$uri,$agent=ICEWEASEL_UA,$extra_headers="")
 {
   return wget($host,$uri,443,$agent,$extra_headers);
 }
 
 #####################################################################################################
 
-function wget($host,$uri,$port=80,$agent="",$extra_headers="",$timeout=20)
+function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout=20)
 {
   if (check_url($host.$uri)==False)
   {
@@ -445,7 +492,7 @@ function wget($host,$uri,$port=80,$agent="",$extra_headers="",$timeout=20)
 
 #####################################################################################################
 
-function wpost($host,$uri,$port,$agent,$params,$extra_headers="",$timeout=20)
+function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$timeout=20)
 {
   if (check_url($host.$uri)==False)
   {
@@ -668,6 +715,13 @@ function filter($value,$valid_chars)
     }
   }
   return $result;
+}
+
+#####################################################################################################
+
+function filter_non_alpha_num($value)
+{
+  return filter($value,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC);
 }
 
 #####################################################################################################
