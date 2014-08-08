@@ -32,6 +32,16 @@ $filtered_title=strtolower(filter_non_alpha_num($title));
 
 if (strpos($filtered_url,$filtered_title)===False)
 {
+  $i=strpos($title," - ");
+  if ($i!==False)
+  {
+    $filtered_title=strtolower(filter_non_alpha_num(substr($title,0,$i)));
+    if (strpos($filtered_url,$filtered_title)!==False)
+    {
+      privmsg("portion of title left of \" - \" exists in url");
+      return;
+    }
+  }
   privmsg($title);
 }
 else
