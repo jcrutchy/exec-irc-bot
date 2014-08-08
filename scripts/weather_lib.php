@@ -174,7 +174,7 @@ function process_weather(&$location)
           $tempC=round(($tempF-32)*5/9,1);
           $results["temp_C"]=$tempC;
           $results["temp_F"]=$tempF;
-          $temp=$tempF."°F / ".$tempC."°C";
+          $temp=$tempC."°C (".$tempF."°F)";
         }
         if ($data_last[1]=="")
         {
@@ -209,7 +209,7 @@ function process_weather(&$location)
         {
           $tempF=round($data_last[3],1);
           $tempC=round(($data_last[3]-32)*5/9,1);
-          $dewpoint=$tempF."°F / ".$tempC."°C";
+          $dewpoint=$tempC."°C (".$tempF."°F)";
         }
         if ($data_last[4]=="")
         {
@@ -227,7 +227,7 @@ function process_weather(&$location)
         {
           $wind_speed_mph=round($data_last[5],1);
           $wind_speed_kph=round($data_last[5]*8/5,1);
-          $wind_speed=$wind_speed_mph." mph (".$wind_speed_kph." km/h)";
+          $wind_speed=$wind_speed_kph." km/h (".$wind_speed_mph." mph)";
         }
         if ($data_last[6]=="")
         {

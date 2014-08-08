@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 3-aug-2014
+# 8-aug-2014
 
 #####################################################################################################
 
@@ -139,6 +139,10 @@ function sed($trailing,$nick,$dest)
         return;
       }*/
       $result=preg_replace("/".$old."/",$new,$last,1);
+      if ($result==$last)
+      {
+        $result="";
+      }
     }
     if ($result<>"")
     {

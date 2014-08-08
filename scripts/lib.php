@@ -20,6 +20,8 @@ define("ICEWEASEL_UA","Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20140429 F
 
 define("BUCKET_CONNECTION_ESTABLISHED","<<IRC CONNECTION ESTABLISHED>>");
 
+$url_blacklist=array("kidd","porn","goat","xxx","sex");
+
 #####################################################################################################
 
 function convert_timestamp($time,$format)
@@ -185,8 +187,29 @@ function unset_bucket($index)
 
 #####################################################################################################
 
+function check_url($url)
+{
+  global $url_blacklist;
+  $lower_url=strtolower($url);
+  for ($i=0;$i<count($url_blacklist);$i++)
+  {
+    if (strpos($lower_url,$url_blacklist[$i])!==False)
+    {
+      term_echo("*** blacklisted URL detected ***");
+      return False;
+    }
+  }
+  return True;
+}
+
+#####################################################################################################
+
 function wtouch($host,$uri,$port,$timeout=5)
 {
+  if (check_url($host.$uri)==False)
+  {
+    return False;
+  }
   $errno=0;
   $errstr="";
   if ($port==80)
@@ -321,6 +344,10 @@ function get_redirected_url($from_url,$url_list="")
 
 function whead($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout=20)
 {
+  if (check_url($host.$uri)==False)
+  {
+    return "";
+  }
   $errno=0;
   $errstr="";
   if ($port==443)
@@ -372,6 +399,10 @@ function wget_ssl($host,$uri,$agent="",$extra_headers="")
 
 function wget($host,$uri,$port=80,$agent="",$extra_headers="",$timeout=20)
 {
+  if (check_url($host.$uri)==False)
+  {
+    return "";
+  }
   $errno=0;
   $errstr="";
   if ($port==443)
@@ -416,6 +447,10 @@ function wget($host,$uri,$port=80,$agent="",$extra_headers="",$timeout=20)
 
 function wpost($host,$uri,$port,$agent,$params,$extra_headers="",$timeout=20)
 {
+  if (check_url($host.$uri)==False)
+  {
+    return "";
+  }
   $errno=0;
   $errstr="";
   if ($port==443)
