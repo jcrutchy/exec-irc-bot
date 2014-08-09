@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 6-aug-2014
+# 9-aug-2014
 
 /*
 - the bot could keeep track of irc comments and if you type something like
@@ -95,31 +95,6 @@ $params["upasswd"]=trim(file_get_contents("../pwd/exec"));
 $params["userlogin"]="Log in";
 $response=wpost($host,$uri,$port,$agent,$params);
 
-if ($alias=="~queue")
-{
-  $delim1="send in your scoop</a>. <a href=\"//soylentnews.org/submit.pl?op=list\"> Only <b>";
-  $delim2="</b> submissions in the queue.</a></div>";
-  $count=extract_text($response,$delim1,$delim2);
-  if ($count===False)
-  {
-    $test=strpos($response,"<div class=\"logout\">");
-    if ($test===False)
-    {
-      privmsg("the script had a brain fart");
-    }
-    else
-    {
-      privmsg("there are plenty of articles in the queue");
-      privmsg("coffee++");
-    }
-  }
-  else
-  {
-    privmsg("*** SN submission queue: $count");
-  }
-  return;
-}
-
 $cookies=exec_get_cookies($response);
 
 # user=4468::4pVxvvp70xtWLTfclHBpBp; path=/; expires=Fri, 20-Jun-2014 10:28:58 GMT
@@ -144,10 +119,26 @@ $cookie_user=trim($parts[0]);
 
 term_echo($cookie_user);
 
+$extra_headers=array();
+$extra_headers["Cookie"]=$cookie_user;
+
+if ($alias=="~queue")
+{
+  $uri="/submit.pl?op=list";
+  $response=wget($host,$uri,$port,$agent,$extra_headers);
+  $delim1="<option value=\"\">";
+  $delim2=" None</option>";
+  $count=extract_text($response,$delim1,$delim2);
+  if ($count!==False)
+  {
+    privmsg("*** SN submission queue: $count");
+  }
+  return;
+}
+
 # http://soylentnews.org/article.pl?sid=14/04/01/032217
 # extract: <input type="hidden" name="sid" value="1007">
 $uri="/article.pl?sid=$sid";
-$extra_headers["Cookie"]=$cookie_user;
 $response=wget($host,$uri,$port,$agent,$extra_headers);
 $delim="<input type=\"hidden\" name=\"sid\" value=\"";
 $i=strpos($response,$delim);
