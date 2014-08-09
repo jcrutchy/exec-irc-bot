@@ -1,8 +1,5 @@
 <?php
 
-echo "TEST\n";
-return;
-
 define("IRC_LOG_PATH","/var/www/irciv.us.to/irc_logs/");
 define("IRC_LOG_INDEX_FILE","/var/www/irciv.us.to/irc_logs/index.php");
 define("IRC_LOG_INDEX_FILE_HTML","/var/www/irciv.us.to/irc_logs/index.html");

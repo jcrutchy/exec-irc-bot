@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 2-aug-2014
+# 9-aug-2014
 
 #####################################################################################################
 
@@ -130,7 +130,7 @@ function log_items($items)
   {
     return;
   }
-  process_scripts($items,ALIAS_LOG);
+  process_scripts($items,ALIAS_LOG_ITEMS);
 }
 
 #####################################################################################################
@@ -158,7 +158,7 @@ function handle_process($handle)
     fclose($handle["pipe_stdout"]);
     fclose($handle["pipe_stderr"]);
     proc_close($handle["process"]);
-    if ($handle["alias"]<>"*")
+    if (($handle["alias"]<>ALIAS_ALL) and ($handle["alias"]<>ALIAS_LOG_ITEMS))
     {
       term_echo("process terminated normally: ".$handle["command"]);
     }
@@ -170,10 +170,7 @@ function handle_process($handle)
     {
       kill_process($handle);
       term_echo("process timed out: ".$handle["command"]);
-      if ($handle["alias"]<>"*")
-      {
-        privmsg($handle["destination"],$handle["nick"],"process timed out: ".$handle["trailing"]);
-      }
+      privmsg($handle["destination"],$handle["nick"],"process timed out: ".$handle["trailing"]);
       return False;
     }
   }

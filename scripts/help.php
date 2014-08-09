@@ -2,7 +2,9 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
+# 8-aug-2014
+
+# http://wiki.soylentnews.org/wiki/IRC:exec_aliases
 
 #####################################################################################################
 
@@ -19,23 +21,23 @@ switch ($alias)
     switch ($trailing)
     {
       case "~":
-        pm($nick,"exec bot alias help: ~");
-        pm($nick,"  alias usage syntax: ~");
-        pm($nick,"  outputs brief description of the exec bot, with links to github source and SoylentNews wiki page");
+        privmsg("exec bot alias help: ~");
+        privmsg("  alias usage syntax: ~");
+        privmsg("  outputs brief description of the exec bot, with links to github source and SoylentNews wiki page");
         break;
       default:
-        pm($nick,"exec bot alias help syntax: ~help <alias>");
+        privmsg("exec bot alias help syntax: ~help <alias>");
     }
     break;
   case "~help-script":
     switch ($trailing)
     {
       case "irc.php":
-        pm($nick,"exec bot script help: irc.php");
-        pm($nick,"  this file is the main irc bot script");
+        privmsg("exec bot script help: irc.php");
+        privmsg("  this file is the main irc bot script");
         break;
       default:
-        pm($nick,"exec bot script help syntax: ~help-script <file>");
+        privmsg("exec bot script help syntax: ~help-script <file>");
     }
     break;
 }

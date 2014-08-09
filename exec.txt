@@ -89,8 +89,7 @@
 ~time|20|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%%
 ~time-add|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%%
 
-~help|5|0|0|0||||0|php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
-~help-script|5|0|0|0||||0|php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~help|5|0|0|1||||0|php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 #####################################################################################################
 
