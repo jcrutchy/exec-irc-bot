@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 9-aug-2014
+# 11-aug-2014
 
 #####################################################################################################
 
@@ -64,7 +64,7 @@ function get_list($items)
 {
   global $exec_list;
   global $reserved_aliases;
-  $msg="~list ~list-auth ~log ~lock ~unlock";
+  $msg=" ~list ~list-auth ~log ~lock ~unlock";
   privmsg($items["destination"],$items["nick"],$msg);
   $msg="";
   foreach ($exec_list as $alias => $data)
@@ -78,7 +78,7 @@ function get_list($items)
       $msg=$msg.$alias;
     }
   }
-  privmsg($items["destination"],$items["nick"],$msg);
+  privmsg($items["destination"],$items["nick"]," ".$msg);
 }
 
 #####################################################################################################
@@ -117,11 +117,12 @@ function log_data($data)
 
 function log_items($items)
 {
-  global $log_chans;
+  global $buckets;
   $dest=$items["destination"];
-  if (isset($log_chans[$dest])==True)
+  $logged_chans=unserialize($buckets[BUCKET_LOGGED_CHANS]);
+  if (isset($logged_chans[$dest])==True)
   {
-    if ($log_chans[$dest]=="off")
+    if ($logged_chans[$dest]<>"on")
     {
       return;
     }
@@ -465,7 +466,7 @@ function buckets_list($items)
 
 function handle_socket($socket)
 {
-  if ($socket===False)
+  if (is_resource($socket)==False)
   {
     return;
   }
@@ -498,7 +499,7 @@ function has_account_list($alias)
 
 function handle_data($data,$is_sock=False,$auth=False,$exec=False)
 {
-  global $log_chans;
+  global $buckets;
   global $alias_locks;
   global $dest_overrides;
   global $admin_accounts;
@@ -506,7 +507,8 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
   global $admin_is_sock;
   global $admin_aliases;
   global $exec_list;
-  global $throttle_flag;
+  global $throttle_time;
+  global $ignore_list;
   if ($auth==False)
   {
     echo "\033[33m".date("Y-m-d H:i:s",microtime(True))." > \033[0m$data";
@@ -523,9 +525,14 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
     {
       log_items($items);
     }
-    if (($items["prefix"]==IRC_HOST) and (strpos(strtolower($items["trailing"]),"throttled due to flooding")!==False))
+    if (in_array($items["nick"],$ignore_list)==True)
     {
-      $throttle_flag=True;
+      return;
+    }
+    if (($items["prefix"]==IRC_HOST) and (strpos(strtolower($items["trailing"]),"throttled")!==False))
+    {
+      term_echo("*** THROTTLED BY SERVER - REFUSING ALL OUTGOING MESSAGES TO SERVER FOR ".THROTTLE_LOCKOUT_TIME." SECONDS ***");
+      $throttle_time=microtime(True);
       return;
     }
     if ($items["cmd"]==330) # is logged in as
@@ -628,7 +635,9 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
             $dest=$items["destination"];
             if (($state=="on") or ($state=="off"))
             {
-              $log_chans[$dest]=$state;
+              $bucket_chans=unserialize($buckets[BUCKET_LOGGED_CHANS]);
+              $bucket_chans[$dest]=$state;
+              $buckets[BUCKET_LOGGED_CHANS]=serialize($bucket_chans);
               if ($state=="on")
               {
                 privmsg($dest,$items["nick"],"logging enabled for ".chr(3)."8".$dest.chr(3));
@@ -667,6 +676,61 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
           $override=$dest_overrides[$items["nick"]][$items["destination"]];
           unset($dest_overrides[$items["nick"]][$items["destination"]]);
           privmsg($items["destination"],$items["nick"],"destination override \"$override\" cleared for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
+        }
+        break;
+      case ALIAS_ADMIN_IGNORE:
+        if (count($args)==2)
+        {
+          if (in_array($args[1],$ignore_list)==False)
+          {
+            privmsg($items["destination"],$items["nick"],NICK." set to ignore ".$args[1]);
+            $ignore_list[]=$args[1];
+            if (file_put_contents(IGNORE_FILE,implode("\n",$ignore_list))===False)
+            {
+              privmsg($items["destination"],$items["nick"],"error saving ignore file");
+            }
+          }
+        }
+        else
+        {
+          privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_ADMIN_IGNORE." <nick>");
+        }
+        break;
+      case ALIAS_ADMIN_UNIGNORE:
+        if (count($args)==2)
+        {
+          if (in_array($args[1],$ignore_list)==True)
+          {
+            $i=array_search($args[1],$ignore_list);
+            if ($i!==False)
+            {
+              privmsg($items["destination"],$items["nick"],NICK." set to listen to ".$args[1]);
+              unset($ignore_list[$i]);
+              $ignore_list=array_values($ignore_list);
+              if (file_put_contents(IGNORE_FILE,implode("\n",$ignore_list))===False)
+              {
+                privmsg($items["destination"],$items["nick"],"error saving ignore file");
+              }
+            }
+            else
+            {
+              privmsg($items["destination"],$items["nick"],$args[1]." not found in ".NICK." ignore list");
+            }
+          }
+        }
+        else
+        {
+          privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_ADMIN_UNIGNORE." <nick>");
+        }
+        break;
+      case ALIAS_ADMIN_LIST_IGNORE:
+        if (count($ignore_list)>0)
+        {
+          privmsg($items["destination"],$items["nick"],NICK." ignore list: ".implode(", ",$ignore_list));
+        }
+        else
+        {
+          privmsg($items["destination"],$items["nick"],NICK." isn't ignoring anyone");
         }
         break;
       case ALIAS_ADMIN_REHASH:
@@ -739,38 +803,41 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
 function rawmsg($msg,$obfuscate=False)
 {
   global $socket;
-  global $throttle_flag;
+  global $throttle_time;
   global $rawmsg_times;
-  if ($socket===False)
+  if ($throttle_time!==False)
   {
-    return;
-  }
-  $flood_count=6; # messages to allow through without any delays
-  if (count($rawmsg_times)>1)
-  {
-    $throttle_time=10; # sec
-    $last=$rawmsg_times[count($rawmsg_times)-1];
-    $dt=microtime(True)-$last;
-    if (($throttle_flag==True) and ($dt<$throttle_time))
+    $delta=microtime(True)-$throttle_time;
+    if ($delta>THROTTLE_LOCKOUT_TIME)
     {
+      $throttle_time=False;
+    }
+    else
+    {
+      term_echo("*** REFUSED OUTGOING MESSAGE DUE TO SERVER THROTTLING: $msg");
       return;
     }
-    $throttle_flag=False;
-    $flood_time=0.6; # sec
-    $dt=$rawmsg_times[0]-$last;
-    if ($dt<$flood_time)
+  }
+  $n=count($rawmsg_times);
+  if ($n>0)
+  {
+    $last=$rawmsg_times[$n-1];
+    $dt=microtime(True)-$last;
+    if ($dt>THROTTLE_LOCKOUT_TIME)
     {
-      usleep($flood_time*1e6);
       $rawmsg_times=array();
     }
-    elseif ($dt>$throttle_time)
+    else
     {
-      $rawmsg_times=array();
+      if ($n>=RAWMSG_TIME_COUNT)
+      {
+        usleep(ANTI_FLOOD_DELAY*1e6);
+      }
     }
   }
   fputs($socket,$msg."\n");
   $rawmsg_times[]=microtime(True);
-  while (count($rawmsg_times)>$flood_count)
+  while (count($rawmsg_times)>RAWMSG_TIME_COUNT)
   {
     array_shift($rawmsg_times);
   }
@@ -1151,7 +1218,7 @@ function process_scripts($items,$reserved="")
       return;
     }
   }
-  if (check_nick($items,$alias)==False)
+  if ((check_nick($items,$alias)==False) and (in_array($alias,$reserved_aliases)==False))
   {
     return;
   }
@@ -1161,6 +1228,7 @@ function process_scripts($items,$reserved="")
     return;
   }
   $template=$exec_list[$alias]["cmd"];
+  $start=microtime(True);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_TRAILING.TEMPLATE_DELIM,escapeshellarg($trailing),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_NICK.TEMPLATE_DELIM,escapeshellarg($nick),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_DESTINATION.TEMPLATE_DELIM,escapeshellarg($destination),$template);
@@ -1169,6 +1237,7 @@ function process_scripts($items,$reserved="")
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_DATA.TEMPLATE_DELIM,escapeshellarg($data),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_CMD.TEMPLATE_DELIM,escapeshellarg($cmd),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_PARAMS.TEMPLATE_DELIM,escapeshellarg($items["params"]),$template);
+  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_TIMESTAMP.TEMPLATE_DELIM,escapeshellarg($start),$template);
   $command="exec ".$template;
   $command=$template;
   $cwd=NULL;
@@ -1179,7 +1248,6 @@ function process_scripts($items,$reserved="")
     term_echo("EXEC: ".$command);
   }
   $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
-  $start=microtime(True);
   $status=proc_get_status($process);
   $handles[]=array(
     "process"=>$process,
@@ -1460,6 +1528,20 @@ function kill_recurse($pid,$lines)
   }
   echo "*** KILLING PROCESS ID $pid\n";
   posix_kill($pid,SIGKILL);
+}
+
+#####################################################################################################
+
+function delete_empty_elements(&$array)
+{
+  for ($i=0;$i<count($array);$i++)
+  {
+    if ($array[$i]=="")
+    {
+      unset($array[$i]);
+    }
+  }
+  $array=array_values($array);
 }
 
 #####################################################################################################

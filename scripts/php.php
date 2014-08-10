@@ -2,7 +2,9 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
+# 9-aug-2014
+
+# TODO: privmsg URL to php.net function reference
 
 # thanks to prospectacle for link to download doc files
 

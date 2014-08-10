@@ -21,7 +21,7 @@ if (($dest<>"#") or ($nick<>"crutchy"))
 $password=trim(file_get_contents("../pwd/server"));
 $SID="44X";
 
-$socket=fsockopen("irc.sylnt.us",6667);
+$socket=fsockopen("127.0.0.1",6666);
 if ($socket===False)
 {
   term_echo("SERVER: ERROR OPENING SOCKET CONNECTION");

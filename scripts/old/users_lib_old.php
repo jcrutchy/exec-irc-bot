@@ -2,14 +2,14 @@
 
 # gpl2
 # by crutchy
-# 18-july-2014
+# 10-aug-2014
 
 #####################################################################################################
 
-require_once("scripts/lib.php");
+require_once("lib.php");
 
-define("BUCKET_CHANNELS","<<channels>>");
-define("BUCKET_USERS","<<users>>");
+define("BUCKET_CHANNELS","<<EXEC_CHANNEL_DATA>>");
+define("BUCKET_USERS","<<EXEC_USER_DATA>>");
 
 #####################################################################################################
 
@@ -97,7 +97,7 @@ function on_chan_nick_list($chan)
 
 #####################################################################################################
 
-function whois($nick)
+function do_whois($nick)
 {
   rawmsg("WHOIS $nick");
 }

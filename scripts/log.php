@@ -1,5 +1,13 @@
 <?php
 
+# gpl2
+# by crutchy
+# 10-aug-2014
+
+#####################################################################################################
+
+require_once("lib.php");
+
 define("IRC_LOG_PATH","/var/www/irciv.us.to/irc_logs/");
 define("IRC_LOG_INDEX_FILE","/var/www/irciv.us.to/irc_logs/index.php");
 define("IRC_LOG_INDEX_FILE_HTML","/var/www/irciv.us.to/irc_logs/index.html");
@@ -11,17 +19,15 @@ define("IRC_CHAN_INDEX_HEAD","<!DOCTYPE HTML>\n<html>\n<head>\n<title>%%title%%<
 define("IRC_LOG_HEAD","<!DOCTYPE HTML>\n<html>\n<head>\n<title>%%title%%</title>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\n".HTML_NO_CACHE."<style type=\"text/css\"></style>\n<script type=\"text/javascript\"></script>\n</head>\n<body>\n<p><a href=\"%%index_href%%\">return to date index</a></p>\n<p>\n");
 
 $trailing=$argv[1];
-$dest=$argv[1];
-$nick=$argv[1];
-$start=$argv[1];
-$alias=$argv[1];
-$cmd=$argv[1];
-$data=$argv[1];
-$exec=$argv[1];
-$params=$argv[1];
+$dest=$argv[2];
+$nick=$argv[3];
+$timestamp=$argv[4];
+
+#term_echo("*** $timestamp: $trailing ***");
 
 if (($dest=="") or (substr($dest,0,1)<>"#") or (strpos($dest," ")!==False))
 {
+  #term_echo("*** dest=$dest ***");
   return;
 }
 if (file_exists(IRC_LOG_INDEX_FILE)==False)
@@ -47,7 +53,8 @@ $filename=IRC_LOG_PATH.$dest."_".date("Ymd",$ts).".html";
 $filename_href=urlencode($dest)."_".date("Ymd",$ts).".html";
 $href_caption=date("Y-m-d",$ts);
 
-$data="&lt;$nick&gt; $trailing";
+$data="&lt;$nick&gt; ".htmlspecialchars($trailing);
+#term_echo("*** data=$data ***");
 
 $line="<a href=\"#$timestamp_name\" name=\"$timestamp_name\" class=\"time\">[$timestamp]</a> $data<br>\n";
 if (file_exists($filename)==False)
@@ -71,5 +78,7 @@ if (file_exists($filename)==False)
   file_put_contents($filename,$head);
 }
 file_put_contents($filename,$line,FILE_APPEND);
+
+#####################################################################################################
 
 ?>

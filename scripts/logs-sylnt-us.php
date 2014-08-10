@@ -2,7 +2,10 @@
 
 # gpl2
 # by crutchy
-# 15-july-2014
+# 9-aug-2014
+
+# TODO: make nicks not case-sensitive
+# TODO: relationship diagram with links based on privmsgs that contain other nicks
 
 #####################################################################################################
 
@@ -38,7 +41,7 @@ for ($i=0;$i<count($links);$i++)
 
 $privmsg=array();
 
-$date_today=round(time()/60/60/24);
+$date_today=floor(time()/60/60/24);
 
 for ($i=0;$i<count($links2);$i++)
 {
@@ -47,13 +50,15 @@ for ($i=0;$i<count($links2);$i++)
   $cache_filename=CACHE_PATH.urldecode($dest)."_".$date_parts[0].".txt";
   $lines2=array();
   $status_fn="";
-  if (file_exists($cache_filename)==True)
+  #term_echo("*** date_file = $date_file, date_today = $date_today, link = ".$links2[$i]." ***");
+  if ((file_exists($cache_filename)==True) and ($date_file<$date_today))
   {
     $status_fn=$cache_filename;
     $lines2=explode("\n",file_get_contents($cache_filename));
   }
   else
   {
+    #term_echo("*** downloading log: ".$links2[$i]." ***");
     $uri="/".urlencode($dest)."/".$links2[$i];
     $status_fn="http://logs.sylnt.us".$uri;
     $html=wget("logs.sylnt.us",$uri,80);
@@ -117,10 +122,7 @@ for ($i=0;$i<count($links2);$i++)
       $record["msg"]=$line_msg;
       $lines2[$j]=serialize($record);
     }
-    if ($date_file<$date_today)
-    {
-      file_put_contents($cache_filename,implode("\n",$lines2));
-    }
+    file_put_contents($cache_filename,implode("\n",$lines2));
   }
   $privmsg=array_merge($privmsg,$lines2);
   #term_echo("processing \"$status_fn\" => lines: ".count($lines2)." [$date_file : $date_today]");
@@ -132,31 +134,80 @@ for ($i=0;$i<count($privmsg);$i++)
   $privmsg2[]=unserialize($privmsg[$i]);
 }
 
+$this_msg=$alias." ".$trailing;
+
 if ($trailing<>"")
 {
   $privmsg_nick=array();
+  $ltrailing=strtolower($trailing);
   for ($i=0;$i<count($privmsg);$i++)
   {
-    if ($privmsg2[$i]["nick"]==$trailing)
+    if (($privmsg2[$i]["nick"]==$nick) and ($privmsg2[$i]["msg"]==$this_msg))
+    {
+      continue;
+    }
+    if (strtolower($privmsg2[$i]["nick"])==$ltrailing)
     {
       $privmsg_nick[]=$privmsg2[$i];
     }
   }
-  if ($alias=="~stats-lines")
+  switch ($alias)
   {
-    privmsg("privmsg count for $trailing in $dest: ".count($privmsg_nick));
-  }
-  elseif ($alias=="~stats-first")
-  {
-    if (count($privmsg_nick)>0)
-    {
-      $record=$privmsg_nick[0];
-      privmsg("first privmsg for $trailing in $dest: [".$record["date"]." ".$record["time"]."] ".$record["msg"]);
-    }
-    else
-    {
-      privmsg("first privmsg for $trailing in $dest not found");
-    }
+    case "~count":
+      privmsg("privmsg count for $trailing in $dest: ".count($privmsg_nick));
+      break;
+    case "~first":
+      if (count($privmsg_nick)>0)
+      {
+        $record=$privmsg_nick[0];
+        privmsg("first privmsg for $trailing in $dest: [".$record["date"]." ".$record["time"]."] ".$record["msg"]);
+      }
+      else
+      {
+        privmsg("first privmsg for $trailing in $dest not found");
+      }
+      break;
+    case "~last":
+      if (count($privmsg_nick)>0)
+      {
+        $record=$privmsg_nick[count($privmsg_nick)-1];
+        privmsg("last privmsg for $trailing in $dest: [".$record["date"]." ".$record["time"]."] ".$record["msg"]);
+      }
+      else
+      {
+        privmsg("last privmsg for $trailing in $dest not found");
+      }
+      break;
+    case "~find-last":
+      $last=count($privmsg2)-1;
+      for ($i=$last;$i>=0;$i--)
+      {
+        if (($privmsg2[$i]["nick"]==$nick) and ($privmsg2[$i]["msg"]==$this_msg))
+        {
+          continue;
+        }
+        $lmsg=strtolower($privmsg2[$i]["msg"]);
+        if (strpos($lmsg,$ltrailing)!==False)
+        {
+          $msg=html_entity_decode($privmsg2[$i]["msg"],ENT_QUOTES,"UTF-8");
+          privmsg("last privmsg containing \"$trailing\" in $dest: [".$privmsg2[$i]["date"]." ".$privmsg2[$i]["time"]."] <".$privmsg2[$i]["nick"]."> ".$msg);
+          break;
+        }
+      }
+      break;
+    case "~find-first":
+      $n=count($privmsg2);
+      for ($i=0;$i<$n;$i++)
+      {
+        $lmsg=strtolower($privmsg2[$i]["msg"]);
+        if (strpos($lmsg,$ltrailing)!==False)
+        {
+          $msg=html_entity_decode($privmsg2[$i]["msg"],ENT_QUOTES,"UTF-8");
+          privmsg("first privmsg containing \"$trailing\" in $dest: [".$privmsg2[$i]["date"]." ".$privmsg2[$i]["time"]."] <".$privmsg2[$i]["nick"]."> ".$msg);
+          break;
+        }
+      }
+      break;
   }
 }
 

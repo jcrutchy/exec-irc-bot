@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 3-aug-2014
+# 10-aug-2014
 
 #####################################################################################################
 #                                                                                                   #
@@ -17,8 +17,6 @@
 #                                                                                                   #
 #####################################################################################################
 
-require_once("lib.php");
-
 $cmd=$argv[1];
 $trailing=$argv[2];
 $data=$argv[3];
@@ -29,7 +27,7 @@ $nick=$argv[6];
 switch (strtoupper($cmd))
 {
   case "PONG":
-    echo "/INTERNAL ~ping $trailing\n";
+    #echo "/INTERNAL ~ping $trailing\n";
     break;
   case "INTERNAL":
 
@@ -47,15 +45,15 @@ switch (strtoupper($cmd))
     echo "/IRC JOIN $trailing\n";
     break;
   case "JOIN": # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
-    #echo "/INTERNAL ~users-internal JOIN $params\n";
-    echo "/INTERNAL ~meeting JOIN $params\n";
-    echo "/INTERNAL ~welcome-internal JOIN $params\n";
+    echo "/INTERNAL ~users-internal JOIN $params\n";
+    #echo "/INTERNAL ~meeting JOIN $params\n";
+    #echo "/INTERNAL ~welcome-internal JOIN $params\n";
     break;
   case "KICK": # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
-    #echo "/INTERNAL ~users-internal KICK $params\n";
-    echo "/INTERNAL ~meeting KICK $params\n";
+    echo "/INTERNAL ~users-internal KICK $params\n";
+    #echo "/INTERNAL ~meeting KICK $params\n";
     echo "/INTERNAL ~sed-internal KICK $params\n";
-    echo "/INTERNAL ~welcome-internal KICK $params\n";
+    #echo "/INTERNAL ~welcome-internal KICK $params\n";
     break;
   case "KILL":
 
@@ -64,24 +62,24 @@ switch (strtoupper($cmd))
     #echo "/INTERNAL ~users-internal...
     break;
   case "NICK": # :Landon_!~Landon@Soylent/Staff/IRC/Landon NICK :Landon
-    #echo "/INTERNAL ~users-internal NICK $trailing\n";
+    echo "/INTERNAL ~users-internal NICK $trailing\n";
     break;
   case "NOTICE":
 
     break;
   case "PART": # :Drop!~Drop___@via1-vhat2-0-3-jppz214.perr.cable.virginm.net PART #Soylent :Leaving
-    #echo "/INTERNAL ~users-internal PART $dest\n";
-    echo "/INTERNAL ~meeting PART $dest\n";
+    echo "/INTERNAL ~users-internal PART $dest\n";
+    #echo "/INTERNAL ~meeting PART $dest\n";
     echo "/INTERNAL ~sed-internal PART $dest\n";
-    echo "/INTERNAL ~welcome-internal PART $dest\n";
+    #echo "/INTERNAL ~welcome-internal PART $dest\n";
     break;
   case "PRIVMSG":
-    echo "/INTERNAL ~meeting PRIVMSG $trailing\n";
+    #echo "/INTERNAL ~meeting PRIVMSG $trailing\n";
     echo "/INTERNAL ~sed-internal PRIVMSG $trailing\n";
     echo "/INTERNAL ~privmsg-internal $trailing\n";
     break;
   case "QUIT":
-    #echo "/INTERNAL ~users-internal QUIT\n";
+    echo "/INTERNAL ~users-internal QUIT\n";
     break;
   case "043": # nickname was forced to change due to a collision
 
@@ -96,17 +94,17 @@ switch (strtoupper($cmd))
 
     break;
   case "319": # :irc.sylnt.us 319 exec crutchy :#wiki +#test #sublight #help @#exec #derp @#civ @#1 @#0 ## @#/ @#> @#~ @#
-    #echo "/INTERNAL ~users-internal 319 $params $trailing\n";
+    echo "/INTERNAL ~users-internal 319 $params $trailing\n";
     break;
-  case "330": # :irc.sylnt.us 330 exec crutchy crutchy :is logged in as
-    echo "/INTERNAL ~meeting 330 $params\n";
-    #echo "/INTERNAL ~users-internal 330 $params\n";
+  case "330": # :irc.sylnt.us 330 exec crutchy_ crutchy :is logged in as
+    #echo "/INTERNAL ~meeting 330 $params\n";
+    echo "/INTERNAL ~users-internal 330 $params\n";
     break;
   case "353": # :irc.sylnt.us 353 exec = #civ :exec @crutchy chromas arti
-    #echo "/INTERNAL ~users-internal 353 $params $trailing\n";
+    echo "/INTERNAL ~users-internal 353 $params $trailing\n";
     break;
   case "401": # :irc.sylnt.us 401 exec SedBot :No such nick/channel
-
+    echo "/INTERNAL ~users-internal 401 $params\n";
     break;
   case "436": # server detected a nickname collision
 
@@ -115,17 +113,17 @@ switch (strtoupper($cmd))
 
     break;
   case "318": # :irc.sylnt.us 318 crutchy crutchy :End of /WHOIS list.
-    echo "/INTERNAL ~meeting 318 $params\n";
+    #echo "/INTERNAL ~meeting 318 $params\n";
     break;
   case "315": # :irc.sylnt.us 315 crutchy #Soylent :End of /WHO list.
-    echo "/INTERNAL ~meeting 315 $params\n";
+    #echo "/INTERNAL ~meeting 315 $params\n";
     break;
   case "354": # :irc.sylnt.us 354 crutchy 152 #Soylent mrcoolbp H@+
-    #echo "/INTERNAL ~users-internal 354 $params\n";
-    echo "/INTERNAL ~meeting 354 $params\n";
+    echo "/INTERNAL ~users-internal 354 $params\n";
+    #echo "/INTERNAL ~meeting 354 $params\n";
     break;
   case "322": # :irc.sylnt.us 322 crutchy # 8 :exec's home base and proving ground. testing of other bots and general chit chat welcome :-)
-    #echo "/INTERNAL ~users-internal 322 $params\n";
+    echo "/INTERNAL ~users-internal 322 $params\n";
     break;
 }
 

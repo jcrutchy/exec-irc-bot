@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 2-aug-2014
+# 11-aug-2014
 
 #####################################################################################################
 
@@ -10,6 +10,7 @@
 define("NICK","exec");
 define("PASSWORD_FILE","../pwd/".NICK);
 define("BUCKETS_FILE","../data/buckets");
+define("IGNORE_FILE","../data/ignore");
 define("EXEC_FILE","exec.txt");
 define("INIT_CHAN_LIST","#"); # comma delimited
 define("EXEC_LOG_PATH","/var/www/irciv.us.to/exec_logs/");
@@ -25,12 +26,15 @@ $admin_accounts=array("crutchy","xlefay","chromas");
 
 define("EXEC_DELIM","|");
 define("MAX_MSG_LENGTH",800);
-define("IGNORE_TIME",20); # seconds (flood control)
-define("DELTA_TOLERANCE",1.5); # seconds (flood control)
+define("IGNORE_TIME",20); # seconds (alias abuse control)
+define("DELTA_TOLERANCE",1.5); # seconds (alias abuse control)
 define("TEMPLATE_DELIM","%%");
 
 # stdout bot directives
 define("DIRECTIVE_QUIT","<<quit>>");
+
+# internally used buckets
+define("BUCKET_LOGGED_CHANS","<<LOGGED_CHANNELS>>");
 
 # reserved aliases
 define("ALIAS_ALL","*");
@@ -63,6 +67,9 @@ define("ALIAS_ADMIN_RESTART","~restart");
 define("ALIAS_ADMIN_REHASH","~rehash");
 define("ALIAS_ADMIN_DEST_OVERRIDE","~dest-override");
 define("ALIAS_ADMIN_DEST_CLEAR","~dest-clear");
+define("ALIAS_ADMIN_IGNORE","~ignore");
+define("ALIAS_ADMIN_UNIGNORE","~unignore");
+define("ALIAS_ADMIN_LIST_IGNORE","~ignore-list");
 define("ALIAS_ADMIN_BUCKETS_DUMP","~buckets-dump"); # dump buckets to terminal
 define("ALIAS_ADMIN_BUCKETS_SAVE","~buckets-save"); # save buckets to file
 define("ALIAS_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
@@ -83,6 +90,11 @@ define("TEMPLATE_ALIAS","alias");
 define("TEMPLATE_DATA","data");
 define("TEMPLATE_CMD","cmd");
 define("TEMPLATE_PARAMS","params");
+define("TEMPLATE_TIMESTAMP","timestamp");
+
+define("THROTTLE_LOCKOUT_TIME",10); # sec
+define("ANTI_FLOOD_DELAY",0.6); # sec
+define("RAWMSG_TIME_COUNT",6); # messages to send without any delays
 
 require_once("irc_lib.php");
 
@@ -101,15 +113,17 @@ if (file_exists(PASSWORD_FILE)==False)
 $alias_locks=array(); # optionally stores an alias for each nick, which then treats every privmsg by that nick as being prefixed by the set alias
 $handles=array(); # stores executed process information
 $time_deltas=array(); # keeps track of how often nicks call an alias (used for flood control)
-$buckets=array(); # common place for scripts to store stuff
+$buckets=array(); # common place for scripts to store stuff (index cannot contain spaces, bucket content must be a string)
 $dest_overrides=array(); # optionally stores a destination for each nick, which treats every privmsg by that nick as having the set destination
 
 $admin_data="";
 $admin_is_sock="";
 
-$log_chans=array();
+$logged_chans=array();
+$buckets[BUCKET_LOGGED_CHANS]=serialize($logged_chans);
+unset($logged_chans);
 
-$throttle_flag=False;
+$throttle_time=False; # set when "throttled" is detected in a message from the server
 $rawmsg_times=array();
 
 $admin_aliases=array(
@@ -125,7 +139,10 @@ $admin_aliases=array(
   ALIAS_ADMIN_BUCKETS_SAVE,
   ALIAS_ADMIN_BUCKETS_LOAD,
   ALIAS_ADMIN_BUCKETS_FLUSH,
-  ALIAS_ADMIN_BUCKETS_LIST);
+  ALIAS_ADMIN_BUCKETS_LIST,
+  ALIAS_ADMIN_IGNORE,
+  ALIAS_ADMIN_UNIGNORE,
+  ALIAS_ADMIN_LIST_IGNORE);
 
 $reserved_aliases=array(
   ALIAS_ALL,
@@ -142,6 +159,17 @@ if ($exec_list===False)
   term_echo("error loading exec file");
   return;
 }
+
+$ignore_list=array();
+if (file_exists(IGNORE_FILE)==True)
+{
+  $ignore_data=file_get_contents(IGNORE_FILE);
+  if ($ignore_data!==False)
+  {
+    $ignore_list=explode("\n",$ignore_data);
+  }
+}
+delete_empty_elements($ignore_list);
 
 init();
 if (IRC_PORT=="6697")
@@ -179,7 +207,7 @@ while (True)
   }
   $handles=array_values($handles);
   handle_socket($socket);
-  usleep(0.01e6); # 0.01 second to prevent cpu flogging
+  usleep(0.05e6); # 0.05 second to prevent cpu flogging
   process_timed_execs();
 }
 

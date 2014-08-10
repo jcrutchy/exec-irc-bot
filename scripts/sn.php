@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 9-aug-2014
+# 10-aug-2014
 
 /*
 - the bot could keeep track of irc comments and if you type something like
@@ -14,7 +14,7 @@
 
 #####################################################################################################
 
-require_once("lib.php");
+require_once("sn_lib.php");
 
 $trailing=$argv[1];
 $dest=$argv[2];
@@ -83,44 +83,10 @@ if ($alias=="~comment")
 }
 
 $host="soylentnews.org";
-$uri="/my/login";
 $port=443;
 
-$params=array();
-$params["returnto"]="";
-$params["op"]="userlogin";
-$params["login_temp"]="yes";
-$params["unickname"]="exec";
-$params["upasswd"]=trim(file_get_contents("../pwd/exec"));
-$params["userlogin"]="Log in";
-$response=wpost($host,$uri,$port,$agent,$params);
-
-$cookies=exec_get_cookies($response);
-
-# user=4468::4pVxvvp70xtWLTfclHBpBp; path=/; expires=Fri, 20-Jun-2014 10:28:58 GMT
-$login_cookie="";
-$delim="user=";
-for ($i=0;$i<count($cookies);$i++)
-{
-  if (substr($cookies[$i],0,strlen($delim))==$delim)
-  {
-    $login_cookie=$cookies[$i];
-  }
-}
-if ($login_cookie=="")
-{
-  logout();
-}
-
-term_echo($login_cookie);
-
-$parts=explode(";",$login_cookie);
-$cookie_user=trim($parts[0]);
-
-term_echo($cookie_user);
-
 $extra_headers=array();
-$extra_headers["Cookie"]=$cookie_user;
+$extra_headers["Cookie"]=sn_login();
 
 if ($alias=="~queue")
 {
@@ -145,7 +111,7 @@ $i=strpos($response,$delim);
 if ($i===False)
 {
   privmsg("\"sid\" field not found @ https://".$host.$uri);
-  logout();
+  sn_logout();
 }
 $response=substr($response,$i+strlen($delim));
 $delim="\"";
@@ -153,7 +119,7 @@ $i=strpos($response,$delim);
 if ($i===False)
 {
   privmsg("program borked (error code: 1)");
-  logout();
+  sn_logout();
 }
 $sid=substr($response,0,$i);
 
@@ -170,7 +136,7 @@ $i=strpos($response,$delim);
 if ($i===False)
 {
   privmsg("\"formkey\" field not found @ https://".$host.$uri);
-  logout();
+  sn_logout();
 }
 $response=substr($response,$i+strlen($delim));
 $delim="\"";
@@ -178,7 +144,7 @@ $i=strpos($response,$delim);
 if ($i===False)
 {
   privmsg("program borked (error code: 2)");
-  logout();
+  sn_logout();
 }
 $formkey=substr($response,0,$i);
 
@@ -226,19 +192,7 @@ if (strpos($response,$delim)!==False)
 
 #term_echo($response);
 
-logout();
-
-#####################################################################################################
-
-function logout()
-{
-  global $agent;
-  $host="soylentnews.org";
-  $uri="/my/logout";
-  $port=80;
-  wget($host,$uri,$port,$agent);
-  die();
-}
+sn_logout();
 
 #####################################################################################################
 

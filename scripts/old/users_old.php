@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 18-july-2014
+# 10-aug-2014
 
 #####################################################################################################
 
@@ -28,16 +28,16 @@
 
 require_once("users_lib.php");
 
-$trailing=$argv[1];
-$nick=$argv[2];
-$dest=$argv[3];
-$alias=$argv[4];
+$trailing=trim($argv[1]);
+$nick=trim($argv[2]);
+$dest=trim($argv[3]);
+$alias=trim($argv[4]);
 
 $parts=explode(" ",$trailing);
 delete_empty_elements($parts);
 $cmd=strtoupper($parts[0]);
 array_shift($parts);
-$trailing=implode(" ",$parts);
+$trailing=trim(implode(" ",$parts));
 unset($parts);
 
 $channels=get_array_bucket(BUCKET_CHANNELS);
@@ -46,17 +46,53 @@ $users=get_array_bucket(BUCKET_USERS);
 switch ($cmd)
 {
   case "ADMIN":
-    if (trim($trailing)=="users")
+    if ($trailing=="list-users")
     {
       var_dump($users);
+      privmsg("users: ".implode(", ",array_keys($users)));
       return;
+    }
+    if ($trailing=="list-channels")
+    {
+      var_dump($channels);
+      privmsg("channels: ".implode(", ",array_keys($channels)));
+      return;
+    }
+    $parts=explode(" ",$trailing);
+    if (count($parts)==2)
+    {
+      $subject=$parts[1];
+      switch ($parts[0])
+      {
+        case "user":
+          if (isset($users[$subject])==True)
+          {
+            var_dump($users[$subject]);
+            if (isset($users[$subject]["channels"])==True)
+            {
+              privmsg("[$subject].channels: ".implode(", ",$users[$subject]["channels"]));
+            }
+            if (isset($users[$subject]["account"])==True)
+            {
+              privmsg("[$subject].account: ".$users[$subject]["account"]);
+            }
+          }
+          else
+          {
+            privmsg("$subject not registered");
+          }
+          break;
+        case "channel":
+          var_dump($channels[$parts[1]]);
+          break;
+      }
     }
     break;
   case "JOIN":
     # $nick = "joining_nick"
     # $trailing = "chan"
-    $nick=strtolower(trim($nick));
-    $chan=strtolower(trim($trailing));
+    $nick=strtolower($nick);
+    $chan=strtolower($trailing);
     if (isset($users[$nick])==False)
     {
       $users[$nick]["channels"]=array();
@@ -79,8 +115,8 @@ switch ($cmd)
   case "KICK":
     # $nick = "op_nick"
     # $trailing = "chan kicked_nick"
-    $op_nick=strtolower(trim($nick));
-    $parts=explode(" ",strtolower(trim($trailing)));
+    $op_nick=strtolower($nick);
+    $parts=explode(" ",strtolower($trailing));
     if (count($parts)==2)
     {
       $chan=$parts[0];
@@ -99,8 +135,8 @@ switch ($cmd)
   case "NICK":
     # $nick = "old"
     # $trailing = "new"
-    $old_nick=strtolower(trim($nick));
-    $new_nick=strtolower(trim($trailing));
+    $old_nick=strtolower($nick);
+    $new_nick=strtolower($trailing);
     if (isset($users[$old_nick])==True)
     {
       $tmp=$users[$old_nick];
@@ -116,10 +152,10 @@ switch ($cmd)
   case "PART":
     # $nick = "parting_nick"
     # $trailing = "channel"
-    $parting_nick=strtolower(trim($nick));
+    $parting_nick=strtolower($nick);
     if (isset($users[$parting_nick])==True)
     {
-      $chan=strtolower(trim($trailing));
+      $chan=strtolower($trailing);
       $i=array_search($chan,$users[$parting_nick]["channels"]);
       if ($i!==False)
       {
@@ -130,7 +166,7 @@ switch ($cmd)
     break;
   case "QUIT":
     # $nick = "quitting_nick"
-    $nick=strtolower(trim($nick));
+    $nick=strtolower($nick);
     if (isset($users[$nick])==True)
     {
       for ($i=0;$i<count($users[$nick]["channels"]);$i++)
@@ -144,7 +180,7 @@ switch ($cmd)
   case "319":
     # $trailing = "whois_call_nick whois_subject_nick space_delimited_chanlist"
     # #wiki +#test #sublight #help @#exec #derp @#civ @#1 @#0 ## @#/ @#> @#~ @#
-    $parts=explode(" ",strtolower(trim($trailing)));
+    $parts=explode(" ",strtolower($trailing));
     if (count($parts)>=3)
     {
       $whois_subject_nick=$parts[1];
@@ -176,7 +212,7 @@ switch ($cmd)
     break;
   case "330":
     # $trailing = "whois_call_nick whois_subject_nick whois_subject_account"
-    $parts=explode(" ",strtolower(trim($trailing)));
+    $parts=explode(" ",strtolower($trailing));
     if (count($parts)==3)
     {
       $whois_subject_nick=$parts[1];
@@ -192,7 +228,7 @@ switch ($cmd)
   case "353":
     # $trailing = "exec = chan space_delimited_nick_list"
     # exec @crutchy chromas arti
-    $parts=explode(" ",strtolower(trim($trailing)));
+    $parts=explode(" ",strtolower($trailing));
     if (count($parts)>=4)
     {
       if (($parts[0]==NICK_EXEC) and ($parts[1]=="="))
