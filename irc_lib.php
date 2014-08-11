@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 11-aug-2014
+# 12-aug-2014
 
 #####################################################################################################
 
@@ -43,6 +43,7 @@ function get_valid_data_cmd()
     CMD_BUCKET_GET=>array("001","101"),
     CMD_BUCKET_SET=>array("001","101"),
     CMD_BUCKET_UNSET=>array("001","101"),
+    CMD_BUCKET_APPEND=>array("001","101"),
     "#"=>array("101","110","111"),
     "INVITE"=>array("111"),
     "JOIN"=>array("110"),
@@ -87,7 +88,7 @@ function get_list_auth($items)
 {
   global $exec_list;
   global $reserved_aliases;
-  $msg=" ~q ~rehash ~ps ~kill ~killall ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~restart";
+  $msg=" ~q ~rehash ~ps ~kill ~killall ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~restart ~ignore ~unignore";
   privmsg($items["destination"],$items["nick"],$msg);
   $msg="";
   foreach ($exec_list as $alias => $data)
@@ -246,6 +247,9 @@ function handle_stdout($handle)
         case PREFIX_BUCKET_UNSET:
           handle_buckets(CMD_BUCKET_UNSET." :".$prefix_msg."\n",$handle);
           return;
+        case PREFIX_BUCKET_APPEND:
+          handle_buckets(CMD_BUCKET_APPEND." :".$prefix_msg."\n",$handle);
+          return;
         case PREFIX_INTERNAL:
           $nick=$handle["nick"];
           if ($nick=="")
@@ -384,6 +388,45 @@ function handle_buckets($data,$handle)
       else
       {
         term_echo("BUCKET_UNSET [$index]: BUCKET NOT SET");
+      }
+      return True;
+    case CMD_BUCKET_APPEND:
+      $parts=explode(" ",$trailing);
+      if (count($parts)<2)
+      {
+        term_echo("BUCKET_APPEND: INVALID TRAILING: '$trailing'");
+      }
+      else
+      {
+        $index=$parts[0];
+        unset($parts[0]);
+        $trailing=implode(" ",$parts);
+        if (isset($buckets[$index])==True)
+        {
+          $bucket_array=unserialize($buckets[$index]);
+          if ($bucket_array!==False)
+          {
+            $bucket_array[]=$trailing;
+            $bucket_string=serialize($bucket_array);
+            if ($bucket_string!==False)
+            {
+              $buckets[$index]=$bucket_string;
+              #term_echo("BUCKET_APPEND [$index]: SUCCESS");
+            }
+            else
+            {
+              term_echo("BUCKET_APPEND [$index]: SERIALIZE ERROR");
+            }
+          }
+          else
+          {
+            term_echo("BUCKET_APPEND [$index]: UNSERIALIZE ERROR");
+          }
+        }
+        else
+        {
+          term_echo("BUCKET_APPEND [$index]: BUCKET NOT SET");
+        }
       }
       return True;
   }

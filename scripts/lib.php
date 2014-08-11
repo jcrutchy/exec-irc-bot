@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 8-aug-2014
+# 12-aug-2014
 
 #####################################################################################################
 
@@ -67,7 +67,14 @@ function get_array_bucket($bucket)
 
 #####################################################################################################
 
-function set_array_bucket($array,$bucket)
+function append_array_bucket($index,$value)
+{
+  echo "/BUCKET_APPEND $index $value\n";
+}
+
+#####################################################################################################
+
+function set_array_bucket($array,$bucket,$unset=True)
 {
   $bucket_data=serialize($array);
   if ($bucket_data===False)
@@ -76,7 +83,10 @@ function set_array_bucket($array,$bucket)
   }
   else
   {
-    unset_bucket($bucket);
+    if ($unset==True)
+    {
+      unset_bucket($bucket);
+    }
     set_bucket($bucket,$bucket_data);
   }
 }

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 11-aug-2014
+# 12-aug-2014
 
 #####################################################################################################
 
@@ -47,6 +47,7 @@ define("ALIAS_QUIT","<quit>");
 define("CMD_BUCKET_GET","BUCKET_GET");
 define("CMD_BUCKET_SET","BUCKET_SET");
 define("CMD_BUCKET_UNSET","BUCKET_UNSET");
+define("CMD_BUCKET_APPEND","BUCKET_APPEND");
 define("CMD_INTERNAL","INTERNAL");
 
 define("PREFIX_DELIM","/");
@@ -55,6 +56,7 @@ define("PREFIX_PRIVMSG",PREFIX_DELIM."PRIVMSG");
 define("PREFIX_BUCKET_GET",PREFIX_DELIM.CMD_BUCKET_GET);
 define("PREFIX_BUCKET_SET",PREFIX_DELIM.CMD_BUCKET_SET);
 define("PREFIX_BUCKET_UNSET",PREFIX_DELIM.CMD_BUCKET_UNSET);
+define("PREFIX_BUCKET_APPEND",PREFIX_DELIM.CMD_BUCKET_APPEND);
 define("PREFIX_INTERNAL",PREFIX_DELIM.CMD_INTERNAL);
 
 # internal aliases (can also use in exec file with alias locking, but that would be just weird)

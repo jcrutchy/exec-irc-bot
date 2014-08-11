@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 10-aug-2014
+# 12-aug-2014
 
 #####################################################################################################
 
@@ -12,9 +12,6 @@ $trailing=trim($argv[1]);
 $nick=trim($argv[2]);
 $dest=trim($argv[3]);
 $alias=trim($argv[4]);
-
-$channels=get_array_bucket(BUCKET_CHANNELS);
-$nicks=get_array_bucket(BUCKET_NICKS);
 
 $parts=explode(" ",$trailing);
 delete_empty_elements($parts);
@@ -26,8 +23,24 @@ unset($parts);
 switch ($cmd)
 {
   case "REBUILD":
-    privmsg("rebuilding channel and nick register...");
+    term_echo("*** RE-BUILDING CHANNEL/NICK REGISTER ***");
     users_rebuild();
+    break;
+  case "LIST-CHANNELS":
+    $channels=get_array_bucket(BUCKET_CHANNELS);
+    privmsg("*** channels: ".implode(", ",array_keys($channels)));
+    break;
+  case "LIST-NICKS":
+    $nicks=get_array_bucket(BUCKET_NICKS);
+    privmsg("*** nicks: ".implode(", ",array_keys($nicks)));
+    break;
+  case "COUNT-CHANNELS":
+    $channels=get_array_bucket(BUCKET_CHANNELS);
+    privmsg("*** ".count($channels)." channels registered");
+    break;
+  case "COUNT-NICKS":
+    $nicks=get_array_bucket(BUCKET_NICKS);
+    privmsg("*** ".count($nicks)." nicks registered");
     break;
   case "322": # <calling_nick> <channel> <nick_count>
     handle_322($trailing);
@@ -39,9 +52,6 @@ switch ($cmd)
     handle_330($trailing);
     break;
 }
-
-set_array_bucket($channels,BUCKET_CHANNELS);
-set_array_bucket($nicks,BUCKET_NICKS);
 
 #####################################################################################################
 

@@ -116,6 +116,7 @@ switch (strtoupper($cmd))
     #echo "/INTERNAL ~meeting 318 $params\n";
     break;
   case "315": # :irc.sylnt.us 315 crutchy #Soylent :End of /WHO list.
+    #echo "/INTERNAL ~users-internal 315 $params\n";
     #echo "/INTERNAL ~meeting 315 $params\n";
     break;
   case "354": # :irc.sylnt.us 354 crutchy 152 #Soylent mrcoolbp H@+

@@ -34,7 +34,8 @@
 #~vote|10|0|0|0|crutchy|||0|php scripts/vote.php %%trailing%% %%dest%% %%nick%%
 #~meeting|10|0|0|0|crutchy|||0|php scripts/meeting.php %%trailing%% %%dest%% %%nick%%
 
-~users|1000|0|0|0|crutchy|||0|php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~tests|0|0|0|1|crutchy|||0|php test.php
+~users|0|0|0|0|crutchy|||0|php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~say|2|0|1|0|crutchy,chromas,monopoly|||0|php scripts/say.php %%trailing%% %%nick%%
 ~bucket|5|0|0|1|crutchy|||0|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 ~suggest|20|0|0|0|crutchy,mrcoolbp|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
@@ -42,7 +43,7 @@
 
 # ALIASES LIMITED TO SPECIFIC COMMANDS (UNUSALLY INTERNAL)
 ~sed-internal|10|0|0|0||INTERNAL||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
-~users-internal|30|0|0|0||INTERNAL||0|php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~users-internal|0|0|0|0||INTERNAL||0|php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~privmsg-internal|5|0|0|0||INTERNAL||0|php scripts/privmsg.php %%trailing%% %%nick%% %%dest%%
 ~welcome-internal|30|0|0|0||INTERNAL||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
 
