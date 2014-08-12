@@ -401,31 +401,30 @@ function handle_buckets($data,$handle)
         $index=$parts[0];
         unset($parts[0]);
         $trailing=implode(" ",$parts);
+        $bucket_array=array();
         if (isset($buckets[$index])==True)
         {
           $bucket_array=unserialize($buckets[$index]);
-          if ($bucket_array!==False)
-          {
-            $bucket_array[]=$trailing;
-            $bucket_string=serialize($bucket_array);
-            if ($bucket_string!==False)
-            {
-              $buckets[$index]=$bucket_string;
-              #term_echo("BUCKET_APPEND [$index]: SUCCESS");
-            }
-            else
-            {
-              term_echo("BUCKET_APPEND [$index]: SERIALIZE ERROR");
-            }
-          }
-          else
+          if ($bucket_array===False)
           {
             term_echo("BUCKET_APPEND [$index]: UNSERIALIZE ERROR");
+            return True;
           }
         }
         else
         {
-          term_echo("BUCKET_APPEND [$index]: BUCKET NOT SET");
+          term_echo("BUCKET_APPEND [$index]: NEW ARRAY BUCKET CREATED");
+        }
+        $bucket_array[]=$trailing;
+        $bucket_string=serialize($bucket_array);
+        if ($bucket_string!==False)
+        {
+          $buckets[$index]=$bucket_string;
+          #term_echo("BUCKET_APPEND [$index]: SUCCESS");
+        }
+        else
+        {
+          term_echo("BUCKET_APPEND [$index]: SERIALIZE ERROR");
         }
       }
       return True;

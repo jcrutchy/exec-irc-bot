@@ -28,11 +28,17 @@ switch ($cmd)
     break;
   case "LIST-CHANNELS":
     $channels=get_array_bucket(BUCKET_CHANNELS);
-    privmsg("*** channels: ".implode(", ",array_keys($channels)));
+    privmsg("*** channels: ".implode(", ",$channels));
     break;
   case "LIST-NICKS":
     $nicks=get_array_bucket(BUCKET_NICKS);
-    privmsg("*** nicks: ".implode(", ",array_keys($nicks)));
+    #privmsg("*** nicks: ".implode(", ",$nicks));
+    var_dump($nicks);
+    break;
+  case "LIST-ACCOUNTS":
+    $accounts=get_array_bucket(BUCKET_ACCOUNTS);
+    #privmsg("*** accounts: ".implode(", ",$accounts));
+    var_dump($accounts);
     break;
   case "COUNT-CHANNELS":
     $channels=get_array_bucket(BUCKET_CHANNELS);

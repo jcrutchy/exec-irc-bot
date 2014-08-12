@@ -36,8 +36,7 @@ function run_bucket_list_test()
 {
   global $passed;
   $count=100;
-  set_bucket(TEST_BUCKET,serialize(array(0)));
-  for ($i=1;$i<$count;$i++)
+  for ($i=0;$i<$count;$i++)
   {
     append_array_bucket(TEST_BUCKET,$i);
   }

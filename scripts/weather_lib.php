@@ -189,13 +189,14 @@ function process_weather(&$location)
           {
             $d=round($data_last[1]-$data_first[1],1);
             #$delta_str=" ($d mb over ".round($dt*60,0)." mins)";
+            $dt=$dt*60;
             if ($d>0)
             {
-              $delta_str=" (+$d mb)";
+              $delta_str=" (+$d mb/$dt mins)";
             }
             else
             {
-              $delta_str=" ($d mb)";
+              $delta_str=" ($d mb/$dt mins)";
             }
           }
           $pressmb=round($data_last[1],1);

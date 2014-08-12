@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 3-aug-2014
+# 12-aug-2014
 
 require_once("lib.php");
 
@@ -18,7 +18,7 @@ function get_time($location)
   strip_all_tag($html,"style");
   strip_all_tag($html,"a");
   $html=strip_tags($html,"<div>");
-  var_dump($html);
+  #var_dump($html);
   $result="";
   $delim1="<div id=\"res\"><div id=\"topstuff\"></div><div id=\"search\"><div id=\"ires\"><div>";
   $delim2="</div>";
