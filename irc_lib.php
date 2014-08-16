@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-aug-2014
+# 16-aug-2014
 
 #####################################################################################################
 
@@ -120,6 +120,10 @@ function log_items($items)
 {
   global $buckets;
   $dest=$items["destination"];
+  if (isset($buckets[BUCKET_LOGGED_CHANS])==False)
+  {
+    $buckets[BUCKET_LOGGED_CHANS]=serialize(array());
+  }
   $logged_chans=unserialize($buckets[BUCKET_LOGGED_CHANS]);
   if (isset($logged_chans[$dest])==True)
   {

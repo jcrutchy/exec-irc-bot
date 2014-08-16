@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 8-aug-2014
+# 16-aug-2014
 
 #####################################################################################################
 
@@ -20,33 +20,40 @@ $flag=handle_switch($alias,$dest,$nick,$trailing,"<<EXEC_SED_CHANNELS>>","~sed",
 switch ($flag)
 {
   case 0:
-    break;
+    return;
   case 1:
     privmsg("sed enabled for ".chr(3)."10$dest");
-    break;
+    return;
   case 2:
     privmsg("sed already enabled for ".chr(3)."10$dest");
-    break;
+    return;
   case 3:
     privmsg("sed disabled for ".chr(3)."10$dest");
-    break;
+    return;
   case 4:
     privmsg("sed already disabled for ".chr(3)."10$dest");
-    break;
+    return;
   case 5:
     # bot was kicked from channel
-    break;
+    return;
   case 6:
     # bot parted channel
-    break;
+    return;
   case 7:
-    sed($msg,$nick,$dest);
-    set_bucket("last_".strtolower($nick)."_".$dest,$msg);
+    if (sed($msg,$nick,$dest)==True)
+    {
+      return;
+    }
     break;
   case 8:
-    set_bucket("last_".strtolower($nick)."_".$dest,$msg);
+    # privmsg
     break;
+  case 9:
+    return;
+  case 10:
+    return;
 }
+set_bucket("last_".strtolower($nick)."_".strtolower($dest),$msg);
 
 #####################################################################################################
 
@@ -64,7 +71,7 @@ function sed($trailing,$nick,$dest)
     $trailing=substr($trailing,0,strlen($trailing)-1);
   }
   # [nick[:|,|>|.] ]s/old/new
-  $slash=chr(0).chr(0);
+  $slash=random_string(20);
   $trailing=str_replace("\/",$slash,$trailing);
   $parts=explode("/",$trailing);
   if (count($parts)==3)
@@ -72,7 +79,7 @@ function sed($trailing,$nick,$dest)
     $start=ltrim($parts[0]);
     if (trim($start)=="")
     {
-      return;
+      return False;
     }
     $start_arr=explode(" ",$start);
     $sed_nick="";
@@ -80,7 +87,7 @@ function sed($trailing,$nick,$dest)
     {
       if (strtolower($start_arr[0])<>"s")
       {
-        return;
+        return False;
       }
     }
     elseif (count($start_arr)==2)
@@ -95,18 +102,19 @@ function sed($trailing,$nick,$dest)
       }
       else
       {
-        return;
+        return False;
       }
     }
     else
     {
-      return;
+      return False;
     }
     $old=$parts[1];
+    term_echo("*** SED: $old");
     if ($old=="")
     {
       sed_help();
-      return;
+      return False;
     }
     $new=$parts[2];
     $old=str_replace($slash,"/",$old);
@@ -115,11 +123,12 @@ function sed($trailing,$nick,$dest)
     {
       $sed_nick=$nick;
     }
-    $index="last_".strtolower($sed_nick)."_".$dest;
+    $index="last_".strtolower($sed_nick)."_".strtolower($dest);
     $last=get_bucket($index);
     if ($last=="")
     {
       privmsg("last message by \"$sed_nick\" not found");
+      return False;
     }
     $action_delim=chr(1)."ACTION ";
     if (strtoupper(substr($last,0,strlen($action_delim)))==$action_delim)
@@ -128,17 +137,29 @@ function sed($trailing,$nick,$dest)
     }
     if ($replace_all==True)
     {
-      #$result=str_ireplace($old,$new,$last);
-      $result=preg_replace("/".$old."/",$new,$last);
+      if (strpos($old,"/")!==False)
+      {
+        $result=str_ireplace($old,$new,$last);
+      }
+      else
+      {
+        $result=preg_replace("/".$old."/",$new,$last);
+      }
     }
     else
     {
-      /*$result=replace_first($old,$new,$last);
-      if ($result===False)
+      if (strpos($old,"/")!==False)
       {
-        return;
-      }*/
-      $result=preg_replace("/".$old."/",$new,$last,1);
+        $result=replace_first($old,$new,$last);
+        if ($result===False)
+        {
+          return False;
+        }
+      }
+      else
+      {
+        $result=preg_replace("/".$old."/",$new,$last,1);
+      }
       if ($result==$last)
       {
         $result="";
@@ -154,12 +175,14 @@ function sed($trailing,$nick,$dest)
       {
         privmsg("<$nick> <$sed_nick> $result");
       }
+      return True;
     }
     else
     {
       sed_help();
     }
   }
+  return False;
 }
 
 #####################################################################################################

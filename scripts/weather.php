@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 7-aug-2014
+# 15-aug-2014
 
 #####################################################################################################
 
@@ -13,11 +13,10 @@
 # http://www.wxqa.com/cgi-bin/search1.cgi?keyword=EW4841
 # http://www.findu.com/cgi-bin/wx.cgi?call=EW4841&units=metric
 
-# http://www.wunderground.com/weather/api/
 
-# http://www.worldweather.org/
-# http://www.wmo.int/pages/prog/www/index_en.html
-# http://www.wmo.int/pages/prog/www/ois/ois-home.html
+
+# http://www.wunderground.com/weather/api/
+# http://openweathermap.org/city/756135
 
 # TODO: registered nick personalised settings (units, default location, private msg, formatting, etc)
 # TODO: delete codes
