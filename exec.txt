@@ -42,10 +42,10 @@
 ~wiki|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 # ALIASES LIMITED TO SPECIFIC COMMANDS (UNUSALLY INTERNAL)
-~sed-internal|10|0|0|0||INTERNAL||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
-~users-internal|0|0|0|0||INTERNAL||0|php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~privmsg-internal|5|0|0|0||INTERNAL||0|php scripts/privmsg.php %%trailing%% %%nick%% %%dest%%
-~welcome-internal|30|0|0|0||INTERNAL||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
+~sed-internal|10|0|0|1||INTERNAL||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
+~users-internal|0|0|0|1||INTERNAL||0|php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~privmsg-internal|5|0|0|1||INTERNAL||0|php scripts/privmsg.php %%trailing%% %%nick%% %%dest%%
+~welcome-internal|30|0|0|1||INTERNAL||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
 
 # TIMER SCRIPTS
 #~feed|500|1800|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
@@ -79,11 +79,12 @@
 ~up|5|0|0|1||||0|php scripts/up.php %%start%%
 ~location|5|0|0|0||||0|php scripts/location.php %%trailing%%
 
-~count|600|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~first|600|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~last|600|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~find-first|600|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~find-last|600|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~count|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~first|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~last|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~find-first|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~find-last|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~chart|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 ~translate|10|0|0|0||||0|php scripts/translate.php %%trailing%% %%alias%%
 ~translate-sl|10|0|0|0||||0|php scripts/translate.php %%trailing%% %%alias%%
@@ -100,7 +101,9 @@
 
 # DEFINITIONS
 ~define|20|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
+~define-list|20|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
 ~define-add|10|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
+~define-delete|10|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
 ~define-count|5|0|0|1||||0|php scripts/definitions.php %%trailing%% %%alias%%
 ~define-sources|5|0|0|1||||0|php scripts/definitions.php %%trailing%% %%alias%%
 ~define-source-edit|5|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%

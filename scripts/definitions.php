@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 7-aug-2014
+# 17-aug-2014
 
 # maybe eventually change to ~query
 
@@ -209,6 +209,28 @@ switch($alias)
       privmsg("syntax: ~define-add <term>, <definition>");
     }
     break;
+  case "~define-delete":
+    foreach ($terms as $term => $def)
+    {
+      $lterms[strtolower($term)]=$term;
+    }
+    if (isset($lterms[strtolower($trailing)])==True)
+    {
+      unset($terms[$lterms[strtolower($trailing)]]);
+      if (file_put_contents(DEFINITIONS_FILE,serialize($terms))===False)
+      {
+        privmsg("error writing definitions file");
+      }
+      else
+      {
+        privmsg("term \"$term\" deleted from local definitions file");
+      }
+    }
+    else
+    {
+      privmsg("syntax: ~define-delete <term>");
+    }
+    break;
   case "~define":
     foreach ($terms as $term => $def)
     {
@@ -233,6 +255,13 @@ switch($alias)
         }
       }
       privmsg("$trailing: unable to find definition");
+    }
+    break;
+  case "~define-list":
+    foreach ($terms as $term => $def)
+    {
+      #term_echo("[$term] => $def");
+      privmsg("[$term] => $def");
     }
     break;
 }

@@ -2,15 +2,13 @@
 
 # gpl2
 # by crutchy
-# 9-aug-2014
-
-# TODO: make nicks not case-sensitive
-# TODO: relationship diagram with links based on privmsgs that contain other nicks
+# 16-aug-2014
 
 #####################################################################################################
 
 date_default_timezone_set("UTC");
 require_once("lib.php");
+require_once("logs-sylnt-us_lib.php");
 
 define("CACHE_PATH","/var/www/irciv.us.to/logs.sylnt.us/");
 
@@ -120,9 +118,13 @@ for ($i=0;$i<count($links2);$i++)
       $record["time"]=$line_time;
       $record["nick"]=$line_nick;
       $record["msg"]=$line_msg;
+      $record["timestamp"]=convert_timestamp($record["date"]." ".$record["time"],"Y-m-d H:i:s");
       $lines2[$j]=serialize($record);
     }
-    file_put_contents($cache_filename,implode("\n",$lines2));
+    if ($date_file<$date_today)
+    {
+      file_put_contents($cache_filename,implode("\n",$lines2));
+    }
   }
   $privmsg=array_merge($privmsg,$lines2);
   #term_echo("processing \"$status_fn\" => lines: ".count($lines2)." [$date_file : $date_today]");
@@ -207,6 +209,15 @@ if ($trailing<>"")
           break;
         }
       }
+      break;
+  }
+}
+else
+{
+  switch ($alias)
+  {
+    case "~chart":
+      chart($privmsg2,$dest,"chart_$dest");
       break;
   }
 }

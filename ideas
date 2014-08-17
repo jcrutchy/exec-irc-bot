@@ -42,5 +42,8 @@ EXEC MODULARISATION:
 
 watchdog process - prospectacle
 
+
+freepascal-ize SN log parsing and searching
+
 FEATURE REQUESTS:
 <bytram> re weather crutchy: maybe, instead, try it with the given case, and if it comes back with nothing, then (and only then) try it case insensitive?
