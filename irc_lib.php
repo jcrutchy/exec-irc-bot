@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 17-aug-2014
+# 18-aug-2014
 
 #####################################################################################################
 
@@ -176,7 +176,10 @@ function handle_process($handle)
     {
       kill_process($handle);
       term_echo("process timed out: ".$handle["command"]);
-      privmsg($handle["destination"],$handle["nick"],"process timed out: ".$handle["alias"]." ".$handle["trailing"]);
+      if (($handle["cmd"]<>CMD_INTERNAL) and ($handle["cmd"]<>CMD_BUCKET_GET) and ($handle["cmd"]<>CMD_BUCKET_SET) and ($handle["cmd"]<>CMD_BUCKET_UNSET) and ($handle["cmd"]<>CMD_BUCKET_APPEND))
+      {
+        privmsg($handle["destination"],$handle["nick"],"process timed out: ".$handle["alias"]." ".$handle["trailing"]);
+      }
       return False;
     }
   }
@@ -1310,6 +1313,7 @@ function process_scripts($items,$reserved="")
     "auto_privmsg"=>$exec_list[$alias]["auto"],
     "start"=>$start,
     "nick"=>$items["nick"],
+    "cmd"=>$items["cmd"],
     "destination"=>$items["destination"],
     "trailing"=>$trailing);
   stream_set_blocking($pipes[1],0);

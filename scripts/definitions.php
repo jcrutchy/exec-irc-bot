@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 17-aug-2014
+# 18-aug-2014
 
 # maybe eventually change to ~query
 
@@ -59,17 +59,6 @@ if (file_exists(DEFINE_SOURCES_FILE)==False)
       "order"=>1,
       "delim_start"=>"<div class='meaning'>",
       "delim_end"=>"</div>",
-      "ignore"=>"",
-      "space_delim"=>""),
-    "www.stoacademy.com"=>array(
-      "name"=>"stoacademy",
-      "port"=>80,
-      "uri"=>"/datacore/dictionary.php?searchTerm=%%term%%",
-      "template"=>"%%term%%",
-      "get_param"=>"searchTerm=",
-      "order"=>4,
-      "delim_start"=>"<b><u>",
-      "delim_end"=>"<p>",
       "ignore"=>"",
       "space_delim"=>""));
 }
@@ -280,6 +269,7 @@ function source_define($host,$term,$params)
   $uri=str_replace($params["template"],urlencode($sterm),$params["uri"]);
   $response=wget($host,$uri,$params["port"]);
   $html=strip_headers($response);
+  $html=replace_ctrl_chars($html," ");
   /*strip_all_tag($html,"head");
   strip_all_tag($html,"script");
   strip_all_tag($html,"style");
