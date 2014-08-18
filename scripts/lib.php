@@ -255,10 +255,10 @@ function strip_ctrl_chars($url)
 
 function replace_ctrl_chars($url,$replace)
 {
-  $url=str_replace("\t","",$url);
-  $url=str_replace("\n","",$url);
-  $url=str_replace("\r","",$url);
-  $url=str_replace("\0","",$url);
+  $url=str_replace("\t",$replace,$url);
+  $url=str_replace("\n",$replace,$url);
+  $url=str_replace("\r",$replace,$url);
+  $url=str_replace("\0",$replace,$url);
   return str_replace("\x0B",$replace,$url);
 }
 

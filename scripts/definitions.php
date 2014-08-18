@@ -133,11 +133,13 @@ switch($alias)
     break;
   case "~define-source-param":
     $params=explode(" ",$trailing);
-    if (count($params)==3)
+    if (count($params)>=3)
     {
       $host=trim($params[0]);
       $param=trim($params[1]);
-      $value=trim($params[2]);
+      array_shift($params);
+      array_shift($params);
+      $value=trim(implode(" ",$params));
       if (isset($sources[$host])==True)
       {
         $action="inserted";
@@ -270,11 +272,8 @@ function source_define($host,$term,$params)
   $response=wget($host,$uri,$params["port"]);
   $html=strip_headers($response);
   $html=replace_ctrl_chars($html," ");
-  /*strip_all_tag($html,"head");
+  strip_all_tag($html,"head");
   strip_all_tag($html,"script");
-  strip_all_tag($html,"style");
-  strip_all_tag($html,"a");
-  file_put_contents("temp_define_$host",$html);*/
   if ($debug=="ON")
   {
     privmsg("debug [$host]: uri = \"$uri\"");

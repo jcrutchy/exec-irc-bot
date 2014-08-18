@@ -101,7 +101,7 @@
 
 # DEFINITIONS
 ~define|20|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
-~define-list|20|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
+~define-list|60|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
 ~define-add|10|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
 ~define-delete|10|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
 ~define-count|5|0|0|1||||0|php scripts/definitions.php %%trailing%% %%alias%%
