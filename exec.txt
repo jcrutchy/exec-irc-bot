@@ -1,3 +1,9 @@
+# gpl2
+# by crutchy
+# 19-aug-2014
+
+#####################################################################################################
+
 # alias|timeout|repeat|auto-privmsg|empty-trailing-allowed|account-list|cmd-list|dest-list|reserved|shell-cmd
 # available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%exec%%, %%params%%, %%timestamp%%
 # %%trailing%% excludes alias
@@ -6,16 +12,16 @@
 
 #####################################################################################################
 
-# EXEC ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
+# RESERVED ALIAS TRIGGERED ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 *|10|0|0|1||||0|php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
 
-# EXEC BEFORE IRC CONNECTION - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
+# RESERVED ALIAS TRIGGERED BEFORE IRC CONNECTION - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 <init>|10|0|0|1||||0|php scripts/init.php
 
-# EXEC ON QUIT - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
+# RESERVED ALIAS TRIGGERED ON QUIT - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 <quit>|10|0|0|1||||0|php scripts/quit.php
 
-# EXEC ON NICKSERV IDENTIFY - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
+# RESERVED ALIAS TRIGGERED ON NICKSERV IDENTIFY - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 <startup>|0|0|0|1||||0|php scripts/startup.php
 
 # RESERVED ALIAS FOR LOGGING ITEMS
@@ -24,7 +30,12 @@
 #####################################################################################################
 
 # REQUIRE NICKSERV IDENTIFIED USER AUTHENTICATION (WHOIS)
-
+~tests|0|0|0|1|crutchy|||0|php test.php
+~users|0|0|0|0|crutchy|||0|php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~say|2|0|1|0|crutchy,chromas,monopoly|||0|php scripts/say.php %%trailing%% %%nick%%
+~bucket|5|0|0|1|crutchy|||0|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
+~suggest|20|0|0|0|crutchy,mrcoolbp|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~wiki|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~op|5|0|0|1|crutchy|||0|php scripts/admin.php %%dest%%
 #~comment|30|0|0|1|crutchy|||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~comment-dump|120|0|0|1|crutchy|||0|php scripts/sn-tfa-comments.php %%trailing%% %%dest%% %%nick%% %%alias%%
@@ -33,13 +44,6 @@
 #~server|10|0|0|1|crutchy|||0|php scripts/server.php %%trailing%% %%dest%% %%nick%%
 #~vote|10|0|0|0|crutchy|||0|php scripts/vote.php %%trailing%% %%dest%% %%nick%%
 #~meeting|10|0|0|0|crutchy|||0|php scripts/meeting.php %%trailing%% %%dest%% %%nick%%
-
-~tests|0|0|0|1|crutchy|||0|php test.php
-~users|0|0|0|0|crutchy|||0|php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~say|2|0|1|0|crutchy,chromas,monopoly|||0|php scripts/say.php %%trailing%% %%nick%%
-~bucket|5|0|0|1|crutchy|||0|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
-~suggest|20|0|0|0|crutchy,mrcoolbp|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
-~wiki|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 # ALIASES LIMITED TO SPECIFIC COMMANDS (UNUSALLY INTERNAL)
 ~sed-internal|10|0|0|1||INTERNAL||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
@@ -55,13 +59,6 @@
 #####################################################################################################
 
 # GENERAL USAGE ALIASES
-
-#~feed-sources|5|0|0|1||||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#~feed-add|5|0|0|1||||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#~feed-del|5|0|0|1||||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#~request|5|0|0|0||||0|php scripts/exec_request.php %%trailing%% %%nick%% %%dest%%
-#~google|20|0|0|0||||0|php scripts/google.php %%trailing%%
-
 ~|5|0|1|1||||0|php scripts/about.php %%trailing%%
 ~sed|10|0|0|0||||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
 ~welcome|10|0|0|0||||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
@@ -69,6 +66,7 @@
 ~cowsay|10|0|1|0||||0|cowsay %%trailing%%
 ~moo|10|0|1|1||||0|apt-get moo
 ~fortune|5|0|1|1||||0|fortune -s
+~header|20|0|0|0||||0|php scripts/header.php %%trailing%%
 ~php|5|0|0|0||||0|php scripts/php.php %%trailing%%
 ~join|5|0|0|0||||0|php scripts/join.php %%trailing%%
 ~invite|5|0|0|0||||0|php scripts/join.php %%trailing%%
@@ -96,6 +94,12 @@
 ~time-add|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%%
 
 ~help|5|0|0|1||||0|php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
+
+#~feed-sources|5|0|0|1||||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#~feed-add|5|0|0|1||||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#~feed-del|5|0|0|1||||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#~request|5|0|0|0||||0|php scripts/exec_request.php %%trailing%% %%nick%% %%dest%%
+#~google|20|0|0|0||||0|php scripts/google.php %%trailing%%
 
 #####################################################################################################
 

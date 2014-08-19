@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-aug-2014
+# 19-aug-2014
 
 #####################################################################################################
 
@@ -10,16 +10,21 @@ require_once("lib.php");
 
 define("BUCKET_CHANNELS","<<EXEC_CHANNEL_DATA>>");
 define("BUCKET_NICKS","<<EXEC_NICK_DATA>>");
-define("BUCKET_ACCOUNTS","<<EXEC_ACCOUNT_DATA>>");
 
 #####################################################################################################
 
-function users_rebuild()
+function users_build()
 {
   unset_bucket(BUCKET_CHANNELS);
   unset_bucket(BUCKET_NICKS);
-  unset_bucket(BUCKET_ACCOUNTS);
   do_list();
+}
+
+#####################################################################################################
+
+function update_user($nick,$account)
+{
+
 }
 
 #####################################################################################################
@@ -77,7 +82,77 @@ function handle_330($trailing) # <calling_nick> <nick> <account>
   {
     return;
   }
-  append_array_bucket(BUCKET_ACCOUNTS,"$nick $account");
+  update_user($nick,$account);
+}
+
+#####################################################################################################
+
+function handle_join($nick,$channel)
+{
+  $nick=strtolower(trim($nick));
+  $channel=strtolower(trim($channel));
+  if (($nick=="") or ($channel==""))
+  {
+    return;
+  }
+  # do stuff
+}
+
+#####################################################################################################
+
+function handle_kick($op_nick,$trailing) # <channel> <kicked_nick>
+{
+  $parts=explode(" ",$trailing);
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  $op_nick=strtolower(trim($op_nick));
+  $channel=strtolower(trim($parts[1]));
+  $kicked_nick=strtolower(trim($parts[2]));
+  if (($op_nick=="") or ($channel=="") or ($kicked_nick==""))
+  {
+    return;
+  }
+  # do stuff
+}
+
+#####################################################################################################
+
+function handle_nick($old_nick,$new_nick)
+{
+  $old_nick=strtolower(trim($old_nick));
+  $new_nick=strtolower(trim($new_nick));
+  if (($old_nick=="") or ($new_nick==""))
+  {
+    return;
+  }
+  # do stuff
+}
+
+#####################################################################################################
+
+function handle_part($nick,$channel)
+{
+  $nick=strtolower(trim($nick));
+  $channel=strtolower(trim($channel));
+  if (($nick=="") or ($channel==""))
+  {
+    return;
+  }
+  # do stuff
+}
+
+#####################################################################################################
+
+function handle_quit($nick)
+{
+  $nick=strtolower(trim($nick));
+  if ($nick=="")
+  {
+    return;
+  }
+  # do stuff
 }
 
 #####################################################################################################

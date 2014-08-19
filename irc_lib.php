@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 18-aug-2014
+# 19-aug-2014
 
 #####################################################################################################
 
@@ -792,7 +792,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
           }
           else
           {
-            privmsg($items["destination"],$items["nick"],"successfully reloaded exec file");
+            privmsg($items["destination"],$items["nick"],"successfully reloaded exec file (".count($exec_list)." aliases)");
           }
         }
         break;

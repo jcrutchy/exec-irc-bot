@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 15-aug-2014
+# 19-aug-2014
 
 #####################################################################################################
 
@@ -12,8 +12,6 @@
 # EW4841|E4841|EW4841 Murrumbena                    AU|45|  -37.90783|145.07217|GMT|||1||||
 # http://www.wxqa.com/cgi-bin/search1.cgi?keyword=EW4841
 # http://www.findu.com/cgi-bin/wx.cgi?call=EW4841&units=metric
-
-
 
 # http://www.wunderground.com/weather/api/
 # http://openweathermap.org/city/756135
@@ -38,7 +36,7 @@ switch ($alias)
     $location=trim($argv[2]);
     if ($location<>"")
     {
-      $data=process_weather($location);
+      $data=process_weather2($location);
       if (is_array($data)==False)
       {
         switch ($data)
