@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 10-aug-2014
+# 19-aug-2014
 
 #####################################################################################################
 
@@ -41,6 +41,7 @@ function sn_login()
   }
   $parts=explode(";",$login_cookie);
   $cookie_user=trim($parts[0]);
+  term_echo("*** SN USER COOKIE = \"$cookie_user\"");
   return $cookie_user;
 }
 
@@ -51,8 +52,9 @@ function sn_logout()
   $agent=ICEWEASEL_UA;
   $host="soylentnews.org";
   $uri="/my/logout";
-  $port=80;
-  wget($host,$uri,$port,$agent);
+  $port=443;
+  $response=wget($host,$uri,$port,$agent);
+  #var_dump($response);
 }
 
 #####################################################################################################

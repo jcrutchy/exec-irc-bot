@@ -100,6 +100,7 @@ if ($alias=="~queue")
     privmsg("*** SN submission queue: $count");
     privmsg("*** http://soylentnews.org/submit.pl?op=list");
   }
+  sn_logout();
   return;
 }
 

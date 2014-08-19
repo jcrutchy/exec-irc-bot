@@ -66,7 +66,8 @@
 ~cowsay|10|0|1|0||||0|cowsay %%trailing%%
 ~moo|10|0|1|1||||0|apt-get moo
 ~fortune|5|0|1|1||||0|fortune -s
-~header|20|0|0|0||||0|php scripts/header.php %%trailing%%
+~header|20|0|0|0||||0|php scripts/header.php %%trailing%% %%alias%%
+~header-login|20|0|0|0||||0|php scripts/header.php %%trailing%% %%alias%%
 ~php|5|0|0|0||||0|php scripts/php.php %%trailing%%
 ~join|5|0|0|0||||0|php scripts/join.php %%trailing%%
 ~invite|5|0|0|0||||0|php scripts/join.php %%trailing%%
