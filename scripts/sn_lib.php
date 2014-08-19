@@ -41,7 +41,7 @@ function sn_login()
   }
   $parts=explode(";",$login_cookie);
   $cookie_user=trim($parts[0]);
-  term_echo("*** SN USER COOKIE = \"$cookie_user\"");
+  # term_echo("*** SN USER COOKIE = \"$cookie_user\""); # << THERE SEEMS TO BE ABOUT A 30 MINUTE CYCLE TIME FOR COOKIE VALUES
   return $cookie_user;
 }
 
