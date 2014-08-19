@@ -27,9 +27,9 @@ if (get_host_and_uri($url,$host,$uri,$port)==False)
 {
   return;
 }
-$response=wget($host,$uri,$port);
+$response=whead($host,$uri,$port);
 
-$header_value=exec_get_header($response,$header);
+$header_value=exec_get_header($response,$header,False);
 
 if ($header_value<>"")
 {
