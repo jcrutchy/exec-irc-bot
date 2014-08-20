@@ -1,6 +1,6 @@
 # gpl2
 # by crutchy
-# 20-aug-2014
+# 21-aug-2014
 
 #####################################################################################################
 
@@ -77,7 +77,7 @@
 ~queue|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~up|5|0|0|1||||0|php scripts/up.php %%start%%
 ~location|5|0|0|0||||0|php scripts/location.php %%trailing%%
-~staff|5|0|0|1||||0|php scripts/staff_meeting.php
+~staff|20|0|0|1||||0|php scripts/staff.php %%trailing%%
 
 ~count|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~first|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%

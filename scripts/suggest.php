@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-july-2014
+# 21-aug-2014
 
 #####################################################################################################
 
@@ -24,10 +24,9 @@ $utc_str=gmdate("H:i, j F Y",time());
 $title="SoylentNews:Sandbox";
 $section="Suggestions from IRC";
 
-$text=trim(get_text($title,$section,True));
-if (($text<>"") and ($text!==False))
+$lines=get_text($title,$section,True,True);
+if (is_array($lines)==True)
 {
-  $lines=explode("\n",$text);
   $nlines=array();
   for ($i=0;$i<count($lines);$i++)
   {

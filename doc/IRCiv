@@ -1,0 +1,211 @@
+
+[[File:irciv.png|100px|IRCiv logo]]
+
+
+IRCiv is a little game (and game engine of sorts) for building stuff like in "Civilization"-branded games.
+
+It is run as a script by the exec bot, which usually lurks in the #civ channel on irc.sylnt.us IRC server. Anyone welcome to come check out progress or have a tinker. Must be registered and identified with NickServ to be an IRCiv player.
+
+
+[[IRC]]
+
+[[IRC:exec]]
+
+
+==Commands==
+
+IRCiv commands must start with the [[IRC:exec|exec]] alias "civ" unless an alias lock is set (which is the case by default).
+
+===Quick start guide===
+
+<pre>
+help or ?
+</pre>
+
+===status===
+Outputs a status message to either PM (default) or the game channel if "public_status" flag is set.
+
+during testing exec auto sets the public_status flag for every player, but players can unflag it if they want
+
+===flag===
+
+syntax: [civ] flag name
+
+flags recognised:
+
+- public_status
+
+<i>outputs player active unit status to game channel instead of private message</i>
+
+- grid
+
+<i>paints gridlines on map images</i>
+
+- coords
+
+<i>paints terrain grid coordinates on map images</i>
+
+- city_names
+
+<i>paints city names under cities using player color on map images</i>
+
+example:
+<pre>
+flag public_status
+</pre>
+
+===unflag===
+syntax: [civ] unflag name
+
+===set===
+syntax: [civ] set key=value
+
+===unset===
+syntax: [civ] unset key
+
+===Active unit movement===
+
+<pre>
+up or u
+down or d
+left or l
+right or r
+</pre>
+
+after movement command, status is automatically shown
+
+if unit successfully moves, the active unit will be cycled to the next available unit
+
+units can't move off map or off landmasses
+
+
+if "public_status" flag isn't set (which is the case by default), it's probably easier to enter movement commands in the exec PM window, though they will still be recognised in the game channel; you will just have to change to PM window to see status
+
+===Building a city===
+
+<pre>
+build or b
+</pre>
+
+only settlers can build cities
+
+===Administration commands===
+
+The following commands are executed under the ~civ-admin alias and protected by an account list in the exec line, requiring whois authentication by exec.
+<pre>
+~civ-admin player-data [<nick>]
+~civ-admin player-unset <nick>
+~civ-admin player-edit <nick> <key> [<value>|"<unset>"]
+~civ-admin object-edit <nick> <array> <index> <key> [<value>|"<unset>"]
+~civ-admin player-list
+~civ-admin move-unit <nick> <index> <x> <y>
+~civ-admin part
+</pre>
+
+==Website==
+
+A simple website @ http://irciv.port119.net/ has been set up to access map images output by the IRC script.
+
+A demo can be accessed here: http://irciv.port119.net/?pid=1
+
+==Development==
+
+Developer(s): [[User:Crutchy|crutchy]]
+
+===Development journal entries===
+
+http://soylentnews.org/~crutchy/journal/441
+
+http://soylentnews.org/~crutchy/journal/419
+
+http://soylentnews.org/~crutchy/journal/397
+
+http://soylentnews.org/~crutchy/journal/393
+
+http://soylentnews.org/~crutchy/journal/386
+
+http://soylentnews.org/~crutchy/journal/381
+
+http://soylentnews.org/~crutchy/journal/379
+
+http://soylentnews.org/~crutchy/journal/367
+
+http://soylentnews.org/~crutchy/journal/357
+
+http://soylentnews.org/~crutchy/journal/355
+
+http://soylentnews.org/~crutchy/journal/352
+
+==TO DO LIST==
+# unit attacking
+# city capturing
+# city build queue
+# diplomacy
+# finances
+# tech advancement
+# new units
+
+== Development notes ==
+
+Have a "set color = R,G,B" setting, and publicly announce if a player changes color.
+
+Paint health bars above unit shields like civ2.
+
+Create attack_strength and defense_strength unit properties (for air,sea and land).
+
+If a unit moves into same coord as foreign unit and attack_strength > 0, initiate attack.
+
+Alliance settings? (use account name instead of nick)
+
+Don't allow player to move any unit with attack_strength of zero onto same coord as foreign unit/city.
+
+Attacking: for both units, health (0-100) = health - rand(attack/2,attack) + rand(defense/2,defense)
+The defense rand must be no greater than the attack rand.
+Modify attack/defense with terrain bonuses (as applicable).
+
+Map image filenames to be stored in bucket for each game/player (separate from player data bucket as doesn't need to be loaded each execute). Bucket index: "irciv_webmaps_%%game_id%%_%%player_id%%"
+
+Improve map output
+- include flags for various features: units, cities, fog, etc
+
+Goto command, using migrated delphi pathfinding algorithm.
+
+Territory: fixed radius around cities and coords occupied for certain time.
+
+Player negotiation/interaction/diplomacy.
+
+Tech advancement
+
+Finance/tax
+
+More units/city improvements
+
+Documentation
+
+===Website===
+
+Limit map file uploads to IP address (security by obscurity).
+
+Floating absolute positioned box in top left corner with mouse click data (scrollable?).
+Highlighted map tile selection image (floating, absolute).
+Use js (refer to old civ code) to show coordinates on mousemove, and tile info on mouseclick.
+Put logo in floating div in top left corner (above data div).
+No margins/padding around map image.
+
+===TODO: Delphi IRCiv client===
+
+Develop a client using Delphi that downloads map, communicates with exec using GUI controls and allows player to chat with other players (include IRC client features).
+Make a web server query (to be polled by delphi client) that returns the name of the latest map file, which contains a timestamp so that the client can determine if a new map needs to be downloaded. This is to account for actions by other players.
+When the local player takes an action, download a new map.
+
+===Exec notes===
+
+Conf file for each script (optional) contains key=value for lib.php function that sets constants for scripts.
+
+Add bucket index list command.
+
+Add a socket interface for buckets.
+
+[[Category:IRC]]
+[[Category:IRC:exec]]
+
