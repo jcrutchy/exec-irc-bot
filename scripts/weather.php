@@ -36,7 +36,7 @@ switch ($alias)
     $location=trim($argv[2]);
     if ($location<>"")
     {
-      $data=process_weather2($location);
+      $data=process_weather($location);
       if (is_array($data)==False)
       {
         switch ($data)

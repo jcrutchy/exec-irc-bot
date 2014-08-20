@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-aug-2014
+# 20-aug-2014
 
 #####################################################################################################
 
@@ -35,6 +35,7 @@ define("DIRECTIVE_QUIT","<<quit>>");
 
 # internally used buckets
 define("BUCKET_LOGGED_CHANS","<<LOGGED_CHANNELS>>");
+define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 
 # reserved aliases
 define("ALIAS_ALL","*");

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-aug-2014
+# 20-aug-2014
 
 #####################################################################################################
 
@@ -19,8 +19,16 @@ define("VALID_NUMERIC","0123456789");
 define("ICEWEASEL_UA","Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20140429 Firefox/24.0 Iceweasel/24.5.0");
 
 define("BUCKET_CONNECTION_ESTABLISHED","<<IRC_CONNECTION_ESTABLISHED>>");
+define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 
 $url_blacklist=array("kidd","porn","goat","xxx","sex","fuc");
+
+#####################################################################################################
+
+function bot_ignore_next()
+{
+  set_bucket(BUCKET_IGNORE_NEXT,"1");
+}
 
 #####################################################################################################
 

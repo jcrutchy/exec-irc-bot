@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 19-aug-2014
+# 20-aug-2014
 
 #####################################################################################################
 
@@ -576,6 +576,11 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
     }
     if (in_array($items["nick"],$ignore_list)==True)
     {
+      return;
+    }
+    if ((isset($buckets[BUCKET_IGNORE_NEXT])==True) and ($items["nick"]==NICK))
+    {
+      unset($buckets[BUCKET_IGNORE_NEXT]);
       return;
     }
     if (($items["prefix"]==IRC_HOST) and (strpos(strtolower($items["trailing"]),"throttled")!==False))

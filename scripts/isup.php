@@ -2,10 +2,21 @@
 
 # gpl2
 # by crutchy
-# 2-july-2014
+# 21-aug-2014
 
 require_once("lib.php");
 $host=trim($argv[1]);
+
+/*
+$host="";
+$uri="";
+$port=80;
+if (get_host_and_uri($url,$host,$uri,$port)==False)
+{
+  return;
+}
+*/
+
 $port=80;
 $delim443="https://";
 $delim80="http://";

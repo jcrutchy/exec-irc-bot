@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 7-aug-2014
+# 21-aug-2014
 
 define("WIKI_USER_AGENT","IRC-Executive/0.01 (https://github.com/crutchy-/test/blob/master/scripts/wiki.php; jared.crutchfield@hotmail.com)");
 define("WIKI_HOST","wiki.soylentnews.org");
@@ -168,7 +168,7 @@ function edit($title,$section,$text,$return=False)
 
 #####################################################################################################
 
-function get_text($title,$section,$return=False)
+function get_text($title,$section,$return=False,$return_lines_array=False)
 {
   if ($title=="")
   {
@@ -207,7 +207,6 @@ function get_text($title,$section,$return=False)
   if (isset($data["parse"]["text"]["*"])==True)
   {
     $text=$data["parse"]["text"]["*"];
-    var_dump($text);
     if ($section<>"")
     {
       $head="<span class=\"mw-headline\" id=\"".str_replace(" ","_",$section)."\">$section</span>";
@@ -225,20 +224,38 @@ function get_text($title,$section,$return=False)
     return False;
   }
   strip_comments($text);
-  $text=replace_ctrl_chars($text," ");
   strip_all_tag($text,"h2");
   strip_all_tag($text,"h3");
   $text=strip_tags($text);
   $text=trim($text," \t\n\r\0\x0B\"");
-  if (strlen($text)>400)
+  $br=random_string(30);
+  $text=str_replace("\n",$br,$text);
+  $text=replace_ctrl_chars($text," ");
+  if ($return_lines_array==False)
   {
-    $text=trim(substr($text,0,400))."...";
+    $text=str_replace($br," ",$text);
+    if (strlen($text)>400)
+    {
+      $text=trim(substr($text,0,400))."...";
+    }
+    bot_ignore_next();
+    wiki_privmsg($return,$text);
+    $result=$text;
   }
-  term_echo("****************************************");
-  term_echo($text);
-  term_echo("****************************************");
-  wiki_privmsg($return,$text);
-  return $text;
+  else
+  {
+    $result=explode($br,$text);
+    for ($i=0;$i<count($result);$i++)
+    {
+      $result[$i]=trim($result[$i]);
+      if (strlen($result[$i])>200)
+      {
+        $result[$i]=trim(substr($result[$i],0,200))."...";
+      }
+    }
+    delete_empty_elements($result);
+  }
+  return $result;
 }
 
 #####################################################################################################

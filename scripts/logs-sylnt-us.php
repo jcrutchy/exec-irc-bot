@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 16-aug-2014
+# 21-aug-2014
 
 #####################################################################################################
 
@@ -12,7 +12,7 @@ require_once("logs-sylnt-us_lib.php");
 
 define("CACHE_PATH","/var/www/irciv.us.to/logs.sylnt.us/");
 
-$trailing=$argv[1];
+$trailing=trim($argv[1]);
 $nick=trim($argv[2]);
 $dest=strtolower($argv[3]);
 $alias=$argv[4];
@@ -156,7 +156,19 @@ if ($trailing<>"")
   switch ($alias)
   {
     case "~count":
-      privmsg("privmsg count for $trailing in $dest: ".count($privmsg_nick));
+      if (count($privmsg_nick)>0)
+      {
+        $t1=$privmsg_nick[0]["timestamp"];
+        $t2=$privmsg_nick[count($privmsg_nick)-1]["timestamp"];
+        $days=round(($t2-$t1)/60/60/24);
+        $n=count($privmsg_nick);
+        $avg=round($n/$days);
+        privmsg("privmsg count for $trailing in $dest: $n over $days days ($avg per day avg)");
+      }
+      else
+      {
+        privmsg("no privmsgs for $trailing in $dest exist");
+      }
       break;
     case "~first":
       if (count($privmsg_nick)>0)
