@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 19-aug-2014
+# 21-aug-2014
 
 #####################################################################################################
 
@@ -22,24 +22,11 @@ unset($parts);
 
 switch ($cmd)
 {
-  case "BUILD": # TODO: call on startup
-    term_echo("*** BUILDING CHANNEL/NICK REGISTER ***");
-    users_build();
-    break;
-  case "LIST-CHANNELS":
-    $channels=get_array_bucket(BUCKET_CHANNELS);
-    privmsg("*** channels: ".implode(", ",$channels));
-    break;
-  case "LIST-NICKS":
+  case "DUMP":
     $nicks=get_array_bucket(BUCKET_NICKS);
-    #privmsg("*** nicks: ".implode(", ",$nicks));
     var_dump($nicks);
     break;
-  case "COUNT-CHANNELS":
-    $channels=get_array_bucket(BUCKET_CHANNELS);
-    privmsg("*** ".count($channels)." channels registered");
-    break;
-  case "COUNT-NICKS":
+  case "COUNT":
     $nicks=get_array_bucket(BUCKET_NICKS);
     privmsg("*** ".count($nicks)." nicks registered");
     break;

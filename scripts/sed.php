@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 16-aug-2014
+# 21-aug-2014
 
 #####################################################################################################
 
@@ -14,6 +14,8 @@ $nick=$argv[2];
 $dest=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];
+
+$delims=array("/","#"); # cannot be alphanumeric or \
 
 $msg="";
 $flag=handle_switch($alias,$dest,$nick,$trailing,"<<EXEC_SED_CHANNELS>>","~sed","~sed-internal",$msg);
@@ -40,9 +42,12 @@ switch ($flag)
     # bot parted channel
     return;
   case 7:
-    if (sed($msg,$nick,$dest)==True)
+    for ($i=0;$i<count($delims);$i++)
     {
-      return;
+      if (sed($msg,$nick,$dest,$delims[$i])==True)
+      {
+        return;
+      }
     }
     break;
   case 8:
@@ -57,23 +62,22 @@ set_bucket("last_".strtolower($nick)."_".strtolower($dest),$msg);
 
 #####################################################################################################
 
-function sed($trailing,$nick,$dest)
+function sed($trailing,$nick,$dest,$delim="/")
 {
   # [nick[:|,|>|.] ]s/old/new[/[g]]
   $replace_all=False;
-  if (substr(strtolower($trailing),strlen($trailing)-2)=="/g")
+  if (substr(strtolower($trailing),strlen($trailing)-2)==($delim."/g"))
   {
     $trailing=substr($trailing,0,strlen($trailing)-2);
     $replace_all=True;
   }
-  if (substr($trailing,strlen($trailing)-1)=="/")
+  if (substr($trailing,strlen($trailing)-1)==$delim)
   {
     $trailing=substr($trailing,0,strlen($trailing)-1);
   }
   # [nick[:|,|>|.] ]s/old/new
-  $slash=random_string(20);
-  $trailing=str_replace("\/",$slash,$trailing);
-  $parts=explode("/",$trailing);
+  $trailing=str_replace("\/","\n",$trailing);
+  $parts=explode($delim,$trailing);
   if (count($parts)==3)
   {
     $start=ltrim($parts[0]);
@@ -110,15 +114,12 @@ function sed($trailing,$nick,$dest)
       return False;
     }
     $old=$parts[1];
-    term_echo("*** SED: $old");
     if ($old=="")
     {
       sed_help();
       return False;
     }
     $new=$parts[2];
-    $old=str_replace($slash,"/",$old);
-    $new=str_replace($slash,"/",$new);
     if ($sed_nick=="")
     {
       $sed_nick=$nick;
@@ -135,35 +136,23 @@ function sed($trailing,$nick,$dest)
     {
       $last=trim(substr($last,strlen($action_delim)),chr(1));
     }
+    $old=str_replace("\n","/",$old);
+    $new=str_replace("\n","/",$new);
+    if (strpos($old,"/")!==False)
+    {
+      $delim="#";
+    }
     if ($replace_all==True)
     {
-      if (strpos($old,"/")!==False)
-      {
-        $result=str_ireplace($old,$new,$last);
-      }
-      else
-      {
-        $result=preg_replace("/".$old."/",$new,$last);
-      }
+      $result=preg_replace($delim.$old.$delim,$new,$last);
     }
     else
     {
-      if (strpos($old,"/")!==False)
-      {
-        $result=replace_first($old,$new,$last);
-        if ($result===False)
-        {
-          return False;
-        }
-      }
-      else
-      {
-        $result=preg_replace("/".$old."/",$new,$last,1);
-      }
-      if ($result==$last)
-      {
-        $result="";
-      }
+      $result=preg_replace($delim.$old.$delim,$new,$last,1);
+    }
+    if ($result==$last)
+    {
+      $result="";
     }
     if ($result<>"")
     {

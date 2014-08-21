@@ -2,29 +2,19 @@
 
 # gpl2
 # by crutchy
-# 19-aug-2014
+# 21-aug-2014
 
 #####################################################################################################
 
 require_once("lib.php");
 
-define("BUCKET_CHANNELS","<<EXEC_CHANNEL_DATA>>");
-define("BUCKET_NICKS","<<EXEC_NICK_DATA>>");
+define("BUCKET_USER_TEMPLATE","<<EXEC_USER_%%nick%%>>");
 
 #####################################################################################################
 
-function users_build()
+function user_bucket_index($nick)
 {
-  unset_bucket(BUCKET_CHANNELS);
-  unset_bucket(BUCKET_NICKS);
-  do_list();
-}
-
-#####################################################################################################
-
-function update_user($nick,$account)
-{
-
+  return str_replace("%%nick%%",$nick,BUCKET_USER_TEMPLATE);
 }
 
 #####################################################################################################
@@ -41,8 +31,6 @@ function handle_322($trailing) # <calling_nick> <channel> <nick_count>
   {
     return;
   }
-  append_array_bucket(BUCKET_CHANNELS,"$channel");
-  sleep(1);
   do_who($channel);
 }
 
@@ -62,7 +50,12 @@ function handle_354($trailing) # <calling_nick> 152 <channel> <nick> <mode_info>
   {
     return;
   }
-  append_array_bucket(BUCKET_NICKS,"$channel $nick $mode_info");
+  $record=array();
+  $record["channel"]=$channel;
+  $record["mode_info"]=$mode_info;
+  $index=user_bucket_index($nick);
+  $data=serialize($record);
+  set_bucket($index,$data);
   sleep(1);
   do_whois($nick);
 }
@@ -82,7 +75,7 @@ function handle_330($trailing) # <calling_nick> <nick> <account>
   {
     return;
   }
-  update_user($nick,$account);
+  # do stuff
 }
 
 #####################################################################################################
@@ -96,6 +89,7 @@ function handle_join($nick,$channel)
     return;
   }
   # do stuff
+  # if $nick == NICK_EXEC then do_who($channel)
 }
 
 #####################################################################################################
@@ -159,6 +153,8 @@ function handle_quit($nick)
 
 function do_list()
 {
+  unset_bucket(BUCKET_NICKS);
+  sleep(1);
   rawmsg("LIST >0,<10000");
 }
 
