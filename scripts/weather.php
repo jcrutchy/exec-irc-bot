@@ -26,14 +26,23 @@ require_once("weather_lib.php");
 require_once("time_lib.php");
 
 $alias=$argv[1];
-$trailing=$argv[2];
+$trailing=trim($argv[2]);
+$nick=trim($argv[3]);
+
 switch ($alias)
 {
   case "~weather-add":
     set_location_alias($alias,$trailing);
     break;
   case "~weather":
-    $location=trim($argv[2]);
+    if ($trailing<>"")
+    {
+      $location=$trailing;
+    }
+    else
+    {
+      $location=$nick;
+    }
     if ($location<>"")
     {
       $data=process_weather($location);

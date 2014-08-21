@@ -89,8 +89,8 @@
 ~translate|10|0|0|0||||0|php scripts/translate.php %%trailing%% %%alias%%
 ~translate-sl|10|0|0|0||||0|php scripts/translate.php %%trailing%% %%alias%%
 
-~weather|20|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%%
-~weather-add|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%%
+~weather|20|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+~weather-add|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
 
 ~time|20|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%%
 ~time-add|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%%
