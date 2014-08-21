@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 7-aug-2014
+# 21-aug-2014
 
 #####################################################################################################
 
@@ -33,7 +33,7 @@ function load_codes()
 
 #####################################################################################################
 
-function get_location($code)
+function get_location($code,$nick="")
 {
   $codes=load_codes();
   if ($codes===False)
@@ -41,13 +41,47 @@ function get_location($code)
     return False;
   }
   $code=strtolower(trim($code));
+  $nick=strtolower(trim($nick));
   if (isset($codes[$code])==True)
   {
     return $codes[$code];
   }
   else
   {
+    if (isset($codes[$nick])==True)
+    {
+      return $codes[$nick];
+    }
+    else
+    {
+      return False;
+    }
+  }
+}
+
+#####################################################################################################
+
+function del_location($code)
+{
+  $codes=load_codes();
+  if ($codes===False)
+  {
     return False;
+  }
+  $code=strtolower(trim($code));
+  if (isset($codes[$code])==False)
+  {
+    return False;
+  }
+  unset($codes[$code]);
+  $codes=array_values($codes);
+  if (file_put_contents(CODES_FILE,serialize($codes))===False)
+  {
+    return False;
+  }
+  else
+  {
+    return True;
   }
 }
 
@@ -100,11 +134,15 @@ function set_location_alias($alias,$trailing)
 
 #####################################################################################################
 
-function process_weather(&$location)
+function process_weather(&$location,$nick)
 {
-  $loc=get_location($location);
+  $loc=get_location($loc,$nick);
   if ($loc===False)
   {
+    if ($location=="")
+    {
+      return 0;
+    }
     $loc=$location;
   }
   $location=$loc;

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 19-aug-2014
+# 21-aug-2014
 
 #####################################################################################################
 
@@ -31,51 +31,48 @@ $nick=trim($argv[3]);
 
 switch ($alias)
 {
+  case "~weather-del":
+    if (del_location($trailing)==True)
+    {
+      privmsg("location \"$trailing\" deleted");
+    }
+    else
+    {
+      privmsg("location for \"$trailing\" not found");
+    }
+    break;
   case "~weather-add":
     set_location_alias($alias,$trailing);
     break;
   case "~weather":
-    if ($trailing<>"")
+    $data=process_weather($trailing,$nick);
+    if (is_array($data)==False)
     {
-      $location=$trailing;
-    }
-    else
-    {
-      $location=$nick;
-    }
-    if ($location<>"")
-    {
-      $data=process_weather($location);
-      if (is_array($data)==False)
+      switch ($data)
       {
-        switch ($data)
-        {
-          case 1:
-            privmsg("weather for \"$location\" not found. check spelling or try another nearby location.");
-            break;
-          case 2:
-            privmsg("all stations matching \"$location\" are either inactive or have no data. check spelling or try another nearby location.");
-            break;
-        }
-      }
-      else
-      {
-        $time_str=$data["utc"]." (UTC)";
-        $time=get_time($location);
-        if ($time<>"")
-        {
-          $arr=convert_google_location_time($time);
-          $t=$arr["timestamp"]-$data["age_num"]*60;
-          $time_str=date("g:i a",$t)." (".$arr["timezone"].")";
-        }
-        $color="10";
-        privmsg("weather for ".chr(2).chr(3).$color.$data["name"].chr(3).chr(2)." at $time_str".$data["age"]." temp: ".chr(2).chr(3).$color.$data["temp"].chr(3).chr(2).", dp: ".chr(2).chr(3).$color.$data["dewpoint"].chr(3).chr(2).", press: ".chr(2).chr(3).$color.$data["press"].chr(3).chr(2).", humid: ".chr(2).chr(3).$color.$data["humidity"].chr(3).chr(2).", wind: ".chr(2).chr(3).$color.$data["wind_speed"].chr(3).chr(2)." @ ".chr(2).chr(3).$color.$data["wind_direction"].chr(3).chr(2));
+        case 1:
+          privmsg("weather for \"$trailing\" not found. check spelling or try another nearby location.");
+          break;
+        case 2:
+          privmsg("all stations matching \"$trailing\" are either inactive or have no data. check spelling or try another nearby location.");
+          break;
+        default:
+          privmsg("syntax: ~weather location");
+          privmsg("weather data courtesy of the APRS Citizen Weather Observer Program (CWOP) @ http://weather.gladstonefamily.net/");
       }
     }
     else
     {
-      privmsg("syntax: ~weather location");
-      privmsg("weather data courtesy of the APRS Citizen Weather Observer Program (CWOP) @ http://weather.gladstonefamily.net/");
+      $time_str=$data["utc"]." (UTC)";
+      $time=get_time($location);
+      if ($time<>"")
+      {
+        $arr=convert_google_location_time($time);
+        $t=$arr["timestamp"]-$data["age_num"]*60;
+        $time_str=date("g:i a",$t)." (".$arr["timezone"].")";
+      }
+      $color="10";
+      privmsg("weather for ".chr(2).chr(3).$color.$data["name"].chr(3).chr(2)." at $time_str".$data["age"]." temp: ".chr(2).chr(3).$color.$data["temp"].chr(3).chr(2).", dp: ".chr(2).chr(3).$color.$data["dewpoint"].chr(3).chr(2).", press: ".chr(2).chr(3).$color.$data["press"].chr(3).chr(2).", humid: ".chr(2).chr(3).$color.$data["humidity"].chr(3).chr(2).", wind: ".chr(2).chr(3).$color.$data["wind_speed"].chr(3).chr(2)." @ ".chr(2).chr(3).$color.$data["wind_direction"].chr(3).chr(2));
     }
     break;
 }

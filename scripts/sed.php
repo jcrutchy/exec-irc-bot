@@ -62,6 +62,22 @@ set_bucket("last_".strtolower($nick)."_".strtolower($dest),$msg);
 
 #####################################################################################################
 
+/*
+<chromas> \\windowsbox\pr0nz\
+<chromas> s/\\/x/g
+<chromas> s/\\\\/x/g
+<chromas> s/\\\\/x/
+<exec> <chromas> s/x\\/x/g
+<crutchy> hmm
+<crutchy> \\windowsbox\pr0nz\
+<chromas> \\windowsbox\pr0nz\
+<chromas> s/\\/x/
+<exec> <chromas> x\windowsbox\pr0nz\
+<crutchy> s/\\/x/g
+<crutchy> wonder why that doesn't work?
+<crutchy> the /g bombs out of the script before it gets to the preg_replace
+*/
+
 function sed($trailing,$nick,$dest,$delim="/")
 {
   # [nick[:|,|>|.] ]s/pattern/replace[/[g]]
@@ -143,11 +159,7 @@ function sed($trailing,$nick,$dest,$delim="/")
     $replace=str_replace("\nF\n","/",$replace);
     term_echo("*** SED: PATTERN: $pattern");
     term_echo("*** SED: REPLACE: $replace");
-    if (strpos($pattern,"/")!==False)
-    {
-      $delim="#";
-    }
-    $pattern=preg_quote($pattern,"\\");
+    $pattern=preg_quote($pattern,"/");
     if ($replace_all==True)
     {
       $result=preg_replace($delim.$pattern.$delim,$replace,$last);
