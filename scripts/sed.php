@@ -64,7 +64,7 @@ set_bucket("last_".strtolower($nick)."_".strtolower($dest),$msg);
 
 function sed($trailing,$nick,$dest,$delim="/")
 {
-  # [nick[:|,|>|.] ]s/old/new[/[g]]
+  # [nick[:|,|>|.] ]s/pattern/replace[/[g]]
   $replace_all=False;
   if (substr(strtolower($trailing),strlen($trailing)-2)==($delim."/g"))
   {
@@ -75,8 +75,9 @@ function sed($trailing,$nick,$dest,$delim="/")
   {
     $trailing=substr($trailing,0,strlen($trailing)-1);
   }
-  # [nick[:|,|>|.] ]s/old/new
-  $trailing=str_replace("\/","\n",$trailing);
+  # [nick[:|,|>|.] ]s/pattern/replace
+  $trailing=str_replace("\\\\","\nB\n",$trailing);
+  $trailing=str_replace("\/","\nF\n",$trailing);
   $parts=explode($delim,$trailing);
   if (count($parts)==3)
   {
@@ -113,13 +114,13 @@ function sed($trailing,$nick,$dest,$delim="/")
     {
       return False;
     }
-    $old=$parts[1];
-    if ($old=="")
+    $pattern=$parts[1];
+    if ($pattern=="")
     {
       sed_help();
       return False;
     }
-    $new=$parts[2];
+    $replace=$parts[2];
     if ($sed_nick=="")
     {
       $sed_nick=$nick;
@@ -136,19 +137,24 @@ function sed($trailing,$nick,$dest,$delim="/")
     {
       $last=trim(substr($last,strlen($action_delim)),chr(1));
     }
-    $old=str_replace("\n","/",$old);
-    $new=str_replace("\n","/",$new);
-    if (strpos($old,"/")!==False)
+    $pattern=str_replace("\nB\n","\\",$pattern);
+    $replace=str_replace("\nB\n","\\",$replace);
+    $pattern=str_replace("\nF\n","/",$pattern);
+    $replace=str_replace("\nF\n","/",$replace);
+    term_echo("*** SED: PATTERN: $pattern");
+    term_echo("*** SED: REPLACE: $replace");
+    if (strpos($pattern,"/")!==False)
     {
       $delim="#";
     }
+    $pattern=preg_quote($pattern,"\\");
     if ($replace_all==True)
     {
-      $result=preg_replace($delim.$old.$delim,$new,$last);
+      $result=preg_replace($delim.$pattern.$delim,$replace,$last);
     }
     else
     {
-      $result=preg_replace($delim.$old.$delim,$new,$last,1);
+      $result=preg_replace($delim.$pattern.$delim,$replace,$last,1);
     }
     if ($result==$last)
     {
@@ -178,7 +184,7 @@ function sed($trailing,$nick,$dest,$delim="/")
 
 function sed_help()
 {
-  privmsg("syntax: ".chr(3)."8[nick[:|,|>|.] ]s/pattern/replace[/[g]]");
+  #privmsg("syntax: ".chr(3)."8[nick[:|,|>|.] ]s/pattern/replace[/[g]]");
 }
 
 #####################################################################################################
