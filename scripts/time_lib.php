@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-aug-2014
+# 22-aug-2014
 
 require_once("lib.php");
 
@@ -17,24 +17,28 @@ function get_time($location)
   strip_all_tag($html,"script");
   strip_all_tag($html,"style");
   strip_all_tag($html,"a");
-  $html=strip_tags($html,"<div>");
   #var_dump($html);
   $result="";
-  $delim1="<div id=\"res\"><div id=\"topstuff\"></div><div id=\"search\"><div id=\"ires\"><div>";
-  $delim2="</div>";
+  $delim1="<table class=\"obcontainer\"";
+  $delim2="</table>";
   $i=strpos($html,$delim1);
   if ($i!==False)
   {
-    $html=substr($html,$i+strlen($delim1));
+    $html=substr($html,$i);
     $i=strpos($html,$delim2);
     if ($i!==False)
     {
       $html=trim(substr($html,0,$i));
+      $html=strip_tags($html);
       if (($html<>"") and (strpos($html,"Time in")!==False))
       {
         $result=substr($html,0,300);
       }
     }
+  }
+  else
+  {
+    term_echo("*** TIME: delim1 not found");
   }
   return $result;
 }

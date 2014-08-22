@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 3-aug-2014
+# 22-aug-2014
 
 #####################################################################################################
 
@@ -12,38 +12,53 @@ require_once("weather_lib.php");
 date_default_timezone_set("UTC");
 
 $alias=$argv[1];
-$trailing=$argv[2];
+$trailing=trim($argv[2]);
+$nick=strtolower(trim($argv[3]));
+
 switch ($alias)
 {
   case "~time-add":
     set_location_alias($alias,$trailing);
     break;
-  case "~time":
-    $location=trim($argv[2]);
-    if ($location<>"")
+  case "~time-del":
+    if (del_location($trailing)==True)
     {
-      $loc=get_location($location);
-      if ($loc===False)
-      {
-        $loc=$location;
-      }
-      term_echo("*** TIME LOCATION: $loc");
-      $result=get_time($loc);
-      if ($result<>"")
-      {
-        #privmsg($result);
-        $arr=convert_google_location_time($result);
-        privmsg(date("l, j F Y @ g:i a",$arr["timestamp"])." ".$arr["timezone"]." - ".$arr["location"]);
-      }
-      else
-      {
-        privmsg("location not found - UTC timestamp: ".date("l, j F Y, g:i a"));
-      }
+      privmsg("location \"$trailing\" deleted");
     }
     else
     {
-      privmsg("syntax: ~time location");
-      privmsg("time data courtesy of Google");
+      if (trim($trailing)<>"")
+      {
+        privmsg("location for \"$trailing\" not found");
+      }
+      else
+      {
+        privmsg("syntax: ~time-del <name>");
+      }
+    }
+    break;
+  case "~time":
+    $loc=get_location($trailing,$nick);
+    if ($loc===False)
+    {
+      if ($trailing=="")
+      {
+        privmsg("syntax: ~time location");
+        privmsg("time data courtesy of Google");
+        return;
+      }
+      $loc=$trailing;
+    }
+    term_echo("*** TIME LOCATION: $loc");
+    $result=get_time($loc);
+    if ($result<>"")
+    {
+      $arr=convert_google_location_time($result);
+      privmsg(date("l, j F Y @ g:i a",$arr["timestamp"])." ".$arr["timezone"]." - ".$arr["location"]);
+    }
+    else
+    {
+      privmsg("location not found - UTC timestamp: ".date("l, j F Y, g:i a"));
     }
     break;
 }

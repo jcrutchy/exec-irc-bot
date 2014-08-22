@@ -1,6 +1,6 @@
 # gpl2
 # by crutchy
-# 21-aug-2014
+# 22-aug-2014
 
 #####################################################################################################
 
@@ -93,8 +93,9 @@
 ~weather-add|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
 ~weather-del|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
 
-~time|20|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%%
-~time-add|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%%
+~time|20|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
+~time-add|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
+~time-del|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
 
 ~help|20|0|0|1||||0|php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
 

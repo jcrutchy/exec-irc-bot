@@ -2,55 +2,61 @@
 
 # gpl2
 # by crutchy
-# 21-aug-2014
+# 22-aug-2014
 
 #####################################################################################################
 
 require_once("lib.php");
-define("CODES_FILE","../data/weather.codes");
+define("LOCATIONS_FILE","../data/locations.txt");
 
 #####################################################################################################
 
-function load_codes()
+function load_locations()
 {
-  if (file_exists(CODES_FILE)==False)
+  if (file_exists(LOCATIONS_FILE)==False)
   {
-    term_echo("*** LOCATION CODES FILE NOT FOUND ***");
+    term_echo("*** LOCATIONS FILE NOT FOUND ***");
     return False;
   }
-  $codes=file_get_contents(CODES_FILE);
-  if ($codes===False)
-  {
-    return False;
-  }
-  $codes=unserialize($codes);
-  if ($codes===False)
+  $data=file_get_contents(LOCATIONS_FILE);
+  if ($data===False)
   {
     return False;
   }
-  return $codes;
+  $data=explode("\n",$data);
+  $locations=array();
+  for ($i=0;$i<count($data);$i++)
+  {
+    $parts=explode(" = ",$data[$i]);
+    if (count($parts)<>2)
+    {
+      continue;
+    }
+    $locations[$parts[0]]=$parts[1];
+  }
+  return $locations;
 }
 
 #####################################################################################################
 
-function get_location($code,$nick="")
+function get_location($name,$nick="")
 {
-  $codes=load_codes();
-  if ($codes===False)
+  $locations=load_locations();
+  if ($locations===False)
   {
     return False;
   }
-  $code=strtolower(trim($code));
+  $name=strtolower(trim($name));
   $nick=strtolower(trim($nick));
-  if (isset($codes[$code])==True)
+  if (isset($locations[$name])==True)
   {
-    return $codes[$code];
+    return $locations[$name];
   }
   else
   {
-    if (isset($codes[$nick])==True)
+    if ((isset($locations[$nick])==True) and ($name==""))
     {
-      return $codes[$nick];
+      return $locations[$nick];
     }
     else
     {
@@ -61,43 +67,47 @@ function get_location($code,$nick="")
 
 #####################################################################################################
 
-function del_location($code)
+function del_location($name)
 {
-  $codes=load_codes();
-  if ($codes===False)
+  $locations=load_locations();
+  if ($locations===False)
   {
     return False;
   }
-  $code=strtolower(trim($code));
-  if (isset($codes[$code])==False)
+  $name=strtolower(trim($name));
+  if (isset($locations[$name])==False)
   {
     return False;
   }
-  unset($codes[$code]);
-  $codes=array_values($codes);
-  if (file_put_contents(CODES_FILE,serialize($codes))===False)
-  {
-    return False;
-  }
-  else
-  {
-    return True;
-  }
+  unset($locations[$name]);
+  return save_locations($locations);
 }
 
 #####################################################################################################
 
-function set_location($code,$location)
+function set_location($name,$location)
 {
-  $codes=load_codes();
-  if ($codes===False)
+  $locations=load_locations();
+  if ($locations===False)
   {
     return False;
   }
-  $code=strtolower(trim($code));
+  $name=strtolower(trim($name));
   $location=trim($location);
-  $codes[$code]=$location;
-  if (file_put_contents(CODES_FILE,serialize($codes))===False)
+  $locations[$name]=$location;
+  return save_locations($locations);
+}
+
+#####################################################################################################
+
+function save_locations(&$locations)
+{
+  $data="";
+  foreach ($locations as $name => $location)
+  {
+    $data=$data.$name." = ".$location."\n";
+  }
+  if (file_put_contents(LOCATIONS_FILE,$data)===False)
   {
     return False;
   }
@@ -114,21 +124,21 @@ function set_location_alias($alias,$trailing)
   $parts=explode(" ",$trailing);
   if (count($parts)>1)
   {
-    $code=$parts[0];
+    $name=$parts[0];
     array_shift($parts);
     $location=implode(" ",$parts);
-    if (set_location($code,$location)==False)
+    if (set_location($name,$location)==False)
     {
-      privmsg("error setting code \"$code\" for location \"$location\"");
+      privmsg("error setting name \"$name\" for location \"$location\"");
     }
     else
     {
-      privmsg("code \"$code\" set for location \"$location\"");
+      privmsg("name \"$name\" set for location \"$location\"");
     }
   }
   else
   {
-    privmsg("syntax: $alias code location (code cannot contain spaces but location can contain spaces)");
+    privmsg("syntax: $alias name location (name cannot contain spaces but location can contain spaces)");
   }
 }
 
@@ -136,7 +146,7 @@ function set_location_alias($alias,$trailing)
 
 function process_weather(&$location,$nick)
 {
-  $loc=get_location($loc,$nick);
+  $loc=get_location($location,$nick);
   if ($loc===False)
   {
     if ($location=="")

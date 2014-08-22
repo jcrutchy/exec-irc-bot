@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 21-aug-2014
+# 22-aug-2014
 
 define("WIKI_USER_AGENT","IRC-Executive/0.01 (https://github.com/crutchy-/test/blob/master/scripts/wiki.php; jared.crutchfield@hotmail.com)");
 define("WIKI_HOST","wiki.soylentnews.org");
@@ -248,9 +248,9 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
     for ($i=0;$i<count($result);$i++)
     {
       $result[$i]=trim($result[$i]);
-      if (strlen($result[$i])>200)
+      if (strlen($result[$i])>300)
       {
-        $result[$i]=trim(substr($result[$i],0,200))."...";
+        $result[$i]=trim(substr($result[$i],0,300))."...";
       }
     }
     delete_empty_elements($result);

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 21-aug-2014
+# 22-aug-2014
 
 #####################################################################################################
 
@@ -38,7 +38,14 @@ switch ($alias)
     }
     else
     {
-      privmsg("location for \"$trailing\" not found");
+      if (trim($trailing)<>"")
+      {
+        privmsg("location for \"$trailing\" not found");
+      }
+      else
+      {
+        privmsg("syntax: ~weather-del <name>");
+      }
     }
     break;
   case "~weather-add":
@@ -64,7 +71,7 @@ switch ($alias)
     else
     {
       $time_str=$data["utc"]." (UTC)";
-      $time=get_time($location);
+      $time=get_time($trailing);
       if ($time<>"")
       {
         $arr=convert_google_location_time($time);
