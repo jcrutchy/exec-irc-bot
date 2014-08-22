@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 21-aug-2014
+# 22-aug-2014
 
 #####################################################################################################
 
@@ -62,27 +62,11 @@ set_bucket("last_".strtolower($nick)."_".strtolower($dest),$msg);
 
 #####################################################################################################
 
-/*
-<chromas> \\windowsbox\pr0nz\
-<chromas> s/\\/x/g
-<chromas> s/\\\\/x/g
-<chromas> s/\\\\/x/
-<exec> <chromas> s/x\\/x/g
-<crutchy> hmm
-<crutchy> \\windowsbox\pr0nz\
-<chromas> \\windowsbox\pr0nz\
-<chromas> s/\\/x/
-<exec> <chromas> x\windowsbox\pr0nz\
-<crutchy> s/\\/x/g
-<crutchy> wonder why that doesn't work?
-<crutchy> the /g bombs out of the script before it gets to the preg_replace
-*/
-
 function sed($trailing,$nick,$dest,$delim="/")
 {
   # [nick[:|,|>|.] ]s/pattern/replace[/[g]]
   $replace_all=False;
-  if (substr(strtolower($trailing),strlen($trailing)-2)==($delim."/g"))
+  if (substr(strtolower($trailing),strlen($trailing)-2)==($delim."g"))
   {
     $trailing=substr($trailing,0,strlen($trailing)-2);
     $replace_all=True;
@@ -157,9 +141,13 @@ function sed($trailing,$nick,$dest,$delim="/")
     $replace=str_replace("\nB\n","\\",$replace);
     $pattern=str_replace("\nF\n","/",$pattern);
     $replace=str_replace("\nF\n","/",$replace);
+    $pattern=str_replace("\\\\","\nDB\n",$pattern);
+    $pattern=str_replace("/","\/",$pattern);
+    $pattern=str_replace("\nDB\n","\\\\",$pattern);
+    term_echo("*** SED: NICK: $nick");
+    term_echo("*** SED: SUBJECT: $last");
     term_echo("*** SED: PATTERN: $pattern");
     term_echo("*** SED: REPLACE: $replace");
-    $pattern=preg_quote($pattern,"/");
     if ($replace_all==True)
     {
       $result=preg_replace($delim.$pattern.$delim,$replace,$last);
