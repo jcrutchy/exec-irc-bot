@@ -1,6 +1,6 @@
 # gpl2
 # by crutchy
-# 22-aug-2014
+# 24-aug-2014
 
 #####################################################################################################
 
@@ -78,6 +78,8 @@
 ~up|5|0|0|1||||0|php scripts/up.php %%start%%
 ~location|5|0|0|0||||0|php scripts/location.php %%trailing%%
 ~staff|20|0|0|1||||0|php scripts/staff.php %%trailing%%
+~g'day|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
+~gday|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
 
 ~count|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~first|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
@@ -134,9 +136,9 @@
 #~sedbot-ii|0|0|0|1|crutchy|||0|ii -s irc.sylnt.us -p 6667 -n SedBot2 -f SedBot2
 #~sedbot-cmd|0|0|0|1|crutchy|||0|echo %%trailing%% > ~/irc/irc.sylnt.us/in
 
-#~sedbot-awk1|0|0|0|1|crutchy|||0|tail -Fn1 /home/jared/irc/irc.sylnt.us/#soylent/out | ./sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#soylent/in
-#~sedbot-awk2|0|0|0|1|crutchy|||0|tail -Fn1 /home/jared/irc/irc.sylnt.us/##/out | ./sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/##/in
-#~sedbot-awk3|0|0|0|1|crutchy|||0|tail -Fn1 /home/jared/irc/irc.sylnt.us/#test/out | ./sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#test/in
+#~sedbot-awk1|0|0|0|1|crutchy|||0|tail -Fn1 /home/jared/irc/irc.sylnt.us/#soylent/out | /home/jared/sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#soylent/in
+#~sedbot-awk2|0|0|0|1|crutchy|||0|tail -Fn1 /home/jared/irc/irc.sylnt.us/##/out | /home/jared/sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/##/in
+#~sedbot-awk3|0|0|0|1|crutchy|||0|tail -Fn1 /home/jared/irc/irc.sylnt.us/#test/out | /home/jared/sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#test/in
 
 #~sedbot-tail0|0|0|0|1|crutchy|||0|tail -Fn1 ~/irc/irc.sylnt.us/out
 #~sedbot-tail1|0|0|0|1|crutchy|||0|tail -Fn1 ~/irc/irc.sylnt.us/#soylent/out

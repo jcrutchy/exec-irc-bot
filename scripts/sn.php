@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-aug-2014
+# 23-aug-2014
 
 /*
 - the bot could keeep track of irc comments and if you type something like
@@ -97,8 +97,7 @@ if ($alias=="~queue")
   $count=extract_text($response,$delim1,$delim2);
   if ($count!==False)
   {
-    privmsg("*** SN submission queue: $count");
-    privmsg("*** http://soylentnews.org/submit.pl?op=list");
+    privmsg("*** SN submission queue: $count - http://sylnt.us/queue");
   }
   sn_logout();
   return;

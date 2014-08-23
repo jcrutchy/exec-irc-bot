@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 20-aug-2014
+# 24-aug-2014
 
 #####################################################################################################
 
@@ -135,6 +135,13 @@ function privmsg($msg)
 
 #####################################################################################################
 
+function action($msg)
+{
+  rawmsg(chr(1)."ACTION smiles at $msg");
+}
+
+#####################################################################################################
+
 function rawmsg($msg)
 {
   echo "/IRC $msg\n";
@@ -224,7 +231,7 @@ function check_url($url)
 
 function wtouch($host,$uri,$port,$timeout=5)
 {
-  if (check_url($host.$uri)==False)
+  if (check_url($host.$uri)==False) # check url against blacklist
   {
     return False;
   }
@@ -409,7 +416,7 @@ function get_redirected_url($from_url,$url_list="")
 
 function whead($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout=20)
 {
-  if (check_url($host.$uri)==False)
+  if (check_url($host.$uri)==False) # check url against blacklist
   {
     return "";
   }
@@ -464,7 +471,7 @@ function wget_ssl($host,$uri,$agent=ICEWEASEL_UA,$extra_headers="")
 
 function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout=20)
 {
-  if (check_url($host.$uri)==False)
+  if (check_url($host.$uri)==False) # check url against blacklist
   {
     return "";
   }
@@ -512,7 +519,7 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
 
 function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$timeout=20)
 {
-  if (check_url($host.$uri)==False)
+  if (check_url($host.$uri)==False) # check url against blacklist
   {
     return "";
   }

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 18-aug-2014
+# 22-aug-2014
 
 # maybe eventually change to ~query
 
@@ -14,6 +14,8 @@
 # wiktionary
 # google
 # http://en.memory-alpha.org
+
+# change data file format to lines instead of serialized string
 
 #####################################################################################################
 
@@ -201,10 +203,12 @@ switch($alias)
     }
     break;
   case "~define-delete":
+    $lterms=array();
     foreach ($terms as $term => $def)
     {
       $lterms[strtolower($term)]=$term;
     }
+    term_echo("DEFINE-DELETE: TRAILING = $trailing");
     if (isset($lterms[strtolower($trailing)])==True)
     {
       unset($terms[$lterms[strtolower($trailing)]]);

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 21-aug-2014
+# 23-aug-2014
 
 #####################################################################################################
 
@@ -19,45 +19,35 @@ function user_bucket_index($nick)
 
 #####################################################################################################
 
-function handle_322($trailing) # <calling_nick> <channel> <nick_count>
+function handle_353($trailing) # <calling_nick> = <channel> <nick1> <+nick2> <@nick3>
 {
   $parts=explode(" ",$trailing);
-  if (count($parts)<>3)
-  {
-    return;
-  }
-  $channel=strtolower(trim($parts[1]));
-  if ($channel=="")
-  {
-    return;
-  }
-  do_who($channel);
-}
-
-#####################################################################################################
-
-function handle_354($trailing) # <calling_nick> 152 <channel> <nick> <mode_info>
-{
-  $parts=explode(" ",$trailing);
-  if (count($parts)<>5)
+  if (count($parts)<4)
   {
     return;
   }
   $channel=strtolower(trim($parts[2]));
-  $nick=strtolower(trim($parts[3]));
-  $mode_info=strtolower(trim($parts[4]));
-  if (($channel=="") or ($nick=="") or ($mode_info==""))
+  if ($channel=="")
   {
     return;
   }
-  $record=array();
-  $record["channel"]=$channel;
-  $record["mode_info"]=$mode_info;
-  $index=user_bucket_index($nick);
-  $data=serialize($record);
-  set_bucket($index,$data);
-  sleep(1);
-  do_whois($nick);
+  for ($i=1;$i<=3;$i++)
+  {
+    array_shift($parts);
+  }
+  for ($i=0;$i<count($parts);$i++)
+  {
+    $nick=strtolower(trim($parts[$i]));
+    # check for + or @ as first char of nick
+    /*$record=array();
+    $record["channel"]=$channel;
+    $record["mode_info"]=$mode_info;
+    $index=user_bucket_index($nick);
+    $data=serialize($record);
+    set_bucket($index,$data);
+    sleep(1);
+    do_whois($nick);*/
+  }
 }
 
 #####################################################################################################
@@ -89,7 +79,6 @@ function handle_join($nick,$channel)
     return;
   }
   # do stuff
-  # if $nick == NICK_EXEC then do_who($channel)
 }
 
 #####################################################################################################
@@ -147,22 +136,6 @@ function handle_quit($nick)
     return;
   }
   # do stuff
-}
-
-#####################################################################################################
-
-function do_list()
-{
-  unset_bucket(BUCKET_NICKS);
-  sleep(1);
-  rawmsg("LIST >0,<10000");
-}
-
-#####################################################################################################
-
-function do_who($channel)
-{
-  rawmsg("WHO $channel %ctnf,152");
 }
 
 #####################################################################################################
