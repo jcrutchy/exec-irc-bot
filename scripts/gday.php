@@ -24,6 +24,7 @@ $actions=array(
   "hurls"=>"at",
   "flings"=>"at",
   "offers"=>"to",
+  "tosses"=>"to",
   "postulates"=>"towards");
 $containers=array(
   "cold can",
@@ -33,6 +34,7 @@ $containers=array(
   "wine flute",
   "bathtub",
   "bucket",
+  "wad",
   "toilet bowl",
   "coffee++ mug");
 $beverages=array(

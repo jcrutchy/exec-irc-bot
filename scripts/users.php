@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 23-aug-2014
+# 24-aug-2014
 
 #####################################################################################################
 
@@ -22,16 +22,12 @@ unset($parts);
 
 switch ($cmd)
 {
-  case "DUMP":
-    $nicks=get_array_bucket(BUCKET_NICKS);
-    var_dump($nicks);
-    break;
-  case "COUNT":
-    $nicks=get_array_bucket(BUCKET_NICKS);
-    privmsg("*** ".count($nicks)." nicks registered");
+  case "TEST":
+    $buckets=bucket_list();
+    privmsg($buckets);
     break;
   case "353": # trailing = <calling_nick> = <channel> <nick1> <+nick2> <@nick3>
-    handle_354($trailing);
+    handle_353($trailing);
     break;
   case "330": # trailing = <calling_nick> <nick> <account>
     handle_330($trailing);

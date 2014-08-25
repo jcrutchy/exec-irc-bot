@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 20-aug-2014
+# 24-aug-2014
 
 #####################################################################################################
 
@@ -22,7 +22,7 @@ function startup()
 
 #####################################################################################################
 
-function get_valid_data_cmd()
+function get_valid_data_cmd($allow_customs=True)
 {
   /*
   "000" = <command>
@@ -39,11 +39,6 @@ function get_valid_data_cmd()
   $result=array(
     "INIT"=>array("000"),
     "STARTUP"=>array("000"),
-    CMD_INTERNAL=>array("100","101","110","111"),
-    CMD_BUCKET_GET=>array("001","101"),
-    CMD_BUCKET_SET=>array("001","101"),
-    CMD_BUCKET_UNSET=>array("001","101"),
-    CMD_BUCKET_APPEND=>array("001","101"),
     "#"=>array("101","110","111"),
     "INVITE"=>array("111"),
     "JOIN"=>array("110"),
@@ -56,6 +51,25 @@ function get_valid_data_cmd()
     "PRIVMSG"=>array("111"),
     "QUIT"=>array("100","101"),
     "PONG"=>array("110","111"));
+  if ($allow_customs==True)
+  {
+    $customs=get_valid_custom_cmd();
+    $result=array_merge($result,$customs);
+  }
+  return $result;
+}
+
+#####################################################################################################
+
+function get_valid_custom_cmd()
+{
+  $result=array(
+    CMD_INTERNAL=>array("100","101","110","111"),
+    CMD_BUCKET_GET=>array("001","101"),
+    CMD_BUCKET_SET=>array("001","101"),
+    CMD_BUCKET_UNSET=>array("001","101"),
+    CMD_BUCKET_APPEND=>array("001","101"),
+    CMD_BUCKET_LIST=>array("000","100"));
   return $result;
 }
 
@@ -176,7 +190,7 @@ function handle_process($handle)
     {
       kill_process($handle);
       term_echo("process timed out: ".$handle["command"]);
-      if (($handle["cmd"]<>CMD_INTERNAL) and ($handle["cmd"]<>CMD_BUCKET_GET) and ($handle["cmd"]<>CMD_BUCKET_SET) and ($handle["cmd"]<>CMD_BUCKET_UNSET) and ($handle["cmd"]<>CMD_BUCKET_APPEND))
+      if (($handle["cmd"]<>CMD_INTERNAL) and ($handle["cmd"]<>CMD_BUCKET_GET) and ($handle["cmd"]<>CMD_BUCKET_SET) and ($handle["cmd"]<>CMD_BUCKET_UNSET) and ($handle["cmd"]<>CMD_BUCKET_APPEND) and ($handle["cmd"]<>CMD_BUCKET_LIST))
       {
         privmsg($handle["destination"],$handle["nick"],"process timed out: ".$handle["alias"]." ".$handle["trailing"]);
       }
@@ -271,6 +285,15 @@ function handle_stdout($handle)
           {
             handle_data(":$nick ".CMD_INTERNAL." ".$handle["destination"]." :".$prefix_msg."\n");
           }
+          return;
+      }
+    }
+    else
+    {
+      switch ($prefix)
+      {
+        case PREFIX_BUCKET_LIST:
+          handle_buckets(CMD_BUCKET_LIST."\n",$handle);
           return;
       }
     }
@@ -433,6 +456,25 @@ function handle_buckets($data,$handle)
         {
           term_echo("BUCKET_APPEND [$index]: SERIALIZE ERROR");
         }
+      }
+      return True;
+    case CMD_BUCKET_LIST:
+      $data="";
+      foreach ($buckets as $index => $value)
+      {
+        if ($data=="")
+        {
+          $data=$index;
+        }
+        else
+        {
+          $data=$data." ".$index;
+        }
+      }
+      $result=handle_stdin($handle,$data);
+      if ($result===False)
+      {
+        term_echo("BUCKET_LIST: ERROR WRITING TO STDIN");
       }
       return True;
   }
@@ -854,59 +896,6 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
 
 #####################################################################################################
 
-function rawmsg($msg,$obfuscate=False)
-{
-  global $socket;
-  global $throttle_time;
-  global $rawmsg_times;
-  if ($throttle_time!==False)
-  {
-    $delta=microtime(True)-$throttle_time;
-    if ($delta>THROTTLE_LOCKOUT_TIME)
-    {
-      $throttle_time=False;
-    }
-    else
-    {
-      term_echo("*** REFUSED OUTGOING MESSAGE DUE TO SERVER THROTTLING: $msg");
-      return;
-    }
-  }
-  $n=count($rawmsg_times);
-  if ($n>0)
-  {
-    $last=$rawmsg_times[$n-1];
-    $dt=microtime(True)-$last;
-    if ($dt>THROTTLE_LOCKOUT_TIME)
-    {
-      $rawmsg_times=array();
-    }
-    else
-    {
-      if ($n>=RAWMSG_TIME_COUNT)
-      {
-        usleep(ANTI_FLOOD_DELAY*1e6);
-      }
-    }
-  }
-  fputs($socket,$msg."\n");
-  $rawmsg_times[]=microtime(True);
-  while (count($rawmsg_times)>RAWMSG_TIME_COUNT)
-  {
-    array_shift($rawmsg_times);
-  }
-  if ($obfuscate==False)
-  {
-    handle_data($msg."\n",True,False,True);
-  }
-  else
-  {
-    term_echo("RAWMSG: (obfuscated)");
-  }
-}
-
-#####################################################################################################
-
 function exec_load()
 {
   global $exec_list;
@@ -1051,13 +1040,6 @@ function pingpong($data)
 
 #####################################################################################################
 
-function term_echo($msg)
-{
-  echo "\033[33m".date("Y-m-d H:i:s",microtime(True))." > \033[31m$msg\033[0m\n";
-}
-
-#####################################################################################################
-
 function parse_data($data)
 {
   global $valid_data_cmd;
@@ -1171,42 +1153,6 @@ function construct_mask($items)
     $result[2]="1";
   }
   return $result;
-}
-
-#####################################################################################################
-
-function privmsg($destination,$nick,$msg)
-{
-  global $dest_overrides;
-  if ($destination=="")
-  {
-    term_echo("PRIVMSG: DESTINATION NOT SPECIFIED: nick=\"$nick\", msg=\"$msg\"");
-    return;
-  }
-  if ($msg=="")
-  {
-    term_echo("PRIVMSG: NO TEXT TO SEND: nick=\"$nick\", destination=\"$destination\"");
-    return;
-  }
-  $msg=substr($msg,0,MAX_MSG_LENGTH);
-  if (isset($dest_overrides[$nick][$destination])==True)
-  {
-    $data=":".NICK." PRIVMSG ".$dest_overrides[$nick][$destination]." :$msg";
-    rawmsg($data);
-  }
-  else
-  {
-    if (substr($destination,0,1)=="#")
-    {
-      $data=":".NICK." PRIVMSG $destination :$msg";
-      rawmsg($data);
-    }
-    else
-    {
-      $data=":".NICK." PRIVMSG $nick :$msg";
-      rawmsg($data);
-    }
-  }
 }
 
 #####################################################################################################

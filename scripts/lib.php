@@ -8,6 +8,8 @@
 
 ini_set("display_errors","on");
 
+require_once("lib_buckets.php");
+
 define("NICK_EXEC","exec");
 
 define("VALID_UPPERCASE","ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -50,53 +52,6 @@ function delete_empty_elements(&$array)
     }
   }
   $array=array_values($array);
-}
-
-#####################################################################################################
-
-function get_array_bucket($bucket)
-{
-  $array=array();
-  $array_bucket=get_bucket($bucket);
-  if ($array_bucket=="")
-  {
-    term_echo("\"$bucket\" bucket contains no data");
-  }
-  else
-  {
-    $array=unserialize($array_bucket);
-    if ($array===False)
-    {
-      err("error unserializing \"$bucket\" bucket data");
-    }
-  }
-  return $array;
-}
-
-#####################################################################################################
-
-function append_array_bucket($index,$value)
-{
-  echo "/BUCKET_APPEND $index $value\n";
-}
-
-#####################################################################################################
-
-function set_array_bucket($array,$bucket,$unset=True)
-{
-  $bucket_data=serialize($array);
-  if ($bucket_data===False)
-  {
-    term_echo("error serializing \"$bucket\" bucket");
-  }
-  else
-  {
-    if ($unset==True)
-    {
-      unset_bucket($bucket);
-    }
-    set_bucket($bucket,$bucket_data);
-  }
 }
 
 #####################################################################################################
@@ -167,47 +122,6 @@ function err($msg)
 {
   term_echo($msg);
   die();
-}
-
-#####################################################################################################
-
-function get_bucket($index)
-{
-  echo "/BUCKET_GET $index\n";
-  $f=fopen("php://stdin","r");
-  $data="";
-  while (True)
-  {
-    $line=trim(fgets($f));
-    if (($line=="") or ($line=="<<EOF>>"))
-    {
-      break;
-    }
-    $data=$data.$line;
-  }
-  if ($data===False)
-  {
-    err("unable to read bucket data");
-  }
-  else
-  {
-    return trim($data);
-  }
-  fclose($f);
-}
-
-#####################################################################################################
-
-function set_bucket($index,$data)
-{
-  echo "/BUCKET_SET $index $data\n";
-}
-
-#####################################################################################################
-
-function unset_bucket($index)
-{
-  echo "/BUCKET_UNSET $index\n";
 }
 
 #####################################################################################################

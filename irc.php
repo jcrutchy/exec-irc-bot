@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 20-aug-2014
+# 24-aug-2014
 
 #####################################################################################################
 
@@ -49,6 +49,7 @@ define("CMD_BUCKET_GET","BUCKET_GET");
 define("CMD_BUCKET_SET","BUCKET_SET");
 define("CMD_BUCKET_UNSET","BUCKET_UNSET");
 define("CMD_BUCKET_APPEND","BUCKET_APPEND");
+define("CMD_BUCKET_LIST","BUCKET_LIST");
 define("CMD_INTERNAL","INTERNAL");
 
 define("PREFIX_DELIM","/");
@@ -58,6 +59,7 @@ define("PREFIX_BUCKET_GET",PREFIX_DELIM.CMD_BUCKET_GET);
 define("PREFIX_BUCKET_SET",PREFIX_DELIM.CMD_BUCKET_SET);
 define("PREFIX_BUCKET_UNSET",PREFIX_DELIM.CMD_BUCKET_UNSET);
 define("PREFIX_BUCKET_APPEND",PREFIX_DELIM.CMD_BUCKET_APPEND);
+define("PREFIX_BUCKET_LIST",PREFIX_DELIM.CMD_BUCKET_LIST);
 define("PREFIX_INTERNAL",PREFIX_DELIM.CMD_INTERNAL);
 
 # internal aliases (can also use in exec file with alias locking, but that would be just weird)
@@ -212,6 +214,102 @@ while (True)
   handle_socket($socket);
   usleep(0.05e6); # 0.05 second to prevent cpu flogging
   process_timed_execs();
+}
+
+#####################################################################################################
+
+function term_echo($msg)
+{
+  echo "\033[33m".date("Y-m-d H:i:s",microtime(True))." > \033[31m$msg\033[0m\n";
+}
+
+#####################################################################################################
+
+function privmsg($destination,$nick,$msg)
+{
+  global $dest_overrides;
+  if ($destination=="")
+  {
+    term_echo("PRIVMSG: DESTINATION NOT SPECIFIED: nick=\"$nick\", msg=\"$msg\"");
+    return;
+  }
+  if ($msg=="")
+  {
+    term_echo("PRIVMSG: NO TEXT TO SEND: nick=\"$nick\", destination=\"$destination\"");
+    return;
+  }
+  $msg=substr($msg,0,MAX_MSG_LENGTH);
+  if (isset($dest_overrides[$nick][$destination])==True)
+  {
+    $data=":".NICK." PRIVMSG ".$dest_overrides[$nick][$destination]." :$msg";
+    rawmsg($data);
+  }
+  else
+  {
+    if (substr($destination,0,1)=="#")
+    {
+      $data=":".NICK." PRIVMSG $destination :$msg";
+      rawmsg($data);
+    }
+    else
+    {
+      $data=":".NICK." PRIVMSG $nick :$msg";
+      rawmsg($data);
+    }
+  }
+}
+
+#####################################################################################################
+
+function rawmsg($msg,$obfuscate=False)
+{
+  global $socket;
+  global $throttle_time;
+  global $rawmsg_times;
+  if ($throttle_time!==False)
+  {
+    $delta=microtime(True)-$throttle_time;
+    if ($delta>THROTTLE_LOCKOUT_TIME)
+    {
+      $throttle_time=False;
+    }
+    else
+    {
+      term_echo("*** REFUSED OUTGOING MESSAGE DUE TO SERVER THROTTLING: $msg");
+      return;
+    }
+  }
+  $n=count($rawmsg_times);
+  if ($n>0)
+  {
+    $last=$rawmsg_times[$n-1];
+    $dt=microtime(True)-$last;
+    if ($dt>THROTTLE_LOCKOUT_TIME)
+    {
+      $rawmsg_times=array();
+    }
+    else
+    {
+      if ($n>=RAWMSG_TIME_COUNT)
+      {
+        usleep(ANTI_FLOOD_DELAY*1e6);
+      }
+    }
+  }
+  fputs($socket,$msg."\n");
+  $rawmsg_times[]=microtime(True);
+  while (count($rawmsg_times)>RAWMSG_TIME_COUNT)
+  {
+    array_shift($rawmsg_times);
+  }
+  if ($obfuscate==False)
+  {
+    handle_data($msg."\n",True,False,True);
+  }
+  else
+  {
+    term_echo("RAWMSG: (obfuscated)");
+  }
 }
 
 #####################################################################################################
