@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-aug-2014
+# 26-aug-2014
 
 #####################################################################################################
 
@@ -22,10 +22,19 @@ unset($parts);
 
 switch ($cmd)
 {
-  case "TEST":
-    $buckets=bucket_list();
-    privmsg($buckets);
-    break;
+  case "ACCOUNT":
+    $account=get_account($trailing);
+    if ($account!==False)
+    {
+      privmsg("account for \"$trailing\" is \"$account\"");
+    }
+    else
+    {
+      privmsg("account for \"$trailing\" not set");
+    }
+  case "NICKS":
+    $nicks=get_channel_nicks($trailing);
+    notice($nick,implode(" ",$nicks));
   case "353": # trailing = <calling_nick> = <channel> <nick1> <+nick2> <@nick3>
     handle_353($trailing);
     break;

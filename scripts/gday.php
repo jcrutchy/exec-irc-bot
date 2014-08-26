@@ -50,9 +50,8 @@ $beverages=array(
   "g'day juice",
   "coffee",
   "NCommander",
-  "testicle juice",
   "boogers",
-  "bewb juice",
+  "bewb",
   "red cordial",
   "milo",
   "splodge",
@@ -62,6 +61,7 @@ $beverages=array(
   "\$insert_beverage_here",
   "toilet water",
   "ciri poo",
+  "bacon",
   "Soylent Green");
 
 $last_action=get_bucket("<<GDAY_LAST_ACTION>>");
