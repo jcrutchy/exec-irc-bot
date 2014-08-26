@@ -390,7 +390,7 @@ function handle_buckets($data,$handle)
       else
       {
         handle_stdin($handle,"\n");
-        term_echo("BUCKET_GET [$index]: BUCKET NOT SET");
+        #term_echo("BUCKET_GET [$index]: BUCKET NOT SET");
       }
       return True;
     case CMD_BUCKET_SET:

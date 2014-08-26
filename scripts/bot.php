@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-aug-2014
+# 26-aug-2014
 
 #####################################################################################################
 
@@ -37,7 +37,14 @@ switch ($cmd)
     $valid_data_cmd=get_valid_data_cmd(False);
     while (True)
     {
-      usleep(0.05e6);
+      usleep(0.1e6);
+      $data=get_bucket("MINION_CMD_$trailing");
+      $items=parse_data($data);
+      if ($items!==False)
+      {
+        unset_bucket("MINION_CMD_$trailing");
+        rawmsg($data);
+      }
       $data=fgets($socket);
       if ($data===False)
       {
@@ -58,24 +65,21 @@ switch ($cmd)
       {
         dojoin("#");
       }
-      $cmd=get_bucket("MINION_CMD_$trailing");
-      if ($cmd<>"")
-      {
-        rawmsg($cmd);
-        unset_bucket("MINION_CMD_$trailing");
-      }
     }
     break;
   case "say":
     $bot_nick=$parts[0];
     array_shift($parts);
     $trailing=trim(implode(" ",$parts));
-    if ($trailing<>"")
+    $items=parse_data($trailing);
+    if ($items!==False)
     {
-      term_echo("BOT: $bot_nick >> $trailing");
-      set_bucket("<<MINION_CMD_$bot_nick",$trailing);
-      $cmd=get_bucket("<<MINION_CMD_$trailing");
-      term_echo("BOT: $bot_nick >> $cmd");
+      term_echo("BOT SAY: MINION_CMD_$bot_nick = $trailing");
+      set_bucket("MINION_CMD_$bot_nick",$trailing);
+    }
+    else
+    {
+      echo "/PRIVMSG $nick: invalid command \"$trailing\" for $bot_nick";
     }
     break;
 }

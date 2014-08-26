@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-aug-2014
+# 26-aug-2014
 
 #####################################################################################################
 
@@ -22,21 +22,28 @@ $actions=array(
   "throws"=>"at",
   "slides"=>"to",
   "hurls"=>"at",
+  "poops"=>"for",
+  "blows"=>"at",
+  "pours"=>"for",
   "flings"=>"at",
   "offers"=>"to",
   "tosses"=>"to",
   "postulates"=>"towards");
 $containers=array(
-  "cold can",
-  "used franger",
-  "pair of used panties full",
-  "cheap plastic cup",
-  "wine flute",
-  "bathtub",
-  "bucket",
-  "wad",
-  "toilet bowl",
-  "coffee++ mug");
+  "a cold can",
+  "a used franger",
+  "a pair of used panties full",
+  "a cheap plastic cup",
+  "a wine flute",
+  "a bathtub",
+  "a spoon",
+  "a blagoblag",
+  "a tinfoil hat",
+  "an assfull",
+  "a bucket",
+  "a wad",
+  "a toilet bowl",
+  "a coffee++ mug");
 $beverages=array(
   "beer",
   "g'day juice",
@@ -46,6 +53,11 @@ $beverages=array(
   "bewb juice",
   "red cordial",
   "milo",
+  "splodge",
+  "skittles",
+  "spew",
+  "pancakes",
+  "\$insert_beverage_here",
   "toilet water",
   "ciri poo",
   "Soylent Green");
@@ -68,7 +80,7 @@ set_bucket("<<GDAY_LAST_ACTION>>",$action1);
 set_bucket("<<GDAY_LAST_CONTAINER>>",$container);
 set_bucket("<<GDAY_LAST_BEVERAGE>>",$beverage);
 
-privmsg("* $nick $action1 a $container of $beverage $action2 $trailing");
+privmsg("* $nick $action1 $container of $beverage $action2 $trailing");
 
 #####################################################################################################
 
