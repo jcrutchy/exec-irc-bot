@@ -19,12 +19,23 @@ if (count($parts)<2)
 {
   return;
 }
+$valid_data_cmd=get_valid_data_cmd(False);
 $cmd=strtolower($parts[0]);
 array_shift($parts);
 $trailing=trim(implode(" ",$parts));
+
 switch ($cmd)
 {
   case "new":
+    # if $trailing not found by lib_users.php function, unset from <<MINIONS>> bucket
+    /*$bots=get_array_bucket("<<MINIONS>>");
+    if (in_array($trailing,$bots)==True)
+    {
+      echo "/PRIVMSG $nick: minion \"$trailing\" is already registered";
+      return;
+    }
+    unset($bots);
+    append_array_bucket("<<MINIONS>>",$trailing);*/
     $socket=fsockopen("ssl://irc.sylnt.us","6697");
     if ($socket===False)
     {
@@ -34,16 +45,20 @@ switch ($cmd)
     stream_set_blocking($socket,0);
     rawmsg("NICK $trailing");
     rawmsg("USER $trailing hostname servername :$trailing.bot");
-    $valid_data_cmd=get_valid_data_cmd(False);
     while (True)
     {
       usleep(0.1e6);
       $data=get_bucket("MINION_CMD_$trailing");
-      $items=parse_data($data);
-      if ($items!==False)
+      if ($data<>"")
       {
-        unset_bucket("MINION_CMD_$trailing");
-        rawmsg($data);
+        if (unset_bucket("MINION_CMD_$trailing")==True)
+        {
+          $items=parse_data($data);
+          if ($items!==False)
+          {
+            rawmsg($data);
+          }
+        }
       }
       $data=fgets($socket);
       if ($data===False)
@@ -66,7 +81,7 @@ switch ($cmd)
         dojoin("#");
       }
     }
-    break;
+    return;
   case "say":
     $bot_nick=$parts[0];
     array_shift($parts);
@@ -74,14 +89,13 @@ switch ($cmd)
     $items=parse_data($trailing);
     if ($items!==False)
     {
-      term_echo("BOT SAY: MINION_CMD_$bot_nick = $trailing");
       set_bucket("MINION_CMD_$bot_nick",$trailing);
     }
     else
     {
       echo "/PRIVMSG $nick: invalid command \"$trailing\" for $bot_nick";
     }
-    break;
+    return;
 }
 
 #####################################################################################################

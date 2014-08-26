@@ -42,6 +42,7 @@ $containers=array(
   "an assfull",
   "a bucket",
   "a wad",
+  "an anvil",
   "a toilet bowl",
   "a coffee++ mug");
 $beverages=array(
@@ -50,6 +51,7 @@ $beverages=array(
   "coffee",
   "NCommander",
   "testicle juice",
+  "boogers",
   "bewb juice",
   "red cordial",
   "milo",

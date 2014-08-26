@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-aug-2014
+# 26-aug-2014
 
 #####################################################################################################
 
@@ -108,9 +108,21 @@ function set_bucket($index,$data)
 
 #####################################################################################################
 
-function unset_bucket($index)
+function unset_bucket($index,$timeout=5)
 {
-  echo "/BUCKET_UNSET $index\n";
+  $t=microtime(True);
+  do
+  {
+    echo "/BUCKET_UNSET $index\n";
+    usleep(0.05e6);
+    $test=get_bucket($index);
+    if ((microtime(True)-$t)>$timeout)
+    {
+      return False;
+    }
+  }
+  while ($test<>"");
+  return True;
 }
 
 #####################################################################################################

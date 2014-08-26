@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-aug-2014
+# 26-aug-2014
 
 #####################################################################################################
 
@@ -417,7 +417,7 @@ function handle_buckets($data,$handle)
       }
       else
       {
-        term_echo("BUCKET_UNSET [$index]: BUCKET NOT SET");
+        #term_echo("BUCKET_UNSET [$index]: BUCKET NOT SET");
       }
       return True;
     case CMD_BUCKET_APPEND:
