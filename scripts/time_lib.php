@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 22-aug-2014
+# 29-aug-2014
 
 require_once("lib.php");
 
@@ -11,7 +11,7 @@ require_once("lib.php");
 function get_time($location)
 {
   $location=trim($location);
-  $html=wget_ssl("www.google.com","/search?gbv=1&q=time+".urlencode($location));
+  $html=wget_ssl("www.google.com","/search?gbv=1&q=time+".urlencode($location),ICEWEASEL_UA,"",300);
   $html=strip_headers($html);
   strip_all_tag($html,"head");
   strip_all_tag($html,"script");

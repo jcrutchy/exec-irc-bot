@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 22-aug-2014
+# 28-aug-2014
 
 #####################################################################################################
 
@@ -158,7 +158,7 @@ function process_weather(&$location,$nick)
   $location=$loc;
   $loc_query=filter($loc,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC.",");
   # http://weather.gladstonefamily.net/site/search?site=melbourne&search=Search
-  $search=wget("weather.gladstonefamily.net","/site/search?site=".urlencode($loc_query)."&search=Search",80,ICEWEASEL_UA,"",8);
+  $search=wget("weather.gladstonefamily.net","/site/search?site=".urlencode($loc_query)."&search=Search",80,ICEWEASEL_UA,"",300);
   if (strpos($search,"Pick one of the following")===False)
   {
     return 1;
@@ -180,7 +180,7 @@ function process_weather(&$location,$nick)
         $name=substr($parts[$i],$j2+strlen($delim2),$j3-$j2-strlen($delim2));
         $station=substr($parts[$i],$j1+strlen($delim1),$j2-$j1-strlen($delim1));
         # http://weather.gladstonefamily.net/cgi-bin/wxobservations.pl?site=94868&days=7
-        $csv=trim(wget("weather.gladstonefamily.net","/cgi-bin/wxobservations.pl?site=".urlencode($station)."&days=3",80));
+        $csv=trim(wget("weather.gladstonefamily.net","/cgi-bin/wxobservations.pl?site=".urlencode($station)."&days=3",80,ICEWEASEL_UA,"",300));
         $lines=explode("\n",$csv);
         # UTC baro-mb temp°F dewpoint°F rel-humidity-% wind-mph wind-deg
         # 2014-04-07 17:00:00,1020.01,54.1,53.6,98,0,0,,,,,,

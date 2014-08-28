@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-aug-2014
+# 28-aug-2014
 
 #####################################################################################################
 
@@ -24,6 +24,21 @@ define("BUCKET_CONNECTION_ESTABLISHED","<<IRC_CONNECTION_ESTABLISHED>>");
 define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 
 $url_blacklist=array("kidd","porn","goat","xxx","sex","fuc");
+
+#####################################################################################################
+
+function format_array($array,$format,$arr_delim=",")
+{
+  foreach ($array as $key => $value)
+  {
+    if (is_array($value)==True)
+    {
+      $value=implode($arr_delim,$value);
+    }
+    $format=str_replace($key,$value,$format);
+  }
+  return $format;
+}
 
 #####################################################################################################
 

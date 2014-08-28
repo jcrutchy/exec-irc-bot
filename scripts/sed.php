@@ -2,12 +2,28 @@
 
 # gpl2
 # by crutchy
-# 22-aug-2014
+# 29-aug-2014
+
+/*
+<crutchy> c++
+<Bender> karma - c: 0
+<crutchy> s/c+/p/
+<exec> <crutchy> p++
+<crutchy> that's weird
+
+jared@debian:~$ echo "so i think i'm going C++ for awhile" | sed -e "s/C++/pascal/"
+so i think i'm going pascal for awhile
+
+jared@debian:~$ echo "so i think i'm going C++ for awhile" | sed -e "s/C+/pascal/"
+so i think i'm going pascal+ for awhile
+*/
 
 #####################################################################################################
 
 require_once("lib.php");
 require_once("switches.php");
+
+term_echo(preg_replace("/C+/","pascal","C++",1));
 
 $trailing=rtrim($argv[1]);
 $nick=$argv[2];

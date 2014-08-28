@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-aug-2014
+# 28-aug-2014
 
 #####################################################################################################
 
@@ -29,9 +29,17 @@ function get_account($nick)
 
 #####################################################################################################
 
-function get_channel_nicks($channel)
+function get_user($nick)
 {
-  $channel=strtolower(trim($channel));
+  $nick=strtolower(trim($nick));
+  $index=user_bucket_index($nick);
+  return get_array_bucket($index);
+}
+
+#####################################################################################################
+
+function get_user_array()
+{
   $buckets=bucket_list();
   $buckets=explode(" ",$buckets);
   $nicks=array();
@@ -47,13 +55,53 @@ function get_channel_nicks($channel)
   for ($i=0;$i<count($nicks);$i++)
   {
     $index=user_bucket_index($nicks[$i]);
-    $user=get_array_bucket($index);
+    $result[]=get_array_bucket($index);
+  }
+  return $result;
+}
+
+#####################################################################################################
+
+function save_all($filename)
+{
+  $users=get_user_array();
+  $data="";
+  for ($i=0;$i<count($users);$i++)
+  {
+    if ($data<>"")
+    {
+      $data=$data."\n";
+    }
+    $data=$data.format_array($users[$i],"nick|auth|account|channels");
+  }
+  if (file_put_contents($filename,$data)===False)
+  {
+    return False;
+  }
+  else
+  {
+    return True;
+  }
+}
+
+#####################################################################################################
+
+function get_channel_users($channel)
+{
+  $channel=strtolower(trim($channel));
+  if ($channel=="")
+  {
+    return False;
+  }
+  $users=get_user_array();
+  $result=array();
+  foreach ($users as $nick => $user)
+  {
     if (isset($user["channels"])==True)
     {
       if (in_array($channel,$user["channels"])==True)
       {
-        var_dump($user);
-        $result[]=$nicks[$i];
+        $result[]=$user[$i];
       }
     }
   }
@@ -149,7 +197,7 @@ function handle_353($trailing) # <calling_nick> = <channel> <nick1> <+nick2> <@n
     add_channel($user,$channel);
     set_array_bucket($user,$index,False);
     sleep(1);
-    do_whois($nick);
+    do_whois($nick); # only if nick account not set already
   }
 }
 
@@ -259,6 +307,7 @@ function handle_part($nick,$channel)
   $user["nick"]=$nick;
   remove_channel($user,$channel);
   set_array_bucket($user,$index,False);
+  # if $nick = exec, unset all buckets for users who are only in the parted channel
 }
 
 #####################################################################################################
@@ -273,6 +322,7 @@ function handle_quit($nick)
   term_echo("*** USERS: handle_quit: nick = $nick");
   $index=user_bucket_index($nick);
   unset_bucket($index);
+  # if $nick = exec, unset all buckets
 }
 
 #####################################################################################################
