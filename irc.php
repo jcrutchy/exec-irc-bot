@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 24-aug-2014
+# 30-aug-2014
 
 #####################################################################################################
 
@@ -117,7 +117,7 @@ if (file_exists(PASSWORD_FILE)==False)
 
 $alias_locks=array(); # optionally stores an alias for each nick, which then treats every privmsg by that nick as being prefixed by the set alias
 $handles=array(); # stores executed process information
-$time_deltas=array(); # keeps track of how often nicks call an alias (used for flood control)
+$time_deltas=array(); # keeps track of how often nicks call an alias (used for alias abuse control)
 $buckets=array(); # common place for scripts to store stuff (index cannot contain spaces, bucket content must be a string)
 $dest_overrides=array(); # optionally stores a destination for each nick, which treats every privmsg by that nick as having the set destination
 
