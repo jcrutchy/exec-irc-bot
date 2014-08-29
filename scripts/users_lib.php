@@ -329,7 +329,7 @@ function handle_quit($nick)
 
 function do_whois($nick)
 {
-  rawmsg("WHOIS $nick");
+  #rawmsg("WHOIS $nick");
 }
 
 #####################################################################################################

@@ -16,14 +16,18 @@ so i think i'm going pascal for awhile
 
 jared@debian:~$ echo "so i think i'm going C++ for awhile" | sed -e "s/C+/pascal/"
 so i think i'm going pascal+ for awhile
+
+<crutchy> C++
+<Bender> karma - c: 26
+<crutchy> s/C\+\+/pascal/
+<exec> <crutchy> pascal
+<crutchy> works if i escape them manually at least
 */
 
 #####################################################################################################
 
 require_once("lib.php");
 require_once("switches.php");
-
-term_echo(preg_replace("/C+/","pascal","C++",1));
 
 $trailing=rtrim($argv[1]);
 $nick=$argv[2];

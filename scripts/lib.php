@@ -190,6 +190,18 @@ function wtouch($host,$uri,$port,$timeout=5)
 
 #####################################################################################################
 
+function clean_text($text)
+{
+  $text=trim(replace_ctrl_chars($text," "));
+  while (strpos($text,"  ")!==False)
+  {
+    $text=str_replace("  "," ",$text);
+  }
+  return trim($text);
+}
+
+#####################################################################################################
+
 function strip_ctrl_chars($url)
 {
   return replace_ctrl_chars($url,"");

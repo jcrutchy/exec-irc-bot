@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 22-aug-2014
+# 29-aug-2014
 
 #####################################################################################################
 
@@ -54,6 +54,7 @@ switch ($alias)
     if ($result<>"")
     {
       $arr=convert_google_location_time($result);
+      #privmsg($result);
       privmsg(date("l, j F Y @ g:i a",$arr["timestamp"])." ".$arr["timezone"]." - ".$arr["location"]);
     }
     else

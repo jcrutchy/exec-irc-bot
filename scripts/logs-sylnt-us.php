@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 21-aug-2014
+# 29-aug-2014
 
 #####################################################################################################
 
@@ -156,18 +156,55 @@ if ($trailing<>"")
   switch ($alias)
   {
     case "~count":
-      if (count($privmsg_nick)>0)
+      if ($trailing<>"")
       {
-        $t1=$privmsg_nick[0]["timestamp"];
-        $t2=$privmsg_nick[count($privmsg_nick)-1]["timestamp"];
-        $days=round(($t2-$t1)/60/60/24);
-        $n=count($privmsg_nick);
-        $avg=round($n/$days);
-        privmsg("privmsg count for $trailing in $dest: $n over $days days ($avg per day avg)");
+        if ($trailing=="*")
+        {
+          if (count($privmsg2)>0)
+          {
+            privmsg("total privmsgs in all logged channels since ".$privmsg2[0]["date"]." @ ".$privmsg2[0]["time"].": ".count($privmsg2));
+          }
+          else
+          {
+            privmsg("no privmsgs");
+          }
+        }
+        else
+        {
+          if (count($privmsg_nick)>0)
+          {
+            $t1=$privmsg_nick[0]["timestamp"];
+            $t2=$privmsg_nick[count($privmsg_nick)-1]["timestamp"];
+            $days=round(($t2-$t1)/60/60/24);
+            $n=count($privmsg_nick);
+            $avg=round($n/$days);
+            privmsg("privmsg count for $trailing in $dest: $n over $days days ($avg per day avg)");
+          }
+          else
+          {
+            privmsg("no privmsgs for $trailing in $dest exist");
+          }
+        }
       }
       else
       {
-        privmsg("no privmsgs for $trailing in $dest exist");
+        term_echo("*** SN LOG: COUNTING PRIVMSGS FOR CHANNEL $dest");
+        $results=array();
+        for ($i=0;$i<count($privmsg2);$i++)
+        {
+          if ($privmsg2[$i]["dest"]==$dest)
+          {
+            $results[]=$privmsg2[$i];
+          }
+        }
+        if (count($results)>0)
+        {
+          privmsg("total privmsgs in $dest since ".$results[0]["date"]." @ ".$results[0]["time"].": ".count($results));
+        }
+        else
+        {
+          privmsg("no privmsgs in $dest");
+        }
       }
       break;
     case "~first":

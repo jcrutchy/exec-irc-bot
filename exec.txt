@@ -38,6 +38,7 @@
 ~wiki|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~ircd|10|0|0|1|crutchy|||0|php scripts/server.php %%trailing%% %%dest%% %%nick%%
 ~bot|0|0|0|1|crutchy|||0|php scripts/bot.php %%trailing%% %%dest%% %%nick%%
+~comments|0|3600|0|1|INTERNAL|||0|php scripts/comment_feed.php
 #~op|5|0|0|1|crutchy|||0|php scripts/admin.php %%dest%%
 #~comment|30|0|0|1|crutchy|||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~comment-dump|120|0|0|1|crutchy|||0|php scripts/sn-tfa-comments.php %%trailing%% %%dest%% %%nick%% %%alias%%

@@ -13,14 +13,9 @@ function get_time($location)
   $location=trim($location);
   $html=wget_ssl("www.google.com","/search?gbv=1&q=time+".urlencode($location),ICEWEASEL_UA,"",300);
   $html=strip_headers($html);
-  strip_all_tag($html,"head");
-  strip_all_tag($html,"script");
-  strip_all_tag($html,"style");
-  strip_all_tag($html,"a");
-  #var_dump($html);
   $result="";
-  $delim1="<table class=\"obcontainer\"";
-  $delim2="</table>";
+  $delim1="<div id=\"ires\">";
+  $delim2="</li>";
   $i=strpos($html,$delim1);
   if ($i!==False)
   {
@@ -30,6 +25,10 @@ function get_time($location)
     {
       $html=trim(substr($html,0,$i));
       $html=strip_tags($html);
+      while (strpos($html,"  ")!==False)
+      {
+        $html=str_replace("  "," ",$html);
+      }
       if (($html<>"") and (strpos($html,"Time in")!==False))
       {
         $result=substr($html,0,300);
@@ -47,39 +46,25 @@ function get_time($location)
 
 function convert_google_location_time($time)
 {
-  # 9:07pm Sunday (EST) - Time in Traralgon VIC, Australia
+  # 6:00 PM Friday, August 29, 2014 (GMT+10) Time in Traralgon VIC, Australia
   $result=array();
   $parts=explode(" ",$time);
-  if (count($parts)<7)
+  if (count($parts)<10)
   {
     return False;
   }
-  $result["time"]=$parts[0];
-  $result["day"]=$parts[1];
-  $result["timezone"]=substr($parts[2],1,strlen($parts[2])-2);
-  for ($i=0;$i<6;$i++)
+  $timestamp=$parts[0];
+  for ($i=1;$i<=6;$i++)
+  {
+    $timestamp=$timestamp." ".$parts[$i];
+  }
+  $result["timezone"]=substr($parts[6],1,strlen($parts[6])-2);
+  for ($i=0;$i<=8;$i++)
   {
     array_shift($parts);
   }
   $result["location"]=implode(" ",$parts);
-  $day1=date("N"); # 1 (for Monday) through 7 (for Sunday)
-  $day2=date("N",strtotime($result["day"]));
-  $delta=$day2-$day1;
-  if ($delta<-1)
-  {
-    $delta=$delta+7;
-  }
-  if ($delta>1)
-  {
-    $delta=$delta-7;
-  }
-  $timestamp=time()+$delta*24*60*60;
-  $parts[0];
-  $y=date("Y",$timestamp);
-  $m=date("n",$timestamp);
-  $d=date("j",$timestamp);
-  $arr=date_parse_from_format("g:ia",$result["time"]);
-  $result["timestamp"]=mktime($arr["hour"],$arr["minute"],0,$m,$d,$y);
+  $result["timestamp"]=convert_timestamp($timestamp,"g:i A l, F j, Y (TO)");
   return $result;
 }
 
