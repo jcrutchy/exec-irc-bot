@@ -6,6 +6,13 @@
 
 #####################################################################################################
 
+/*
+<crutchy> could make some funky settings out of this
+<crutchy> instead of privmsging a channel, it could notice any nick that registered to receive them
+<crutchy> and could even set a score threshold etc
+<crutchy> personalized SN comment feeds :D
+*/
+
 ini_set("display_errors","on");
 require_once("lib.php");
 require_once("feeds_lib.php");
@@ -33,7 +40,8 @@ for ($i=0;$i<$m;$i++)
   $port="";
   if (get_host_and_uri($url,$host,$uri,$port)==True)
   {
-    term_echo("*** comment_feed: [$i/$m] downloading $url");
+    $k=$i-1;
+    term_echo("*** comment_feed: [$k/$m] downloading $url");
     $response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
     $html=strip_headers($response);
     $sid=extract_text($html,"<input type=\"hidden\" name=\"sid\" value=\"","\">");
