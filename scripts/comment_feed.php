@@ -2,29 +2,25 @@
 
 # gpl2
 # by crutchy
-# 29-aug-2014
+# 30-aug-2014
 
 #####################################################################################################
 
 ini_set("display_errors","on");
-
 require_once("lib.php");
 require_once("feeds_lib.php");
 require_once("lib_buckets.php");
-
 term_echo("******************* SOYLENTNEWS COMMENT FEED *******************");
-#privmsg("SN comment script running...");
-
 $response=wget("soylentnews.org","/index.atom",80,ICEWEASEL_UA,"",60);
 term_echo("*** comment_feed: downloaded atom feed");
 $html=strip_headers($response);
 $items=parse_atom($html);
-
 $last_cid=get_bucket("<<SN_COMMENT_FEED_CID>>");
 if ($last_cid=="")
 {
   $last_cid=87172;
 }
+$cids=array();
 $m=count($items);
 term_echo("*** comment_feed: $m atom feed stories to check");
 for ($i=0;$i<$m;$i++)
@@ -57,7 +53,7 @@ for ($i=0;$i<$m;$i++)
       $cid=substr($parts[$j],0,$n);
       if ($cid>$last_cid)
       {
-        $last_cid=$cid;
+        $cids[]=$cid;
         $details=extract_text($parts[$j],"<div class=\"details\">","<span class=\"otherdetails\"");
         $details=strip_tags($details);
         $score=extract_text($parts[$j],"class=\"score\">","</span>");
@@ -69,7 +65,7 @@ for ($i=0;$i<$m;$i++)
     }
   }
 }
-
+$last_cid=max($cids);
 set_bucket("<<SN_COMMENT_FEED_CID>>",$last_cid);
 
 #####################################################################################################
