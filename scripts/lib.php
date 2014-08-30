@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 28-aug-2014
+# 30-aug-2014
 
 #####################################################################################################
 
@@ -24,6 +24,30 @@ define("BUCKET_CONNECTION_ESTABLISHED","<<IRC_CONNECTION_ESTABLISHED>>");
 define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 
 $url_blacklist=array("kidd","porn","goat","xxx","sex","fuc");
+
+#####################################################################################################
+
+function shorten_url($url,$keyword="",$title="")
+{
+  if ($url=="")
+  {
+    return "";
+  }
+  $params=array();
+  $params["url"]=$url;
+  $params["keyword"]=$keyword;
+  $params["title"]=$title;
+  $response=wpost("sylnt.us","/","80",ICEWEASEL_UA,$params,"",30);
+  $short_url=extract_text($response,"<input id=\"copylink\" class=\"text\" size=\"32\" value=\"","\" /></p>");
+  if (strlen($short_url)<strlen($url))
+  {
+    return $short_url;
+  }
+  else
+  {
+    return $url;
+  }
+}
 
 #####################################################################################################
 

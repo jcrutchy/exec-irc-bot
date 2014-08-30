@@ -83,6 +83,8 @@
 ~g'day|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
 ~gday|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
 
+~cid|5|0|0|1||||0|php scripts/comment_utils.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
+
 ~count|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~first|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~last|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%

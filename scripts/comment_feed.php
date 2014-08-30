@@ -73,22 +73,57 @@ for ($i=0;$i<$m;$i++)
       }
       $details=extract_text($parts[$j],"<div class=\"details\">","<span class=\"otherdetails\"");
       $details=strip_tags($details);
-      $details=clean_text($details);
+      $details=substr(clean_text($details),3);
       $url="http://soylentnews.org/comments.pl?sid=$sid&cid=$cid";
+      $pid_html=strip_ctrl_chars($parts[$j]);
+      $pid_html=str_replace(" ","",$pid_html);
+      $pid_delim1="ReplytoThis</a></b></p></span><spanclass=\"nbutton\"><p><b><ahref=\"//soylentnews.org/comments.pl?sid=$sid&amp;threshold=-1&amp;commentsort=0&amp;mode=flat&amp;cid=";
+      $pid_delim2="\">Parent";
+      $pid_test=extract_text($pid_html,$pid_delim1,$pid_delim2);
+      $pid="";
+      $parent_url="";
+      if ($pid_test!==False)
+      {
+        $pid=$pid_test;
+        $parent_url="http://soylentnews.org/comments.pl?sid=$sid&cid=$pid";
+      }
+      if ($cid>$last_cid)
+      {
+        $cids[]=$cid;
+        $line="$cid\t$sid\t$details\t$score\t$score_num\t$title\t$url\t".time()."\t$pid\t$parent_url\t";
+        #$parent_url=shorten_url($parent_url);
+        #sleep(5);
+        #$url=shorten_url($url);
+        #$line=$line."$url\t$parent_url\n";
+        file_put_contents(COMMENTS_FEED_FILE,$line,FILE_APPEND);
+      }
       if (($score_num==5) and (in_array($cid,$topcomments)==False))
       {
-        $msg="*** score 5 comment $details for article \"$title\" - $url";
+        $msg="*** ";
+        if ($cid>$last_cid)
+        {
+          $msg=$msg."new ";
+        }
+        else
+        {
+          #$parent_url=shorten_url($parent_url);
+          #sleep(5);
+          #$url=shorten_url($url);
+        }
+        $msg=$msg."score 5 comment: $details for article \"$title\" - $url";
         $msg=clean_text($msg);
         $msg=chr(2).chr(3)."10".$msg.chr(3).chr(2);
         append_array_bucket("<<SN_COMMENT_FEED_TOP>>",$cid);
         pm("#comments",$msg);
       }
-      if ($cid>$last_cid)
+      elseif ($cid>$last_cid)
       {
-        $cids[]=$cid;
-        $line="$cid\t$sid\t$details\t$score\t$score_num\t$title\t$url\t".time()."\n";
-        file_put_contents(COMMENTS_FEED_FILE,$line,FILE_APPEND);
-        $msg="*** new comment $details $score for article \"$title\" - $url";
+        #$msg="* new comment: $details [$score_num] \"$title\" - $url";
+        $msg="* new comment: $details $score \"$title\" - $url";
+        if ($parent_url<>"")
+        {
+          $msg=$msg." ($parent_url)";
+        }
         $msg=clean_text($msg);
         pm("#comments",$msg);
       }
