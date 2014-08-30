@@ -2,9 +2,12 @@
 
 # gpl2
 # by crutchy
-# 26-june-2014
+# 30-aug-2014
+
+ini_set("display_errors","on");
 
 require_once("lib.php");
+require_once("lib_buckets.php");
 
 $trailing=$argv[1];
 $nick=$argv[2];
