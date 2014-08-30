@@ -62,7 +62,15 @@ for ($i=0;$i<$m;$i++)
       }
       $cid=substr($parts[$j],0,$n);
       $score=extract_text($parts[$j],"class=\"score\">","</span>");
-      $score_num=substr($score,7,strlen($score)-8);
+      $c=strpos($score,",");
+      if ($c===False)
+      {
+        $score_num=substr($score,7,strlen($score)-8);
+      }
+      else
+      {
+        $score_num=substr($score,7,$c-7);
+      }
       $details=extract_text($parts[$j],"<div class=\"details\">","<span class=\"otherdetails\"");
       $details=strip_tags($details);
       $details=clean_text($details);
