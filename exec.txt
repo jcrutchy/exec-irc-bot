@@ -38,8 +38,6 @@
 ~wiki|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~ircd|10|0|0|1|crutchy|||0|php scripts/server.php %%trailing%% %%dest%% %%nick%%
 ~bot|0|0|0|1|crutchy|||0|php scripts/bot.php %%trailing%% %%dest%% %%nick%%
-~comments|0|3600|0|1|INTERNAL|||0|php scripts/comment_feed.php
-#~op|5|0|0|1|crutchy|||0|php scripts/admin.php %%dest%%
 #~comment|30|0|0|1|crutchy|||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~comment-dump|120|0|0|1|crutchy|||0|php scripts/sn-tfa-comments.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~feed-wiki|600|1800|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
@@ -54,9 +52,15 @@
 ~welcome-internal|30|0|0|1||INTERNAL||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
 
 # TIMER SCRIPTS
+~comments|0|1800|0|1|INTERNAL|||0|php scripts/comment_feed.php
 #~feed|500|1800|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed|120|0|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~ping|10|120|0|0||INTERNAL||0|php scripts/ping.php %%trailing%% %%nick%% %%dest%%
+
+~op|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~deop|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~voice|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~devoice|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 #####################################################################################################
 
