@@ -65,6 +65,7 @@ for ($i=0;$i<$m;$i++)
       $score_num=substr($score,7,strlen($score)-8);
       $details=extract_text($parts[$j],"<div class=\"details\">","<span class=\"otherdetails\"");
       $details=strip_tags($details);
+      $details=clean_text($details);
       $url="http://soylentnews.org/comments.pl?sid=$sid&cid=$cid";
       if (($score_num==5) and (in_array($cid,$topcomments)==False))
       {
