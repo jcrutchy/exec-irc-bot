@@ -86,7 +86,7 @@ for ($i=0;$i<$m;$i++)
       if ($cid>$last_cid)
       {
         $cids[]=$cid;
-        $line="$cid\t$sid\t$details\t$score\t$score_num\t$title\t$url\t".time();
+        $line="$cid\t$sid\t$details\t$score\t$score_num\t$title\t$url\t".time()."\n";
         file_put_contents(COMMENTS_FEED_FILE,$line,FILE_APPEND);
         $msg="*** new comment $details $score for article \"$title\" - $url";
         $msg=clean_text($msg);
