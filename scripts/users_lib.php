@@ -254,8 +254,8 @@ function handle_kick($op_nick,$trailing) # <channel> <kicked_nick>
     return;
   }
   $op_nick=strtolower(trim($op_nick));
-  $channel=strtolower(trim($parts[1]));
-  $kicked_nick=strtolower(trim($parts[2]));
+  $channel=strtolower(trim($parts[0]));
+  $kicked_nick=strtolower(trim($parts[1]));
   if (($op_nick=="") or ($channel=="") or ($kicked_nick==""))
   {
     return;

@@ -13,6 +13,7 @@ $trailing=trim($argv[1]);
 $url=get_redirected_url($trailing);
 if ($url===False)
 {
+  term_echo("get_redirected_url=false");
   return;
 }
 $host="";
@@ -20,6 +21,7 @@ $uri="";
 $port=80;
 if (get_host_and_uri($url,$host,$uri,$port)==False)
 {
+  term_echo("get_host_and_uri=false");
   return;
 }
 $response=wget($host,$uri,$port);

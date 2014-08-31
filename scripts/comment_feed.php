@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 30-aug-2014
+# 31-aug-2014
 
 #####################################################################################################
 
@@ -18,12 +18,14 @@ require_once("lib.php");
 require_once("feeds_lib.php");
 require_once("lib_buckets.php");
 define("COMMENTS_FEED_FILE","../data/comments_feed.txt");
+define("COMMENTS_CID_FILE","../data/comments_cid.txt");
 term_echo("******************* SOYLENTNEWS COMMENT FEED *******************");
 $response=wget("soylentnews.org","/index.atom",80,ICEWEASEL_UA,"",60);
 term_echo("*** comment_feed: downloaded atom feed");
 $html=strip_headers($response);
 $items=parse_atom($html);
-$last_cid=get_bucket("<<SN_COMMENT_FEED_CID>>");
+$last_cid=file_get_contents(COMMENTS_CID_FILE);
+term_echo("*** comment_feed: last cid = $last_cid");
 $topcomments=get_array_bucket("<<SN_COMMENT_FEED_TOP>>");
 if ($last_cid=="")
 {
@@ -141,7 +143,7 @@ for ($i=0;$i<count($cids);$i++)
     }
   }
 }
-set_bucket("<<SN_COMMENT_FEED_CID>>",$new_last_cid);
+file_put_contents(COMMENTS_CID_FILE,$new_last_cid);
 
 #####################################################################################################
 
