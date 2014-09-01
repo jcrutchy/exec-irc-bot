@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 31-aug-2014
+# 2-sep-2014
 
 #####################################################################################################
 
@@ -124,6 +124,10 @@ for ($i=0;$i<$m;$i++)
           #$url=shorten_url($url);
         }
         $msg=$msg."score 5 comment: $details for article \"$title\" - $url";
+        if ($parent_url<>"")
+        {
+          $msg=$msg." (parent: $parent_url)";
+        }
         $msg=clean_text($msg);
         $msg=chr(2).chr(3)."10".$msg.chr(3).chr(2);
         append_array_bucket("<<SN_COMMENT_FEED_TOP>>",$cid);
