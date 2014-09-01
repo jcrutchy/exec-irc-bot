@@ -26,6 +26,7 @@ if (isset($_GET["url"])==True)
   if (check_url($long)==True)
   {
     $last="AAA";
+    var_dump($urls);
     $n=count($urls);
     if ($n>0)
     {
@@ -34,11 +35,12 @@ if (isset($_GET["url"])==True)
     $next=get_next($last);
     while (isset($urls[$next])==True)
     {
+      echo "$next\n";
       $next=get_next($next);
     }
     $line="$next|$long\n";
     file_put_contents(URL_FILE,$line,FILE_APPEND);
-    echo "http://sylnt.us.to/".$next;
+    echo "http://sylnt.us.to/$next\n";
     return;
   }
 }

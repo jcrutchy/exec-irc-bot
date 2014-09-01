@@ -124,7 +124,7 @@ for ($i=0;$i<$m;$i++)
         $msg="* new comment: $details $score \"$title\" - $url";
         if ($parent_url<>"")
         {
-          $msg=$msg." ($parent_url)";
+          $msg=$msg." (parent: $parent_url)";
         }
         $msg=clean_text($msg);
         pm("#comments",$msg);
