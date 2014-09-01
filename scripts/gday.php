@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-aug-2014
+# 1-sep-2014
 
 #####################################################################################################
 
@@ -16,6 +16,17 @@ if ($trailing=="")
   return;
 }
 
+$adverbs=array(
+  "brazenly",
+  "surreptitiously",
+  "spontaneously",
+  "prematurely",
+  "lagubriously",
+  "insubordinately",
+  "pulchritudinously",
+  "unjustifiably",
+  "insatiably",
+  "fanatically"); # thanks to prospectacle
 $actions=array(
   "cracks open"=>"for",
   "passes"=>"to",
@@ -64,6 +75,7 @@ $beverages=array(
   "bacon",
   "Soylent Green");
 
+$last_adverb=get_bucket("<<GDAY_LAST_ADVERB>>");
 $last_action=get_bucket("<<GDAY_LAST_ACTION>>");
 $last_container=get_bucket("<<GDAY_LAST_CONTAINER>>");
 $last_beverage=get_bucket("<<GDAY_LAST_BEVERAGE>>");
@@ -71,18 +83,20 @@ $last_beverage=get_bucket("<<GDAY_LAST_BEVERAGE>>");
 $action_keys=array_keys($actions);
 do
 {
+  $adverb=$adverbs[rand(0,count($adverbs)-1)];
   $action1=$action_keys[rand(0,count($action_keys)-1)];
   $action2=$actions[$action1];
   $container=$containers[rand(0,count($containers)-1)];
   $beverage=$beverages[rand(0,count($beverages)-1)];
 }
-while (($action1==$last_action) or ($container==$last_container) or ($beverage==$last_beverage));
+while (($adverb==$last_adverb) or ($action1==$last_action) or ($container==$last_container) or ($beverage==$last_beverage));
 
+set_bucket("<<GDAY_LAST_ADVERB>>",$adverb);
 set_bucket("<<GDAY_LAST_ACTION>>",$action1);
 set_bucket("<<GDAY_LAST_CONTAINER>>",$container);
 set_bucket("<<GDAY_LAST_BEVERAGE>>",$beverage);
 
-privmsg("* $nick $action1 $container of $beverage $action2 $trailing");
+privmsg("* $nick $adverb $action1 $container of $beverage $action2 $trailing");
 
 #####################################################################################################
 

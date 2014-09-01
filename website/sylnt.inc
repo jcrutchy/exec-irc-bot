@@ -6,7 +6,7 @@
 
 #####################################################################################################
 
-define("URL_FILE",__DIR__."/sylnt.txt");
+define("URL_FILE",__DIR__."../data/sylnt.txt");
 define("TEMPLATE_FILE",__DIR__."/sylnt.template");
 
 define("VALID_UPPERCASE","ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -23,24 +23,29 @@ if (isset($_GET["url"])==True)
   # move this to a lib.php function, and add a bot alias script (only accessible from irc)
   $urls=load_urls();
   $long=$_GET["url"];
+  $i=array_search($long,$urls);
+  if ($i!==False)
+  {
+    echo "http://sylnt.us.to/$i";
+    return;
+  }
   if (check_url($long)==True)
   {
     $last="AAA";
-    var_dump($urls);
     $n=count($urls);
     if ($n>0)
     {
-      $last=$urls[$n-1];
+      $keys=array_keys($urls);
+      $last=$keys[$n-1];
     }
     $next=get_next($last);
     while (isset($urls[$next])==True)
     {
-      echo "$next\n";
       $next=get_next($next);
     }
     $line="$next|$long\n";
     file_put_contents(URL_FILE,$line,FILE_APPEND);
-    echo "http://sylnt.us.to/$next\n";
+    echo "http://sylnt.us.to/$next";
     return;
   }
 }
@@ -52,6 +57,7 @@ elseif (isset($_GET["i"])==True)
   {
     $long=$urls[$short];
     header("Location: $long");
+    return;
   }
 }
 $page=file_get_contents(TEMPLATE_FILE);
@@ -71,15 +77,14 @@ function home()
 function get_next($last)
 {
   $next=$last;
-  $c=$last[strlen($last)-1];
+  $c=$next[strlen($next)-1];
   if ($c=="9")
   {
-    $next=$last."A";
+    $next=$next."A";
   }
   else
   {
-    echo "$next\n";
-    $next=substr($last,0,strlen($last)-1).substr(VALID_ALL,strpos(VALID_ALL,$c)+1,1);
+    $next=substr($next,0,strlen($next)-1).substr(VALID_ALL,strpos(VALID_ALL,$c)+1,1);
   }
   return $next;
 }
@@ -88,7 +93,15 @@ function get_next($last)
 
 function load_urls()
 {
+  if (file_exists(URL_FILE)==False)
+  {
+    return array();
+  }
   $data=file_get_contents(URL_FILE);
+  if ($data===False)
+  {
+    return array();
+  }
   $lines=explode("\n",$data);
   $urls=array();
   for ($i=0;$i<count($lines);$i++)

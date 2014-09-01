@@ -17,6 +17,9 @@ ini_set("display_errors","on");
 require_once("lib.php");
 require_once("feeds_lib.php");
 require_once("lib_buckets.php");
+
+$subscribers=array("crutchy");
+
 define("COMMENTS_FEED_FILE","../data/comments_feed.txt");
 define("COMMENTS_CID_FILE","../data/comments_cid.txt");
 term_echo("******************* SOYLENTNEWS COMMENT FEED *******************");
@@ -89,6 +92,14 @@ for ($i=0;$i<$m;$i++)
         $pid=$pid_test;
         $parent_url="http://soylentnews.org/comments.pl?sid=$sid&cid=$pid";
       }
+      $comment_body=extract_text($parts[$j],"<div id=\"comment_body_$cid\">","</div>");
+      $comment_body=trim(strip_tags($comment_body));
+      $comment_body=str_replace("  "," ",$comment_body);
+      $max_comment_length=300;
+      if (strlen($comment_body)>$max_comment_length)
+      {
+        $comment_body=trim(substr($comment_body,0,$max_comment_length))."...";
+      }
       if ($cid>$last_cid)
       {
         $cids[]=$cid;
@@ -117,17 +128,26 @@ for ($i=0;$i<$m;$i++)
         $msg=chr(2).chr(3)."10".$msg.chr(3).chr(2);
         append_array_bucket("<<SN_COMMENT_FEED_TOP>>",$cid);
         pm("#comments",$msg);
+        for ($k=0;$k<count($subscribers);$k++)
+        {
+          pm($subscribers[$k],$msg);
+          pm($subscribers[$k],"^ ".$comment_body);
+        }
       }
       elseif ($cid>$last_cid)
       {
-        #$msg="* new comment: $details [$score_num] \"$title\" - $url";
-        $msg="* new comment: $details $score \"$title\" - $url";
+        $msg="*** new comment: $details $score \"$title\" - $url";
         if ($parent_url<>"")
         {
           $msg=$msg." (parent: $parent_url)";
         }
         $msg=clean_text($msg);
         pm("#comments",$msg);
+        for ($k=0;$k<count($subscribers);$k++)
+        {
+          pm($subscribers[$k],$msg);
+          pm($subscribers[$k],"^ ".$comment_body);
+        }
       }
     }
   }
