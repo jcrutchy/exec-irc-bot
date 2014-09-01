@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 29-aug-2014
+# 2-sep-2014
 
 #####################################################################################################
 
@@ -104,6 +104,7 @@ function parse_atom($html)
     $entry=array();
     $entry["type"]="atom_entry";
     $entry["title"]=html_entity_decode(extract_raw_tag($parts[$i],"title"),ENT_QUOTES,"UTF-8");
+    $entry["title"]=html_entity_decode($entry["title"],ENT_QUOTES,"UTF-8");
     # <updated>2014-07-20T21:07:00+00:00</updated>
     $url=str_replace("&amp;","&",trim(strip_ctrl_chars(extract_void_tag($parts[$i],"link href=")),"\""));
     $entry["url"]=get_redirected_url($url);
@@ -129,6 +130,7 @@ function parse_rss($html)
     $item=array();
     $item["type"]="rss_item";
     $item["title"]=html_entity_decode(extract_raw_tag($parts[$i],"title"),ENT_QUOTES,"UTF-8");
+    $item["title"]=html_entity_decode($item["title"],ENT_QUOTES,"UTF-8");
     # <dc:date>2014-07-20T19:05:00+00:00</dc:date>
     # <pubDate>Sun, 20 Jul 2014 19:08:38 +0000</pubDate>
     # <pubDate><![CDATA[Mon, 21 Jul 2014 08:30:06 +1000]]></pubDate>
