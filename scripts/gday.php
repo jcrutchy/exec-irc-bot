@@ -73,6 +73,8 @@ $beverages=array(
   "toilet water",
   "ciri poo",
   "bacon",
+  "Debian",
+  "coffee++",
   "Soylent Green");
 
 $last_adverb=get_bucket("<<GDAY_LAST_ADVERB>>");
