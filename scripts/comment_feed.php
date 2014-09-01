@@ -23,7 +23,13 @@ $subscribers=array("crutchy");
 
 define("COMMENTS_FEED_FILE","../data/comments_feed.txt");
 define("COMMENTS_CID_FILE","../data/comments_cid.txt");
-term_echo("******************* SOYLENTNEWS COMMENT FEED *******************");
+$msg="********** SOYLENTNEWS COMMENT FEED **********";
+term_echo($msg);
+pm("#comments",$msg);
+for ($i=0;$i<count($subscribers);$i++)
+{
+  pm($subscribers[$i],$msg);
+}
 $response=wget("soylentnews.org","/index.atom",80,ICEWEASEL_UA,"",60);
 term_echo("*** comment_feed: downloaded atom feed");
 $html=strip_headers($response);
@@ -34,6 +40,12 @@ $topcomments=get_array_bucket("<<SN_COMMENT_FEED_TOP>>");
 if ($last_cid=="")
 {
   $last_cid=87300;
+}
+$msg="last cid = $cid";
+pm("#comments",$msg);
+for ($i=0;$i<count($subscribers);$i++)
+{
+  pm($subscribers[$i],$msg);
 }
 $cids=array();
 $m=count($items);
