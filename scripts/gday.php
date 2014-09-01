@@ -81,15 +81,29 @@ $last_container=get_bucket("<<GDAY_LAST_CONTAINER>>");
 $last_beverage=get_bucket("<<GDAY_LAST_BEVERAGE>>");
 
 $action_keys=array_keys($actions);
+
 do
 {
   $adverb=$adverbs[rand(0,count($adverbs)-1)];
+}
+while ($adverb==$last_adverb);
+do
+{
   $action1=$action_keys[rand(0,count($action_keys)-1)];
-  $action2=$actions[$action1];
+}
+while ($action1==$last_action);
+do
+{
   $container=$containers[rand(0,count($containers)-1)];
+}
+while ($container==$last_container);
+do
+{
   $beverage=$beverages[rand(0,count($beverages)-1)];
 }
-while (($adverb==$last_adverb) or ($action1==$last_action) or ($container==$last_container) or ($beverage==$last_beverage));
+while ($beverage==$last_beverage);
+
+$action2=$actions[$action1];
 
 set_bucket("<<GDAY_LAST_ADVERB>>",$adverb);
 set_bucket("<<GDAY_LAST_ACTION>>",$action1);
