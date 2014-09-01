@@ -78,7 +78,8 @@ function get_next($last)
   }
   else
   {
-    $next=substr($last,0,strlen($last)-1).substr(VALID_ALL,strpos(VALID_ALL,$c),1);
+    echo "$next\n";
+    $next=substr($last,0,strlen($last)-1).substr(VALID_ALL,strpos(VALID_ALL,$c)+1,1);
   }
   return $next;
 }
