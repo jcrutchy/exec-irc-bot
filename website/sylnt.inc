@@ -26,9 +26,10 @@ if (isset($_GET["url"])==True)
   if (check_url($long)==True)
   {
     $last="AAA";
-    if (count($urls)>0)
+    $n=count($urls);
+    if ($n>0)
     {
-      $last=$urls[count($urls)-1];
+      $last=$urls[$n-1];
     }
     $next=get_next($last);
     while (isset($urls[$next])==True)
