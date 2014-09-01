@@ -11,6 +11,7 @@
 <crutchy> instead of privmsging a channel, it could notice any nick that registered to receive them
 <crutchy> and could even set a score threshold etc
 <crutchy> personalized SN comment feeds :D
+add comment topic setting
 */
 
 ini_set("display_errors","on");
