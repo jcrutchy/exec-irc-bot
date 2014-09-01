@@ -35,7 +35,7 @@ if (isset($_GET["url"])==True)
     {
       $next=get_next($next);
     }
-    $line="$next|$long";
+    $line="$next|$long\n";
     file_put_contents(URL_FILE,$line,FILE_APPEND);
     echo "http://sylnt.us.to/".$next;
     return;
