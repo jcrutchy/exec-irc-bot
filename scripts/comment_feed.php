@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 2-sep-2014
+# 3-sep-2014
 
 #####################################################################################################
 
@@ -12,6 +12,7 @@
 <crutchy> and could even set a score threshold etc
 <crutchy> personalized SN comment feeds :D
 add comment topic setting
+filter by story (reset when story drops off atom), filter by user, filter by content/subject keyword, etc
 */
 
 ini_set("display_errors","on");
