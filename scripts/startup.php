@@ -33,6 +33,8 @@ set_bucket(BUCKET_CONNECTION_ESTABLISHED,"1");
 
 #echo "/INTERNAL ~join #soylent\n";
 
+echo "/INTERNAL ~join #comments\n";
+
 echo "################# END STARTUP #################\n";
 
 #####################################################################################################

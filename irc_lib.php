@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-aug-2014
+# 2-sep-2014
 
 #####################################################################################################
 
@@ -515,7 +515,15 @@ function buckets_save($items)
 function buckets_load($items)
 {
   global $buckets;
-  $data=file_get_contents(BUCKETS_FILE);
+  if (file_exists(BUCKETS_FILE)==True)
+  {
+    $data=file_get_contents(BUCKETS_FILE);
+  }
+  else
+  {
+    term_echo("*** BUCKETS FILE NOT FOUND");
+    return;
+  }
   if ($data===False)
   {
     privmsg($items["destination"],$items["nick"],"error reading buckets file");

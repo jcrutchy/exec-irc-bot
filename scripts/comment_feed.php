@@ -23,30 +23,35 @@ $subscribers=array("crutchy");
 
 define("COMMENTS_FEED_FILE","../data/comments_feed.txt");
 define("COMMENTS_CID_FILE","../data/comments_cid.txt");
+define("COMMENTS_TOP_FILE","../data/comments_top.txt");
+
 $msg="********** SOYLENTNEWS COMMENT FEED **********";
-term_echo($msg);
-pm("#comments",$msg);
-for ($i=0;$i<count($subscribers);$i++)
+output($msg,True);
+
+$last_cid=87400;
+if (file_exists(COMMENTS_CID_FILE)==True)
 {
-  pm($subscribers[$i],$msg);
+  $last_cid=file_get_contents(COMMENTS_CID_FILE);
 }
+
+$msg="last cid = $last_cid";
+output($msg,True);
+
 $response=wget("soylentnews.org","/index.atom",80,ICEWEASEL_UA,"",60);
 term_echo("*** comment_feed: downloaded atom feed");
 $html=strip_headers($response);
 $items=parse_atom($html);
-$last_cid=file_get_contents(COMMENTS_CID_FILE);
-term_echo("*** comment_feed: last cid = $last_cid");
-$topcomments=get_array_bucket("<<SN_COMMENT_FEED_TOP>>");
-if ($last_cid=="")
+
+#$topcomments=get_array_bucket("<<SN_COMMENT_FEED_TOP>>");
+
+$topcomments=array();
+if (file_exists(COMMENTS_TOP_FILE)==True)
 {
-  $last_cid=87300;
+  $data=file_get_contents(COMMENTS_TOP_FILE);
+  $topcomments=explode("\n",$data);
+  delete_empty_elements($topcomments);
 }
-$msg="last cid = $cid";
-pm("#comments",$msg);
-for ($i=0;$i<count($subscribers);$i++)
-{
-  pm($subscribers[$i],$msg);
-}
+
 $cids=array();
 $m=count($items);
 term_echo("*** comment_feed: $m atom feed stories to check");
@@ -105,9 +110,17 @@ for ($i=0;$i<$m;$i++)
         $pid=$pid_test;
         $parent_url="http://soylentnews.org/comments.pl?sid=$sid&cid=$pid";
       }
+      $subject_delim1="<h4><a name=\"$cid\">";
+      $subject_delim2="</a>";
+      $subject=extract_text($parts[$j],$subject_delim1,$subject_delim2);
+      $subject=trim(strip_tags($subject));
+      $subject=str_replace("  "," ",$subject);
+      $subject=html_entity_decode($subject,ENT_QUOTES,"UTF-8");
+      $subject=html_entity_decode($subject,ENT_QUOTES,"UTF-8");
       $comment_body=extract_text($parts[$j],"<div id=\"comment_body_$cid\">","</div>");
       $comment_body=trim(strip_tags($comment_body));
       $comment_body=str_replace("  "," ",$comment_body);
+      $comment_body=html_entity_decode($comment_body,ENT_QUOTES,"UTF-8");
       $max_comment_length=300;
       if (strlen($comment_body)>$max_comment_length)
       {
@@ -116,7 +129,7 @@ for ($i=0;$i<$m;$i++)
       if ($cid>$last_cid)
       {
         $cids[]=$cid;
-        $line="$cid\t$sid\t$details\t$score\t$score_num\t$title\t$url\t".time()."\t$pid\t$parent_url\t";
+        $line="$cid\t$sid\t$details\t$score\t$score_num\t$subject\n$title\t$url\t".time()."\t$pid\t$parent_url\t";
         #$parent_url=shorten_url($parent_url);
         #sleep(5);
         #$url=shorten_url($url);
@@ -136,33 +149,32 @@ for ($i=0;$i<$m;$i++)
           #sleep(5);
           #$url=shorten_url($url);
         }
-        $msg=$msg."score 5 comment: $details \"$title\" - $url";
+        $msg=$msg."score 5 comment: $details \"$subject\" - \"$title\" - $url";
         if ($parent_url<>"")
         {
           $msg=$msg." (parent: $parent_url)";
         }
         $msg=clean_text($msg);
         $msg=chr(2).chr(3)."10".$msg.chr(3).chr(2);
-        append_array_bucket("<<SN_COMMENT_FEED_TOP>>",$cid);
-        pm("#comments",$msg);
+        #append_array_bucket("<<SN_COMMENT_FEED_TOP>>",$cid);
+        file_put_contents(COMMENTS_TOP_FILE,$cid."\n",FILE_APPEND);
+        output($msg);
         for ($k=0;$k<count($subscribers);$k++)
         {
-          pm($subscribers[$k],$msg);
           pm($subscribers[$k],"^ ".$comment_body);
         }
       }
       elseif ($cid>$last_cid)
       {
-        $msg="*** new comment: $details $score \"$title\" - $url";
+        $msg="*** new comment: $details $score \"$subject\" - \"$title\" - $url";
         if ($parent_url<>"")
         {
           $msg=$msg." (parent: $parent_url)";
         }
         $msg=clean_text($msg);
-        pm("#comments",$msg);
+        output($msg);
         for ($k=0;$k<count($subscribers);$k++)
         {
-          pm($subscribers[$k],$msg);
           pm($subscribers[$k],"^ ".$comment_body);
         }
       }
@@ -181,6 +193,29 @@ for ($i=0;$i<count($cids);$i++)
   }
 }
 file_put_contents(COMMENTS_CID_FILE,$new_last_cid);
+
+/*$data="";
+for ($i=0;$i<count($topcomments);$i++)
+{
+  $data=$data.$topcomments[$i]."\n";
+}
+file_put_contents(COMMENTS_TOP_FILE,$data);*/
+
+#####################################################################################################
+
+function output($msg,$term=False)
+{
+  global $subscribers;
+  if ($term==True)
+  {
+    term_echo($msg);
+  }
+  pm("#comments",$msg);
+  for ($i=0;$i<count($subscribers);$i++)
+  {
+    pm($subscribers[$i],$msg);
+  }
+}
 
 #####################################################################################################
 
