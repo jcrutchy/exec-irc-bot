@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 28-aug-2014
+# 3-sep-2014
 
 #####################################################################################################
 
@@ -95,13 +95,13 @@ function get_channel_users($channel)
   }
   $users=get_user_array();
   $result=array();
-  foreach ($users as $nick => $user)
+  for ($i=0;$i<count($users);$i++)
   {
-    if (isset($user["channels"])==True)
+    if (isset($users[$i]["channels"])==True)
     {
-      if (in_array($channel,$user["channels"])==True)
+      if (in_array($channel,$users[$i]["channels"])==True)
       {
-        $result[]=$user[$i];
+        $result[]=$users[$i]["nick"];
       }
     }
   }

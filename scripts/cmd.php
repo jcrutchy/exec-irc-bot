@@ -48,9 +48,15 @@ switch (strtoupper($cmd))
     echo "/INTERNAL ~users-internal JOIN $params\n";
     #echo "/INTERNAL ~meeting JOIN $params\n";
     #echo "/INTERNAL ~welcome-internal JOIN $params\n";
+    /*sleep(1);
+    if (($nick=="exec") and (strtolower($params)=="#comments"))
+    {
+      echo "/IRC PRIVMSG ChanServ :OP #comments\n";
+    }*/
     break;
-  case "KICK": # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
-               # :exec!~exec@709-27-2-01.cust.aussiebb.net KICK #comments Loggie :commanded by crutchy
+  case "KICK":
+    # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
+    # :exec!~exec@709-27-2-01.cust.aussiebb.net KICK #comments Loggie :commanded by crutchy
     echo "/INTERNAL ~users-internal KICK $params\n";
     #echo "/INTERNAL ~meeting KICK $params\n";
     echo "/INTERNAL ~sed-internal KICK $params\n";

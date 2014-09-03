@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 1-sep-2014
+# 3-sep-2014
 
 #####################################################################################################
 
@@ -48,6 +48,7 @@ $containers=array(
   "a wine flute",
   "a bathtub",
   "a spoon",
+  "a socket",
   "a blagoblag",
   "a tinfoil hat",
   "an assfull",
@@ -61,12 +62,13 @@ $beverages=array(
   "g'day juice",
   "coffee",
   "NCommander",
+  "milo",
   "boogers",
   "bewb",
   "red cordial",
-  "milo",
   "splodge",
   "skittles",
+  "glowballs",
   "spew",
   "pancakes",
   "\$insert_beverage_here",

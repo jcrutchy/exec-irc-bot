@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 30-aug-2014
+# 3-sep-2014
 
 #####################################################################################################
 
@@ -185,6 +185,7 @@ else
 {
   $socket=fsockopen(IRC_HOST_CONNECT,IRC_PORT);
 }
+
 if ($socket===False)
 {
   term_echo("ERROR CREATING IRC SOCKET");

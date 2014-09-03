@@ -26,7 +26,7 @@ define("COMMENTS_FEED_FILE","../data/comments_feed.txt");
 define("COMMENTS_CID_FILE","../data/comments_cid.txt");
 define("COMMENTS_TOP_FILE","../data/comments_top.txt");
 
-$msg="********** SOYLENTNEWS COMMENT FEED **********";
+$msg=chr(3)."08"."********** ".chr(3)."03".chr(2)."SOYLENTNEWS COMMENT FEED".chr(2).chr(3)."08"." **********";
 output($msg,True);
 
 $last_cid=87400;
@@ -42,9 +42,6 @@ $response=wget("soylentnews.org","/index.atom",80,ICEWEASEL_UA,"",60);
 term_echo("*** comment_feed: downloaded atom feed");
 $html=strip_headers($response);
 $items=parse_atom($html);
-
-#$topcomments=get_array_bucket("<<SN_COMMENT_FEED_TOP>>");
-
 $topcomments=array();
 if (file_exists(COMMENTS_TOP_FILE)==True)
 {
@@ -54,20 +51,21 @@ if (file_exists(COMMENTS_TOP_FILE)==True)
 }
 
 $cids=array();
-$m=count($items);
-term_echo("*** comment_feed: $m atom feed stories to check");
-for ($i=0;$i<$m;$i++)
+$item_count=count($items);
+term_echo("*** comment_feed: $item_count atom feed stories to check");
+for ($i=0;$i<$item_count;$i++)
 {
   sleep(5);
   $url=$items[$i]["url"]."&threshold=-1&highlightthresh=-1&mode=flat&commentsort=0";
   $title=$items[$i]["title"];
+  $title_output=chr(3)."06".$title.chr(3);
   $host="";
   $uri="";
   $port="";
   if (get_host_and_uri($url,$host,$uri,$port)==True)
   {
     $k=$i+1;
-    term_echo("[$k/$m] $url");
+    term_echo("[$k/$item_count] $url");
     $response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
     $html=strip_headers($response);
     $sid=extract_text($html,"<input type=\"hidden\" name=\"sid\" value=\"","\">");
@@ -98,6 +96,18 @@ for ($i=0;$i<$m;$i++)
       $details=extract_text($parts[$j],"<div class=\"details\">","<span class=\"otherdetails\"");
       $details=strip_tags($details);
       $details=substr(clean_text($details),3);
+      $user=$details;
+      $uid=0;
+      $c1=strpos($details,"(");
+      $c2=strpos($details,")");
+      if (($c1!==False) and ($c2!==False))
+      {
+        if (($c1<$c2) and ($c2==(strlen($details)-1)))
+        {
+          $user=trim(substr($details,0,$c1-1));
+          $uid=substr($details,$c1+1,$c2-$c1-1);
+        }
+      }
       $url="http://soylentnews.org/comments.pl?sid=$sid&cid=$cid";
       $pid_html=strip_ctrl_chars($parts[$j]);
       $pid_html=str_replace(" ","",$pid_html);
@@ -119,6 +129,7 @@ for ($i=0;$i<$m;$i++)
       $subject=html_entity_decode($subject,ENT_QUOTES,"UTF-8");
       $subject=html_entity_decode($subject,ENT_QUOTES,"UTF-8");
       $comment_body=extract_text($parts[$j],"<div id=\"comment_body_$cid\">","</div>");
+      $comment_body=replace_ctrl_chars($comment_body," ");
       $comment_body=trim(strip_tags($comment_body));
       $comment_body=str_replace("  "," ",$comment_body);
       $comment_body=html_entity_decode($comment_body,ENT_QUOTES,"UTF-8");
@@ -130,53 +141,47 @@ for ($i=0;$i<$m;$i++)
       if ($cid>$last_cid)
       {
         $cids[]=$cid;
-        $line="$cid\t$sid\t$details\t$score\t$score_num\t$subject\n$title\t$url\t".time()."\t$pid\t$parent_url\t";
-        #$parent_url=shorten_url($parent_url);
-        #sleep(5);
-        #$url=shorten_url($url);
-        #$line=$line."$url\t$parent_url\n";
+        $line="$cid\t$sid\t$user\t$uid\t$score\t$score_num\t$subject\t$title\t$url\t".time()."\t$pid\t$parent_url\n";
         file_put_contents(COMMENTS_FEED_FILE,$line,FILE_APPEND);
+      }
+      $user_uid=chr(3)."03".$user.chr(3);
+      if ($uid>0)
+      {
+        $user_uid=$user_uid." [$uid]";
       }
       if (($score_num==5) and (in_array($cid,$topcomments)==False))
       {
-        $msg="*** ";
+        $msg=chr(3)."08*** ";
         if ($cid>$last_cid)
         {
           $msg=$msg."new ";
         }
-        else
-        {
-          #$parent_url=shorten_url($parent_url);
-          #sleep(5);
-          #$url=shorten_url($url);
-        }
-        $msg=$msg."score 5 comment: $details \"$subject\" - \"$title\" - $url";
+        $msg=$msg.chr(3)."score 5 comment: $user_uid ".chr(3)."02".$subject.chr(3)." - $title_output -".chr(3)."04 $url";
         if ($parent_url<>"")
         {
-          $msg=$msg." (parent: $parent_url)";
+          $msg=$msg." ".chr(3)."(parent: $parent_url)";
         }
         $msg=clean_text($msg);
-        $msg=chr(2).chr(3)."10".$msg.chr(3).chr(2);
-        #append_array_bucket("<<SN_COMMENT_FEED_TOP>>",$cid);
+        $msg=chr(2).$msg.chr(2);
         file_put_contents(COMMENTS_TOP_FILE,$cid."\n",FILE_APPEND);
         output($msg);
         for ($k=0;$k<count($subscribers);$k++)
         {
-          pm($subscribers[$k],"^ ".$comment_body);
+          pm($subscribers[$k],chr(3)."08^ ".$comment_body);
         }
       }
       elseif ($cid>$last_cid)
       {
-        $msg="*** new comment: $details $score \"$subject\" - \"$title\" - $url";
+        $msg="*** new comment: $user_uid $score ".chr(3)."02".$subject.chr(3)." - $title_output -".chr(3)."04 $url";
         if ($parent_url<>"")
         {
-          $msg=$msg." (parent: $parent_url)";
+          $msg=$msg." ".chr(3)."(parent: $parent_url)";
         }
         $msg=clean_text($msg);
         output($msg);
         for ($k=0;$k<count($subscribers);$k++)
         {
-          pm($subscribers[$k],"^ ".$comment_body);
+          pm($subscribers[$k],chr(3)."08^ ".$comment_body);
         }
       }
     }
@@ -194,13 +199,6 @@ for ($i=0;$i<count($cids);$i++)
   }
 }
 file_put_contents(COMMENTS_CID_FILE,$new_last_cid);
-
-/*$data="";
-for ($i=0;$i<count($topcomments);$i++)
-{
-  $data=$data.$topcomments[$i]."\n";
-}
-file_put_contents(COMMENTS_TOP_FILE,$data);*/
 
 #####################################################################################################
 

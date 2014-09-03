@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 28-aug-2014
+# 3-sep-2014
 
 #####################################################################################################
 
@@ -32,17 +32,21 @@ switch ($cmd)
     {
       privmsg("account for \"$trailing\" not set");
     }
+    break;
   case "ADMIN-USERS":
     $nicks=get_channel_users($trailing);
     if ($nicks!==False)
     {
       notice($nick,"[".count($nicks)."] ".implode(" ",$nicks));
     }
+    break;
   case "ADMIN-USER":
     $user=get_user($trailing);
     var_dump($user);
+    break;
   case "ADMIN-SAVE-ALL":
     save_all();
+    break;
   case "353": # trailing = <calling_nick> = <channel> <nick1> <+nick2> <@nick3>
     handle_353($trailing);
     break;
