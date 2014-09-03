@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 3-sep-2014
+# 4-sep-2014
 
 #####################################################################################################
 
@@ -51,7 +51,8 @@ if (file_exists(COMMENTS_TOP_FILE)==True)
 }
 
 $cids=array();
-$item_count=count($items);
+#$item_count=count($items);
+$item_count=20;
 term_echo("*** comment_feed: $item_count atom feed stories to check");
 for ($i=0;$i<$item_count;$i++)
 {
