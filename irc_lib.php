@@ -157,6 +157,8 @@ function log_items($items)
 
 function handle_process($handle)
 {
+  global $reserved_aliases;
+  global $silent_timeout_commands;
   handle_stdout($handle);
   handle_stderr($handle);
   $flag=False;
@@ -190,7 +192,7 @@ function handle_process($handle)
     {
       kill_process($handle);
       term_echo("process timed out: ".$handle["command"]);
-      if (($handle["cmd"]<>CMD_INTERNAL) and ($handle["cmd"]<>CMD_BUCKET_GET) and ($handle["cmd"]<>CMD_BUCKET_SET) and ($handle["cmd"]<>CMD_BUCKET_UNSET) and ($handle["cmd"]<>CMD_BUCKET_APPEND) and ($handle["cmd"]<>CMD_BUCKET_LIST))
+      if ((in_array($handle["alias"],$reserved_aliases)==False) and (in_array($handle["cmd"],$reserved_aliases)==False))
       {
         privmsg($handle["destination"],$handle["nick"],"process timed out: ".$handle["alias"]." ".$handle["trailing"]);
       }

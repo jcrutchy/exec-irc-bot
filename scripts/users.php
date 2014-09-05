@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 3-sep-2014
+# 4-sep-2014
 
 #####################################################################################################
 
@@ -45,7 +45,7 @@ switch ($cmd)
     var_dump($user);
     break;
   case "ADMIN-SAVE-ALL":
-    save_all();
+    save_all("users.txt");
     break;
   case "353": # trailing = <calling_nick> = <channel> <nick1> <+nick2> <@nick3>
     handle_353($trailing);

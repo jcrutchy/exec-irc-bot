@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 3-sep-2014
+# 5-sep-2014
 
 #####################################################################################################
 
@@ -155,6 +155,14 @@ $reserved_aliases=array(
   ALIAS_INIT,
   ALIAS_STARTUP,
   ALIAS_QUIT);
+
+$silent_timeout_commands=array(
+  CMD_INTERNAL,
+  CMD_BUCKET_GET,
+  CMD_BUCKET_SET,
+  CMD_BUCKET_UNSET,
+  CMD_BUCKET_APPEND,
+  CMD_BUCKET_LIST);
 
 $valid_data_cmd=get_valid_data_cmd();
 

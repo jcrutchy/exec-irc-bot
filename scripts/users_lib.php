@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 3-sep-2014
+# 5-sep-2014
 
 #####################################################################################################
 
@@ -72,7 +72,7 @@ function save_all($filename)
     {
       $data=$data."\n";
     }
-    $data=$data.format_array($users[$i],"nick|auth|account|channels");
+    $data=$data.format_array($users[$i],"nick|channels");
   }
   if (file_put_contents($filename,$data)===False)
   {

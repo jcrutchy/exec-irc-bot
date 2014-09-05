@@ -20,7 +20,8 @@ require_once("lib.php");
 require_once("feeds_lib.php");
 require_once("lib_buckets.php");
 
-$subscribers=array("crutchy");
+#$subscribers=array("crutchy");
+$subscribers=array();
 
 define("COMMENTS_FEED_FILE","../data/comments_feed.txt");
 define("COMMENTS_CID_FILE","../data/comments_cid.txt");

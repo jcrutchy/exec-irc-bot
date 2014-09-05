@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 10-aug-2014
+# 4-aug-2014
 
 #####################################################################################################
 #                                                                                                   #
@@ -48,11 +48,6 @@ switch (strtoupper($cmd))
     echo "/INTERNAL ~users-internal JOIN $params\n";
     #echo "/INTERNAL ~meeting JOIN $params\n";
     #echo "/INTERNAL ~welcome-internal JOIN $params\n";
-    /*sleep(1);
-    if (($nick=="exec") and (strtolower($params)=="#comments"))
-    {
-      echo "/IRC PRIVMSG ChanServ :OP #comments\n";
-    }*/
     break;
   case "KICK":
     # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
