@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 5-sep-2014
+# 7-sep-2014
 
 #####################################################################################################
 
@@ -51,6 +51,8 @@ define("CMD_BUCKET_UNSET","BUCKET_UNSET");
 define("CMD_BUCKET_APPEND","BUCKET_APPEND");
 define("CMD_BUCKET_LIST","BUCKET_LIST");
 define("CMD_INTERNAL","INTERNAL");
+define("CMD_PAUSE","BOT_IRC_PAUSE");
+define("CMD_UNPAUSE","BOT_IRC_UNPAUSE");
 
 define("PREFIX_DELIM","/");
 define("PREFIX_IRC",PREFIX_DELIM."IRC");
@@ -61,6 +63,8 @@ define("PREFIX_BUCKET_UNSET",PREFIX_DELIM.CMD_BUCKET_UNSET);
 define("PREFIX_BUCKET_APPEND",PREFIX_DELIM.CMD_BUCKET_APPEND);
 define("PREFIX_BUCKET_LIST",PREFIX_DELIM.CMD_BUCKET_LIST);
 define("PREFIX_INTERNAL",PREFIX_DELIM.CMD_INTERNAL);
+define("PREFIX_PAUSE",PREFIX_DELIM.CMD_PAUSE);
+define("PREFIX_UNPAUSE",PREFIX_DELIM.CMD_UNPAUSE);
 
 # internal aliases (can also use in exec file with alias locking, but that would be just weird)
 define("ALIAS_INTERNAL_RESTART","~restart-internal");
@@ -124,6 +128,8 @@ $dest_overrides=array(); # optionally stores a destination for each nick, which 
 $admin_data="";
 $admin_is_sock="";
 
+$irc_pause=False;
+
 $logged_chans=array();
 $buckets[BUCKET_LOGGED_CHANS]=serialize($logged_chans);
 unset($logged_chans);
@@ -162,7 +168,9 @@ $silent_timeout_commands=array(
   CMD_BUCKET_SET,
   CMD_BUCKET_UNSET,
   CMD_BUCKET_APPEND,
-  CMD_BUCKET_LIST);
+  CMD_BUCKET_LIST,
+  CMD_PAUSE,
+  CMD_UNPAUSE);
 
 $valid_data_cmd=get_valid_data_cmd();
 

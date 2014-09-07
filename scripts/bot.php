@@ -2,14 +2,22 @@
 
 # gpl2
 # by crutchy
-# 26-aug-2014
+# 7-sep-2014
 
 #####################################################################################################
+
+# ~bot say dogfart :dogfart PRIVMSG # :test
+
+/*
+<crutchy> dogfartopoly join #soylent
+<crutchy> dogfartopoly slap chromas
+*/
 
 ini_set("display_errors","on");
 
 require_once("irc_lib.php");
-require_once("lib_buckets.php");
+
+define("BOT_LIST_BUCKET","<<MINIONS>>");
 
 $trailing=trim($argv[1]);
 $dest=trim($argv[2]);

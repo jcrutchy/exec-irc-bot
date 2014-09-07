@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 30-aug-2014
+# 6-sep-2014
 
 #####################################################################################################
 
@@ -14,6 +14,12 @@ $dest=trim($argv[2]);
 $nick=trim($argv[3]);
 $alias=strtolower(trim($argv[4]));
 
+if ($trailing=="")
+{
+  privmsg("http://wiki.soylentnews.org/wiki/IRC:exec#Quick_start");
+  return;
+}
+
 $parts=explode(" ",$trailing);
 delete_empty_elements($parts);
 $cmd=strtolower($parts[0]);
@@ -21,36 +27,49 @@ array_shift($parts);
 $trailing=trim(implode(" ",$parts));
 unset($parts);
 
-if ($cmd=="")
+$result=get_help($cmd);
+if (($result=="") and ($result!==False) and ($result!==True))
 {
-  privmsg("http://wiki.soylentnews.org/wiki/IRC:exec#Quick_start");
-  return;
-}
-if ($cmd[0]=="~")
-{
-  $cmd=substr($cmd,1);
-}
-$title="IRC:exec aliases";
-$section=$cmd;
-if (login(True)==False)
-{
-  return;
-}
-$text=get_text($title,$section,True,True);
-if ($text!==False)
-{
-  for ($i=0;$i<min(count($text),3);$i++)
+  if ($cmd[0]<>"~")
   {
-    bot_ignore_next();
-    privmsg(" $cmd > ".$text[$i]);
+    $result=get_help("~".$cmd);
   }
-  privmsg("http://wiki.soylentnews.org/wiki/IRC:exec_aliases#$cmd");
 }
-else
+if ($result===True)
 {
-  privmsg("help for \"$cmd\" alias not found");
+  return;
 }
-logout(True);
+privmsg("help for \"$cmd\" alias not found");
+
+#####################################################################################################
+
+function get_help($cmd)
+{
+  $title="IRC:exec aliases";
+  $section=$cmd;
+  if (login(True)==False)
+  {
+    return False;
+  }
+  $result="";
+  $text=get_text($title,$section,True,True);
+  if ($text!==False)
+  {
+    for ($i=0;$i<min(count($text),3);$i++)
+    {
+      bot_ignore_next();
+      privmsg(trim($text[$i]));
+    }
+    if ($cmd[0]=="~")
+    {
+      $cmd=".7E".substr($cmd,1);
+    }
+    privmsg("http://wiki.soylentnews.org/wiki/IRC:exec_aliases#$cmd");
+    $result=True;
+  }
+  logout(True);
+  return $result;
+}
 
 #####################################################################################################
 

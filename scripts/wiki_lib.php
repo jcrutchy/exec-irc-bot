@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 22-aug-2014
+# 6-sep-2014
 
 define("WIKI_USER_AGENT","IRC-Executive/0.01 (https://github.com/crutchy-/test/blob/master/scripts/wiki.php; jared.crutchfield@hotmail.com)");
 define("WIKI_HOST","wiki.soylentnews.org");
@@ -209,8 +209,12 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
     $text=$data["parse"]["text"]["*"];
     if ($section<>"")
     {
-      $head="<span class=\"mw-headline\" id=\"".str_replace(" ","_",$section)."\">$section</span>";
-
+      $id=str_replace(" ","_",$section);
+      if ($section[0]=="~")
+      {
+        $id=".7E".substr($section,1);
+      }
+      $head="<span class=\"mw-headline\" id=\"$id\">$section</span>";
       if (strpos($text,$head)===False)
       {
         wiki_privmsg($return,"wiki: edit=section span not found");
@@ -231,6 +235,7 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
   $br=random_string(30);
   $text=str_replace("\n",$br,$text);
   $text=replace_ctrl_chars($text," ");
+  $text=html_decode($text);
   if ($return_lines_array==False)
   {
     $text=str_replace($br," ",$text);
@@ -265,6 +270,10 @@ function wiki_privmsg($return,$msg)
   if ($return==False)
   {
     privmsg($msg);
+  }
+  else
+  {
+    term_echo($msg);
   }
 }
 

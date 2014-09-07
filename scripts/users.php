@@ -2,70 +2,44 @@
 
 # gpl2
 # by crutchy
-# 4-sep-2014
+# 6-sep-2014
 
 #####################################################################################################
 
 require_once("users_lib.php");
 
-$trailing=trim($argv[1]);
-$nick=trim($argv[2]);
-$dest=trim($argv[3]);
+$trailing=strtolower(trim($argv[1]));
+$nick=strtolower(trim($argv[2]));
+$dest=strtolower(trim($argv[3]));
 $alias=trim($argv[4]);
 
 $parts=explode(" ",$trailing);
 delete_empty_elements($parts);
-$cmd=strtoupper($parts[0]);
+$cmd=$parts[0];
 array_shift($parts);
 $trailing=trim(implode(" ",$parts));
-unset($parts);
 
 switch ($cmd)
 {
-  case "ADMIN-ACCOUNT":
-    $account=get_account($trailing);
-    if ($account!==False)
-    {
-      privmsg("account for \"$trailing\" is \"$account\"");
-    }
-    else
-    {
-      privmsg("account for \"$trailing\" not set");
-    }
-    break;
-  case "ADMIN-USERS":
-    $nicks=get_channel_users($trailing);
-    if ($nicks!==False)
-    {
-      notice($nick,"[".count($nicks)."] ".implode(" ",$nicks));
-    }
-    break;
-  case "ADMIN-USER":
-    $user=get_user($trailing);
-    var_dump($user);
-    break;
-  case "ADMIN-SAVE-ALL":
-    save_all("users.txt");
+  case "channel-nicks":
+    channel_nicks($trailing);
     break;
   case "353": # trailing = <calling_nick> = <channel> <nick1> <+nick2> <@nick3>
     handle_353($trailing);
     break;
-  case "330": # trailing = <calling_nick> <nick> <account>
-    handle_330($trailing);
-    break;
-  case "JOIN": # trailing = <channel>
+  case "join": # trailing = <channel>
     handle_join($nick,$trailing);
     break;
-  case "KICK": # trailing = <channel> <kicked_nick>
-    handle_kick($nick,$trailing);
+  case "kick": # trailing = <channel> <kicked_nick>
+    handle_kick($trailing);
     break;
-  case "NICK": # trailing = <new_nick>
+  case "nick": # trailing = <new_nick>
     handle_nick($nick,$trailing);
     break;
-  case "PART": # trailing = <channel>
+  case "part": # trailing = <channel>
     handle_part($nick,$trailing);
     break;
-  case "QUIT":
+  case "quit":
     handle_quit($nick);
     break;
 }

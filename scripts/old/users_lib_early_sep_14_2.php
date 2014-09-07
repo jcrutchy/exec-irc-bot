@@ -8,15 +8,72 @@
 
 require_once("lib.php");
 
-define("CHANNEL_BUCKET_PREFIX","EXEC_CHANNEL_DB_");
-
 #####################################################################################################
 
 function channel_nicks($channel)
 {
-  $bucket=get_array_bucket(CHANNEL_BUCKET_PREFIX.$channel);
-  sort($bucket);
-  privmsg(implode(" ",$bucket));
+  $db=get_array_bucket("<<NICK_DATABASE>>");
+  if (count($db)==0)
+  {
+    term_echo("*** USERS: channel_nicks: no nicks in database");
+    return;
+  }
+  $results=array();
+  foreach ($db as $nick => $data)
+  {
+    if (in_array($channel,$data["channels"])==True)
+    {
+      $results[]=$nick;
+    }
+  }
+  if (count($results)==0)
+  {
+    term_echo("*** USERS: channel_nicks: no nicks registered in channel $channel");
+    return;
+  }
+
+  /*$buckets=bucket_list();
+  $buckets=explode(" ",$buckets);
+  $nicks=array();
+  $prefix="<<EXEC_USER_";
+  for ($i=0;$i<count($buckets);$i++)
+  {
+    if (substr($buckets[$i],0,strlen($prefix))==$prefix)
+    {
+      $nicks[]=substr($buckets[$i],strlen($prefix),strlen($buckets[$i])-strlen($prefix)-2);
+    }
+  }
+
+  $result=array();
+  for ($i=0;$i<count($nicks);$i++)
+  {
+    $nick=$nicks[$i];
+    $index="<<EXEC_USER_$nick>>";
+    $user=get_array_bucket($index);
+    if (isset($user["channels"])==True)
+    {
+      if (in_array($channel,$user["channels"])==True)
+      {
+        $results[]=$nick;
+      }
+    }
+  }*/
+
+  $result=array();
+  for ($i=0;$i<count($nicks);$i++)
+  {
+    $nick=$nicks[$i];
+    if (isset($user["channels"])==True)
+    {
+      if (in_array($channel,$user["channels"])==True)
+      {
+        $results[]=$nick;
+      }
+    }
+  }
+
+  sort($results);
+  privmsg(implode(" ",$results));
 }
 
 #####################################################################################################
@@ -61,9 +118,43 @@ function handle_353($trailing) # <calling_nick> = <channel> <nick1> <+nick2> <@n
     term_echo("*** USERS: handle_353: nick = $nick");
     $nicks[]=$nick;
   }
-  irc_pause();
-  set_array_bucket($nicks,CHANNEL_BUCKET_PREFIX.$channel,False);
-  irc_unpause();
+  $db=get_array_bucket("<<NICK_DATABASE>>");
+  for ($i=0;$i<count($nicks);$i++)
+  {
+    $nick=$nicks[$i];
+    if (isset($db[$nick])==True)
+    {
+      if (isset($db[$nick]["channels"])==False)
+      {
+        $db[$nick]["channels"]=array();
+      }
+      if (in_array($channel,$db[$nick]["channels"])==False)
+      {
+        $db[$nick]["channels"][]=$channel;
+      }
+    }
+    else
+    {
+      $db[$nick]["channels"]=array();
+      $db[$nick]["channels"][]=$channel;
+    }
+  }
+  set_array_bucket($db,"<<NICK_DATABASE>>",False);
+  /*for ($i=0;$i<count($nicks);$i++)
+  {
+    $nick=$nicks[$i];
+    $index="<<EXEC_USER_$nick>>";
+    $user=get_array_bucket($index);
+    if (isset($user["channels"])==False)
+    {
+      $user["channels"]=array();
+    }
+    if (in_array($channel,$user["channels"])==False)
+    {
+      $user["channels"][]=$channel;
+    }
+    set_array_bucket($user,$index,False);
+  }*/
 }
 
 #####################################################################################################
@@ -77,20 +168,6 @@ function handle_join($nick,$channel)
   }
   term_echo("*** USERS: handle_join: nick = $nick");
   term_echo("*** USERS: handle_join: channel = $channel");
-  $index=CHANNEL_BUCKET_PREFIX.$channel;
-  irc_pause();
-  $nicks=get_array_bucket($index);
-  if (in_array($nick,$nicks)==False)
-  {
-    $nicks[]=$nick;
-    set_array_bucket($nicks,$index,False);
-    term_echo("*** USERS: handle_join: $nick added to $channel");
-  }
-  else
-  {
-    term_echo("*** USERS: handle_join: $nick already in $channel");
-  }
-  irc_unpause();
 }
 
 #####################################################################################################
@@ -112,22 +189,6 @@ function handle_kick($trailing) # <channel> <kicked_nick>
   }
   term_echo("*** USERS: handle_kick: channel = $channel");
   term_echo("*** USERS: handle_kick: kicked_nick = $kicked_nick");
-  $index=CHANNEL_BUCKET_PREFIX.$channel;
-  irc_pause();
-  $nicks=get_array_bucket($index);
-  $i=array_search($kicked_nick,$nicks);
-  if ($i!==False)
-  {
-    unset($nicks[$i]);
-    $nicks=array_values($nicks);
-    set_array_bucket($nicks,$index,False);
-    term_echo("*** USERS: handle_kick: $kicked_nick removed from $channel");
-  }
-  else
-  {
-    term_echo("*** USERS: handle_kick: $kicked_nick not found in $channel");
-  }
-  irc_unpause();
 }
 
 #####################################################################################################
@@ -140,29 +201,6 @@ function handle_nick($old_nick,$new_nick)
   }
   term_echo("*** USERS: handle_nick: old_nick = $old_nick");
   term_echo("*** USERS: handle_nick: new_nick = $new_nick");
-  $buckets=bucket_list();
-  $buckets=explode(" ",$buckets);
-  $n=strlen(CHANNEL_BUCKET_PREFIX);
-  for ($i=0;$i<count($buckets);$i++)
-  {
-    if (substr($buckets[$i],0,$n)==CHANNEL_BUCKET_PREFIX)
-    {
-      $channel=substr($buckets[$i],$n,strlen($buckets[$i])-$n);
-      $index=CHANNEL_BUCKET_PREFIX.$channel;
-      irc_pause();
-      $nicks=get_array_bucket($index);
-      $j=array_search($old_nick,$nicks);
-      if ($j!==False)
-      {
-        unset($nicks[$j]);
-        $nicks=array_values($nicks);
-        $nicks[]=$new_nick;
-        set_array_bucket($nicks,$index,False);
-        term_echo("*** USERS: handle_nick: $old_nick replaced with $new_nick in $channel");
-      }
-      irc_unpause();
-    }
-  }
 }
 
 #####################################################################################################
@@ -176,22 +214,6 @@ function handle_part($nick,$channel)
   }
   term_echo("*** USERS: handle_part: nick = $nick");
   term_echo("*** USERS: handle_part: channel = $channel");
-  $index=CHANNEL_BUCKET_PREFIX.$channel;
-  irc_pause();
-  $nicks=get_array_bucket($index);
-  $i=array_search($nick,$nicks);
-  if ($i!==False)
-  {
-    unset($nicks[$i]);
-    $nicks=array_values($nicks);
-    set_array_bucket($nicks,$index,False);
-    term_echo("*** USERS: handle_part: $nick removed from $channel");
-  }
-  else
-  {
-    term_echo("*** USERS: handle_part: $nick not found in $channel");
-  }
-  irc_unpause();
 }
 
 #####################################################################################################
@@ -204,28 +226,6 @@ function handle_quit($nick)
     return;
   }
   term_echo("*** USERS: handle_quit: nick = $nick");
-  $buckets=bucket_list();
-  $buckets=explode(" ",$buckets);
-  $n=strlen(CHANNEL_BUCKET_PREFIX);
-  for ($i=0;$i<count($buckets);$i++)
-  {
-    if (substr($buckets[$i],0,$n)==CHANNEL_BUCKET_PREFIX)
-    {
-      $channel=substr($buckets[$i],$n,strlen($buckets[$i])-$n);
-      $index=CHANNEL_BUCKET_PREFIX.$channel;
-      irc_pause();
-      $nicks=get_array_bucket($index);
-      $j=array_search($nick,$nicks);
-      if ($j!==False)
-      {
-        unset($nicks[$j]);
-        $nicks=array_values($nicks);
-        set_array_bucket($nicks,$index,False);
-        term_echo("*** USERS: handle_quit: $nick removed from $channel");
-      }
-      irc_unpause();
-    }
-  }
 }
 
 #####################################################################################################

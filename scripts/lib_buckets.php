@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 26-aug-2014
+# 7-sep-2014
 
 #####################################################################################################
 
@@ -16,10 +16,14 @@ function get_array_bucket($bucket)
   }
   else
   {
-    $array=unserialize($array_bucket);
-    if ($array===False)
+    $bucket_array=unserialize($array_bucket);
+    if ($bucket_array===False)
     {
-      err("error unserializing \"$bucket\" bucket data");
+      term_echo("error unserializing \"$bucket\" bucket data");
+    }
+    else
+    {
+      $array=$bucket_array;
     }
   }
   return $array;

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 3-sep-2014
+# 7-sep-2014
 
 #####################################################################################################
 
@@ -69,7 +69,9 @@ function get_valid_custom_cmd()
     CMD_BUCKET_SET=>array("001","101"),
     CMD_BUCKET_UNSET=>array("001","101"),
     CMD_BUCKET_APPEND=>array("001","101"),
-    CMD_BUCKET_LIST=>array("000","100"));
+    CMD_BUCKET_LIST=>array("000","100"),
+    CMD_PAUSE=>array("000"),
+    CMD_UNPAUSE=>array("000"));
   return $result;
 }
 
@@ -206,6 +208,7 @@ function handle_process($handle)
 
 function handle_stdout($handle)
 {
+  global $irc_pause;
   if (is_resource($handle["pipe_stdout"])==False)
   {
     return;
@@ -287,6 +290,12 @@ function handle_stdout($handle)
           {
             handle_data(":$nick ".CMD_INTERNAL." ".$handle["destination"]." :".$prefix_msg."\n");
           }
+          return;
+        case PREFIX_PAUSE:
+          $irc_pause=True;
+          return;
+        case PREFIX_UNPAUSE:
+          $irc_pause=False;
           return;
       }
     }
@@ -567,6 +576,11 @@ function buckets_list($items)
 
 function handle_socket($socket)
 {
+  global $irc_pause;
+  if ($irc_pause==True)
+  {
+    return;
+  }
   if (is_resource($socket)==False)
   {
     return;

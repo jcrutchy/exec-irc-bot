@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 3-sep-2014
+# 6-sep-2014
 
 #####################################################################################################
 
@@ -32,10 +32,6 @@ switch ($alias)
     }
     break;
   case "~voice":
-    if ($target<>NICK_EXEC)
-    {
-      rawmsg("MODE $dest -o $target");
-    }
     rawmsg("MODE $dest +v $target");
     break;
   case "~devoice":
