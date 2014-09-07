@@ -12,11 +12,19 @@ define("CHANNEL_BUCKET_PREFIX","EXEC_CHANNEL_DB_");
 
 #####################################################################################################
 
-function channel_nicks($channel)
+function list_nicks($channel)
 {
   $bucket=get_array_bucket(CHANNEL_BUCKET_PREFIX.$channel);
   sort($bucket);
   privmsg(implode(" ",$bucket));
+}
+
+#####################################################################################################
+
+function count_nicks($channel)
+{
+  $bucket=get_array_bucket(CHANNEL_BUCKET_PREFIX.$channel);
+  privmsg("nicks in $channel: ".count($bucket));
 }
 
 #####################################################################################################

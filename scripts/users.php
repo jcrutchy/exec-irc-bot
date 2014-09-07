@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 6-sep-2014
+# 7-sep-2014
 
 #####################################################################################################
 
@@ -21,8 +21,11 @@ $trailing=trim(implode(" ",$parts));
 
 switch ($cmd)
 {
-  case "channel-nicks":
-    channel_nicks($trailing);
+  case "nicks":
+    list_nicks($trailing);
+    break;
+  case "count":
+    count_nicks($trailing);
     break;
   case "353": # trailing = <calling_nick> = <channel> <nick1> <+nick2> <@nick3>
     handle_353($trailing);
