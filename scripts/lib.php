@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 6-sep-2014
+# 8-sep-2014
 
 #####################################################################################################
 
@@ -10,6 +10,7 @@ ini_set("display_errors","on");
 
 require_once("lib_buckets.php");
 require_once("lib_http.php");
+require_once("users_lib.php");
 
 define("NICK_EXEC","exec");
 

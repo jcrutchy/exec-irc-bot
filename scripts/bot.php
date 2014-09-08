@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 7-sep-2014
+# 8-sep-2014
 
 #####################################################################################################
 
@@ -16,8 +16,12 @@
 ini_set("display_errors","on");
 
 require_once("irc_lib.php");
+require_once("lib_buckets.php");
+require_once("users_lib.php");
 
-define("BOT_LIST_BUCKET","<<MINIONS>>");
+define("BOT_BUCKET","<<MINIONS>>");
+
+refresh_minions();
 
 $trailing=trim($argv[1]);
 $dest=trim($argv[2]);
@@ -35,15 +39,11 @@ $trailing=trim(implode(" ",$parts));
 switch ($cmd)
 {
   case "new":
-    # if $trailing not found by lib_users.php function, unset from <<MINIONS>> bucket
-    /*$bots=get_array_bucket("<<MINIONS>>");
-    if (in_array($trailing,$bots)==True)
+    if (nick_exists($trailing,$dest)==True)
     {
-      echo "/PRIVMSG $nick: minion \"$trailing\" is already registered";
+      privmsg("$trailing is already here");
       return;
     }
-    unset($bots);
-    append_array_bucket("<<MINIONS>>",$trailing);*/
     $socket=fsockopen("ssl://irc.sylnt.us","6697");
     if ($socket===False)
     {
@@ -53,12 +53,14 @@ switch ($cmd)
     stream_set_blocking($socket,0);
     rawmsg("NICK $trailing");
     rawmsg("USER $trailing hostname servername :$trailing.bot");
+    add_minion($trailing);
     while (True)
     {
       usleep(0.1e6);
       $data=get_bucket("MINION_CMD_$trailing");
       if ($data<>"")
       {
+        term_echo($data);
         if (unset_bucket("MINION_CMD_$trailing")==True)
         {
           $items=parse_data($data);
@@ -84,24 +86,64 @@ switch ($cmd)
       {
         continue;
       }
+      if ($items["nick"]<>$trailing)
+      {
+        continue;
+      }
       if ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
       {
-        dojoin("#");
+        dojoin($dest);
+      }
+      if ($items["cmd"]=="QUIT")
+      {
+        return;
       }
     }
     return;
   case "say":
+    # dogfart join #soylent
     $bot_nick=$parts[0];
     array_shift($parts);
+    if (count($parts)==0)
+    {
+      return;
+    }
+    $cmd=strtoupper($parts[0]);
+    array_shift($parts);
     $trailing=trim(implode(" ",$parts));
-    $items=parse_data($trailing);
+    $data="";
+    switch ($cmd)
+    {
+      case "JOIN":
+        $data=":$bot_nick $cmd $trailing";
+        break;
+      case "PART":
+        $data=":$bot_nick $cmd $dest :$trailing";
+        break;
+      case "QUIT":
+        $data=":$bot_nick $cmd :$trailing";
+        break;
+      case "NICK":
+        $data=":$bot_nick $cmd :$trailing";
+        break;
+      case "PRIVMSG":
+        $data=":$bot_nick $cmd $dest :$trailing";
+        break;
+    }
+    if ($data=="")
+    {
+      term_echo("unknown cmd \"$cmd\"");
+      return;
+    }
+    $items=parse_data($data);
     if ($items!==False)
     {
-      set_bucket("MINION_CMD_$bot_nick",$trailing);
+      term_echo("MINION_CMD_$bot_nick bucket set");
+      set_bucket("MINION_CMD_$bot_nick",$data);
     }
     else
     {
-      echo "/PRIVMSG $nick: invalid command \"$trailing\" for $bot_nick";
+      term_echo("invalid command \"$data\"");
     }
     return;
 }
@@ -119,6 +161,20 @@ function rawmsg($msg)
 function term_echo($msg)
 {
   echo "\033[35m$msg\033[0m\n";
+}
+
+#####################################################################################################
+
+function refresh_minions()
+{
+
+}
+
+#####################################################################################################
+
+function add_minion($nick)
+{
+
 }
 
 #####################################################################################################

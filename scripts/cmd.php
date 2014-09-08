@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 4-aug-2014
+# 8-aug-2014
 
 #####################################################################################################
 #                                                                                                   #
@@ -96,6 +96,7 @@ switch (strtoupper($cmd))
 
     break;
   case "319": # :irc.sylnt.us 319 exec crutchy :#wiki +#test #sublight #help @#exec #derp @#civ @#1 @#0 ## @#/ @#> @#~ @#
+    echo "/INTERNAL ~users-internal 319 $params $trailing\n";
     break;
   case "330": # :irc.sylnt.us 330 exec crutchy_ crutchy :is logged in as
     #echo "/INTERNAL ~meeting 330 $params\n";

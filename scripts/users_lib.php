@@ -2,21 +2,62 @@
 
 # gpl2
 # by crutchy
-# 7-sep-2014
+# 9-sep-2014
 
 #####################################################################################################
-
-require_once("lib.php");
 
 define("CHANNEL_BUCKET_PREFIX","EXEC_CHANNEL_DB_");
 
 #####################################################################################################
 
+function nick_exists($nick,$channel)
+{
+  $bucket=get_array_bucket(CHANNEL_BUCKET_PREFIX.strtolower($channel));
+  if (in_array(strtolower($nick),$bucket)==True)
+  {
+    return True;
+  }
+  else
+  {
+    return False;
+  }
+}
+
+#####################################################################################################
+
 function list_nicks($channel)
 {
-  $bucket=get_array_bucket(CHANNEL_BUCKET_PREFIX.$channel);
+  $bucket=get_array_bucket(CHANNEL_BUCKET_PREFIX.strtolower($channel));
   sort($bucket);
-  privmsg(implode(" ",$bucket));
+  privmsg("nicks in $channel: ".implode(" ",$bucket));
+}
+
+#####################################################################################################
+
+function list_channels($nick)
+{
+  $buckets=bucket_list();
+  $buckets=explode(" ",$buckets);
+  $n=strlen(CHANNEL_BUCKET_PREFIX);
+  $channels=array();
+  for ($i=0;$i<count($buckets);$i++)
+  {
+    if (substr($buckets[$i],0,$n)==CHANNEL_BUCKET_PREFIX)
+    {
+      $channel=substr($buckets[$i],$n,strlen($buckets[$i])-$n);
+      $index=CHANNEL_BUCKET_PREFIX.$channel;
+      $nicks=get_array_bucket($index);
+      if (in_array($nick,$nicks)==True)
+      {
+        $channels[]=$channel;
+      }
+    }
+  }
+  if (count($channels)>0)
+  {
+    sort($channels);
+    privmsg("channels with $nick: ".implode(" ",$channels));
+  }
 }
 
 #####################################################################################################
@@ -72,6 +113,47 @@ function handle_353($trailing) # <calling_nick> = <channel> <nick1> <+nick2> <@n
   irc_pause();
   set_array_bucket($nicks,CHANNEL_BUCKET_PREFIX.$channel,False);
   irc_unpause();
+}
+
+#####################################################################################################
+
+function handle_319($trailing) # <calling_nick> <subject_nick> <chan1> <+chan2> <@chan3>
+{
+  $parts=explode(" ",$trailing);
+  if (count($parts)<3)
+  {
+    term_echo("*** USERS: handle_319: invalid number of parts");
+    return;
+  }
+  $subject_nick=$parts[1];
+  if ($subject_nick=="")
+  {
+    term_echo("*** USERS: handle_319: empty subject_nick");
+    return;
+  }
+  array_shift($parts);
+  array_shift($parts);
+  for ($i=0;$i<count($parts);$i++)
+  {
+    $channel=$parts[$i];
+    if ($channel=="")
+    {
+      term_echo("*** USERS: handle_319: empty channel");
+      continue;
+    }
+    $auth=$channel[0];
+    if (($auth=="+") or ($auth=="@"))
+    {
+      $channel=substr($channel,1);
+      if ($channel=="")
+      {
+        term_echo("*** USERS: handle_319: empty auth channel");
+        continue;
+      }
+    }
+    term_echo("*** USERS: handle_319: channel = $channel");
+    # TODO: do stuff here
+  }
 }
 
 #####################################################################################################

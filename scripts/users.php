@@ -2,11 +2,11 @@
 
 # gpl2
 # by crutchy
-# 7-sep-2014
+# 9-sep-2014
 
 #####################################################################################################
 
-require_once("users_lib.php");
+require_once("lib.php");
 
 $trailing=strtolower(trim($argv[1]));
 $nick=strtolower(trim($argv[2]));
@@ -24,11 +24,17 @@ switch ($cmd)
   case "nicks":
     list_nicks($trailing);
     break;
+  case "channels":
+    list_channels($trailing);
+    break;
   case "count":
     count_nicks($trailing);
     break;
   case "353": # trailing = <calling_nick> = <channel> <nick1> <+nick2> <@nick3>
     handle_353($trailing);
+    break;
+  case "319": # trailing = <calling_nick> <subject_nick> <chan1> <+chan2> <@chan3>
+    handle_319($trailing);
     break;
   case "join": # trailing = <channel>
     handle_join($nick,$trailing);

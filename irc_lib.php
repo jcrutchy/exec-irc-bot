@@ -1463,6 +1463,10 @@ function ps($items)
 function killall($items)
 {
   global $handles;
+  if (count($handles)==0)
+  {
+    privmsg($items["destination"],$items["nick"],"no child processes currently running");
+  }
   $messages=array();
   foreach ($handles as $index => $handle)
   {
