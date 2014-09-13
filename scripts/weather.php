@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 22-aug-2014
+# 13-sep-2014
 
 #####################################################################################################
 
@@ -17,7 +17,7 @@
 # http://openweathermap.org/city/756135
 
 # TODO: registered nick personalised settings (units, default location, private msg, formatting, etc)
-# TODO: delete codes
+# TODO: change to use google (like time script)
 
 #####################################################################################################
 

@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 2-sep-2014
+# 14-sep-2014
 
 #####################################################################################################
 
@@ -139,6 +139,36 @@ function parse_rss($html)
     # <pubDate>Sun, 20 Jul 2014 19:08:38 +0000</pubDate>
     # <pubDate><![CDATA[Mon, 21 Jul 2014 08:30:06 +1000]]></pubDate>
     $url=str_replace("&amp;","&",strip_ctrl_chars(extract_raw_tag($parts[$i],"link")));
+    $item["url"]=get_redirected_url($url);
+    $item["timestamp"]=time();
+    if (($item["title"]===False) or ($item["url"]===False))
+    {
+      continue;
+    }
+    $items[]=$item;
+  }
+  return $items;
+}
+
+#####################################################################################################
+
+function parse_xml($html)
+{
+  $parts=explode("<story",$html);
+  array_shift($parts);
+  $items=array();
+  for ($i=0;$i<count($parts);$i++)
+  {
+    $item=array();
+    $item["type"]="xml_story";
+    $item["title"]=html_entity_decode(extract_raw_tag($parts[$i],"title"),ENT_QUOTES,"UTF-8");
+    $item["title"]=html_entity_decode($item["title"],ENT_QUOTES,"UTF-8");
+    $item["title"]=replace_ctrl_chars($item["title"]," ");
+    $item["title"]=str_replace("  "," ",$item["title"]);
+    # <dc:date>2014-07-20T19:05:00+00:00</dc:date>
+    # <pubDate>Sun, 20 Jul 2014 19:08:38 +0000</pubDate>
+    # <pubDate><![CDATA[Mon, 21 Jul 2014 08:30:06 +1000]]></pubDate>
+    $url=str_replace("&amp;","&",strip_ctrl_chars(extract_raw_tag($parts[$i],"url")));
     $item["url"]=get_redirected_url($url);
     $item["timestamp"]=time();
     if (($item["title"]===False) or ($item["url"]===False))

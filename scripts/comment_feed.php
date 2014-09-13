@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 4-sep-2014
+# 14-sep-2014
 
 #####################################################################################################
 
@@ -39,10 +39,17 @@ if (file_exists(COMMENTS_CID_FILE)==True)
 $msg="last cid = $last_cid";
 output($msg,True);
 
-$response=wget("soylentnews.org","/index.atom",80,ICEWEASEL_UA,"",60);
-term_echo("*** comment_feed: downloaded atom feed");
+#$response=wget("soylentnews.org","/index.atom",80,ICEWEASEL_UA,"",60);
+#term_echo("*** comment_feed: downloaded atom feed");
+
+$response=wget("soylentnews.org","/index.xml",80,ICEWEASEL_UA,"",60);
+term_echo("*** comment_feed: downloaded story feed");
+
 $html=strip_headers($response);
-$items=parse_atom($html);
+
+#$items=parse_atom($html);
+$items=parse_xml($html);
+
 $topcomments=array();
 if (file_exists(COMMENTS_TOP_FILE)==True)
 {
@@ -54,7 +61,10 @@ if (file_exists(COMMENTS_TOP_FILE)==True)
 $cids=array();
 #$item_count=count($items);
 $item_count=20;
-term_echo("*** comment_feed: $item_count atom feed stories to check");
+
+#term_echo("*** comment_feed: $item_count atom feed stories to check");
+term_echo("*** comment_feed: $item_count feed stories to check");
+
 for ($i=0;$i<$item_count;$i++)
 {
   sleep(5);
