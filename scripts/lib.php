@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 8-sep-2014
+# 12-sep-2014
 
 #####################################################################################################
 
@@ -22,6 +22,26 @@ define("VALID_NUMERIC","0123456789");
 
 define("BUCKET_CONNECTION_ESTABLISHED","<<IRC_CONNECTION_ESTABLISHED>>");
 define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
+
+#####################################################################################################
+
+function exec_file_append($filename,$data)
+{
+  file_put_contents("../data/".$filename,$data."\n",FILE_APPEND);
+}
+
+#####################################################################################################
+
+function exec_file_read($filename)
+{
+  $fn="../data/".$filename;
+  if (file_exists($fn)==True)
+  {
+    $data=file_get_contents($fn);
+    return explode("\n",$data);
+  }
+  return array();
+}
 
 #####################################################################################################
 

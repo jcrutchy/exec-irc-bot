@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 8-sep-2014
+# 9-sep-2014
 
 #####################################################################################################
 
@@ -86,13 +86,16 @@ switch ($cmd)
       {
         continue;
       }
+      if ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
+      {
+        term_echo("joining \"$dest\"...");
+        dojoin($dest);
+        term_echo("joining \"#\"...");
+        dojoin("#");
+      }
       if ($items["nick"]<>$trailing)
       {
         continue;
-      }
-      if ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
-      {
-        dojoin($dest);
       }
       if ($items["cmd"]=="QUIT")
       {

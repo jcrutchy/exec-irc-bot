@@ -2,13 +2,19 @@
 
 # gpl2
 # by crutchy
-# 6-july-2014
+# 12-sep-2014
 
 #####################################################################################################
 
 if (isset($_GET["stats"])==True)
 {
   require_once(__DIR__."/stats.inc");
+  return;
+}
+
+if (isset($_GET["karma"])==True)
+{
+  require_once(__DIR__."/karma.inc");
   return;
 }
 

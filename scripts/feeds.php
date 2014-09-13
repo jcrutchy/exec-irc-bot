@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 29-aug-2014
+# 9-sep-2014
 
 # http://wiki.soylentnews.org/wiki/Rss_sources
 
@@ -16,7 +16,7 @@ $nick=$argv[2];
 $dest=$argv[3];
 $alias=$argv[4];
 
-$feed_chans=array("#~");
+$feed_chans=array("#exec");
 
 if ($alias=="~feed-sources-wiki-get")
 {

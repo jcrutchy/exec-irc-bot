@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 21-aug-2014
+# 13-sep-2014
 
 #####################################################################################################
 
@@ -21,7 +21,7 @@ if ($trailing=="")
 
 $utc_str=gmdate("H:i, j F Y",time());
 
-$title="SoylentNews:Sandbox";
+$title="Suggestions";
 $section="Suggestions from IRC";
 
 $lines=get_text($title,$section,True,True);
@@ -59,7 +59,7 @@ if (is_array($lines)==True)
 }
 $text=$text."\n* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
 
-$msg_success="*** suggestion successfully added to wiki - http://wiki.soylentnews.org/wiki/SoylentNews:Sandbox";
+$msg_success="*** suggestion successfully added to wiki - http://sylnt.us/suggest#Suggestions_from_IRC";
 $msg_error="*** error adding suggestion to wiki";
 
 if (login(True)==False)

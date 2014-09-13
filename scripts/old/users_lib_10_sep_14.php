@@ -6,10 +6,8 @@
 
 #####################################################################################################
 
-function user_bucket_index($nick)
-{
-  return "<<EXEC_USER_$nick>>";
-}
+define("CHANNEL_BUCKET_PREFIX","EXEC_CHANNEL_DB_");
+define("ACCOUNT_BUCKET","EXEC_ACCOUNT_DB");
 
 #####################################################################################################
 
@@ -30,29 +28,9 @@ function nick_exists($nick,$channel)
 
 function list_nicks($channel)
 {
-  $buckets=bucket_list();
-  $buckets=explode(" ",$buckets);
-  $nicks=array();
-  $prefix="<<EXEC_USER_";
-  for ($i=0;$i<count($buckets);$i++)
-  {
-    if (substr($buckets[$i],0,strlen($prefix))==$prefix)
-    {
-      $nicks[]=substr($buckets[$i],strlen($prefix),strlen($buckets[$i])-strlen($prefix)-2);
-    }
-  }
-  $result=array();
-  for ($i=0;$i<count($nicks);$i++)
-  {
-    $index=user_bucket_index($nicks[$i]);
-    $user=get_array_bucket($index);
-    if (isset($user["channels"][$channel])==True)
-    {
-      $result[]=$nicks[$i];
-    }
-  }
-  sort($result);
-  privmsg("nicks in $channel: ".implode(" ",$result));
+  $bucket=get_array_bucket(CHANNEL_BUCKET_PREFIX.strtolower($channel));
+  sort($bucket);
+  privmsg("nicks in $channel: ".implode(" ",$bucket));
 }
 
 #####################################################################################################
@@ -95,7 +73,6 @@ function count_nicks($channel)
 
 function handle_353($trailing) # <calling_nick> = <channel> <nick1> <+nick2> <@nick3>
 {
-  term_echo($trailing);
   $parts=explode(" ",$trailing);
   if (count($parts)<4)
   {
@@ -108,7 +85,12 @@ function handle_353($trailing) # <calling_nick> = <channel> <nick1> <+nick2> <@n
     term_echo("*** USERS: handle_353: empty channel");
     return;
   }
-  for ($i=3;$i<count($parts);$i++)
+  for ($i=1;$i<=3;$i++)
+  {
+    array_shift($parts);
+  }
+  $nicks=array();
+  for ($i=0;$i<count($parts);$i++)
   {
     $nick=$parts[$i];
     if ($nick=="")
@@ -126,20 +108,12 @@ function handle_353($trailing) # <calling_nick> = <channel> <nick1> <+nick2> <@n
         continue;
       }
     }
-    $index=user_bucket_index($nick);
-    irc_pause();
-    $user=get_array_bucket($index);
-    if (isset($user["channels"])==False)
-    {
-      $user["channels"]=array();
-    }
-    if (isset($user["channels"][$channel])==False)
-    {
-      $user["channels"][$channel]=array();
-    }
-    set_array_bucket($user,$index,False);
-    irc_unpause();
+    #term_echo("*** USERS: handle_353: nick = $nick");
+    $nicks[]=$nick;
   }
+  irc_pause();
+  set_array_bucket($nicks,CHANNEL_BUCKET_PREFIX.$channel,False);
+  irc_unpause();
 }
 
 #####################################################################################################
