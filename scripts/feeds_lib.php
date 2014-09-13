@@ -103,7 +103,8 @@ function parse_atom($html)
   {
     $entry=array();
     $entry["type"]="atom_entry";
-    $entry["title"]=html_entity_decode(extract_raw_tag($parts[$i],"title"),ENT_QUOTES,"UTF-8");
+    $entry["title"]=extract_raw_tag($parts[$i],"title");
+    $entry["title"]=html_entity_decode($entry["title"],ENT_QUOTES,"UTF-8");
     $entry["title"]=html_entity_decode($entry["title"],ENT_QUOTES,"UTF-8");
     $item["title"]=replace_ctrl_chars($item["title"]," ");
     $item["title"]=str_replace("  "," ",$item["title"]);
@@ -131,7 +132,8 @@ function parse_rss($html)
   {
     $item=array();
     $item["type"]="rss_item";
-    $item["title"]=html_entity_decode(extract_raw_tag($parts[$i],"title"),ENT_QUOTES,"UTF-8");
+    $item["title"]=extract_raw_tag($parts[$i],"title");
+    $item["title"]=html_entity_decode($item["title"],ENT_QUOTES,"UTF-8");
     $item["title"]=html_entity_decode($item["title"],ENT_QUOTES,"UTF-8");
     $item["title"]=replace_ctrl_chars($item["title"]," ");
     $item["title"]=str_replace("  "," ",$item["title"]);
@@ -161,13 +163,11 @@ function parse_xml($html)
   {
     $item=array();
     $item["type"]="xml_story";
-    $item["title"]=html_entity_decode(extract_raw_tag($parts[$i],"title"),ENT_QUOTES,"UTF-8");
+    $item["title"]=extract_raw_tag($parts[$i],"title");
+    $item["title"]=html_entity_decode($item["title"],ENT_QUOTES,"UTF-8");
     $item["title"]=html_entity_decode($item["title"],ENT_QUOTES,"UTF-8");
     $item["title"]=replace_ctrl_chars($item["title"]," ");
     $item["title"]=str_replace("  "," ",$item["title"]);
-    # <dc:date>2014-07-20T19:05:00+00:00</dc:date>
-    # <pubDate>Sun, 20 Jul 2014 19:08:38 +0000</pubDate>
-    # <pubDate><![CDATA[Mon, 21 Jul 2014 08:30:06 +1000]]></pubDate>
     $url=str_replace("&amp;","&",strip_ctrl_chars(extract_raw_tag($parts[$i],"url")));
     $item["url"]=get_redirected_url($url);
     $item["timestamp"]=time();
