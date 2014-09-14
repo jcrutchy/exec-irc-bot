@@ -18,6 +18,7 @@ switch ($alias)
 {
   case "~weather-prefs":
     # TODO: registered nick personalised settings (units, default location, private msg, formatting, etc)
+    privmsg("tama lama ding dong");
     break;
   case "~weather-del":
     if (del_location($trailing)==True)
