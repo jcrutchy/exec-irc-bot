@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 28-aug-2014
+# 15-sep-2014
 
 #####################################################################################################
 
@@ -145,6 +145,80 @@ function set_location_alias($alias,$trailing)
 #####################################################################################################
 
 function process_weather(&$location,$nick)
+{
+  $loc=get_location($location,$nick);
+  if ($loc===False)
+  {
+    if ($location=="")
+    {
+      return 0;
+    }
+    $loc=$location;
+  }
+  $location=$loc;
+  $loc_query=filter($loc,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC." ");
+  # https://www.google.com/search?gbv=1&q=weather+traralgon
+  $response=wget("www.google.com","/search?gbv=1&fheit=0&q=weather+".urlencode($loc_query),80,ICEWEASEL_UA,"",60);
+  $html=strip_headers($response);
+  $delim1="<div class=\"e\">";
+  $delim2="Detailed forecast:";
+  $html=extract_text($html,$delim1,$delim2);
+  if ($html===False)
+  {
+    return False;
+  }
+  $html=replace_ctrl_chars($html," ");
+  $html=str_replace("  "," ",$html);
+  $html=html_entity_decode($html,ENT_QUOTES,"UTF-8");
+  $html=html_entity_decode($html,ENT_QUOTES,"UTF-8");
+  $location=trim(strip_tags(extract_raw_tag($html,"h3")));
+  $wind=trim(strip_tags(extract_text($html,"style=\"white-space:nowrap;padding-right:15px;color:#666\">Wind: ","</span>")));
+  $humidity=extract_text($html,"style=\"white-space:nowrap;padding-right:0px;vertical-align:top;color:#666\">Humidity: ","</td>");
+  $parts=explode("<td",$html);
+  $temps=array();
+  $conds=array();
+  $days=array();
+  for ($i=1;$i<count($parts);$i++)
+  {
+    $cond=extract_text($parts[$i],"alt=\"","\"");
+    $temp=extract_text($parts[$i],"<span class=\"wob_t\" style=\"display:inline\">","</span>");
+    $day=extract_text($parts[$i],"colspan=\"2\" style=\"vertical-align:top;text-align:center\">","</td>");
+    if ($cond!==False)
+    {
+      $conds[]=strtolower($cond);
+    }
+    if ($temp!==False)
+    {
+      $temps[]=$temp;
+    }
+    if ($day!==False)
+    {
+      $days[]=$day;
+    }
+  }
+  if ((count($conds)<>5) or (count($temps)<>10) or (count($days)<>4))
+  {
+    return False;
+  }
+  $result=$location." - currrently ".$temps[0].", ".$conds[0].", wind ".$wind.", humidity ".$humidity." - ";
+  $fulldays=array("Sun"=>"Sunday","Mon"=>"Monday","Tue"=>"Tuesday","Wed"=>"Wednesday","Thu"=>"Thursday","Fri"=>"Friday","Sat"=>"Saturday");
+  for ($i=1;$i<=4;$i++)
+  {
+    $day=$days[$i-1];
+    $day=$fulldays[$day];
+    $result=$result.$day." ".$conds[$i]." (".$temps[$i*2].", ".$temps[$i*2+1].")";
+    if ($i<4)
+    {
+      $result=$result.", ";
+    }
+  }
+  $result=$result." - source: Google";
+  return $result;
+}
+
+#####################################################################################################
+
+function process_weather_old(&$location,$nick)
 {
   $loc=get_location($location,$nick);
   if ($loc===False)

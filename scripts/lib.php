@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 12-sep-2014
+# 15-sep-2014
 
 #####################################################################################################
 
@@ -215,6 +215,7 @@ function extract_text($text,$delim1,$delim2,$delim2opt=False)
   $i=strpos(strtolower($text),strtolower($delim1));
   if ($i===False)
   {
+    #term_echo("*** lib.php->extract_text: delim1 not found");
     return False;
   }
   $text=substr($text,$i+strlen($delim1));
@@ -227,6 +228,7 @@ function extract_text($text,$delim1,$delim2,$delim2opt=False)
     }
     else
     {
+      #term_echo("*** lib.php->extract_text: required delim2 not found");
       return False;
     }
   }

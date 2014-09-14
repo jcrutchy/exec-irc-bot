@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 13-sep-2014
+# 14-sep-2014
 
 #####################################################################################################
 
@@ -53,7 +53,15 @@ switch ($alias)
     break;
   case "~weather":
     $data=process_weather($trailing,$nick);
-    if (is_array($data)==False)
+    if ($data!==False)
+    {
+      privmsg($data);
+    }
+    else
+    {
+      term_echo("*** WEATHER ERROR ***");
+    }
+    /*if (is_array($data)==False)
     {
       switch ($data)
       {
@@ -80,7 +88,7 @@ switch ($alias)
       }
       $color="10";
       privmsg("weather for ".chr(2).chr(3).$color.$data["name"].chr(3).chr(2)." at $time_str".$data["age"]." temp: ".chr(2).chr(3).$color.$data["temp"].chr(3).chr(2).", dp: ".chr(2).chr(3).$color.$data["dewpoint"].chr(3).chr(2).", press: ".chr(2).chr(3).$color.$data["press"].chr(3).chr(2).", humid: ".chr(2).chr(3).$color.$data["humidity"].chr(3).chr(2).", wind: ".chr(2).chr(3).$color.$data["wind_speed"].chr(3).chr(2)." @ ".chr(2).chr(3).$color.$data["wind_direction"].chr(3).chr(2));
-    }
+    }*/
     break;
 }
 
