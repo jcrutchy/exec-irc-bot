@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 14-sep-2014
+# 15-sep-2014
 
 #####################################################################################################
 
@@ -59,7 +59,7 @@ switch ($alias)
     }
     else
     {
-      term_echo("*** WEATHER ERROR ***");
+      privmsg("weather error: $trailing");
     }
     /*if (is_array($data)==False)
     {
