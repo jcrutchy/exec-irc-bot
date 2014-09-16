@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 14-sep-2014
+# 15-sep-2014
 
 #####################################################################################################
 
@@ -67,6 +67,10 @@ term_echo("*** comment_feed: $item_count feed stories to check");
 
 for ($i=0;$i<$item_count;$i++)
 {
+  if (isset($items[$i])==False)
+  {
+    continue;
+  }
   sleep(5);
   $url=$items[$i]["url"]."&threshold=-1&highlightthresh=-1&mode=flat&commentsort=0";
   $title=$items[$i]["title"];

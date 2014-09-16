@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 14-sep-2014
+# 17-sep-2014
 
 #####################################################################################################
 
@@ -106,8 +106,9 @@ function parse_atom($html)
     $entry["title"]=extract_raw_tag($parts[$i],"title");
     $entry["title"]=html_entity_decode($entry["title"],ENT_QUOTES,"UTF-8");
     $entry["title"]=html_entity_decode($entry["title"],ENT_QUOTES,"UTF-8");
-    $item["title"]=replace_ctrl_chars($item["title"]," ");
-    $item["title"]=str_replace("  "," ",$item["title"]);
+    $entry["title"]=strip_tags($entry["title"]);
+    $entry["title"]=replace_ctrl_chars($entry["title"]," ");
+    $entry["title"]=str_replace("  "," ",$entry["title"]);
     # <updated>2014-07-20T21:07:00+00:00</updated>
     $url=str_replace("&amp;","&",trim(strip_ctrl_chars(extract_void_tag($parts[$i],"link href=")),"\""));
     $entry["url"]=get_redirected_url($url);
@@ -135,6 +136,7 @@ function parse_rss($html)
     $item["title"]=extract_raw_tag($parts[$i],"title");
     $item["title"]=html_entity_decode($item["title"],ENT_QUOTES,"UTF-8");
     $item["title"]=html_entity_decode($item["title"],ENT_QUOTES,"UTF-8");
+    $item["title"]=strip_tags($item["title"]);
     $item["title"]=replace_ctrl_chars($item["title"]," ");
     $item["title"]=str_replace("  "," ",$item["title"]);
     # <dc:date>2014-07-20T19:05:00+00:00</dc:date>
