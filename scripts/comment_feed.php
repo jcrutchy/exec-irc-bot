@@ -2,7 +2,7 @@
 
 # gpl2
 # by crutchy
-# 15-sep-2014
+# 20-sep-2014
 
 #####################################################################################################
 
@@ -149,6 +149,7 @@ for ($i=0;$i<$item_count;$i++)
       $comment_body=trim(strip_tags($comment_body));
       $comment_body=str_replace("  "," ",$comment_body);
       $comment_body=html_entity_decode($comment_body,ENT_QUOTES,"UTF-8");
+      $comment_body_len=strlen($comment_body);
       $max_comment_length=300;
       if (strlen($comment_body)>$max_comment_length)
       {
@@ -157,7 +158,7 @@ for ($i=0;$i<$item_count;$i++)
       if ($cid>$last_cid)
       {
         $cids[]=$cid;
-        $line="$cid\t$sid\t$user\t$uid\t$score\t$score_num\t$subject\t$title\t$url\t".time()."\t$pid\t$parent_url\n";
+        $line="$cid\t$sid\t$user\t$uid\t$score\t$score_num\t$subject\t$title\t$url\t".time()."\t$pid\t$parent_url\t$comment_body_len\n";
         file_put_contents(COMMENTS_FEED_FILE,$line,FILE_APPEND);
       }
       $user_uid=chr(3)."03".$user.chr(3);
@@ -172,7 +173,7 @@ for ($i=0;$i<$item_count;$i++)
         {
           $msg=$msg."new ";
         }
-        $msg=$msg.chr(3)."score 5 comment: $user_uid ".chr(3)."02".$subject.chr(3)." - $title_output -".chr(3)."04 $url";
+        $msg=$msg.chr(3)."score 5 comment: $user_uid ".chr(3)."02".$subject.chr(3)." - $title_output - $comment_body_len chars - ".chr(3)."04 $url";
         if ($parent_url<>"")
         {
           $msg=$msg." ".chr(3)."(parent: $parent_url)";
@@ -188,7 +189,7 @@ for ($i=0;$i<$item_count;$i++)
       }
       elseif ($cid>$last_cid)
       {
-        $msg="*** new comment: $user_uid $score ".chr(3)."02".$subject.chr(3)." - $title_output -".chr(3)."04 $url";
+        $msg="*** new comment: $user_uid $score ".chr(3)."02".$subject.chr(3)." - $title_output - $comment_body_len chars -".chr(3)."04 $url";
         if ($parent_url<>"")
         {
           $msg=$msg." ".chr(3)."(parent: $parent_url)";
@@ -215,6 +216,9 @@ for ($i=0;$i<count($cids);$i++)
   }
 }
 file_put_contents(COMMENTS_CID_FILE,$new_last_cid);
+
+$msg=chr(3)."08"."********** ".chr(3)."03".chr(2)."END FEED".chr(2).chr(3)."08"." **********";
+output($msg,True);
 
 #####################################################################################################
 

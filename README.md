@@ -1,5 +1,5 @@
-test readme
-===========
+exec-irc-bot readme
+===================
 
 This is the home of crutchy's 'exec' bot source code which lurks on irc.sylnt.us (SoylentNews IRC).
 
