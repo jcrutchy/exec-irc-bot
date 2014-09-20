@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 31-aug-2014
 
 #####################################################################################################
 
@@ -22,7 +21,7 @@ switch ($alias)
     $cid=file_get_contents(COMMENTS_CID_FILE);
     if ($cid<>"")
     {
-      privmsg("max SN cid from articles in atom feed: $cid");
+      privmsg("max SN cid from articles in xml feed: $cid");
     }
     return;
 }

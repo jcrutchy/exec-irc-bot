@@ -23,6 +23,25 @@ $alias=$argv[4];
 
 $agent=ICEWEASEL_UA;
 
+$host="soylentnews.org";
+$port=443;
+
+if ($alias=="~uid")
+{
+  $host="dev.soylentnews.org";
+  $port=80;
+  $uri="/zoo.pl?op=max";
+  $response=wget($host,$uri,$port,$agent);
+  $delim1="<p class='bender'>";
+  $delim2="</p>";
+  $uid=extract_text($response,$delim1,$delim2);
+  if ($uid!==False)
+  {
+    privmsg("*** $uid");
+  }
+  return;
+}
+
 if ($alias=="~comment")
 {
   $subject="comment from $dest @ irc.sylnt.us";
@@ -81,9 +100,6 @@ if ($alias=="~comment")
   #$sid="14/04/01/032217"; (for testing)
   term_echo($sid);
 }
-
-$host="soylentnews.org";
-$port=443;
 
 $extra_headers=array();
 $extra_headers["Cookie"]=sn_login();

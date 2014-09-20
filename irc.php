@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 11-sep-2014
 
 #####################################################################################################
 
@@ -192,6 +191,9 @@ if (file_exists(IGNORE_FILE)==True)
 }
 delete_empty_elements($ignore_list);
 
+$direct_stdin=fopen("php://stdin","r");
+stream_set_blocking($direct_stdin,0);
+
 init();
 if (IRC_PORT=="6697")
 {
@@ -229,6 +231,7 @@ while (True)
   }
   $handles=array_values($handles);
   handle_socket($socket);
+  handle_direct_stdin();
   usleep(0.05e6); # 0.05 second to prevent cpu flogging
   process_timed_execs();
 }

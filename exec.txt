@@ -1,6 +1,5 @@
 # gpl2
 # by crutchy
-# 15-sep-2014
 
 #####################################################################################################
 
@@ -87,6 +86,7 @@
 ~isup|30|0|0|0||||0|php scripts/isup.php %%trailing%%
 ~rainbow|5|0|0|0||||0|php scripts/rainbow.php %%trailing%%
 ~queue|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~uid|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~up|5|0|0|1||||0|php scripts/up.php %%start%%
 ~location|5|0|0|0||||0|php scripts/location.php %%trailing%%
 ~staff|20|0|0|1||||0|php scripts/staff.php %%trailing%%
