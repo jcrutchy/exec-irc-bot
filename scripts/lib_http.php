@@ -2,13 +2,12 @@
 
 # gpl2
 # by crutchy
-# 5-sep-2014
 
 #####################################################################################################
 
 define("ICEWEASEL_UA","Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20140429 Firefox/24.0 Iceweasel/24.5.0");
 
-$url_blacklist=array("kidd","porn","goat","xxx","sex","fuc");
+$url_blacklist=array("kidd","porn","goat","xxx","sex","fuck");
 
 #####################################################################################################
 

@@ -95,7 +95,10 @@
 
 ~scramble|10|0|0|1||||0|php scripts/scramble.php %%trailing%% %%nick%% %%dest%%
 
-rofl|5|0|1|1||||0|fortune -s -o
+#rofl|5|0|1|1||||0|fortune -s -o
+
+rofl|15|0|0|1||||0|php scripts/confucius.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
+
 ~openthepodbaydoors|5|0|1|1||||0|fortune -s -o
 
 ~cid|5|0|0|1||||0|php scripts/comment_utils.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%

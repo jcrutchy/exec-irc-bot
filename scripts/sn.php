@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 23-aug-2014
 
 /*
 - the bot could keeep track of irc comments and if you type something like
@@ -37,7 +36,7 @@ if ($alias=="~uid")
   $uid=extract_text($response,$delim1,$delim2);
   if ($uid!==False)
   {
-    privmsg("*** $uid");
+    privmsg($uid);
   }
   return;
 }

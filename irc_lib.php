@@ -159,7 +159,37 @@ function log_items($items)
 function handle_direct_stdin()
 {
   global $direct_stdin;
-
+  global $irc_pause;
+  $msg=trim(fgets($direct_stdin));
+  if ($msg=="")
+  {
+    return;
+  }
+  term_echo("*** DIRECT STDIN: $msg");
+  $parts=explode(" ",$msg);
+  $prefix=strtoupper($parts[0]);
+  array_shift($parts);
+  $prefix_msg=implode(" ",$parts);
+  if ($prefix_msg<>"")
+  {
+    switch ($prefix)
+    {
+      case PREFIX_IRC:
+        rawmsg($prefix_msg);
+        return;
+      case PREFIX_INTERNAL:
+        $nick=NICK;
+        handle_data(":$nick ".CMD_INTERNAL." :".$prefix_msg."\n",False,False,True);
+        return;
+      case PREFIX_PAUSE:
+        $irc_pause=True;
+        return;
+      case PREFIX_UNPAUSE:
+        $irc_pause=False;
+        return;
+    }
+  }
+  handle_data($msg."\n",False,False,True);
 }
 
 #####################################################################################################
@@ -619,6 +649,56 @@ function has_account_list($alias)
 
 #####################################################################################################
 
+function handle_events(&$items)
+{
+  $cmd=strtoupper($items["cmd"]);
+  $nick=strtolower($items["nick"]);
+  switch ($cmd)
+  {
+  case "JOIN":
+    # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
+
+    break;
+  case "KICK":
+    # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
+    # :exec!~exec@709-27-2-01.cust.aussiebb.net KICK #comments Loggie :commanded by crutchy
+
+    break;
+  case "KILL":
+
+    break;
+  case "NICK":
+    # :Landon_!~Landon@Soylent/Staff/IRC/Landon NICK :Landon
+
+    break;
+  case "PART":
+    # :Drop!~Drop___@via1-vhat2-0-3-jppz214.perr.cable.virginm.net PART #Soylent :Leaving
+
+    break;
+  case "QUIT":
+
+    break;
+  case "319":
+    # :irc.sylnt.us 319 exec crutchy :#wiki +#test #sublight #help @#exec #derp @#civ @#1 @#0 ## @#/ @#> @#~ @#
+
+    break;
+  case "330":
+    # :irc.sylnt.us 330 exec crutchy_ crutchy :is logged in as
+
+    break;
+  case "353":
+    # :irc.sylnt.us 353 exec = #civ :exec @crutchy chromas arti
+
+    break;
+  case "354":
+    # :irc.sylnt.us 354 crutchy 152 #Soylent mrcoolbp H@+
+
+    break;
+  }
+}
+
+#####################################################################################################
+
 function handle_data($data,$is_sock=False,$auth=False,$exec=False)
 {
   global $buckets;
@@ -688,6 +768,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
       }
     }
     $alias=$args[0];
+    handle_events($items);
     switch ($alias)
     {
       case ALIAS_ADMIN_QUIT:
