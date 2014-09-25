@@ -84,6 +84,8 @@ function wtouch($host,$uri,$port,$timeout=5)
 
 #####################################################################################################
 
+# TODO: don't make so pedantic (see header.php)
+
 function get_host_and_uri($url,&$host,&$uri,&$port)
 {
   $url=trim($url);

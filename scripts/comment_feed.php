@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 20-sep-2014
 
 #####################################################################################################
 
@@ -64,6 +63,8 @@ $item_count=20;
 
 #term_echo("*** comment_feed: $item_count atom feed stories to check");
 term_echo("*** comment_feed: $item_count feed stories to check");
+
+$top_score_pub=0;
 
 for ($i=0;$i<$item_count;$i++)
 {
@@ -182,6 +183,11 @@ for ($i=0;$i<$item_count;$i++)
         $msg=chr(2).$msg.chr(2);
         file_put_contents(COMMENTS_TOP_FILE,$cid."\n",FILE_APPEND);
         output($msg);
+        if ($top_score_pub==0)
+        {
+          pm("#soylent",chr(3)."score 5 comment: $user_uid ".chr(3)."02".$subject.chr(3)." - $title_output - ".chr(3)."04 $url");
+          $top_score_pub=1;
+        }
         for ($k=0;$k<count($subscribers);$k++)
         {
           pm($subscribers[$k],chr(3)."08^ ".$comment_body);

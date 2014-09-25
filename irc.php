@@ -35,6 +35,7 @@ define("DIRECTIVE_QUIT","<<quit>>");
 # internally used buckets
 define("BUCKET_LOGGED_CHANS","<<LOGGED_CHANNELS>>");
 define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
+define("BUCKET_USERS","<<EXEC_USERS>>");
 
 # reserved aliases
 define("ALIAS_ALL","*");

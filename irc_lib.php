@@ -649,51 +649,262 @@ function has_account_list($alias)
 
 #####################################################################################################
 
+function handle_join($nick,$channel)
+{
+  global $buckets;
+  if (($nick=="") or ($channel==""))
+  {
+    term_echo("*** USERS: handle_join: empty nick or channel");
+    return;
+  }
+  term_echo("*** USERS: handle_join: nick=$nick, channel=$channel");
+  $buckets[BUCKET_USERS][$nick]["channels"][$channel]=array();
+}
+
+#####################################################################################################
+
+function handle_kick($trailing) # <channel> <kicked_nick>
+{
+  global $buckets;
+  $parts=explode(" ",$trailing);
+  if (count($parts)<>2)
+  {
+    term_echo("*** USERS: handle_kick: invalid number of parts");
+    return;
+  }
+  $channel=$parts[0];
+  $kicked_nick=$parts[1];
+  if (($channel=="") or ($kicked_nick==""))
+  {
+    term_echo("*** USERS: handle_kick: empty channel or kicked nick");
+    return;
+  }
+  term_echo("*** USERS: handle_kick: channel=$channel, kicked_nick=$kicked_nick");
+  if (isset($buckets[BUCKET_USERS][$kicked_nick]["channels"][$channel])==True)
+  {
+    unset($buckets[BUCKET_USERS][$kicked_nick]["channels"][$channel]);
+  }
+  else
+  {
+    term_echo("*** USERS: handle_kick: bucket data not found");
+  }
+}
+
+#####################################################################################################
+
+function handle_nick($old_nick,$new_nick)
+{
+  global $buckets;
+  if (($old_nick=="") or ($new_nick==""))
+  {
+    return;
+  }
+  term_echo("*** USERS: handle_nick: old_nick=$old_nick, new_nick=$new_nick");
+  $user=array();
+  if (isset($buckets[BUCKET_USERS][$old_nick])==True)
+  {
+    $user=$buckets[BUCKET_USERS][$old_nick];
+    unset($buckets[BUCKET_USERS][$old_nick]);
+  }
+  else
+  {
+    term_echo("*** USERS: handle_nick: bucket data not found");
+  }
+  $buckets[BUCKET_USERS][$new_nick]=$user;
+}
+
+#####################################################################################################
+
+function handle_part($nick,$channel)
+{
+  global $buckets;
+  if (($nick=="") or ($channel==""))
+  {
+    term_echo("*** USERS: handle_part: empty channel or nick");
+    return;
+  }
+  term_echo("*** USERS: handle_part: nick=$nick, channel=$channel");
+  if (isset($buckets[BUCKET_USERS][$nick]["channels"][$channel])==True)
+  {
+    unset($buckets[BUCKET_USERS][$nick]["channels"][$channel]);
+  }
+  else
+  {
+    term_echo("*** USERS: handle_part: bucket data not found");
+  }
+}
+
+#####################################################################################################
+
+function handle_quit($nick)
+{
+  global $buckets;
+  if ($nick=="")
+  {
+    term_echo("*** USERS: handle_quit: empty nick");
+    return;
+  }
+  term_echo("*** USERS: handle_quit: nick=$nick");
+  if (isset($buckets[BUCKET_USERS][$nick])==True)
+  {
+    unset($buckets[BUCKET_USERS][$nick]);
+  }
+  else
+  {
+    term_echo("*** USERS: handle_quit: bucket data not found");
+  }
+}
+
+#####################################################################################################
+
+function handle_319($trailing) # <calling_nick> <subject_nick> <chan1> <+chan2> <@chan3>
+{
+  global $buckets;
+  $parts=explode(" ",$trailing);
+  if (count($parts)<3)
+  {
+    term_echo("*** USERS: handle_319: invalid number of parts");
+    return;
+  }
+  $subject_nick=$parts[1];
+  if ($subject_nick=="")
+  {
+    term_echo("*** USERS: handle_319: empty subject_nick");
+    return;
+  }
+  for ($i=2;$i<count($parts);$i++)
+  {
+    $channel=$parts[$i];
+    if ($channel=="")
+    {
+      term_echo("*** USERS: handle_319: empty channel");
+      continue;
+    }
+    $auth=$channel[0];
+    if (($auth=="+") or ($auth=="@"))
+    {
+      $channel=substr($channel,1);
+      if ($channel=="")
+      {
+        term_echo("*** USERS: handle_319: empty auth channel");
+        continue;
+      }
+    }
+    term_echo("*** USERS: handle_319: subject_nick=$subject_nick, channel=$channel");
+    $buckets[BUCKET_USERS][$subject_nick]["channels"][$channel]=array();
+  }
+}
+
+#####################################################################################################
+
+function handle_330($trailing) # <calling_nick> <subject_nick> <account>
+{
+  global $buckets;
+  $parts=explode(" ",$trailing);
+  if (count($parts)<>3)
+  {
+    term_echo("*** USERS: handle_330: invalid number of parts");
+    return;
+  }
+  $subject_nick=$parts[1];
+  if ($subject_nick=="")
+  {
+    term_echo("*** USERS: handle_330: empty subject_nick");
+    return;
+  }
+  $account=$parts[2];
+  if ($account=="")
+  {
+    term_echo("*** USERS: handle_330: empty account");
+    return;
+  }
+  $buckets[BUCKET_USERS][$subject_nick]["account"]=$account;
+}
+
+#####################################################################################################
+
+function handle_353($trailing) # <calling_nick> = <channel> <nick1> <+nick2> <@nick3>
+{
+  global $buckets;
+  term_echo($trailing);
+  $parts=explode(" ",$trailing);
+  if (count($parts)<4)
+  {
+    term_echo("*** USERS: handle_353: invalid number of parts");
+    return;
+  }
+  $channel=$parts[2];
+  if ($channel=="")
+  {
+    term_echo("*** USERS: handle_353: empty channel");
+    return;
+  }
+  for ($i=3;$i<count($parts);$i++)
+  {
+    $nick=$parts[$i];
+    if ($nick=="")
+    {
+      term_echo("*** USERS: handle_353: empty nick");
+      continue;
+    }
+    $auth=$nick[0];
+    if (($auth=="+") or ($auth=="@"))
+    {
+      $nick=substr($nick,1);
+      if ($nick=="")
+      {
+        term_echo("*** USERS: handle_353: empty auth nick");
+        continue;
+      }
+    }
+    $buckets[BUCKET_USERS][$nick]["channels"][$channel]=array();
+  }
+}
+
+#####################################################################################################
+
 function handle_events(&$items)
 {
   $cmd=strtoupper($items["cmd"]);
   $nick=strtolower($items["nick"]);
+  $params=strtolower($items["params"]);
+  $trailing=strtolower($items["trailing"]);
   switch ($cmd)
   {
-  case "JOIN":
-    # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
-
-    break;
-  case "KICK":
-    # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
-    # :exec!~exec@709-27-2-01.cust.aussiebb.net KICK #comments Loggie :commanded by crutchy
-
-    break;
-  case "KILL":
-
-    break;
-  case "NICK":
-    # :Landon_!~Landon@Soylent/Staff/IRC/Landon NICK :Landon
-
-    break;
-  case "PART":
-    # :Drop!~Drop___@via1-vhat2-0-3-jppz214.perr.cable.virginm.net PART #Soylent :Leaving
-
-    break;
-  case "QUIT":
-
-    break;
-  case "319":
-    # :irc.sylnt.us 319 exec crutchy :#wiki +#test #sublight #help @#exec #derp @#civ @#1 @#0 ## @#/ @#> @#~ @#
-
-    break;
-  case "330":
-    # :irc.sylnt.us 330 exec crutchy_ crutchy :is logged in as
-
-    break;
-  case "353":
-    # :irc.sylnt.us 353 exec = #civ :exec @crutchy chromas arti
-
-    break;
-  case "354":
-    # :irc.sylnt.us 354 crutchy 152 #Soylent mrcoolbp H@+
-
-    break;
+    case "JOIN":
+      # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
+      handle_join($nick,$trailing);
+      break;
+    case "KICK":
+      # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
+      # :exec!~exec@709-27-2-01.cust.aussiebb.net KICK #comments Loggie :commanded by crutchy
+      handle_kick($trailing);
+      break;
+    case "KILL":
+      break;
+    case "NICK":
+      # :Landon_!~Landon@Soylent/Staff/IRC/Landon NICK :Landon
+      handle_nick($nick,$trailing);
+      break;
+    case "PART":
+      # :Drop!~Drop___@via1-vhat2-0-3-jppz214.perr.cable.virginm.net PART #Soylent :Leaving
+      handle_part($nick,$trailing);
+      break;
+    case "QUIT":
+      handle_quit($nick);
+      break;
+    case "319":
+      # :irc.sylnt.us 319 exec crutchy :#wiki +#test #sublight #help @#exec #derp @#civ @#1 @#0 ## @#/ @#> @#~ @#
+      handle_319($trailing);
+      break;
+    case "330":
+      # :irc.sylnt.us 330 exec crutchy_ crutchy :is logged in as
+      handle_330($trailing);
+      break;
+    case "353":
+      # :irc.sylnt.us 353 exec = #civ :exec @crutchy chromas arti
+      handle_353($trailing);
+      break;
   }
 }
 
