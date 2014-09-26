@@ -185,7 +185,7 @@ for ($i=0;$i<$item_count;$i++)
         output($msg);
         if ($top_score_pub==0)
         {
-          pm("#soylent",chr(3)."score 5 comment: $user_uid ".chr(3)."02".$subject.chr(3)." - $title_output - ".chr(3)."04 $url");
+          #pm("#soylent",chr(3)."score 5 comment: $user_uid ".chr(3)."02".$subject.chr(3)." - $title_output - ".chr(3)."04 $url");
           $top_score_pub=1;
         }
         for ($k=0;$k<count($subscribers);$k++)

@@ -178,6 +178,8 @@ switch ($alias)
     sn_logout();
     return;
   case "~queue":
+    $host="www.soylentnews.org";
+    $port=80;
     $extra_headers=array();
     $extra_headers["Cookie"]=sn_login();
     $uri="/submit.pl?op=list";
@@ -188,6 +190,27 @@ switch ($alias)
     if ($count!==False)
     {
       privmsg("*** SN submission queue: $count - http://sylnt.us/queue");
+    }
+    sn_logout();
+    return;
+  case "~funding":
+    $host="www.soylentnews.org";
+    $port=80;
+    $extra_headers=array();
+    $extra_headers["Cookie"]=sn_login();
+    $uri="/";
+    $response=wget($host,$uri,$port,ICEWEASEL_UA,$extra_headers);
+    $delim1="<b>Progress So Far: $";
+    $delim2="</b>";
+    $amount=extract_text($response,$delim1,$delim2);
+    if ($amount!==False)
+    {
+      $previous=get_bucket("<<PREVIOUS_SN_FUNDING>>");
+      if ($previous<>$amount)
+      {
+        pm("#soylent","SN funding has changed from \$$previous to \$$amount");
+        set_bucket("<<PREVIOUS_SN_FUNDING>>",$amount);
+      }
     }
     sn_logout();
     return;
