@@ -33,7 +33,7 @@
 ~users|0|0|0|0|crutchy|||0|php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~say|2|0|1|0|crutchy,chromas,monopoly|||0|php scripts/say.php %%trailing%% %%nick%%
 ~bucket|5|0|0|1|crutchy|||0|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
-~suggest|20|0|0|0|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~suggest|20|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~wiki|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~ircd|10|0|0|1|crutchy|||0|php scripts/server.php %%trailing%% %%dest%% %%nick%%
 ~bot|0|0|0|1|crutchy|||0|php scripts/bot.php %%trailing%% %%dest%% %%nick%%
@@ -57,7 +57,7 @@
 
 # TIMER SCRIPTS
 ~comments-internal|1700|1800|0|1||INTERNAL||0|php scripts/comment_feed.php
-~funding|30|1800|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~funding|30|900|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~feeds-internal|500|1800|0|1||INTERNAL||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed|120|0|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~ping|10|120|0|0||INTERNAL||0|php scripts/ping.php %%trailing%% %%nick%% %%dest%%

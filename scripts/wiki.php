@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 7-aug-2014
 
 # http://www.mediawiki.org/wiki/Manual:Bots
 # http://en.wikipedia.org/wiki/Wikipedia:Creating_a_bot

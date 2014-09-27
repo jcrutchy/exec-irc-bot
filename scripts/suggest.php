@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 13-sep-2014
 
 #####################################################################################################
 
@@ -14,8 +13,12 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 
+$wiki_url="http://sylnt.us/suggest#Suggestions_from_IRC";
+
 if ($trailing=="")
 {
+  privmsg("syntax: ~suggest <suggestion>");
+  privmsg($wiki_url);
   return;
 }
 
@@ -59,7 +62,7 @@ if (is_array($lines)==True)
 }
 $text=$text."\n* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
 
-$msg_success="*** suggestion successfully added to wiki - http://sylnt.us/suggest#Suggestions_from_IRC";
+$msg_success="*** suggestion successfully added to wiki - $wiki_url";
 $msg_error="*** error adding suggestion to wiki";
 
 if (login(True)==False)

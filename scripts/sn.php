@@ -208,7 +208,7 @@ switch ($alias)
       $previous=get_bucket("<<PREVIOUS_SN_FUNDING>>");
       if ($previous<>$amount)
       {
-        pm("#soylent","SN funding has changed from \$$previous to \$$amount");
+        pm("#soylent",chr(3)."08"."*** SN funding has changed from \$$previous to \$$amount");
         set_bucket("<<PREVIOUS_SN_FUNDING>>",$amount);
       }
     }
