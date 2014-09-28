@@ -205,12 +205,29 @@ switch ($alias)
     $amount=extract_text($response,$delim1,$delim2);
     if ($amount!==False)
     {
-      $previous=get_bucket("<<PREVIOUS_SN_FUNDING>>");
+      $data=exec_file_read("previous_sn_funding");
+      $previous="";
+      if (count($data)>0)
+      {
+        $previous=trim($data[0]);
+      }
+      else
+      {
+        term_echo("funding: count(data) = 0");
+      }
       if ($previous<>$amount)
       {
         pm("#soylent",chr(3)."08"."*** SN funding has changed from \$$previous to \$$amount");
-        set_bucket("<<PREVIOUS_SN_FUNDING>>",$amount);
+        exec_file_write("previous_sn_funding",array($amount));
       }
+      else
+      {
+        term_echo("funding: previous = amount ($amount)");
+      }
+    }
+    else
+    {
+      term_echo("funding: amount not found in http response");
     }
     sn_logout();
     return;

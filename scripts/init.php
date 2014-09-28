@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 1-aug-2014
 
 #####################################################################################################
 
@@ -13,7 +12,7 @@ require_once("lib.php");
 
 echo "################ BEGIN INIT ################\n";
 
-echo "/INTERNAL ~buckets-load\n";
+#echo "/INTERNAL ~buckets-load\n";
 sleep(4);
 set_bucket(BUCKET_CONNECTION_ESTABLISHED,"0");
 

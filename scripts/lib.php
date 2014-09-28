@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 15-sep-2014
 
 #####################################################################################################
 
@@ -28,6 +27,13 @@ define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 function exec_file_append($filename,$data)
 {
   file_put_contents("../data/".$filename,$data."\n",FILE_APPEND);
+}
+
+#####################################################################################################
+
+function exec_file_write($filename,$data)
+{
+  file_put_contents("../data/".$filename,implode("\n",$data));
 }
 
 #####################################################################################################
