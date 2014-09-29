@@ -2,13 +2,10 @@
 
 # gpl2
 # by crutchy
-# 21-june-2014
-
-# irciv_lib.php
 
 #####################################################################################################
 
-require_once("lib.php");
+require_once(__DIR__."/../lib.php");
 
 define("GAME_VERSION","0.0");
 
@@ -28,7 +25,7 @@ define("IMAGE_CITY_FLAG","city_flag.png");
 
 define("PATH_IMAGES",__DIR__."/images/");
 
-$game_chans=array("#civ");
+$game_chans=array("#");
 
 #####################################################################################################
 

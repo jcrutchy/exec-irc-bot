@@ -51,7 +51,6 @@
 
 # ALIASES LIMITED TO SPECIFIC COMMANDS (UNUSALLY INTERNAL)
 ~sed-internal|10|0|0|1||INTERNAL||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
-~users-internal|0|0|0|1||INTERNAL||0|php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~privmsg-internal|5|0|0|1||INTERNAL||0|php scripts/privmsg.php %%trailing%% %%nick%% %%dest%%
 ~welcome-internal|30|0|0|1||INTERNAL||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
 
@@ -93,6 +92,8 @@
 ~staff|20|0|0|1||||0|php scripts/staff.php %%trailing%%
 ~g'day|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
 ~gday|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
+~g'night|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
+~gnight|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
 
 ~scramble|10|0|0|1||||0|php scripts/scramble.php %%trailing%% %%nick%% %%dest%%
 
@@ -148,11 +149,10 @@ rofl|15|0|0|1||||0|php scripts/confucius.php %%trailing%% %%dest%% %%nick%% %%al
 #####################################################################################################
 
 # IRCIV
-#~civ|120|0|0|1||||0|php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
-#~civ-admin|120|0|0|1|crutchy|||0|php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
-#~civ-map|300|0|0|1|crutchy|||0|php scripts/irciv/irciv_map.php %%nick%% %%trailing%% %%dest%%
-#~civ-save|5|1200|0|1||||0|php scripts/irciv/irciv.php '<<SAVE>>'
-#~civ-dispatch|120|0|0|1||||0|php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
+~civ|120|0|0|1||||0|php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
+~civ-admin|120|0|0|1|crutchy|||0|php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
+~civ-map|300|0|0|1|crutchy|||0|php scripts/irciv/irciv_map.php %%nick%% %%trailing%% %%dest%%
+~civ-save|5|1200|0|1||||0|php scripts/irciv/irciv.php '<<SAVE>>'
 
 #####################################################################################################
 

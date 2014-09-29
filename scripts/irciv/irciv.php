@@ -2,9 +2,6 @@
 
 # gpl2
 # by crutchy
-# 1-july-2014
-
-# irciv.php
 
 # TODO: ~civ-admin spawn-server #game
 
@@ -24,43 +21,6 @@ $trailing=$argv[2];
 $dest=$argv[3];
 $start=$argv[4];
 $alias=$argv[5];
-
-if ($alias=="civ-dispatch")
-{
-  # ~civ-dispatch cmd trailing
-  switch ($cmd)
-  {
-    case "JOIN": # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
-      # do a whois if $dest is a game channel
-      if (in_array($dest,$game_chans)==True)
-      {
-        echo "IRC_RAW WHOIS $nick\n";
-      }
-      break;
-    case "KICK":
-      logout();
-      break;
-    case "KILL":
-      logout();
-      break;
-    case "NICK":
-      rename();
-      break;
-    case "PART":
-      logout();
-      break;
-    case "QUIT":
-      logout();
-      break;
-    case "330": # :irc.sylnt.us 330 exec crutchy crutchy :is logged in as
-      login($params);
-      break;
-    case "353": # channel names list
-
-      break;
-  }
-  return;
-}
 
 define("TIMEOUT_RANDOM_COORD",10); # sec
 
@@ -99,7 +59,7 @@ $players=array();
 
 if (($trailing=="") or ((in_array($dest,$game_chans)==False) and ($nick<>NICK_EXEC)))
 {
-  irciv_privmsg("https://github.com/crutchy-/test");
+  irciv_privmsg("http://sylnt.us/irciv");
   return;
 }
 
@@ -515,10 +475,10 @@ if ($update_players==True)
 
 #####################################################################################################
 
-function rename()
+function civ_rename()
 {
 
-  case ACTION_RENAME:
+  /*case ACTION_RENAME:
     if ((count($parts)==3) and (($nick==NICK_EXEC) or ($alias==$admin_alias)))
     {
       $old=$parts[1];
@@ -556,7 +516,7 @@ function rename()
         irciv_term_echo("ACTION_RENAME: invalid login message");
       }
     }
-    break;
+    break;*/
 
 }
 

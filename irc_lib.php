@@ -889,7 +889,6 @@ function handle_330($trailing) # <calling_nick> <subject_nick> <account>
 function handle_353($trailing) # <calling_nick> = <channel> <nick1> <+nick2> <@nick3>
 {
   global $buckets;
-  term_echo($trailing);
   $parts=explode(" ",$trailing);
   if (count($parts)<4)
   {
@@ -937,10 +936,10 @@ function handle_353($trailing) # <calling_nick> = <channel> <nick1> <+nick2> <@n
 
 function handle_events(&$items)
 {
-  $cmd=strtoupper($items["cmd"]);
-  $nick=strtolower($items["nick"]);
-  $params=strtolower($items["params"]);
-  $trailing=strtolower($items["trailing"]);
+  $cmd=strtoupper(trim($items["cmd"]));
+  $nick=strtolower(trim($items["nick"]));
+  $params=strtolower(trim($items["params"]));
+  $trailing=strtolower(trim($items["trailing"]));
   switch ($cmd)
   {
     case "JOIN":

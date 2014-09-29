@@ -21,15 +21,17 @@ $trailing=trim(implode(" ",$parts));
 switch ($cmd)
 {
   case "nicks":
-    $nicks=users_get_nicks($trailing);
+    $nicks=users_get_nicks(strtolower(trim($trailing)));
     privmsg(implode(" ",$nicks));
     break;
   case "channels":
-    users_get_channels($trailing);
+    $channels=users_get_channels(strtolower(trim($trailing)));
+    privmsg(implode(" ",$channels));
     break;
   case "count":
-    $n=users_count_nicks($trailing);
-    privmsg("nicks in $trailing: $n");
+    $channel=strtolower(trim($trailing));
+    $n=users_count_nicks($channel);
+    privmsg("nicks in $channel: $n");
     break;
   case "data":
     $user=users_get_data($trailing);

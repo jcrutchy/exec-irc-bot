@@ -41,7 +41,17 @@ function users_get_data($nick)
 
 function users_get_channels($nick)
 {
-
+  $channels=array();
+  $users=get_array_bucket(BUCKET_USERS);
+  if (isset($users[$nick]["channels"])==True)
+  {
+    foreach ($users[$nick]["channels"] as $channel => $data)
+    {
+      $channels[]=$channel;
+    }
+  }
+  sort($channels);
+  return $channels;
 }
 
 #####################################################################################################
