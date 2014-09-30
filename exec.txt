@@ -148,11 +148,7 @@ rofl|15|0|0|1||||0|php scripts/confucius.php %%trailing%% %%dest%% %%nick%% %%al
 
 #####################################################################################################
 
-# IRCIV
-~civ|120|0|0|1||||0|php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
-~civ-admin|120|0|0|1|crutchy|||0|php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
-~civ-map|300|0|0|1|crutchy|||0|php scripts/irciv/irciv_map.php %%nick%% %%trailing%% %%dest%%
-~civ-save|5|1200|0|1||||0|php scripts/irciv/irciv.php '<<SAVE>>'
+~civ|120|0|0|1||||0|php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
 
 #####################################################################################################
 

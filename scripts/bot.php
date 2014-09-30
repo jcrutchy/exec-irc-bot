@@ -39,7 +39,7 @@ $trailing=trim(implode(" ",$parts));
 switch ($cmd)
 {
   case "new":
-    if (nick_exists($trailing,$dest)==True)
+    if (users_nick_exists($trailing,$dest)==True)
     {
       privmsg("$trailing is already here");
       return;

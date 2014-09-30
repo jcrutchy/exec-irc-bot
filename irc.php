@@ -36,6 +36,7 @@ define("DIRECTIVE_QUIT","<<quit>>");
 define("BUCKET_LOGGED_CHANS","<<LOGGED_CHANNELS>>");
 define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 define("BUCKET_USERS","<<EXEC_USERS>>");
+define("BUCKET_EVENT_HANDLERS","<<EXEC_EVENT_HANDLERS>>");
 
 # reserved aliases
 define("ALIAS_ALL","*");

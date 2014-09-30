@@ -41,9 +41,7 @@ define("TIMEOUT_RANDOM_COORD",10); # sec
 
 define("MIN_CITY_SPACING",3);
 
-define("BUCKET_USERDATA_PREFIX","irciv_user_");
-define("BUCKET_PLAYERSDATA_PREFIX","irciv_players_");
-define("BUCKET_MAPDATA_PREFIX","irciv_map_");
+define("BUCKET_PREFIX","IRCiv_");
 
 define("FILE_PLAYER_DATA","../data/irciv_player_data");
 define("FILE_MAP_DATA","../data/irciv_map_data_");

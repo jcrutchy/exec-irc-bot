@@ -35,6 +35,8 @@ set_bucket(BUCKET_CONNECTION_ESTABLISHED,"1");
 
 echo "/INTERNAL ~join #comments\n";
 
+echo "/INTERNAL ~civ startup\n";
+
 echo "################# END STARTUP #################\n";
 
 #####################################################################################################

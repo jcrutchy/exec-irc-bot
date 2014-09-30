@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 4-sep-2014
 
 #####################################################################################################
 
@@ -58,8 +57,8 @@ switch ($trailing)
     {
       $result=trim(substr($result,0,200))."...";
     }
-    privmsg(chr(3)."08"."********** ".chr(3)."03".chr(2)."SOYLENTNEWS BOARD MEETING".chr(2).chr(3)."08"." **********");
-    privmsg(chr(3)."08".trim($result));
+    privmsg(chr(3)."03"."********** ".chr(3)."05".chr(2)."SOYLENTNEWS BOARD MEETING".chr(2).chr(3)."03"." **********");
+    privmsg(chr(3)."03".trim($result));
     break;
 }
 

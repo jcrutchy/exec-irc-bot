@@ -945,37 +945,91 @@ function handle_events(&$items)
     case "JOIN":
       # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
       handle_join($nick,$params);
+      script_event_handlers($cmd,$items);
       break;
     case "KICK":
       # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
       # :exec!~exec@709-27-2-01.cust.aussiebb.net KICK #comments Loggie :commanded by crutchy
       handle_kick($trailing);
+      script_event_handlers($cmd,$items);
       break;
     case "KILL":
+      script_event_handlers($cmd,$items);
       break;
     case "NICK":
       # :Landon_!~Landon@Soylent/Staff/IRC/Landon NICK :Landon
       handle_nick($nick,$trailing);
+      script_event_handlers($cmd,$items);
       break;
     case "PART":
       # :Drop!~Drop___@via1-vhat2-0-3-jppz214.perr.cable.virginm.net PART #Soylent :Leaving
       handle_part($nick,$trailing);
+      script_event_handlers($cmd,$items);
       break;
     case "QUIT":
       handle_quit($nick);
+      script_event_handlers($cmd,$items);
       break;
     case "319":
       # :irc.sylnt.us 319 exec crutchy :#wiki +#test #sublight #help @#exec #derp @#civ @#1 @#0 ## @#/ @#> @#~ @#
       handle_319("$params $trailing");
+      script_event_handlers($cmd,$items);
       break;
     case "330":
       # :irc.sylnt.us 330 exec crutchy_ crutchy :is logged in as
       handle_330($params);
+      script_event_handlers($cmd,$items);
       break;
     case "353":
       # :irc.sylnt.us 353 exec = #civ :exec @crutchy chromas arti
       handle_353("$params $trailing");
+      script_event_handlers($cmd,$items);
       break;
+  }
+}
+
+#####################################################################################################
+
+function script_event_handlers($cmd,&$items)
+{
+  global $buckets;
+  $event_handlers=array();
+  if (isset($buckets[BUCKET_EVENT_HANDLERS])==True)
+  {
+    $event_handlers=unserialize($buckets[BUCKET_EVENT_HANDLERS]);
+  }
+  if ($event_handlers===False)
+  {
+    return;
+  }
+  if (is_array($event_handlers)==False)
+  {
+    return;
+  }
+  $n=count($event_handlers);
+  for ($i=0;$i<$n;$i++)
+  {
+    $data=unserialize($event_handlers[$i]);
+    if ($data===False)
+    {
+      continue;
+    }
+    if (is_array($data)==False)
+    {
+      continue;
+    }
+    foreach ($data as $data_cmd => $value)
+    {
+      if ($cmd==$data_cmd)
+      {
+        $value=str_replace(TEMPLATE_DELIM.TEMPLATE_TRAILING.TEMPLATE_DELIM,$items["trailing"],$value);
+        $value=str_replace(TEMPLATE_DELIM.TEMPLATE_NICK.TEMPLATE_DELIM,trim($items["nick"]),$value);
+        $value=str_replace(TEMPLATE_DELIM.TEMPLATE_DESTINATION.TEMPLATE_DELIM,trim($items["destination"]),$value);
+        $value=str_replace(TEMPLATE_DELIM.TEMPLATE_CMD.TEMPLATE_DELIM,trim($items["cmd"]),$value);
+        $value=str_replace(TEMPLATE_DELIM.TEMPLATE_PARAMS.TEMPLATE_DELIM,trim($items["params"]),$value);
+        handle_data("$value\n");
+      }
+    }
   }
 }
 

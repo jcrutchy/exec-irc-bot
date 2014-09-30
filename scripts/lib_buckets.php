@@ -5,6 +5,15 @@
 
 #####################################################################################################
 
+function register_event_handler($cmd,$data)
+{
+  $index="<<EXEC_EVENT_HANDLERS>>";
+  $value=serialize(array($cmd=>$data));
+  append_array_bucket($index,$value);
+}
+
+#####################################################################################################
+
 function get_array_bucket($bucket)
 {
   $array=array();

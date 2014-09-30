@@ -72,4 +72,20 @@ function users_count_nicks($channel)
 
 #####################################################################################################
 
+function users_nick_exists($nick)
+{
+  $result=array();
+  $users=get_array_bucket(BUCKET_USERS);
+  if (isset($users[$nick])==True)
+  {
+    return True;
+  }
+  else
+  {
+    return False;
+  }
+}
+
+#####################################################################################################
+
 ?>
