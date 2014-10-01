@@ -45,6 +45,13 @@ switch ($cmd)
     }
     var_dump($user);
     break;
+  case "account":
+    $account=users_get_account($trailing);
+    if ($account!==False)
+    {
+      privmsg("account for $trailing: $account");
+    }
+    break;
 }
 
 #####################################################################################################

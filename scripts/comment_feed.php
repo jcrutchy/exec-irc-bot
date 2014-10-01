@@ -18,6 +18,7 @@ ini_set("display_errors","on");
 require_once("lib.php");
 require_once("feeds_lib.php");
 require_once("lib_buckets.php");
+require_once("copyright_lib.php");
 
 #$subscribers=array("crutchy");
 $subscribers=array();
@@ -85,6 +86,11 @@ for ($i=0;$i<$item_count;$i++)
     term_echo("[$k/$item_count] $url");
     $response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
     $html=strip_headers($response);
+    /*$violated_url=check_copyright($html);
+    if ($violated_url!==False)
+    {
+      output("*** possible copyright violation of $violated_url at $url");
+    }*/
     $sid=extract_text($html,"<input type=\"hidden\" name=\"sid\" value=\"","\">");
     if ($sid===False)
     {

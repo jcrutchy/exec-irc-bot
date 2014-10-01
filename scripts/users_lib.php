@@ -39,6 +39,33 @@ function users_get_data($nick)
 
 #####################################################################################################
 
+function users_get_account($nick)
+{
+  $nick=strtolower(trim($nick));
+  $start=microtime(True);
+  rawmsg("WHOIS $nick");
+  do
+  {
+    $users=get_array_bucket(BUCKET_USERS);
+    if (isset($users[$nick])==True)
+    {
+      if (isset($users[$nick]["account"])==True)
+      {
+        return $users[$nick]["account"];
+      }
+    }
+    else
+    {
+      break;
+    }
+    sleep(1);
+  }
+  while ((microtime(True)-$start)<5.0);
+  return False;
+}
+
+#####################################################################################################
+
 function users_get_channels($nick)
 {
   $channels=array();

@@ -38,6 +38,7 @@
 ~ircd|10|0|0|1|crutchy|||0|php scripts/server.php %%trailing%% %%dest%% %%nick%%
 ~bot|0|0|0|1|crutchy|||0|php scripts/bot.php %%trailing%% %%dest%% %%nick%%
 ~title|30|0|0|0|crutchy|||0|php scripts/title.php %%trailing%%
+~copyright|0|0|0|0|crutchy|||0|php scripts/copyright.php %%trailing%%
 ~comments|1700|0|0|1|crutchy|||0|php scripts/comment_feed.php
 #~feeds|500|0|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
@@ -59,7 +60,7 @@
 ~funding|30|900|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~feeds-internal|500|1800|0|1||INTERNAL||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed|120|0|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#~ping|10|120|0|0||INTERNAL||0|php scripts/ping.php %%trailing%% %%nick%% %%dest%%
+~ping|10|300|0|0||INTERNAL||0|php scripts/ping.php %%trailing%% %%nick%% %%dest%%
 
 ~op|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~deop|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
