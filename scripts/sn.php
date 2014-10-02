@@ -195,10 +195,16 @@ switch ($alias)
     return;
   case "~funding":
     $host="www.soylentnews.org";
+    $uri="/";
     $port=80;
+    $response=wtouch($host,$uri,$port,120);
+    if ($response===False)
+    {
+      pm("#soylent",chr(3)."08".chr(2)."*** ALERT: THE SOYLENTNEWS.ORG HOST IS UNAVAILABLE ON PORT $port ***");
+      return;
+    }
     $extra_headers=array();
     $extra_headers["Cookie"]=sn_login();
-    $uri="/";
     $response=wget($host,$uri,$port,ICEWEASEL_UA,$extra_headers);
     $delim1="<b>Progress So Far: $";
     $delim2="</b>";
