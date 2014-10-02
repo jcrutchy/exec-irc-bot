@@ -201,6 +201,7 @@ switch ($alias)
     if ($response===False)
     {
       pm("#soylent",chr(3)."08".chr(2)."*** ALERT: THE SOYLENTNEWS.ORG HOST IS UNAVAILABLE ON PORT $port ***");
+      pm("#soylent","!woop");
       return;
     }
     $extra_headers=array();
