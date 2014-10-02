@@ -29,18 +29,10 @@ define("COMMENTS_TOP_FILE","../data/comments_top.txt");
 
 $host="soylentnews.org";
 $feed_uri="/index.xml";
-$home_uri="/";
 $port=80;
 
 $msg=chr(3)."08"."********** ".chr(3)."03".chr(2)."SOYLENTNEWS COMMENT FEED".chr(2).chr(3)."08"." **********";
 output($msg,True);
-
-$response=wtouch($host,$home_uri,$port,120);
-if ($response===False)
-{
-  pm("#soylent",chr(3)."08".chr(2)."*** ALERT: THE SOYLENTNEWS.ORG HOST IS UNAVAILABLE ON PORT $port ***");
-  return;
-}
 
 $last_cid=87400;
 if (file_exists(COMMENTS_CID_FILE)==True)
