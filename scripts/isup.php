@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 21-aug-2014
 
 require_once("lib.php");
 $host=trim($argv[1]);
@@ -39,7 +38,7 @@ else
     $port=trim($parts[1]);
   }
 }
-$response=wtouch($host,"/",$port);
+$response=wtouch($host,"/",$port,5);
 if ($response===False)
 {
   privmsg($argv[1].": error connecting");

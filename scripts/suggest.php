@@ -13,7 +13,7 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 
-$wiki_url="http://sylnt.us/suggest#Suggestions_from_IRC";
+$wiki_url="http://sylnt.us/suggest";
 
 if ($trailing=="")
 {

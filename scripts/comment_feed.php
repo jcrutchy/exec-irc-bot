@@ -27,8 +27,20 @@ define("COMMENTS_FEED_FILE","../data/comments_feed.txt");
 define("COMMENTS_CID_FILE","../data/comments_cid.txt");
 define("COMMENTS_TOP_FILE","../data/comments_top.txt");
 
+$host="soylentnews.org";
+$feed_uri="/index.xml";
+$home_uri="/";
+$port=80;
+
 $msg=chr(3)."08"."********** ".chr(3)."03".chr(2)."SOYLENTNEWS COMMENT FEED".chr(2).chr(3)."08"." **********";
 output($msg,True);
+
+$response=wtouch($host,$home_uri,$port,120);
+if ($response===False)
+{
+  pm("#soylent",chr(3)."08".chr(2)."*** ALERT: THE SOYLENTNEWS.ORG HOST IS UNAVAILABLE ON PORT $port ***");
+  return;
+}
 
 $last_cid=87400;
 if (file_exists(COMMENTS_CID_FILE)==True)
@@ -39,10 +51,10 @@ if (file_exists(COMMENTS_CID_FILE)==True)
 $msg="last cid = $last_cid";
 output($msg,True);
 
-#$response=wget("soylentnews.org","/index.atom",80,ICEWEASEL_UA,"",60);
+#$response=wget($host,"/index.atom",$port,ICEWEASEL_UA,"",60);
 #term_echo("*** comment_feed: downloaded atom feed");
 
-$response=wget("soylentnews.org","/index.xml",80,ICEWEASEL_UA,"",60);
+$response=wget($host,$feed_uri,$port,ICEWEASEL_UA,"",60);
 term_echo("*** comment_feed: downloaded story feed");
 
 $html=strip_headers($response);
