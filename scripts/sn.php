@@ -200,9 +200,16 @@ switch ($alias)
     $response=wtouch($host,$uri,$port,120);
     if ($response===False)
     {
-      pm("#soylent",chr(3)."08".chr(2)."*** ALERT: THE SOYLENTNEWS.ORG HOST IS UNAVAILABLE ON PORT $port ***");
       pm("crutchy","ALERT: THE SOYLENTNEWS.ORG HOST IS UNAVAILABLE ON PORT $port");
-      pm("monopoly","exec_test_sn_site_down");
+      $account=users_get_account("monopoly");
+      if ()
+      {
+        pm("monopoly","exec_test_sn_site_down");
+      }
+      else
+      {
+        pm("#soylent",chr(3)."08".chr(2)."*** ALERT: THE SOYLENTNEWS.ORG HOST IS UNAVAILABLE ON PORT $port ***");
+      }
       return;
     }
     $extra_headers=array();

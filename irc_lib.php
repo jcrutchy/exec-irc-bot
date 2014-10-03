@@ -666,7 +666,7 @@ function handle_join($nick,$channel)
   {
     $users=array();
   }
-  $users[$nick]["channels"][$channel]=array();
+  $users[$nick]["channels"][$channel]=microtime(True);
   $buckets[BUCKET_USERS]=serialize($users);
 }
 
@@ -844,7 +844,7 @@ function handle_319($trailing) # <calling_nick> <subject_nick> <chan1> <+chan2> 
       }
     }
     term_echo("*** USERS: handle_319: subject_nick=$subject_nick, channel=$channel");
-    $users[$subject_nick]["channels"][$channel]=array();
+    $users[$subject_nick]["channels"][$channel]=microtime(True);
   }
   $buckets[BUCKET_USERS]=serialize($users);
 }
@@ -881,6 +881,7 @@ function handle_330($trailing) # <calling_nick> <subject_nick> <account>
     $users=array();
   }
   $users[$subject_nick]["account"]=$account;
+  $users[$subject_nick]["account_updated"]=microtime(True);
   $buckets[BUCKET_USERS]=serialize($users);
 }
 
@@ -927,7 +928,7 @@ function handle_353($trailing) # <calling_nick> = <channel> <nick1> <+nick2> <@n
         continue;
       }
     }
-    $users[$nick]["channels"][$channel]=array();
+    $users[$nick]["channels"][$channel]=microtime(True);
   }
   $buckets[BUCKET_USERS]=serialize($users);
 }
