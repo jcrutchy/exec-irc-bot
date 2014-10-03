@@ -56,7 +56,8 @@
 ~privmsg-internal|5|0|0|1||INTERNAL||0|php scripts/privmsg.php %%trailing%% %%nick%% %%dest%%
 ~welcome-internal|30|0|0|1||INTERNAL||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
 
-~monopoly-nick-change|30|0|0|1||INTERNAL||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~verifier-nick-change|30|0|0|1||INTERNAL||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~verifier-nick|30|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 # TIMER SCRIPTS
 ~comments-internal|1700|1800|0|1||INTERNAL||0|php scripts/comment_feed.php

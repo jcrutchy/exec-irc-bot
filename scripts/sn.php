@@ -20,7 +20,7 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 
-define("BUCKET_MONOPOLY_NICK","<<monopoly_nick>>");
+define("BUCKET_VERIFIER_NICK","<<verifier_nick>>");
 
 switch ($alias)
 {
@@ -196,7 +196,7 @@ switch ($alias)
     sn_logout();
     return;
   case "~funding":
-    $verifier_nick=get_bucket(BUCKET_MONOPOLY_NICK);
+    $verifier_nick=get_bucket(BUCKET_VERIFIER_NICK);
     $verifier_account="chromas";
     $verifier_msg="exec_test_sn_site_down";
     $host="www.soylentnews.org";
@@ -253,18 +253,32 @@ switch ($alias)
     }
     sn_logout();
     return;
-  case "~monopoly-nick-change":
+  case "~verifier-nick-change":
     $parts=explode(" ",$trailing);
     if (count($parts)==2)
     {
       $old_nick=trim(strtolower($parts[0]));
       $new_nick=trim(strtolower($parts[1]));
-      $registered_nick=get_bucket(BUCKET_MONOPOLY_NICK);
+      $registered_nick=get_bucket(BUCKET_VERIFIER_NICK);
       if ($old_nick==$registered_nick)
       {
-        set_bucket(BUCKET_MONOPOLY_NICK,$new_nick);
+        set_bucket(BUCKET_VERIFIER_NICK,$new_nick);
         pm("#","SN status verifier nick updated from \"$registered_nick\" to \"$new_nick\"");
       }
+    }
+    return;
+  case "~verifier-nick":
+    $registered_nick=get_bucket(BUCKET_VERIFIER_NICK);
+    if ($trailing=="")
+    {
+      privmsg("registered verifier nick: ".$registered_nick);
+    }
+    else
+    {
+      $new_nick=trim(strtolower($trailing));
+      set_bucket(BUCKET_VERIFIER_NICK,$new_nick);
+      $msg="SN status verifier nick updated from \"$registered_nick\" to \"$new_nick\"";
+      privmsg($msg);
     }
     return;
 }
