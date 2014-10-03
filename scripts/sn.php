@@ -194,13 +194,13 @@ switch ($alias)
     sn_logout();
     return;
   case "~funding":
-    $host="www.soylentnews.org";
+    $host="www.soylentbuttpipenews.org";
     $uri="/";
     $port=80;
     $response=wtouch($host,$uri,$port,120);
     if ($response===False)
     {
-      pm("crutchy","ALERT: THE SOYLENTNEWS.ORG HOST IS UNAVAILABLE ON PORT $port");
+      pm("crutchy","ALERT: THE \"".strtoupper($host)."\" HOST IS UNAVAILABLE ON PORT $port");
       $account=users_get_account("monopoly");
       if ($account=="chromas")
       {
@@ -208,7 +208,8 @@ switch ($alias)
       }
       else
       {
-        pm("#soylent",chr(3)."08".chr(2)."*** ALERT: THE SOYLENTNEWS.ORG HOST IS UNAVAILABLE ON PORT $port ***");
+        #pm("#soylent",chr(3)."08".chr(2)."*** ALERT: THE \"".strtoupper($host)."\" HOST IS UNAVAILABLE ON PORT $port ***");
+        pm("#",chr(3)."08".chr(2)."*** ALERT: THE \"".strtoupper($host)."\" HOST IS UNAVAILABLE ON PORT $port ***");
       }
       return;
     }

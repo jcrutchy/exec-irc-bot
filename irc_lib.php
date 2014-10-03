@@ -880,7 +880,7 @@ function handle_330($trailing) # <calling_nick> <subject_nick> <account>
   {
     $users=array();
   }
-  $users[$subject_nick]["account"]=$account;
+  $users[$subject_nick]["account"]=strtolower($account);
   $users[$subject_nick]["account_updated"]=microtime(True);
   $buckets[BUCKET_USERS]=serialize($users);
 }
