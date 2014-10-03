@@ -58,6 +58,9 @@ define("CMD_UNPAUSE","BOT_IRC_UNPAUSE");
 
 define("PREFIX_DELIM","/");
 define("PREFIX_IRC",PREFIX_DELIM."IRC");
+define("PREFIX_EXEC_ADD",PREFIX_DELIM."EXEC-ADD");
+define("PREFIX_EXEC_DEL",PREFIX_DELIM."EXEC-DEL");
+define("PREFIX_EXEC_SAVE",PREFIX_DELIM."EXEC-SAVE");
 define("PREFIX_PRIVMSG",PREFIX_DELIM."PRIVMSG");
 define("PREFIX_BUCKET_GET",PREFIX_DELIM.CMD_BUCKET_GET);
 define("PREFIX_BUCKET_SET",PREFIX_DELIM.CMD_BUCKET_SET);
@@ -138,6 +141,8 @@ unset($logged_chans);
 
 $throttle_time=False; # set when "throttled" is detected in a message from the server
 $rawmsg_times=array();
+
+$operator_aliases=array(); # aliases that may only be executed by the bot operator account
 
 $admin_aliases=array(
   ALIAS_ADMIN_QUIT,

@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 8-aug-2014
 
 #####################################################################################################
 
@@ -32,6 +31,9 @@ $title=extract_raw_tag($html,"title");
 $filtered_url=strtolower(filter_non_alpha_num($url));
 $filtered_title=strtolower(filter_non_alpha_num($title));
 
+term_echo("  filtered_url = $filtered_url");
+term_echo("filtered_title = $filtered_title");
+
 if (strpos($filtered_url,$filtered_title)===False)
 {
   $i=strpos($title," - ");
@@ -41,6 +43,16 @@ if (strpos($filtered_url,$filtered_title)===False)
     if (strpos($filtered_url,$filtered_title)!==False)
     {
       privmsg("portion of title left of \" - \" exists in url");
+      return;
+    }
+  }
+  $i=strpos($title," | ");
+  if ($i!==False)
+  {
+    $filtered_title=strtolower(filter_non_alpha_num(substr($title,0,$i)));
+    if (strpos($filtered_url,$filtered_title)!==False)
+    {
+      privmsg("portion of title left of \" | \" exists in url");
       return;
     }
   }

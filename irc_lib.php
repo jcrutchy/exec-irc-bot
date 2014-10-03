@@ -247,6 +247,7 @@ function handle_process($handle)
 
 function handle_stdout($handle)
 {
+  global $exec_list;
   global $irc_pause;
   if (is_resource($handle["pipe_stdout"])==False)
   {
@@ -296,6 +297,73 @@ function handle_stdout($handle)
       {
         case PREFIX_IRC:
           rawmsg($prefix_msg);
+          return;
+        case PREFIX_EXEC_ADD:
+          if (load_exec_line($prefix_msg,False)!==False)
+          {
+            privmsg($handle["destination"],$handle["nick"],"successfully added exec line");
+          }
+          else
+          {
+            privmsg($handle["destination"],$handle["nick"],"error adding exec line");
+          }
+          return;
+        case PREFIX_EXEC_DEL:
+          $alias=strtolower(trim($prefix_msg));
+          if (isset($exec_list[$alias]["saved"])==True)
+          {
+            if ($exec_list[$alias]["saved"]==True)
+            {
+              /*if (file_exists(EXEC_FILE)==False)
+              {
+
+              }
+              $data=file_get_contents(EXEC_FILE);
+              if ($data===False)
+              {
+
+              }
+              $data=explode("\n",$data);
+              for ($i=0;$i<count($data);$i++)
+              {
+
+              }*/
+            }
+            else
+            {
+              privmsg($handle["destination"],$handle["nick"],"alias \"$alias\" with current configuration doesn't exist in exec file");
+            }
+          }
+          else
+          {
+            privmsg($handle["destination"],$handle["nick"],"alias \"$alias\" not found");
+          }
+          return;
+        case PREFIX_EXEC_SAVE:
+          $alias=strtolower(trim($prefix_msg));
+          if (isset($exec_list[$alias]["saved"])==True)
+          {
+            if ($exec_list[$alias]["saved"]==False)
+            {
+              if (file_put_contents(EXEC_FILE,trim($prefix_msg),FILE_APPEND)==True)
+              {
+                $exec_list[$alias]["saved"]=True;
+                privmsg($handle["destination"],$handle["nick"],"exec line for alias \"$alias\" successfully appended to exec file");
+              }
+              else
+              {
+                privmsg($handle["destination"],$handle["nick"],"error appending exec file");
+              }
+            }
+            else
+            {
+              privmsg($handle["destination"],$handle["nick"],"alias \"$alias\" with current configuration already exists in exec file");
+            }
+          }
+          else
+          {
+            privmsg($handle["destination"],$handle["nick"],"alias \"$alias\" not found");
+          }
           return;
         case PREFIX_PRIVMSG:
           if (($handle["destination"]<>"") and ($handle["nick"]<>""))
@@ -1363,86 +1431,101 @@ function exec_load()
   $data=explode("\n",$data);
   for ($i=0;$i<count($data);$i++)
   {
-    $line=trim($data[$i]);
-    if ($line=="")
-    {
-      continue;
-    }
-    if (substr($line,0,1)=="#")
-    {
-      continue;
-    }
-    $parts=explode(EXEC_DELIM,$line);
-    if (count($parts)<10)
-    {
-      term_echo("EXEC LINE ERROR 1: $line");
-      continue;
-    }
-    $alias=trim($parts[0]);
-    $timeout=trim($parts[1]); # seconds
-    $repeat=trim($parts[2]); # seconds
-    $auto=trim($parts[3]); # auto privmsg (0 = no, 1 = yes)
-    $empty=trim($parts[4]); # empty msg permitted (0 = no, 1 = yes)
-    $accounts_wildcard="";
-    $accounts=array();
-    $accounts_str=trim($parts[5]);
-    if ($accounts_str<>"")
-    {
-      if ($accounts_str=="*")
-      {
-        $accounts_wildcard="*";
-      }
-      else
-      {
-        $accounts=explode(",",$accounts_str); # comma-delimited list of NickServ accounts authorised to run script (or empty)
-        if (in_array(NICK,$accounts)==False)
-        {
-          $accounts[]=NICK;
-        }
-      }
-    }
-    $cmds=array();
-    $cmds_str=strtoupper(trim($parts[6]));
-    if ($cmds_str<>"")
-    {
-      $cmds=explode(",",$cmds_str);
-    }
-    $dests=array();
-    $dests_str=strtolower(trim($parts[7]));
-    if ($dests_str<>"")
-    {
-      $dests=explode(",",$dests_str);
-    }
-    $reserved=trim($parts[8]); # reserved for later use (0 = no, 1 = yes)
-    for ($j=0;$j<=8;$j++)
-    {
-      array_shift($parts);
-    }
-    $cmd=trim(implode("|",$parts)); # shell command
-    if (($alias=="") or (is_numeric($timeout)==False) or (is_numeric($repeat)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or (($reserved<>"0") and ($reserved<>"1")) or ($cmd==""))
-    {
-      term_echo("EXEC LINE ERROR 2: $line");
-      continue;
-    }
-
-    $cmd_parts=explode(" ",$cmd);
-    if (count($cmd_parts)>=2)
-    {
-
-    }
-
-    $exec_list[$alias]["timeout"]=$timeout;
-    $exec_list[$alias]["repeat"]=$repeat;
-    $exec_list[$alias]["auto"]=$auto;
-    $exec_list[$alias]["empty"]=$empty;
-    $exec_list[$alias]["accounts"]=$accounts;
-    $exec_list[$alias]["accounts_wildcard"]=$accounts_wildcard;
-    $exec_list[$alias]["cmds"]=$cmds;
-    $exec_list[$alias]["dests"]=$dests;
-    $exec_list[$alias]["reserved"]=$reserved;
-    $exec_list[$alias]["cmd"]=$cmd;
+    load_exec_line($data[$i]);
   }
   return $exec_list;
+}
+
+#####################################################################################################
+
+function load_exec_line($line,$saved=True)
+{
+  global $exec_list;
+  $line=trim($line);
+  if ($line=="")
+  {
+    return False;
+  }
+  if (substr($line,0,1)=="#")
+  {
+    return False;
+  }
+  $parts=explode(EXEC_DELIM,$line);
+  if (count($parts)<10)
+  {
+    term_echo("EXEC LINE ERROR 1: $line");
+    return False;
+  }
+  $alias=trim($parts[0]);
+  $timeout=trim($parts[1]); # seconds
+  $repeat=trim($parts[2]); # seconds
+  $auto=trim($parts[3]); # auto privmsg (0 = no, 1 = yes)
+  $empty=trim($parts[4]); # empty msg permitted (0 = no, 1 = yes)
+  $accounts_wildcard="";
+  $accounts=array();
+  $accounts_str=trim($parts[5]);
+  if ($accounts_str<>"")
+  {
+    if (($accounts_str=="@") or ($accounts_str=="*"))
+    {
+      $accounts_wildcard=$accounts_str;
+    }
+    else
+    {
+      $accounts=explode(",",$accounts_str); # comma-delimited list of NickServ accounts authorised to run script (or empty)
+      if (in_array(NICK,$accounts)==False)
+      {
+        $accounts[]=NICK;
+      }
+    }
+  }
+  $cmds=array();
+  $cmds_str=strtoupper(trim($parts[6]));
+  if ($cmds_str<>"")
+  {
+    $cmds=explode(",",$cmds_str);
+  }
+  $dests=array();
+  $dests_str=strtolower(trim($parts[7]));
+  if ($dests_str<>"")
+  {
+    $dests=explode(",",$dests_str);
+  }
+  $reserved=trim($parts[8]); # reserved for later use (0 = no, 1 = yes)
+  for ($j=0;$j<=8;$j++)
+  {
+    array_shift($parts);
+  }
+  $cmd=trim(implode("|",$parts)); # shell command
+  if (($alias=="") or (is_numeric($timeout)==False) or (is_numeric($repeat)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or (($reserved<>"0") and ($reserved<>"1")) or ($cmd==""))
+  {
+    term_echo("EXEC LINE ERROR 2: $line");
+    return False;
+  }
+  $cmd_parts=explode(" ",$cmd);
+  if (count($cmd_parts)>=2)
+  {
+    if (strtolower($cmd_parts[0])=="php")
+    {
+      # TODO
+    }
+  }
+  $result["alias"]=$alias;
+  $result["timeout"]=$timeout;
+  $result["repeat"]=$repeat;
+  $result["auto"]=$auto;
+  $result["empty"]=$empty;
+  $result["accounts"]=$accounts;
+  $result["accounts_wildcard"]=$accounts_wildcard;
+  $result["cmds"]=$cmds;
+  $result["dests"]=$dests;
+  $result["reserved"]=$reserved;
+  $result["cmd"]=$cmd;
+  $result["saved"]=$saved;
+  $result["line"]=$line;
+  $exec_list[$alias]=$result;
+  term_echo("SUCCESS: $line");
+  return $result;
 }
 
 #####################################################################################################
@@ -1814,6 +1897,26 @@ function process_timed_execs()
 
 #####################################################################################################
 
+function is_operator_alias($alias)
+{
+  global $exec_list;
+  global $operator_aliases;
+  if (in_array($alias,$operator_aliases)==True)
+  {
+    return True;
+  }
+  if (isset($exec_list[$alias]["accounts_wildcard"])==True)
+  {
+    if ($exec_list[$alias]["accounts_wildcard"]=="@")
+    {
+      return True;
+    }
+  }
+  return False;
+}
+
+#####################################################################################################
+
 function authenticate($items)
 {
   global $exec_list;
@@ -1821,6 +1924,7 @@ function authenticate($items)
   global $admin_is_sock;
   global $admin_accounts;
   global $admin_aliases;
+  global $operator_aliases;
   term_echo("\033[32mdetected cmd 330: $admin_data\033[0m");
   $parts=explode(" ",$items["params"]);
   if ($admin_data<>"")
@@ -1834,7 +1938,23 @@ function authenticate($items)
       $alias=$args[0];
       if ($admin_items["nick"]==$nick)
       {
-        if (in_array($alias,$admin_aliases)==True)
+        if (is_operator_alias($alias)==True)
+        {
+          if ($account<>OPERATOR_ACCOUNT)
+          {
+            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not the operator");
+          }
+          else
+          {
+            $tmp_data=$admin_data;
+            $tmp_is_sock=$admin_is_sock;
+            $admin_data="";
+            $admin_is_sock="";
+            handle_data($tmp_data,$tmp_is_sock,True);
+            return;
+          }
+        }
+        elseif (in_array($alias,$admin_aliases)==True)
         {
           if (in_array($account,$admin_accounts)==False)
           {
