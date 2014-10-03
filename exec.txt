@@ -41,6 +41,7 @@
 ~copyright|0|0|0|0|crutchy|||0|php scripts/copyright.php %%trailing%%
 ~comments|1700|0|0|1|crutchy|||0|php scripts/comment_feed.php
 #~feeds|500|0|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~startup|60|0|0|1||INTERNAL||0|php scripts/startup.php
 
 ~tama|30|0|0|1|crutchy,arti,chromas|||0|php scripts/tama.php %%trailing%% %%dest%% %%nick%%
 
@@ -54,6 +55,8 @@
 ~sed-internal|10|0|0|1||INTERNAL||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
 ~privmsg-internal|5|0|0|1||INTERNAL||0|php scripts/privmsg.php %%trailing%% %%nick%% %%dest%%
 ~welcome-internal|30|0|0|1||INTERNAL||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
+
+~monopoly-nick-change|30|0|0|1||INTERNAL||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 # TIMER SCRIPTS
 ~comments-internal|1700|1800|0|1||INTERNAL||0|php scripts/comment_feed.php

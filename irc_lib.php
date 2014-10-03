@@ -231,10 +231,12 @@ function handle_process($handle)
     {
       kill_process($handle);
       term_echo("process timed out: ".$handle["command"]);
+      $msg="process timed out: ".$handle["alias"]." ".$handle["trailing"];
       if ((in_array($handle["alias"],$reserved_aliases)==False) and (in_array($handle["cmd"],$silent_timeout_commands)==False))
       {
-        privmsg($handle["destination"],$handle["nick"],"process timed out: ".$handle["alias"]." ".$handle["trailing"]);
+        privmsg($handle["destination"],$handle["nick"],$msg);
       }
+      privmsg("",OPERATOR_ACCOUNT,$msg);
       return False;
     }
   }
@@ -1364,18 +1366,16 @@ function exec_load()
     $line=trim($data[$i]);
     if ($line=="")
     {
-      term_echo("EXEC LINE ERROR 1: $line");
       continue;
     }
     if (substr($line,0,1)=="#")
     {
-      term_echo("EXEC LINE ERROR 2: $line");
       continue;
     }
     $parts=explode(EXEC_DELIM,$line);
     if (count($parts)<10)
     {
-      term_echo("EXEC LINE ERROR 3: $line");
+      term_echo("EXEC LINE ERROR 1: $line");
       continue;
     }
     $alias=trim($parts[0]);
@@ -1421,12 +1421,15 @@ function exec_load()
     $cmd=trim(implode("|",$parts)); # shell command
     if (($alias=="") or (is_numeric($timeout)==False) or (is_numeric($repeat)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or (($reserved<>"0") and ($reserved<>"1")) or ($cmd==""))
     {
-      term_echo("EXEC LINE ERROR 4: $line");
+      term_echo("EXEC LINE ERROR 2: $line");
       continue;
     }
 
-    /*$cmd_parts=explode(" ",$cmd);
-    if (count($cmd_parts)*/
+    $cmd_parts=explode(" ",$cmd);
+    if (count($cmd_parts)>=2)
+    {
+
+    }
 
     $exec_list[$alias]["timeout"]=$timeout;
     $exec_list[$alias]["repeat"]=$repeat;

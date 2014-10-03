@@ -7,9 +7,11 @@
 
 function register_event_handler($cmd,$data)
 {
+  $cmd=strtoupper(trim($cmd));
   $index="<<EXEC_EVENT_HANDLERS>>";
   $value=serialize(array($cmd=>$data));
   append_array_bucket($index,$value);
+  term_echo("REGISTERED EVENT HANDLER: $cmd => \"$data\"");
 }
 
 #####################################################################################################

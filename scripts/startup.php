@@ -36,6 +36,10 @@ echo "/INTERNAL ~join #comments\n";
 
 echo "/INTERNAL ~civ startup\n";
 
+register_event_handler("NICK",":".NICK_EXEC." INTERNAL :~monopoly-nick-change %%nick%% %%trailing%%");
+
+echo "/BUCKET_SET <<monopoly_nick>> NetCraft\n";
+
 echo "################# END STARTUP #################\n";
 
 #####################################################################################################

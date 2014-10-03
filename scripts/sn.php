@@ -20,6 +20,8 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 
+define("BUCKET_MONOPOLY_NICK","<<monopoly_nick>>");
+
 switch ($alias)
 {
   case "~uid":
@@ -194,10 +196,10 @@ switch ($alias)
     sn_logout();
     return;
   case "~funding":
-    $verifier_nick="NetCraft";
+    $verifier_nick=get_bucket(BUCKET_MONOPOLY_NICK);
     $verifier_account="chromas";
     $verifier_msg="exec_test_sn_site_down";
-    $host="www.soylentbuttpipenews.org";
+    $host="www.soylentnews.org";
     $host_g="www.google.com";
     $uri="/";
     $port=80;
@@ -213,8 +215,7 @@ switch ($alias)
       }
       else
       {
-        #pm("#soylent",chr(3)."08".chr(2)."*** ALERT: \"".strtoupper($host)."\" HOST IS UNAVAILABLE ON PORT $port ***");
-        pm("#",chr(3)."08".chr(2)."*** ALERT: \"".strtoupper($host)."\" HOST IS UNAVAILABLE ON PORT $port ***");
+        pm("#soylent",chr(3)."08".chr(2)."*** ALERT: \"".strtoupper($host)."\" HOST IS UNAVAILABLE ON PORT $port ***");
       }
       return;
     }
@@ -251,6 +252,20 @@ switch ($alias)
       term_echo("funding: amount not found in http response");
     }
     sn_logout();
+    return;
+  case "~monopoly-nick-change":
+    $parts=explode(" ",$trailing);
+    if (count($parts)==2)
+    {
+      $old_nick=trim(strtolower($parts[0]));
+      $new_nick=trim(strtolower($parts[1]));
+      $registered_nick=get_bucket(BUCKET_MONOPOLY_NICK);
+      if ($old_nick==$registered_nick)
+      {
+        set_bucket(BUCKET_MONOPOLY_NICK,$new_nick);
+        pm("#","SN status verifier nick updated from \"$registered_nick\" to \"$new_nick\"");
+      }
+    }
     return;
 }
 

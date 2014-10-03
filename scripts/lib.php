@@ -152,7 +152,7 @@ function privmsg($msg)
 
 function action($msg)
 {
-  rawmsg(chr(1)."ACTION smiles at $msg");
+  rawmsg(chr(1)."ACTION $msg");
 }
 
 #####################################################################################################
