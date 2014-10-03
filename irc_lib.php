@@ -1363,15 +1363,18 @@ function exec_load()
     $line=trim($data[$i]);
     if ($line=="")
     {
+      term_echo("EXEC LINE ERROR 1: $line");
       continue;
     }
     if (substr($line,0,1)=="#")
     {
+      term_echo("EXEC LINE ERROR 2: $line");
       continue;
     }
     $parts=explode(EXEC_DELIM,$line);
     if (count($parts)<10)
     {
+      term_echo("EXEC LINE ERROR 3: $line");
       continue;
     }
     $alias=trim($parts[0]);
@@ -1417,8 +1420,13 @@ function exec_load()
     $cmd=trim(implode("|",$parts)); # shell command
     if (($alias=="") or (is_numeric($timeout)==False) or (is_numeric($repeat)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or (($reserved<>"0") and ($reserved<>"1")) or ($cmd==""))
     {
+      term_echo("EXEC LINE ERROR 4: $line");
       continue;
     }
+
+    /*$cmd_parts=explode(" ",$cmd);
+    if (count($cmd_parts)*/
+
     $exec_list[$alias]["timeout"]=$timeout;
     $exec_list[$alias]["repeat"]=$repeat;
     $exec_list[$alias]["auto"]=$auto;

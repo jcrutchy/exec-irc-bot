@@ -201,7 +201,8 @@ switch ($alias)
     if ($response===False)
     {
       pm("#soylent",chr(3)."08".chr(2)."*** ALERT: THE SOYLENTNEWS.ORG HOST IS UNAVAILABLE ON PORT $port ***");
-      pm("#soylent","!woop");
+      pm("crutchy","ALERT: THE SOYLENTNEWS.ORG HOST IS UNAVAILABLE ON PORT $port");
+      pm("monopoly","exec_test_sn_site_down");
       return;
     }
     $extra_headers=array();
