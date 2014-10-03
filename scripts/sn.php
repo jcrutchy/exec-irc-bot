@@ -198,10 +198,12 @@ switch ($alias)
     $verifier_account="chromas";
     $verifier_msg="exec_test_sn_site_down";
     $host="www.soylentbuttpipenews.org";
+    $host_g="www.google.com";
     $uri="/";
     $port=80;
     $response=wtouch($host,$uri,$port,120);
-    if ($response===False)
+    $response_g=wtouch($host_g,$uri,$port,120);
+    if (($response===False) and ($response_g!==False))
     {
       pm("crutchy","ALERT: \"".strtoupper($host)."\" HOST IS UNAVAILABLE ON PORT $port");
       $account=users_get_account($verifier_nick);
