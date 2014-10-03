@@ -194,6 +194,9 @@ switch ($alias)
     sn_logout();
     return;
   case "~funding":
+    $verifier_nick="NetCraft";
+    $verifier_account="chromas";
+    $verifier_msg="exec_test_sn_site_down";
     $host="www.soylentbuttpipenews.org";
     $uri="/";
     $port=80;
@@ -201,10 +204,10 @@ switch ($alias)
     if ($response===False)
     {
       pm("crutchy","ALERT: THE \"".strtoupper($host)."\" HOST IS UNAVAILABLE ON PORT $port");
-      $account=users_get_account("monopoly");
-      if ($account=="chromas")
+      $account=users_get_account($verifier_nick);
+      if ($account==$verifier_account)
       {
-        pm("monopoly","exec_test_sn_site_down");
+        pm($verifier_nick,$verifier_msg);
       }
       else
       {
