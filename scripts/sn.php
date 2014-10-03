@@ -202,7 +202,7 @@ switch ($alias)
     {
       pm("crutchy","ALERT: THE SOYLENTNEWS.ORG HOST IS UNAVAILABLE ON PORT $port");
       $account=users_get_account("monopoly");
-      if ()
+      if ($account=="chromas")
       {
         pm("monopoly","exec_test_sn_site_down");
       }
