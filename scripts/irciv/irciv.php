@@ -5,9 +5,16 @@
 
 #####################################################################################################
 
+define("BUCKET_IRCIV_GAMES","IRCIV_GAMES");
+define("BUCKET_IRCIV_ACCOUNTS","IRCIV_ACCOUNTS");
+define("BUCKET_IRCIV_PLAYERS_PREFIX","IRCIV_PLAYERS_");
+define("BUCKET_IRCIV_MAPLIST","IRCIV_MAPLIST");
+define("BUCKET_IRCIV_MAPDATA","IRCIV_MAPDATA");
+
 date_default_timezone_set("UTC");
 
 require_once("irciv_lib.php");
+require_once("irciv_lib_data.php");
 
 $nick=strtolower(trim($argv[1]));
 $trailing=trim($argv[2]);
@@ -19,6 +26,7 @@ $cmd=strtoupper(trim($argv[6]));
 if (($cmd=="INTERNAL") and ($nick==NICK_EXEC) and ($trailing=="startup"))
 {
   civ_startup();
+  return;
 }
 
 if ($trailing=="")
@@ -30,16 +38,13 @@ if ($trailing=="")
 $parts=explode(" ",$trailing);
 $action=strtolower($parts[0]);
 
-$user=get_array_bucket("irciv_user_$nick");
-$last_game_chan="";
-if (substr($dest,0,1)=="#")
-{
-  $last_game_chan=$dest;
-}
-elseif (isset($user["last_game_chan"])==True)
-{
-  $last_game_chan=$user["last_game_chan"];
-}
+$irciv_data_changed=False;
+
+$irciv_games=get_array_bucket(BUCKET_IRCIV_GAMES);
+$irciv_accounts=get_array_bucket(BUCKET_IRCIV_ACCOUNTS);
+$irciv_maplist=get_array_bucket(BUCKET_IRCIV_MAPLIST);
+$irciv_mapdata=get_array_bucket(BUCKET_IRCIV_MAPDATA);
+$irciv_players=get_array_bucket(BUCKET_IRCIV_PLAYERS_PREFIX.$dest);
 
 switch ($action)
 {
@@ -63,6 +68,18 @@ switch ($action)
     # trailing = <nick>
     irciv_term_echo("quit: $trailing");
     return;
+}
+
+if ($irciv_data_changed==True)
+{
+  get_array_bucket(BUCKET_IRCIV_GAMES,$irciv_games);
+  get_array_bucket(BUCKET_IRCIV_ACCOUNTS,$irciv_accounts);
+  get_array_bucket(BUCKET_IRCIV_MAPLIST,$irciv_maplist);
+  get_array_bucket(BUCKET_IRCIV_MAPDATA,$irciv_mapdata);
+  if ($dest<>"")
+  {
+    get_array_bucket(BUCKET_IRCIV_PLAYERS_PREFIX.$dest,$irciv_players);
+  }
 }
 
 #####################################################################################################
