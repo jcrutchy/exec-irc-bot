@@ -873,6 +873,36 @@ function handle_quit($nick)
 
 #####################################################################################################
 
+function handle_kill($nick)
+{
+  global $buckets;
+  if ($nick=="")
+  {
+    term_echo("*** USERS: handle_kill: empty nick");
+    return;
+  }
+  term_echo("*** USERS: handle_kill: nick=$nick");
+  if (isset($buckets[BUCKET_USERS])==True)
+  {
+    $users=unserialize($buckets[BUCKET_USERS]);
+  }
+  else
+  {
+    $users=array();
+  }
+  if (isset($users[$nick])==True)
+  {
+    unset($users[$nick]);
+    $buckets[BUCKET_USERS]=serialize($users);
+  }
+  else
+  {
+    term_echo("*** USERS: handle_kill: bucket data not found");
+  }
+}
+
+#####################################################################################################
+
 function handle_319($trailing) # <calling_nick> <subject_nick> <chan1> <+chan2> <@chan3>
 {
   global $buckets;
@@ -1026,6 +1056,9 @@ function handle_events(&$items)
       script_event_handlers($cmd,$items);
       break;
     case "KILL":
+      # dogfart >> :juggs!~juggs@Soylent/Staff/IRC/juggs KILL dogfart :crutchy_made_me
+      # dogfart >> :dogfart!~dogfart@709-27-2-01.cust.aussiebb.net QUIT :Killed (juggs (crutchy_made_me))
+      handle_kill($params);
       script_event_handlers($cmd,$items);
       break;
     case "NICK":

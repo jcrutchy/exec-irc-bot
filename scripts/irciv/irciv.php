@@ -43,8 +43,25 @@ elseif (isset($user["last_game_chan"])==True)
 
 switch ($action)
 {
-  case "join":
+  case "event-join":
+    # trailing = <nick> <channel>
     irciv_term_echo("join: $trailing");
+    return;
+  case "event-kick":
+    # trailing = <channel> <nick>
+    irciv_term_echo("kick: $trailing");
+    return;
+  case "event-nick":
+    # trailing = <old-nick> <new-nick>
+    irciv_term_echo("nick: $trailing");
+    return;
+  case "event-part":
+    # trailing = <nick> <channel>
+    irciv_term_echo("part: $trailing");
+    return;
+  case "event-quit":
+    # trailing = <nick>
+    irciv_term_echo("quit: $trailing");
     return;
 }
 
@@ -52,7 +69,11 @@ switch ($action)
 
 function civ_startup()
 {
-  register_event_handler("JOIN",":".NICK_EXEC." INTERNAL :~civ join %%nick%% %%params%%");
+  register_event_handler("JOIN",":".NICK_EXEC." INTERNAL :~civ event-join %%nick%% %%params%%");
+  register_event_handler("KICK",":".NICK_EXEC." INTERNAL :~civ event-kick %%params%%");
+  register_event_handler("NICK",":".NICK_EXEC." INTERNAL :~civ event-nick %%nick%% %%trailing%%");
+  register_event_handler("PART",":".NICK_EXEC." INTERNAL :~civ event-part %%nick%% %%params%%");
+  register_event_handler("QUIT",":".NICK_EXEC." INTERNAL :~civ event-quit %%nick%%");
 }
 
 #####################################################################################################
