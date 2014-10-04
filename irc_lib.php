@@ -314,20 +314,21 @@ function handle_stdout($handle)
           {
             if ($exec_list[$alias]["saved"]==True)
             {
-              /*if (file_exists(EXEC_FILE)==False)
+              /*
+              TODO: DELETE EXEC LINE FROM FILE (WITHOUT AFFECTING REMAINING FILE STRUCTURE)
+              if (file_exists(EXEC_FILE)==False)
               {
-
               }
               $data=file_get_contents(EXEC_FILE);
               if ($data===False)
               {
-
               }
               $data=explode("\n",$data);
               for ($i=0;$i<count($data);$i++)
               {
-
               }*/
+              unset($exec_list[$alias]);
+              privmsg($handle["destination"],$handle["nick"],"alias \"$alias\" deleted from memory (todo: delete from exec file)");
             }
             else
             {
@@ -1507,7 +1508,16 @@ function load_exec_line($line,$saved=True)
   {
     if (strtolower($cmd_parts[0])=="php")
     {
-      # TODO
+      $filename=$cmd_parts[1];
+      if (strpos($filename,".php")!==False)
+      {
+        $filename=__DIR__."/".$filename;
+        if (file_exists($filename)==False)
+        {
+          term_echo("EXEC LINE ERROR 3: $line");
+          return False;
+        }
+      }
     }
   }
   $result["alias"]=$alias;
