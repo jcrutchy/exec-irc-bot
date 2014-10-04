@@ -71,6 +71,9 @@ term_echo("*** comment_feed: $item_count feed stories to check");
 
 $top_score_pub=0;
 
+$count_new=0;
+$count_top=0;
+
 for ($i=0;$i<$item_count;$i++)
 {
   if (isset($items[$i])==False)
@@ -179,9 +182,11 @@ for ($i=0;$i<$item_count;$i++)
       }
       if (($score_num==5) and (in_array($cid,$topcomments)==False))
       {
+        $count_top++
         $msg=chr(3)."08*** ";
         if ($cid>$last_cid)
         {
+          $count_new++;
           $msg=$msg."new ";
         }
         $msg=$msg.chr(3)."score 5 comment: $user_uid ".chr(3)."02".$subject.chr(3)." - $title_output - $comment_body_len chars - ".chr(3)."04 $url";
@@ -205,6 +210,7 @@ for ($i=0;$i<$item_count;$i++)
       }
       elseif ($cid>$last_cid)
       {
+        $count_new++;
         $msg="*** new comment: $user_uid $score ".chr(3)."02".$subject.chr(3)." - $title_output - $comment_body_len chars -".chr(3)."04 $url";
         if ($parent_url<>"")
         {
@@ -233,6 +239,8 @@ for ($i=0;$i<count($cids);$i++)
 }
 file_put_contents(COMMENTS_CID_FILE,$new_last_cid);
 
+output("count new = $count_new",True);
+output("count top = $count_top",True);
 $msg=chr(3)."08"."********** ".chr(3)."03"."END FEED".chr(3)."08"." **********";
 output($msg,True);
 
