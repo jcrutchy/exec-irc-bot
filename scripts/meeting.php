@@ -8,7 +8,7 @@
 require_once("lib.php");
 require_once("wiki_lib.php");
 
-define("BOARD_MEETING","SoylentNews PBC - Board of Directors Meeting");
+define("BOARD_MEETING","SoylentNews PBC Board of Directors Meeting");
 
 date_default_timezone_set("UTC");
 
@@ -238,7 +238,7 @@ function meeting_close()
     return;
   }
   meeting_msg("================== meeting closed ==================");
-  meeting_msg("preparing minutes and posting to wiki. please wait...");
+  privmsg("preparing minutes and posting to wiki. please wait...");
   $final_nicks=users_get_nicks($dest);
   $title="Test page";
   $section=$meeting_data["description"]." - ".date("F j Y",$meeting_data["chairs"][0]["start"]);
@@ -297,16 +297,16 @@ formatted irc script
   $text=$text."</p>";
   if (login(True)==False)
   {
-    meeting_msg("error logging into wiki");
+    privmsg("error logging into wiki");
     return;
   }
   if (edit($title,$section,$text,True)==False)
   {
-    meeting_msg("error updating wiki");
+    privmsg("error updating wiki");
   }
   else
   {
-    meeting_msg("successfully updated wiki - http://wiki.soylentnews.org/wiki/Test_page");
+    privmsg("successfully updated wiki - http://wiki.soylentnews.org/wiki/Test_page");
   }
   logout(True);
   $meeting_data=array();
