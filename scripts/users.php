@@ -21,11 +21,14 @@ $trailing=trim(implode(" ",$parts));
 switch ($cmd)
 {
   case "nicks":
-    $nicks=users_get_nicks(strtolower(trim($trailing)));
+    $channel=strtolower(trim($trailing));
+    $nicks=users_get_nicks($channel);
     privmsg(implode(" ",$nicks));
     break;
   case "channels":
-    $channels=users_get_channels(strtolower(trim($trailing)));
+    $nick=strtolower(trim($trailing));
+    $account=users_get_account($nick);
+    $channels=users_get_channels($nick);
     privmsg(implode(" ",$channels));
     break;
   case "count":
@@ -34,7 +37,8 @@ switch ($cmd)
     privmsg("nicks in $channel: $n");
     break;
   case "data":
-    $user=users_get_data($trailing);
+    $nick=strtolower(trim($trailing));
+    $user=users_get_data($nick);
     if (isset($user["channels"])==True)
     {
       privmsg("channels: ".implode(" ",array_keys($user["channels"])));
@@ -46,10 +50,11 @@ switch ($cmd)
     var_dump($user);
     break;
   case "account":
-    $account=users_get_account($trailing);
+    $nick=strtolower(trim($trailing));
+    $account=users_get_account($nick);
     if ($account!==False)
     {
-      privmsg("account for $trailing: $account");
+      privmsg("account for $nick: $account");
     }
     break;
 }

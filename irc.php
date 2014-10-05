@@ -20,7 +20,7 @@ define("IRC_PORT","6697");
 define("MEMORY_LIMIT","128M");
 define("OPERATOR_ACCOUNT","crutchy");
 
-$admin_accounts=array(OPERATOR_ACCOUNT,"xlefay","chromas");
+$admin_accounts=array("xlefay","chromas");
 
 #####################################################################################################
 

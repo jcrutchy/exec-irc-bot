@@ -25,7 +25,7 @@ define("BUCKET_VERIFIER_NICK","<<verifier_nick>>");
 switch ($alias)
 {
   case "~uid":
-    $host="dev.soylentnews.org";
+    $host="www.soylentnews.org";
     $port=80;
     $uri="/zoo.pl?op=max";
     $response=wget($host,$uri,$port,ICEWEASEL_UA);

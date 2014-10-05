@@ -34,7 +34,9 @@ set_bucket(BUCKET_CONNECTION_ESTABLISHED,"1");
 
 echo "/INTERNAL ~join #comments\n";
 
-echo "/INTERNAL ~civ startup\n";
+unset_bucket("<<EXEC_EVENT_HANDLERS>>");
+echo "/INTERNAL ~civ register-events\n";
+echo "/INTERNAL ~meeting register-events\n";
 
 register_event_handler("NICK",":".NICK_EXEC." INTERNAL :~verifier-nick-change %%nick%% %%trailing%%");
 

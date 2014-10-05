@@ -182,7 +182,7 @@ for ($i=0;$i<$item_count;$i++)
       }
       if (($score_num==5) and (in_array($cid,$topcomments)==False))
       {
-        $count_top++
+        $count_top++;
         $msg=chr(3)."08*** ";
         if ($cid>$last_cid)
         {

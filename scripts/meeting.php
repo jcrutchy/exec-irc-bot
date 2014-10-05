@@ -2,154 +2,227 @@
 
 # gpl2
 # by crutchy
-# 1-aug-2014
 
 #####################################################################################################
 
 require_once("lib.php");
 require_once("wiki_lib.php");
 
-define("BOARD_MEETING","Board of Directors Meeting of SoylentNews PBC");
-
 date_default_timezone_set("UTC");
 
-$trailing=rtrim($argv[1]);
-$dest=strtolower(trim($argv[2]));
-$nick=trim($argv[3]);
+$nick=strtolower(trim($argv[1]));
+$trailing=trim($argv[2]);
+$dest=strtolower(trim($argv[3]));
+$start=trim($argv[4]);
+$alias=strtolower(trim($argv[5]));
+$cmd=strtoupper(trim($argv[6]));
 
-$admins=array("crutchy");
-$board_members=array("crutchy");
+if ($trailing=="")
+{
+  privmsg("SN meeting script");
+  return;
+}
+
+$meeting_chairs=array("crutchy","chromas");
+
+$meeting_data_changed=False;
+
+$meeting_list=get_array_bucket("MEETING_LIST");
+$meeting_data=get_array_bucket("MEETING_DATA_".$dest);
 
 $parts=explode(" ",$trailing);
-delete_empty_elements($parts);
-$cmd=strtoupper($parts[0]);
+$action=strtolower($parts[0]);
 array_shift($parts);
-$trailing=implode(" ",$parts);
+$trailing=trim(implode(" ",$parts));
 
-$meeting_list=get_array_bucket("<<MEETING_LIST>>");
-if (is_array($meeting_list)==False)
+switch ($action)
 {
-  $meeting_list=array();
+  case "register-events":
+    register_all_events("~meeting",True);
+    break;
+  case "event-join":
+    # trailing = <nick> <channel>
+    meeting_join();
+    break;
+  case "event-kick":
+    # trailing = <channel> <nick>
+    meeting_kick();
+    break;
+  case "event-nick":
+    # trailing = <old-nick> <new-nick>
+    meeting_nick();
+    break;
+  case "event-part":
+    # trailing = <nick> <channel>
+    meeting_part();
+    break;
+  case "event-quit":
+    # trailing = <nick>
+    meeting_quit();
+    break;
+  case "event-privmsg":
+    # trailing = <nick> <channel> <trailing>
+    meeting_privmsg();
+    break;
+  case "open":
+    meeting_open();
+    break;
+  case "close":
+    meeting_close();
+    break;
+  case "chair":
+    meeting_chair();
+    break;
 }
-$meeting=get_array_bucket("<<MEETING_DATA_$dest>>");
-switch ($cmd)
+
+if ($meeting_data_changed==True)
 {
-  case "330": # :irc.sylnt.us 330 exec crutchy crutchy :is logged in as
-    if ((count($parts)==3) and ($parts[0]==NICK_EXEC))
+  set_array_bucket($meeting_list,"MEETING_LIST");
+  if ($dest<>"")
+  {
+    set_array_bucket($meeting_data,"MEETING_DATA_".$dest);
+  }
+}
+
+#####################################################################################################
+
+function meeting_join()
+{
+
+}
+
+#####################################################################################################
+
+function meeting_kick()
+{
+
+}
+
+#####################################################################################################
+
+function meeting_nick()
+{
+
+}
+
+#####################################################################################################
+
+function meeting_part()
+{
+
+}
+
+#####################################################################################################
+
+function meeting_quit()
+{
+
+}
+
+#####################################################################################################
+
+function meeting_privmsg()
+{
+  global $parts;
+  if (count($parts)<3)
+  {
+    return;
+  }
+  # trailing = <nick> <channel> <trailing>
+  $nick=strtolower($parts[0]);
+  $channel=strtolower($parts[1]);
+  array_shift($parts);
+  array_shift($parts);
+  $trailing=trim(implode(" ",$parts));
+  term_echo("meeting_privmsg: nick=$nick, channel=$channel, trailing=$trailing");
+  switch (strtolower($trailing))
+  {
+    case "aye":
+    case "yes":
+
+      break;
+    case "nay":
+    case "no":
+
+      break;
+  }
+}
+
+#####################################################################################################
+
+function meeting_open()
+{
+  global $nick;
+  global $dest;
+  global $trailing;
+  global $meeting_chairs;
+  global $meeting_data_changed;
+  global $meeting_list;
+  global $meeting_data;
+  if ($dest=="")
+  {
+    return;
+  }
+  $account=users_get_account($nick);
+  if (in_array($account,$meeting_chairs)==True)
+  {
+    $meeting_data=array();
+    $meeting_data["channel"]=$dest;
+    $meeting_data["chairs"]=array();
+    $chair=array();
+    $chair["nick"]=$nick;
+    $chair["start"]=microtime(True);
+    $meeting_data["chairs"][]=$chair;
+    $meeting_data["finish"]="";
+    $meeting_data["messages"]=array();
+    $meeting_data["events"]=array();
+    $meeting_data["initial nicks"]=users_get_nicks($dest);
+    $meeting_data["final nicks"]=array();
+    $meeting_data["quorum"]=False;
+    if ($trailing=="")
     {
-      term_echo("*** CHECKPOINT #1: $trailing");
-      $nick=$parts[1];
-      $account=$parts[2];
-      $commands=get_array_bucket("<<MEETING_COMMAND_$nick>>");
-      if (count($commands)>0)
-      {
-        term_echo("*** CHECKPOINT #2: ".count($commands));
-        for ($i=0;$i<count($commands);$i++)
-        {
-          $dest=$commands[$i]["dest"];
-          $trailing=$commands[$i]["trailing"];
-          $cmd=$commands[$i]["cmd"];
-          switch ($cmd)
-          {
-            case "OPEN":
-              if (in_array($account,$admins)==True)
-              {
-                $meeting["channel"]=$dest;
-                $meeting["chairs"]=array();
-                $chair["nick"]=$nick;
-                $chair["start"]=microtime(True);
-                $meeting["chairs"][]=$chair;
-                $meeting["finish"]="";
-                $meeting["messages"]=array();
-                $meeting["events"]=array();
-                $meeting["initial nicks"]=array();
-                $meeting["initial nicks complete"]=False;
-                $meeting["final nicks"]=array();
-                $meeting["final nicks complete"]=False;
-                $meeting["quorum"]=False;
-                if ($trailing=="")
-                {
-                  $trailing=BOARD_MEETING;
-                }
-                $meeting["description"]=$trailing;
-                rawmsg("WHO $dest %ctnf,152");
-                privmsg(chr(3)."10*** $nick has hereby called this $trailing to order");
-                if ($trailing==BOARD_MEETING)
-                {
-                  for ($j=0;$j<count($voting_members);$j++)
-                  {
-                  }
-                }
-              }
-              break;
-            case "CLOSE":
-              if (in_array($account,$admins)==True)
-              {
-                if (count($meeting)>0)
-                {
-                  privmsg(chr(3)."10*** $nick hereby declares this $trailing adjourned");
-                  rawmsg("WHO $dest %ctnf,152");
-                }
-              }
-              break;
-          }
-        }
-      }
-      unset_bucket("<<MEETING_COMMAND_$nick>>");
+      $trailing="pants meeting";
     }
-    break;
-  case "318": # :irc.sylnt.us 318 exec crutchy :End of /WHOIS list.
-    if ((count($parts)==2) and ($parts[0]==NICK_EXEC))
-    {
-      $nick=$parts[1];
-      unset_bucket("<<MEETING_COMMAND_$nick>>");
-    }
-    break;
-  case "315": # :irc.sylnt.us 315 crutchy #Soylent :End of /WHO list.
-    if ((count($parts)==2) and ($parts[0]==NICK_EXEC))
-    {
-      $dest=strtolower($parts[1]);
-      $meeting=get_array_bucket("<<MEETING_DATA_$dest>>");
-      if (count($meeting)>0)
-      {
-        if ($meeting["initial nicks complete"]==False)
-        {
-          $meeting["initial nicks complete"]=True;
-        }
-        else
-        {
-          $meeting["final nicks complete"]=True;
-          output_minutes($meeting);
-        }
-      }
-    }
-    break;
-  case "354": # :irc.sylnt.us 354 exec 152 #Soylent mrcoolbp H@+
-    if ((count($parts)==5) and ($parts[0]==NICK_EXEC))
-    {
-      if ($parts[1]=="152")
-      {
-        $dest=strtolower($parts[2]);
-        $meeting=get_array_bucket("<<MEETING_DATA_$dest>>");
-        if (count($meeting)>0)
-        {
-          $nick=$parts[3];
-          $mode=$parts[4];
-          $data["nick"]=$nick;
-          $data["mode"]=$mode;
-          if ($meeting["initial nicks complete"]==False)
-          {
-            $meeting["initial nicks"][]=$data;
-          }
-          else
-          {
-            $meeting["final nicks"][]=$data;
-          }
-        }
-      }
-    }
-    break;
-  case "PRIVMSG":
+    $meeting_data["description"]=$trailing;
+    privmsg(chr(3)."10*** $nick has hereby called this $trailing to order in channel $dest");
+    $meeting_list[]=$dest;
+    $meeting_data_changed=True;
+  }
+}
+
+#####################################################################################################
+
+function meeting_close()
+{
+  $title="Suggestions";
+  $section="Suggestions from IRC";
+
+  if (login(True)==False)
+{
+  privmsg($msg_error);
+  return;
+}
+if (edit($title,$section,$text,True)==False)
+{
+  privmsg($msg_error);
+}
+else
+{
+  privmsg($msg_success);
+}
+logout(True);
+}
+
+#####################################################################################################
+
+function meeting_chair()
+{
+
+}
+
+#####################################################################################################
+
+/*
     if (count($meeting)>0)
     {
       $msg["nick"]=$nick;
@@ -157,16 +230,6 @@ switch ($cmd)
       $msg["trailing"]=$trailing;
       $meeting["messages"][]=$msg;
     }
-    break;
-  case "CLOSE":
-    if (count($meeting)>0)
-    {
-      set_admin_cmd($nick,$dest,$trailing,$cmd);
-    }
-    break;
-  case "OPEN":
-    term_echo("=== MEETING OPEN ===");
-    set_admin_cmd($nick,$dest,$trailing,$cmd);
     break;
   case "QUIT":
     if (count($meeting)>0)
@@ -186,40 +249,7 @@ switch ($cmd)
       # verify quorum
     }
     break;
-  case "JOIN":
-    break;
-}
-if (count($meeting)>0)
-{
-  set_array_bucket($meeting,"<<MEETING_DATA_$dest>>");
-  if (in_array("<<MEETING_DATA_$dest>>",$meeting_list)==False)
-  {
-    $meeting_list[]="<<MEETING_DATA_$dest>>";
-  }
-  set_array_bucket($meeting_list,"<<MEETING_LIST>>");
-}
-
-#####################################################################################################
-
-function set_admin_cmd($nick,$dest,$trailing,$cmd)
-{
-  term_echo("meeting: set_admin_cmd($nick,$dest,$trailing,$cmd)");
-  $commands=get_array_bucket("<<MEETING_COMMAND_$nick>>");
-  $new["dest"]=$dest;
-  $new["trailing"]=$trailing;
-  $new["cmd"]=$cmd;
-  $commands[]=$new;
-  set_array_bucket($commands,"<<MEETING_COMMAND_$nick>>");
-  var_dump(get_array_bucket("<<MEETING_COMMAND_$nick>>"));
-  rawmsg("WHOIS $nick");
-}
-
-#####################################################################################################
-
-function output_minutes($meeting)
-{
-  var_dump($meeting);
-}
+*/
 
 #####################################################################################################
 

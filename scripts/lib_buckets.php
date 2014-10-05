@@ -5,6 +5,21 @@
 
 #####################################################################################################
 
+function register_all_events($alias,$privmsg=False)
+{
+  register_event_handler("JOIN",":".NICK_EXEC." INTERNAL :$alias event-join %%nick%% %%params%%");
+  register_event_handler("KICK",":".NICK_EXEC." INTERNAL :$alias event-kick %%params%%");
+  register_event_handler("NICK",":".NICK_EXEC." INTERNAL :$alias event-nick %%nick%% %%trailing%%");
+  register_event_handler("PART",":".NICK_EXEC." INTERNAL :$alias event-part %%nick%% %%params%%");
+  register_event_handler("QUIT",":".NICK_EXEC." INTERNAL :$alias event-quit %%nick%%");
+  if ($privmsg==True)
+  {
+    register_event_handler("PRIVMSG",":".NICK_EXEC." INTERNAL :$alias event-privmsg %%nick%% %%dest%% %%trailing%%");
+  }
+}
+
+#####################################################################################################
+
 function register_event_handler($cmd,$data)
 {
   $cmd=strtoupper(trim($cmd));

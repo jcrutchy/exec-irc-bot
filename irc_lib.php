@@ -1047,50 +1047,42 @@ function handle_events(&$items)
     case "JOIN":
       # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
       handle_join($nick,$params);
-      script_event_handlers($cmd,$items);
       break;
     case "KICK":
       # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
       # :exec!~exec@709-27-2-01.cust.aussiebb.net KICK #comments Loggie :commanded by crutchy
       handle_kick($trailing);
-      script_event_handlers($cmd,$items);
       break;
     case "KILL":
       # dogfart >> :juggs!~juggs@Soylent/Staff/IRC/juggs KILL dogfart :crutchy_made_me
       # dogfart >> :dogfart!~dogfart@709-27-2-01.cust.aussiebb.net QUIT :Killed (juggs (crutchy_made_me))
       handle_kill($params);
-      script_event_handlers($cmd,$items);
       break;
     case "NICK":
       # :Landon_!~Landon@Soylent/Staff/IRC/Landon NICK :Landon
       handle_nick($nick,$trailing);
-      script_event_handlers($cmd,$items);
       break;
     case "PART":
       # :Drop!~Drop___@via1-vhat2-0-3-jppz214.perr.cable.virginm.net PART #Soylent :Leaving
       handle_part($nick,$trailing);
-      script_event_handlers($cmd,$items);
       break;
     case "QUIT":
       handle_quit($nick);
-      script_event_handlers($cmd,$items);
       break;
     case "319":
       # :irc.sylnt.us 319 exec crutchy :#wiki +#test #sublight #help @#exec #derp @#civ @#1 @#0 ## @#/ @#> @#~ @#
       handle_319("$params $trailing");
-      script_event_handlers($cmd,$items);
       break;
     case "330":
       # :irc.sylnt.us 330 exec crutchy_ crutchy :is logged in as
       handle_330($params);
-      script_event_handlers($cmd,$items);
       break;
     case "353":
       # :irc.sylnt.us 353 exec = #civ :exec @crutchy chromas arti
       handle_353("$params $trailing");
-      script_event_handlers($cmd,$items);
       break;
   }
+  script_event_handlers($cmd,$items);
 }
 
 #####################################################################################################
@@ -1985,7 +1977,7 @@ function authenticate($items)
         {
           if ($account<>OPERATOR_ACCOUNT)
           {
-            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not the operator");
+            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not authorized");
           }
           else
           {
@@ -1999,9 +1991,9 @@ function authenticate($items)
         }
         elseif (in_array($alias,$admin_aliases)==True)
         {
-          if (in_array($account,$admin_accounts)==False)
+          if (($account<>OPERATOR_ACCOUNT) and (in_array($account,$admin_accounts)==False))
           {
-            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not in admin account list");
+            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not authorized");
           }
           else
           {
@@ -2015,9 +2007,9 @@ function authenticate($items)
         }
         elseif (has_account_list($alias)==True)
         {
-          if ((in_array($account,$exec_list[$alias]["accounts"])==False) and ($exec_list[$alias]["accounts_wildcard"]<>"*") and (in_array($account,$admin_accounts)==False))
+          if (($account<>OPERATOR_ACCOUNT) and (in_array($account,$exec_list[$alias]["accounts"])==False) and ($exec_list[$alias]["accounts_wildcard"]<>"*") and (in_array($account,$admin_accounts)==False))
           {
-            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is in neither exec line account list nor admin account list");
+            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not authorized");
           }
           else
           {
