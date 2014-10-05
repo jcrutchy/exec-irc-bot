@@ -27,7 +27,6 @@ $meeting_chairs=array("crutchy","chromas");
 
 $meeting_data_changed=False;
 
-$meeting_list=get_array_bucket("MEETING_LIST");
 $meeting_data=get_array_bucket("MEETING_DATA_".$dest);
 
 $parts=explode(" ",$trailing);
@@ -39,7 +38,7 @@ switch ($action)
 {
   case "register-events":
     register_all_events("~meeting",True);
-    break;
+    return;
   case "event-join":
     # trailing = <nick> <channel>
     meeting_join();
@@ -69,33 +68,29 @@ switch ($action)
     break;
   case "close":
     meeting_close();
-    break;
+    return;
   case "chair":
     meeting_chair();
     break;
 }
 
-if ($meeting_data_changed==True)
+if (($meeting_data_changed==True) and ($dest<>""))
 {
-  set_array_bucket($meeting_list,"MEETING_LIST");
-  if ($dest<>"")
-  {
-    set_array_bucket($meeting_data,"MEETING_DATA_".$dest);
-  }
+  set_array_bucket($meeting_data,"MEETING_DATA_".$dest);
 }
 
 #####################################################################################################
 
 function meeting_join()
 {
-
+  # verify quorum
 }
 
 #####################################################################################################
 
 function meeting_kick()
 {
-
+  # verify quorum
 }
 
 #####################################################################################################
@@ -109,14 +104,14 @@ function meeting_nick()
 
 function meeting_part()
 {
-
+  # verify quorum
 }
 
 #####################################################################################################
 
 function meeting_quit()
 {
-
+  # verify quorum
 }
 
 #####################################################################################################
@@ -146,6 +141,12 @@ function meeting_privmsg()
 
       break;
   }
+/*
+$msg["nick"]=$nick;
+$msg["timestamp"]=microtime(True);
+$msg["trailing"]=$trailing;
+$meeting["messages"][]=$msg;
+*/
 }
 
 #####################################################################################################
@@ -157,60 +158,93 @@ function meeting_open()
   global $trailing;
   global $meeting_chairs;
   global $meeting_data_changed;
-  global $meeting_list;
   global $meeting_data;
   if ($dest=="")
   {
     return;
   }
   $account=users_get_account($nick);
-  if (in_array($account,$meeting_chairs)==True)
+  if (in_array($account,$meeting_chairs)==False)
   {
-    $meeting_data=array();
-    $meeting_data["channel"]=$dest;
-    $meeting_data["chairs"]=array();
-    $chair=array();
-    $chair["nick"]=$nick;
-    $chair["start"]=microtime(True);
-    $meeting_data["chairs"][]=$chair;
-    $meeting_data["finish"]="";
-    $meeting_data["messages"]=array();
-    $meeting_data["events"]=array();
-    $meeting_data["initial nicks"]=users_get_nicks($dest);
-    $meeting_data["final nicks"]=array();
-    $meeting_data["quorum"]=False;
-    if ($trailing=="")
-    {
-      $trailing="pants meeting";
-    }
-    $meeting_data["description"]=$trailing;
-    privmsg(chr(3)."10*** $nick has hereby called this $trailing to order in channel $dest");
-    $meeting_list[]=$dest;
-    $meeting_data_changed=True;
+    return;
   }
+  $meeting_data=array();
+  $meeting_data["channel"]=$dest;
+  $meeting_data["chairs"]=array();
+  $chair=array();
+  $chair["nick"]=$nick;
+  $chair["start"]=microtime(True);
+  $meeting_data["chairs"][]=$chair;
+  $meeting_data["messages"]=array();
+  $meeting_data["events"]=array();
+  $meeting_data["initial nicks"]=users_get_nicks($dest);
+  if ($trailing=="")
+  {
+    $trailing="pants meeting";
+  }
+  $meeting_data["description"]=$trailing;
+  privmsg(chr(3)."10*** $nick has hereby called this $trailing to order in channel $dest");
+  $meeting_data_changed=True;
 }
 
 #####################################################################################################
 
 function meeting_close()
 {
-  $title="Suggestions";
-  $section="Suggestions from IRC";
-
+  global $nick;
+  global $dest;
+  global $trailing;
+  global $meeting_chairs;
+  global $meeting_data_changed;
+  global $meeting_data;
+  if ($dest=="")
+  {
+    return;
+  }
+  $account=users_get_account($nick);
+  if (in_array($account,$meeting_chairs)==False)
+  {
+    return;
+  }
+  if (isset($meeting_data["description"])==False)
+  {
+    return;
+  }
+  if (isset($meeting_data["chairs"][0]["start"])==False)
+  {
+    return;
+  }
+  if (isset($meeting_data["initial nicks"])==False)
+  {
+    return;
+  }
+  $final_nicks=users_get_nicks($dest);
+  $title="Test page";
+  $section=$meeting_data["description"]." - ".date("F j Y",$meeting_data["chairs"][0]["start"]);
+  $text="<p>this is meeting minutes text blah blah doorsnoker</p>";
+  $text=$text."<p>Location: irc.sylent.us, channel $dest</p>";
+  $text=$text."<p>Chairs:";
+  for ($i=0;$i<count($meeting_data["chairs"]);$i++)
+  {
+  
+  }
+  $text=$text."</p>";
   if (login(True)==False)
-{
-  privmsg($msg_error);
-  return;
-}
-if (edit($title,$section,$text,True)==False)
-{
-  privmsg($msg_error);
-}
-else
-{
-  privmsg($msg_success);
-}
-logout(True);
+  {
+    privmsg("error logging into wiki");
+    return;
+  }
+  if (edit($title,$section,$text,True)==False)
+  {
+    privmsg("error updating wiki");
+  }
+  else
+  {
+    privmsg("successfully updated wiki - http://wiki.soylentnews.org/wiki/Test_page");
+  }
+  logout(True);
+  $meeting_data=array();
+  unset_bucket("MEETING_DATA_".$dest);
 }
 
 #####################################################################################################
@@ -219,37 +253,6 @@ function meeting_chair()
 {
 
 }
-
-#####################################################################################################
-
-/*
-    if (count($meeting)>0)
-    {
-      $msg["nick"]=$nick;
-      $msg["timestamp"]=microtime(True);
-      $msg["trailing"]=$trailing;
-      $meeting["messages"][]=$msg;
-    }
-    break;
-  case "QUIT":
-    if (count($meeting)>0)
-    {
-      # verify quorum
-    }
-    break;
-  case "PART":
-    if (count($meeting)>0)
-    {
-      # verify quorum
-    }
-    break;
-  case "KICK":
-    if (count($meeting)>0)
-    {
-      # verify quorum
-    }
-    break;
-*/
 
 #####################################################################################################
 
