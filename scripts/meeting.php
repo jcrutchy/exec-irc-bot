@@ -73,11 +73,22 @@ switch ($action)
     break;
   case "open":
   case "opened":
+  case "call":
   case "called":
+  case "start":
+  case "started":
+  case "commence":
+  case "commenced":
     meeting_open();
     break;
   case "close":
   case "closed":
+  case "adjourn":
+  case "adjourned":
+  case "end":
+  case "ended":
+  case "finish":
+  case "finished":
     meeting_close();
     return;
   case "chair":
@@ -94,7 +105,7 @@ if (($meeting_data_changed==True) and ($dest<>""))
 
 function meeting_join()
 {
-  # verify quorum
+
 }
 
 #####################################################################################################
@@ -192,12 +203,17 @@ function meeting_open()
       return;
     }
   }
+  if (strpos(strtolower($trailing),"meeting")===False)
+  {
+    $trailing=trim($trailing)." meeting";
+  }
+  $start_time=microtime(True);
   $meeting_data=array();
   $meeting_data["channel"]=$dest;
   $meeting_data["chairs"]=array();
   $chair=array();
   $chair["nick"]=$nick;
-  $chair["start"]=microtime(True);
+  $chair["start"]=$start_time;
   $meeting_data["chairs"][]=$chair;
   $meeting_data["messages"]=array();
   $meeting_data["events"]=array();
@@ -206,6 +222,7 @@ function meeting_open()
   $meeting_data_changed=True;
   meeting_msg("================== $trailing ==================");
   meeting_msg("$nick has hereby called this $trailing to order");
+  meeting_msg("meeting commenced @ ".date("H:i (T)",$start_time)." on ".date("l, j F Y",$start_time));
   meeting_msg("meeting is currently chaired by $nick");
   if ($trailing==BOARD_MEETING)
   {
@@ -237,7 +254,9 @@ function meeting_close()
     meeting_msg("meeting not currently registered in this channel");
     return;
   }
-  meeting_msg("================== meeting closed ==================");
+  $finish_time=microtime(True);
+  meeting_msg("meeting adjourned @ ".date("H:i (T)",$finish_time)." on ".date("l, j F Y",$finish_time));
+  meeting_msg("================== // ==================");
   privmsg("preparing minutes and posting to wiki. please wait...");
   $final_nicks=users_get_nicks($dest);
   $title="Test page";
@@ -281,7 +300,7 @@ formatted irc script
         $text=$text."===Agenda items===$wiki_new_line";
         for ($i=0;$i<count($agenda);$i++)
         {
-        
+
         }
       }
     }
@@ -327,7 +346,7 @@ function initialize_quorum()
   global $dest;
   global $board_member_accounts;
   global $board_member_quorum;
-  privmsg("verifying quorum. please wait a moment...");
+  privmsg("verifying quorum. please wait...");
   $members=array();
   # first try nick same as account
   for ($i=0;$i<count($board_member_accounts);$i++)
