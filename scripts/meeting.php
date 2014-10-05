@@ -5,6 +5,8 @@
 
 #####################################################################################################
 
+# http://wiki.soylentnews.org/wiki/Board_Meetings_Rules_of_Order
+
 require_once("lib.php");
 require_once("wiki_lib.php");
 
