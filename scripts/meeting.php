@@ -8,6 +8,8 @@
 require_once("lib.php");
 require_once("wiki_lib.php");
 
+define("BOARD_MEETING","SoylentNews PBC - Board of Directors Meeting");
+
 date_default_timezone_set("UTC");
 
 $nick=strtolower(trim($argv[1]));
@@ -23,11 +25,17 @@ if ($trailing=="")
   return;
 }
 
-$meeting_chairs=array("crutchy","chromas");
+$meeting_chair_accounts=array("crutchy","chromas");
+$board_member_accounts=array("crutchy","chromas");
+$board_member_quorum=2;
 
 $meeting_data_changed=False;
 
-$meeting_data=get_array_bucket("MEETING_DATA_".$dest);
+$meeting_data=array();
+if ($dest<>"")
+{
+  $meeting_data=get_array_bucket("MEETING_DATA_".$dest);
+}
 
 $parts=explode(" ",$trailing);
 $action=strtolower($parts[0]);
@@ -64,9 +72,12 @@ switch ($action)
     meeting_privmsg();
     break;
   case "open":
+  case "opened":
+  case "called":
     meeting_open();
     break;
   case "close":
+  case "closed":
     meeting_close();
     return;
   case "chair":
@@ -156,7 +167,7 @@ function meeting_open()
   global $nick;
   global $dest;
   global $trailing;
-  global $meeting_chairs;
+  global $meeting_chair_accounts;
   global $meeting_data_changed;
   global $meeting_data;
   if ($dest=="")
@@ -164,9 +175,22 @@ function meeting_open()
     return;
   }
   $account=users_get_account($nick);
-  if (in_array($account,$meeting_chairs)==False)
+  if (in_array($account,$meeting_chair_accounts)==False)
   {
     return;
+  }
+  if ($trailing=="")
+  {
+    $trailing=BOARD_MEETING;
+  }
+  if ($trailing==BOARD_MEETING)
+  {
+    if (initialize_quorum()==False)
+    {
+      meeting_msg("unable to open board meeting due to lack of required quorum");
+      meeting_msg("attending board members please identify with nickserv for verification prior to the chair opening the meeting");
+      return;
+    }
   }
   $meeting_data=array();
   $meeting_data["channel"]=$dest;
@@ -178,13 +202,15 @@ function meeting_open()
   $meeting_data["messages"]=array();
   $meeting_data["events"]=array();
   $meeting_data["initial nicks"]=users_get_nicks($dest);
-  if ($trailing=="")
-  {
-    $trailing="pants meeting";
-  }
   $meeting_data["description"]=$trailing;
-  privmsg(chr(3)."10*** $nick has hereby called this $trailing to order in channel $dest");
   $meeting_data_changed=True;
+  meeting_msg("================== $trailing ==================");
+  meeting_msg("$nick has hereby called this $trailing to order");
+  meeting_msg("meeting is currently chaired by $nick");
+  if ($trailing==BOARD_MEETING)
+  {
+    meeting_msg("note: this is an official board meeting; only board members may vote");
+  }
 }
 
 #####################################################################################################
@@ -194,7 +220,7 @@ function meeting_close()
   global $nick;
   global $dest;
   global $trailing;
-  global $meeting_chairs;
+  global $meeting_chair_accounts;
   global $meeting_data_changed;
   global $meeting_data;
   if ($dest=="")
@@ -202,26 +228,66 @@ function meeting_close()
     return;
   }
   $account=users_get_account($nick);
-  if (in_array($account,$meeting_chairs)==False)
+  if (in_array($account,$meeting_chair_accounts)==False)
   {
     return;
   }
   if (isset($meeting_data["description"])==False)
   {
+    meeting_msg("meeting not currently registered in this channel");
     return;
   }
-  if (isset($meeting_data["chairs"][0]["start"])==False)
-  {
-    return;
-  }
-  if (isset($meeting_data["initial nicks"])==False)
-  {
-    return;
-  }
+  meeting_msg("================== meeting closed ==================");
+  meeting_msg("preparing minutes and posting to wiki. please wait...");
   $final_nicks=users_get_nicks($dest);
   $title="Test page";
   $section=$meeting_data["description"]." - ".date("F j Y",$meeting_data["chairs"][0]["start"]);
+
+/*
+agenda items
+start time
+finish time
+chair(s)
+attendees
+  list @ beginning
+  list @ end
+  op
+  voice
+  speakers
+  authorized voters
+  admins
+  joins
+  parts/quits/kicks
+table of motions
+  vote counts
+  carry status
+  oppositions
+  raised
+  seconded
+formatted irc script
+*/
+
+  $wiki_new_line="<br />";
+
   $text="<p>this is meeting minutes text blah blah doorsnoker</p>";
+
+  if ($meeting_data["description"]==BOARD_MEETING)
+  {
+    $agenda=get_text("Issues to Be Raised at the Next Board Meeting","Issues/Agenda",True,True);
+    if ($agenda!==False)
+    {
+      if (count($agenda)>0)
+      {
+        $text=$text."===Agenda items===$wiki_new_line";
+        for ($i=0;$i<count($agenda);$i++)
+        {
+        
+        }
+      }
+    }
+  }
+
+
   $text=$text."<p>Location: irc.sylent.us, channel $dest</p>";
   $text=$text."<p>Chairs:";
   for ($i=0;$i<count($meeting_data["chairs"]);$i++)
@@ -231,16 +297,16 @@ function meeting_close()
   $text=$text."</p>";
   if (login(True)==False)
   {
-    privmsg("error logging into wiki");
+    meeting_msg("error logging into wiki");
     return;
   }
   if (edit($title,$section,$text,True)==False)
   {
-    privmsg("error updating wiki");
+    meeting_msg("error updating wiki");
   }
   else
   {
-    privmsg("successfully updated wiki - http://wiki.soylentnews.org/wiki/Test_page");
+    meeting_msg("successfully updated wiki - http://wiki.soylentnews.org/wiki/Test_page");
   }
   logout(True);
   $meeting_data=array();
@@ -252,6 +318,92 @@ function meeting_close()
 function meeting_chair()
 {
 
+}
+
+#####################################################################################################
+
+function initialize_quorum()
+{
+  global $dest;
+  global $board_member_accounts;
+  global $board_member_quorum;
+  privmsg("verifying quorum. please wait a moment...");
+  $members=array();
+  # first try nick same as account
+  for ($i=0;$i<count($board_member_accounts);$i++)
+  {
+    $nick=$board_member_accounts[$i];
+    $user=users_get_data($nick);
+    $account="";
+    if ((isset($user["account"])==True) and (isset($user["account_updated"])==True))
+    {
+      $delta=microtime(True)-$user["account_updated"];
+      if ($delta<=(30*60)) # not older than 30 minutes
+      {
+        $account=$user["account"];
+        #privmsg("1: [get_data] nick=$nick, account=$account");
+      }
+    }
+    if ($account=="")
+    {
+      $account=users_get_account($nick);
+      usleep(0.5e6);
+      #privmsg("1: [whois] nick=$nick, account=$account");
+    }
+    if ((in_array($account,$board_member_accounts)==True) and (in_array($account,$members)==False))
+    {
+      $members[]=$account;
+      #privmsg("[".count($members)."] nick=$nick, account=$account");
+      if (count($members)>=$board_member_quorum)
+      {
+        return True;
+      }
+    }
+  }
+  # cycle through all nicks in channel (except for nicks that are the same as board member accounts)
+  $nicks=users_get_nicks($dest);
+  for ($i=0;$i<count($nicks);$i++)
+  {
+    $nick=$nicks[$i];
+    if (in_array($nick,$board_member_accounts)==True)
+    {
+      continue;
+    }
+    $user=users_get_data($nick);
+    $account="";
+    if ((isset($user["account"])==True) and (isset($user["account_updated"])==True))
+    {
+      $delta=microtime(True)-$user["account_updated"];
+      if ($delta<=(30*60)) # not older than 30 minutes
+      {
+        $account=$user["account"];
+        #privmsg("2: [get_data] nick=$nick, account=$account");
+      }
+    }
+    if ($account=="")
+    {
+      $account=users_get_account($nick);
+      usleep(0.5e6);
+      #privmsg("2: [whois] nick=$nick, account=$account");
+    }
+    if ((in_array($account,$board_member_accounts)==True) and (in_array($account,$members)==False))
+    {
+      $members[]=$account;
+      #privmsg("[".count($members)."] nick=$nick, account=$account");
+      if (count($members)>=$board_member_quorum)
+      {
+        return True;
+      }
+    }
+  }
+  return False;
+}
+
+#####################################################################################################
+
+function meeting_msg($msg)
+{
+  privmsg(chr(3)."10".$msg);
 }
 
 #####################################################################################################
