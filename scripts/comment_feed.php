@@ -18,10 +18,9 @@ ini_set("display_errors","on");
 require_once("lib.php");
 require_once("feeds_lib.php");
 require_once("lib_buckets.php");
-require_once("copyright_lib.php");
+#require_once("copyright_lib.php");
 
-#$subscribers=array("crutchy");
-$subscribers=array();
+$subscribers=get_array_bucket("<<comment_feed_subscribers>>"); # TODO
 
 define("COMMENTS_FEED_FILE","../data/comments_feed.txt");
 define("COMMENTS_CID_FILE","../data/comments_cid.txt");

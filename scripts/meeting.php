@@ -133,7 +133,7 @@ function meeting_join()
   # trailing = <nick> <channel>
   $nick=strtolower($parts[0]);
   $channel=strtolower($parts[1]);
-  term_echo("meeting_privmsg: join=$nick, channel=$channel");
+  term_echo("meeting_privmsg: nick=$nick, channel=$channel");
   $meeting_data=get_array_bucket("MEETING_DATA_".$channel);
   if (isset($meeting_data["description"])==False)
   {
@@ -149,6 +149,21 @@ function meeting_join()
 
 function meeting_kick()
 {
+  global $parts;
+  global $meeting_data;
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  # trailing = <channel> <nick>
+  $nick=strtolower($parts[1]);
+  $channel=strtolower($parts[0]);
+  term_echo("meeting_kick: nick=$nick, channel=$channel");
+  $meeting_data=get_array_bucket("MEETING_DATA_".$channel);
+  if (isset($meeting_data["description"])==False)
+  {
+    return;
+  }
   # verify quorum
 }
 
@@ -156,13 +171,48 @@ function meeting_kick()
 
 function meeting_nick()
 {
-
+  global $parts;
+  global $meeting_data;
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  # trailing = <old-nick> <new-nick>
+  $old_nick=strtolower($parts[0]);
+  $new_nick=strtolower($parts[1]);
+  term_echo("meeting_nick: old_nick=$old_nick, new_nick=$new_nick");
+  $channels=meeting_channel_list();
+  for ($i=0;$i<count($channels);$i++)
+  {
+    $channel=$channels[$i];
+    $meeting_data=get_array_bucket("MEETING_DATA_".$channel);
+    if (isset($meeting_data["description"])==False)
+    {
+      continue;
+    }
+    # verify quorum
+  }
 }
 
 #####################################################################################################
 
 function meeting_part()
 {
+  global $parts;
+  global $meeting_data;
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  # trailing = <nick> <channel>
+  $nick=strtolower($parts[0]);
+  $channel=strtolower($parts[1]);
+  term_echo("meeting_part: nick=$nick, channel=$channel");
+  $meeting_data=get_array_bucket("MEETING_DATA_".$channel);
+  if (isset($meeting_data["description"])==False)
+  {
+    return;
+  }
   # verify quorum
 }
 
@@ -170,7 +220,26 @@ function meeting_part()
 
 function meeting_quit()
 {
-  # verify quorum
+  global $parts;
+  global $meeting_data;
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  # trailing = <nick>
+  $nick=strtolower($parts[0]);
+  term_echo("meeting_quit: nick=$nick");
+  $channels=meeting_channel_list();
+  for ($i=0;$i<count($channels);$i++)
+  {
+    $channel=$channels[$i];
+    $meeting_data=get_array_bucket("MEETING_DATA_".$channel);
+    if (isset($meeting_data["description"])==False)
+    {
+      continue;
+    }
+    # verify quorum
+  }
 }
 
 #####################################################################################################
@@ -514,6 +583,24 @@ function meeting_msg($msg)
 function meeting_event_msg($channel,$msg)
 {
   pm($channel,chr(3)."10".$msg);
+}
+
+#####################################################################################################
+
+function meeting_channel_list()
+{
+  $buckets=bucket_list();
+  $buckets=explode(" ",$buckets);
+  $channels=array();
+  $prefix="MEETING_DATA_";
+  for ($i=0;$i<count($buckets);$i++)
+  {
+    if (substr($buckets[$i],0,strlen($prefix))==$prefix)
+    {
+      $channels[]=substr($buckets[$i],strlen($prefix));
+    }
+  }
+  return $channels;
 }
 
 #####################################################################################################
