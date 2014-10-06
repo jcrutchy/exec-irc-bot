@@ -7,10 +7,15 @@
 
 # http://wiki.soylentnews.org/wiki/Board_Meetings_Rules_of_Order
 
+ini_set("display_errors","on");
+
 require_once("lib.php");
 require_once("wiki_lib.php");
 
 define("BOARD_MEETING","SoylentNews PBC Board of Directors Meeting");
+
+$options_yes=array("yea","aye");
+$options_no=array("nay");
 
 date_default_timezone_set("UTC");
 
@@ -43,6 +48,8 @@ $parts=explode(" ",$trailing);
 $action=strtolower($parts[0]);
 array_shift($parts);
 $trailing=trim(implode(" ",$parts));
+
+term_echo("meeting: $trailing");
 
 switch ($action)
 {
@@ -117,7 +124,25 @@ if (($meeting_data_changed==True) and ($dest<>""))
 
 function meeting_join()
 {
-
+  global $parts;
+  global $meeting_data;
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  # trailing = <nick> <channel>
+  $nick=strtolower($parts[0]);
+  $channel=strtolower($parts[1]);
+  term_echo("meeting_privmsg: join=$nick, channel=$channel");
+  $meeting_data=get_array_bucket("MEETING_DATA_".$channel);
+  if (isset($meeting_data["description"])==False)
+  {
+    return;
+  }
+  $data=array();
+  $data["nick"]=$nick;
+  $data["timestamp"]=microtime(True);
+  $meeting_data["events"][]=$data;
 }
 
 #####################################################################################################
@@ -153,8 +178,13 @@ function meeting_quit()
 function meeting_privmsg()
 {
   global $parts;
+  global $meeting_data;
+  global $board_member_accounts;
+  global $options_yes;
+  global $options_no;
   if (count($parts)<3)
   {
+    term_echo("meeting: invalid number of trailing parts");
     return;
   }
   # trailing = <nick> <channel> <trailing>
@@ -164,23 +194,61 @@ function meeting_privmsg()
   array_shift($parts);
   $trailing=trim(implode(" ",$parts));
   term_echo("meeting_privmsg: nick=$nick, channel=$channel, trailing=$trailing");
-  switch (strtolower($trailing))
+  $meeting_data=get_array_bucket("MEETING_DATA_".$channel);
+  if (isset($meeting_data["description"])==False)
   {
-    case "aye":
-    case "yes":
-
-      break;
-    case "nay":
-    case "no":
-
-      break;
+    term_echo("meeting: no meeting open");
+    return;
   }
-/*
-$msg["nick"]=$nick;
-$msg["timestamp"]=microtime(True);
-$msg["trailing"]=$trailing;
-$meeting["messages"][]=$msg;
-*/
+  $data=array();
+  $data["nick"]=$nick;
+  $data["timestamp"]=microtime(True);
+  $data["trailing"]=$trailing;
+  $meeting_data["messages"][]=$data;
+  $test=strtolower($trailing);
+  if ((in_array($test,$options_yes)==True) or (in_array($test,$options_no)==True))
+  {
+    $account=users_get_account($nick);
+    if (in_array($account,$board_member_accounts)==False)
+    {
+      meeting_event_msg($channel,"$nick is not an authenticated board member. vote not counted");
+    }
+    $n=count($meeting_data["motions"]);
+    if ($n==0)
+    {
+      meeting_event_msg($channel,"no motions registered. vote not counted");
+    }
+    else
+    {
+      $motion=&$meeting_data["motions"][$n-1];
+      $vote_yes=array_search($account,$motion["votes"]["yes"]);
+      $vote_no=array_search($account,$motion["votes"]["no"]);
+      if ($vote_yes!==False)
+      {
+        unset($motion["votes"]["yes"][$vote_yes]);
+        $motion["votes"]["yes"]=array_values($motion["votes"]["yes"]);
+      }
+      if ($vote_no!==False)
+      {
+        unset($motion["votes"]["no"][$vote_no]);
+        $motion["votes"]["no"]=array_values($motion["votes"]["no"]);
+      }
+      if (($vote_yes!==False) or ($vote_no!==False))
+      {
+        meeting_event_msg($channel,"vote by $nick [$account] for current motion already registered. previous vote deleted");
+      }
+      if (in_array($test,$options_yes)==True)
+      {
+        $motion["votes"]["yes"][]=$account;
+        meeting_event_msg($channel,"'aye' vote registered for $nick [$account] for current motion");
+      }
+      else
+      {
+        $motion["votes"]["no"][]=$account;
+        meeting_event_msg($channel,"'nay' vote registered for $nick [$account] for current motion");
+      }
+    }
+  }
 }
 
 #####################################################################################################
@@ -210,8 +278,8 @@ function meeting_open()
   {
     if (initialize_quorum()==False)
     {
-      meeting_msg("unable to open board meeting due to lack of required quorum");
-      meeting_msg("attending board members please identify with nickserv for verification prior to the chair opening the meeting");
+      privmsg("unable to open board meeting due to lack of required quorum");
+      privmsg("attending board members please identify with nickserv for verification prior to the chair opening the meeting");
       return;
     }
   }
@@ -229,7 +297,9 @@ function meeting_open()
   $meeting_data["chairs"][]=$chair;
   $meeting_data["messages"]=array();
   $meeting_data["events"]=array();
-  $meeting_data["initial nicks"]=users_get_nicks($dest);
+  $meeting_data["motions"]=array();
+  $meeting_data["tasks"]=array();
+  $meeting_data["nicks"]=users_get_nicks($dest);
   $meeting_data["description"]=$trailing;
   $meeting_data_changed=True;
   meeting_msg("================== $trailing ==================");
@@ -291,7 +361,7 @@ function meeting_close()
     $text=$text."</p>";
   }
   $text=$text."<p>attendees (voiced/voter/joined/parted/quit/kicked):</p>";
-  $text=$text."<p>".implode(", ",$meeting_data["initial nicks"])."</p>";
+  $text=$text."<p>".implode(", ",$meeting_data["nicks"])."</p>";
   if ($meeting_data["description"]==BOARD_MEETING)
   {
     $agenda=get_text("Issues to Be Raised at the Next Board Meeting","Issues/Agenda",True,True);
@@ -437,6 +507,13 @@ function initialize_quorum()
 function meeting_msg($msg)
 {
   privmsg(chr(3)."10".$msg);
+}
+
+#####################################################################################################
+
+function meeting_event_msg($channel,$msg)
+{
+  pm($channel,chr(3)."10".$msg);
 }
 
 #####################################################################################################

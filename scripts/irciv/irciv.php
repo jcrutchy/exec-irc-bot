@@ -5,6 +5,8 @@
 
 #####################################################################################################
 
+ini_set("display_errors","on");
+
 date_default_timezone_set("UTC");
 
 require_once("irciv_lib.php");

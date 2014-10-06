@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 19-sep-2014
 
 #####################################################################################################
 
@@ -176,6 +175,7 @@ function process_weather(&$location,$nick)
   $humidity=extract_text($html,"style=\"white-space:nowrap;padding-right:0px;vertical-align:top;color:#666\">Humidity: ","</td>");
   $parts=explode("<td",$html);
   $temps=array();
+  $tempsC=array();
   $conds=array();
   $days=array();
   for ($i=1;$i<count($parts);$i++)
@@ -190,23 +190,24 @@ function process_weather(&$location,$nick)
     if ($temp!==False)
     {
       $temps[]=$temp;
+      $tempsC[]=sprintf("%.0f",(substr($temp,0,strlen($temp)-2)-32)*5/9)."°C";
     }
     if ($day!==False)
     {
       $days[]=$day;
     }
   }
-  if ((count($conds)<>5) or (count($temps)<>10) or (count($days)<>4))
+  if ((count($conds)<>5) or (count($temps)<>10) or (count($tempsC)<>10) or (count($days)<>4))
   {
     return False;
   }
-  $result=$location." - currrently ".$temps[0].", ".$conds[0].", wind ".$wind.", humidity ".$humidity." - ";
+  $result=$location." - currrently ".$temps[0]." / ".$tempsC[0].", ".$conds[0].", wind ".$wind.", humidity ".$humidity." - ";
   $fulldays=array("Sun"=>"Sunday","Mon"=>"Monday","Tue"=>"Tuesday","Wed"=>"Wednesday","Thu"=>"Thursday","Fri"=>"Friday","Sat"=>"Saturday");
   for ($i=1;$i<=4;$i++)
   {
     $day=$days[$i-1];
     $day=$fulldays[$day];
-    $result=$result.$day." ".$conds[$i]." (".$temps[$i*2].", ".$temps[$i*2+1].")";
+    $result=$result.$day." ".$conds[$i]." (".$temps[$i*2+1]."-".$temps[$i*2]." / ".$tempsC[$i*2+1]."-".$tempsC[$i*2].")";
     if ($i<4)
     {
       $result=$result.", ";

@@ -239,7 +239,7 @@ switch ($alias)
       }
       if ($previous<>$amount)
       {
-        pm("#soylent",chr(3)."03"."*** SN funding has changed from \$$previous to \$$amount");
+        pm("#soylent",chr(3)."05"."*** SN funding has changed from \$$previous to \$$amount");
         exec_file_write("previous_sn_funding",array($amount));
       }
       else

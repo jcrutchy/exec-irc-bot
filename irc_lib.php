@@ -1090,6 +1090,10 @@ function handle_events(&$items)
 function script_event_handlers($cmd,&$items)
 {
   global $buckets;
+  if (($cmd=="PRIVMSG") and ($items["nick"]==NICK))
+  {
+    return;
+  }
   $event_handlers=array();
   if (isset($buckets[BUCKET_EVENT_HANDLERS])==True)
   {
