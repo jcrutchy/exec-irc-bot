@@ -17,13 +17,10 @@ $data=$argv[7];
 $exec=$argv[8];
 $params=$argv[9];
 
-/*privmsg("hello world");
-term_echo("message appears in terminal only");
-pm(NICK_EXEC,"message");
-err("show this message in terminal and die");
-$data=get_bucket("index");
-set_bucket("index",$data);
-wget($host,$uri,80);*/
+# feed to #dev channel any changes to sn slashcode repo on github on 15 min repeat
+
+# feed for any github repo in settings file:
+# repo user/name => channel
 
 #####################################################################################################
 

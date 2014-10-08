@@ -28,6 +28,9 @@ $html=strip_headers($response);
 
 $title=extract_raw_tag($html,"title");
 
+$title=html_entity_decode($title,ENT_QUOTES,"UTF-8");
+$title=html_entity_decode($title,ENT_QUOTES,"UTF-8");
+
 $filtered_url=strtolower(filter_non_alpha_num($url));
 $filtered_title=strtolower(filter_non_alpha_num($title));
 
