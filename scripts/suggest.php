@@ -11,9 +11,13 @@ require_once("wiki_lib.php");
 $trailing=trim(strip_tags($argv[1]));
 $dest=$argv[2];
 $nick=$argv[3];
-$alias=$argv[4];
+$alias=trim(strtolower($argv[4]));
 
 $wiki_url="http://sylnt.us/suggest";
+if ($alias=="~suggest-api")
+{
+  $wiki_url="http://sylnt.us/suggest-api";
+}
 
 if ($trailing=="")
 {
@@ -25,6 +29,11 @@ if ($trailing=="")
 $utc_str=gmdate("H:i, j F Y",time());
 
 $title="Suggestions";
+if ($alias=="~suggest-api")
+{
+  $title="SN API ideas";
+}
+
 $section="Suggestions from IRC";
 
 $lines=get_text($title,$section,True,True);

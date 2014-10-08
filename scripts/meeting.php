@@ -343,9 +343,10 @@ function meeting_open()
   {
     $trailing=BOARD_MEETING;
   }
+  $members=verify_quorum();
   if ($trailing==BOARD_MEETING)
   {
-    if (initialize_quorum()==False)
+    if ($members===False)
     {
       privmsg("unable to open board meeting due to lack of required quorum");
       privmsg("attending board members please identify with nickserv for verification prior to the chair opening the meeting");
@@ -358,6 +359,8 @@ function meeting_open()
   }
   $start_time=microtime(True);
   $meeting_data=array();
+  $meeting_data["quorum"]=array();
+  $meeting_data["quorum"][]=$members;
   $meeting_data["channel"]=$dest;
   $meeting_data["chairs"]=array();
   $chair=array();
@@ -494,12 +497,20 @@ function meeting_assign()
 
 #####################################################################################################
 
-function initialize_quorum()
+function verify_quorum()
 {
   global $dest;
   global $board_member_accounts;
   global $board_member_quorum;
-  privmsg("verifying quorum...");
+  global $meeting_data;
+  if (isset($meeting_data["quorum"])==False)
+  {
+    privmsg("verifying quorum...");
+  }
+  else
+  {
+    meeting_msg("verifying quorum...");
+  }
   $members=array();
   # first try nick same as account
   for ($i=0;$i<count($board_member_accounts);$i++)
@@ -528,7 +539,7 @@ function initialize_quorum()
       #privmsg("[".count($members)."] nick=$nick, account=$account");
       if (count($members)>=$board_member_quorum)
       {
-        return True;
+        return $members;
       }
     }
   }
@@ -564,7 +575,7 @@ function initialize_quorum()
       #privmsg("[".count($members)."] nick=$nick, account=$account");
       if (count($members)>=$board_member_quorum)
       {
-        return True;
+        return $members;
       }
     }
   }

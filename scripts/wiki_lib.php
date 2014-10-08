@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 6-sep-2014
 
 define("WIKI_USER_AGENT","IRC-Executive/0.01 (https://github.com/crutchy-/test/blob/master/scripts/wiki.php; jared.crutchfield@hotmail.com)");
 define("WIKI_HOST","wiki.soylentnews.org");
@@ -89,7 +88,7 @@ function edit($title,$section,$text,$return=False)
   $uri="/w/api.php?action=tokens&format=php";
   $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
   $data=unserialize(strip_headers($response));
-  var_dump($data);
+  #var_dump($data);
   if (isset($data["tokens"]["edittoken"])==False)
   {
     wiki_privmsg($return,"wiki: edit=error getting edittoken");
@@ -104,7 +103,7 @@ function edit($title,$section,$text,$return=False)
     wiki_privmsg($return,"wiki: edit=error getting sections for page \"".$title."\"");
     return False;
   }
-  var_dump($data);
+  #var_dump($data);
   $sections=$data["parse"]["sections"];
   $index=-1;
   for ($i=0;$i<count($sections);$i++)
@@ -145,10 +144,10 @@ function edit($title,$section,$text,$return=False)
     "contentmodel"=>"wikitext",
     "bot"=>"",
     "token"=>$token);
-  var_dump($params);
+  #var_dump($params);
   $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
   $data=unserialize(strip_headers($response));
-  var_dump($data);
+  #var_dump($data);
   if (isset($data["error"])==True)
   {
     wiki_privmsg($return,"wiki: edit=".$data["error"]["code"]);

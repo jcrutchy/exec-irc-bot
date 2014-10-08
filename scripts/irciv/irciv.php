@@ -44,23 +44,23 @@ switch ($action)
     break;
   case "event-join":
     # trailing = <nick> <channel>
-    irciv_term_echo("join: $trailing");
+    civ_event_join();
     break;
   case "event-kick":
     # trailing = <channel> <nick>
-    irciv_term_echo("kick: $trailing");
+    civ_event_kick();
     break;
   case "event-nick":
     # trailing = <old-nick> <new-nick>
-    irciv_term_echo("nick: $trailing");
+    civ_event_nick();
     break;
   case "event-part":
     # trailing = <nick> <channel>
-    irciv_term_echo("part: $trailing");
+    civ_event_part();
     break;
   case "event-quit":
     # trailing = <nick>
-    irciv_term_echo("quit: $trailing");
+    civ_event_quit();
     break;
 }
 
@@ -74,6 +74,41 @@ if ($irciv_data_changed==True)
   {
     set_array_bucket($irciv_players,"IRCIV_PLAYERS_".$dest);
   }
+}
+
+#####################################################################################################
+
+function civ_event_join()
+{
+
+}
+
+#####################################################################################################
+
+function civ_event_kick()
+{
+
+}
+
+#####################################################################################################
+
+function civ_event_nick()
+{
+
+}
+
+#####################################################################################################
+
+function civ_event_part()
+{
+
+}
+
+#####################################################################################################
+
+function civ_event_quit()
+{
+
 }
 
 #####################################################################################################
