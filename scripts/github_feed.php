@@ -73,10 +73,9 @@ for ($i=0;$i<$n;$i++)
   $timestamp=$data[$i]["created_at"];
   $t=convert_timestamp($timestamp,"Y-m-d H:i:s ");
   $dt=microtime(True)-$t;
-  #if ($dt<=300)
+  if ($dt<=300) # 5 minutes
   {
-    pm("#github",$timestamp);
-    pm("#github",date("c",$t));
+    pm("#github",$data[$i]["type"]." ".$data[$i]["login"]." - ".$data[$i]["repo"]["name"]);
     return;
   }
 }
