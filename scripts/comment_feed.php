@@ -17,7 +17,6 @@ filter by story (reset when story drops off atom), filter by user, filter by con
 ini_set("display_errors","on");
 require_once("lib.php");
 require_once("feeds_lib.php");
-require_once("lib_buckets.php");
 #require_once("copyright_lib.php");
 
 $subscribers=get_array_bucket("<<comment_feed_subscribers>>"); # TODO
