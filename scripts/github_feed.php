@@ -21,9 +21,6 @@ $port=443;
 
 $uri="/repos/crutchy-/exec-irc-bot/events";
 
-$response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
-$content=strip_headers($response);
-
 
 /*
   "url": "https://api.github.com/repos/crutchy-/exec-irc-bot",
@@ -64,8 +61,9 @@ $content=strip_headers($response);
   "releases_url": "https://api.github.com/repos/crutchy-/exec-irc-bot/releases{/id}",
 */
 
+$response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
+$content=strip_headers($response);
 $data=json_decode($content,True);
-
 $n=count($data);
 for ($i=0;$i<$n;$i++)
 {
@@ -75,7 +73,7 @@ for ($i=0;$i<$n;$i++)
   $dt=microtime(True)-$t;
   if ($dt<=300) # 5 minutes
   {
-    pm("#github",$data[$i]["type"]." ".$data[$i]["login"]." - ".$data[$i]["repo"]["name"]);
+    pm("#github",$data[$i]["type"]." ".$data[$i]["actor"]["login"]." - ".$data[$i]["repo"]["name"]);
     return;
   }
 }
