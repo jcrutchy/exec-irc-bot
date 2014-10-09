@@ -71,13 +71,11 @@ for ($i=0;$i<$n;$i++)
 {
   # 2014-08-24T11:30:30Z
   $timestamp=$data[$i]["created_at"];
-  $date=substr($timestamp,0,10);
-  $time=substr($timestamp,11,8);
-  $t=convert_timestamp($date,"Y-m-d")+convert_timestamp($time,"H:i:s");
+  $t=convert_timestamp($timestamp,"Y-m-d H:i:s ");
   $dt=microtime(True)-$t;
   #if ($dt<=300)
   {
-    pm("#github",$date." ".$time);
+    pm("#github",$timestamp);
     pm("#github",date("c",$t));
     return;
   }
