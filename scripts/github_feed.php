@@ -93,6 +93,7 @@ function check_pull_events($repo)
     if ($dt<=900) # 15 minutes
     {
       pm("#github",chr(3)."13"."pull request by ".$data[$i]["user"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["_links"]["html"]);
+      pm("#github","  ".$data[$i]["body"]);
     }
   }
 }
