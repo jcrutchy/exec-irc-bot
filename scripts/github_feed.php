@@ -39,6 +39,7 @@ for ($i=0;$i<count($list);$i++)
   check_push_events($list[$i]);
 }
 
+check_pull_events("SoylentNews/slashcode");
 check_issue_events("SoylentNews/slashcode");
 
 #####################################################################################################
@@ -69,6 +70,29 @@ function check_push_events($repo)
           pm("#github","  ".$commit["author"]["name"].": ".$commit["message"]);
         }
       }
+    }
+  }
+}
+
+#####################################################################################################
+
+function check_pull_events($repo)
+{
+  $host="api.github.com";
+  $port=443;
+  $uri="/repos/$repo/pulls";
+  $response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
+  $content=strip_headers($response);
+  $data=json_decode($content,True);
+  $n=count($data)-1;
+  for ($i=$n;$i>=0;$i--)
+  {
+    $timestamp=$data[$i]["created_at"];
+    $t=convert_timestamp($timestamp,"Y-m-d H:i:s ");
+    $dt=microtime(True)-$t;
+    if ($dt<=900) # 15 minutes
+    {
+      pm("#github",chr(3)."13"."pull request by ".$data[$i]["user"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["_links"]["html"]);
     }
   }
 }
