@@ -18,9 +18,10 @@ $list=array(
   "crutchy-/exec-irc-bot",
   "TheMightyBuzzard/slashcode",
   "chromatos/pas",
-  "chromatos/php",
   "Subsentient/aqu4bot",
-  "SoylentNews/slashcode");
+  "SoylentNews/slashcode",
+  "paulej72/slashcode",
+  "NCommander/slashcode");
 
 for ($i=0;$i<count($list);$i++)
 {
@@ -45,7 +46,11 @@ function check($repo)
     $dt=microtime(True)-$t;
     if ($dt<=900) # 15 minutes
     {
-      pm("#github",$data[$i]["type"]." ".$data[$i]["actor"]["login"]." - ".$data[$i]["repo"]["name"]);
+      if ($data[$i]["type"]=="PushEvent")
+      {
+        $msg=chr(3)."02"."$repo: ".chr(3)."08".$data[$i]["actor"]["login"].chr(3)." pushed to  - https://github.com/$repo";
+        pm("#github",$msg);
+      }
     }
   }
 }
