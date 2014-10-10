@@ -14,9 +14,6 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 
-$host="api.github.com";
-$port=443;
-
 $list=array(
   "crutchy-/exec-irc-bot",
   "TheMightyBuzzard/slashcode",
@@ -34,6 +31,8 @@ for ($i=0;$i<count($list);$i++)
 
 function check($repo)
 {
+  $host="api.github.com";
+  $port=443;
   $uri="/repos/$repo/events";
   $response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
   $content=strip_headers($response);
@@ -44,7 +43,7 @@ function check($repo)
     $timestamp=$data[$i]["created_at"];
     $t=convert_timestamp($timestamp,"Y-m-d H:i:s ");
     $dt=microtime(True)-$t;
-    if ($dt<=300) # 5 minutes
+    if ($dt<=900) # 15 minutes
     {
       pm("#github",$data[$i]["type"]." ".$data[$i]["actor"]["login"]." - ".$data[$i]["repo"]["name"]);
       return;
