@@ -57,7 +57,7 @@ function check($repo)
     {
       if ($data[$i]["type"]=="PushEvent")
       {
-        pm("#github",chr(3)."13".chr(2)."push to https://github.com/$repo @ ".date("H:i:s",$t));
+        pm("#github",chr(3)."13".chr(2)."push to https://github.com/$repo @ ".date("H:i:s",$t)." by ".$data[$i]["actor"]["login"]);
         pm("#github","  ".$data[$i]["payload"]["ref"]);
         for ($j=0;$j<count($data[$i]["payload"]["commits"]);$j++)
         {
