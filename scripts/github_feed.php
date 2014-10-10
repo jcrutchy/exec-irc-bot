@@ -48,9 +48,8 @@ function check($repo)
     {
       if ($data[$i]["type"]=="PushEvent")
       {
-        $ref=$data[$i]["payload"]["ref"];
-        $msg="push to https://github.com/$repo - $ref";
-        pm("#github",$msg);
+        pm("#github","push to https://github.com/$repo");
+        pm("#github","  ".$data[$i]["payload"]["ref"]);
         for ($j=0;$j<count($data[$i]["payload"]["commits"]);$j++)
         {
           $commit=$data[$i]["payload"]["commits"][$j];
