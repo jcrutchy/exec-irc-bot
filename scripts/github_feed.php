@@ -46,7 +46,6 @@ function check($repo)
     if ($dt<=900) # 15 minutes
     {
       pm("#github",$data[$i]["type"]." ".$data[$i]["actor"]["login"]." - ".$data[$i]["repo"]["name"]);
-      return;
     }
   }
 }
