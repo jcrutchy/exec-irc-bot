@@ -48,8 +48,14 @@ function check($repo)
     {
       if ($data[$i]["type"]=="PushEvent")
       {
-        $msg=chr(3)."02"."$repo: ".chr(3)."08".$data[$i]["actor"]["login"].chr(3)." pushed to  - https://github.com/$repo";
+        $ref=$data[$i]["payload"]["ref"];
+        $msg="push to https://github.com/$repo - $ref";
         pm("#github",$msg);
+        for ($j=0;$j<count($data[$i]["payload"]["commits"]);$j++)
+        {
+          $commit=$data[$i]["payload"]["commits"][$j];
+          pm("#github","  ".$commit["author"]["name"].": ".$commit["message"]);
+        }
       }
     }
   }
