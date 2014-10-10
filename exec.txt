@@ -47,6 +47,8 @@
 ~comments|1700|0|0|1|crutchy|||0|php scripts/comment_feed.php
 #~feeds|500|0|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
+~github-list|60|0|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+
 ~tama|30|0|0|1|crutchy,arti,chromas|||0|php scripts/tama.php %%trailing%% %%dest%% %%nick%%
 
 #~comment|30|0|0|1|crutchy|||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%

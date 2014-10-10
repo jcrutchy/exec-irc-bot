@@ -12,7 +12,7 @@ require_once("lib.php");
 $trailing=$argv[1];
 $dest=$argv[2];
 $nick=$argv[3];
-$alias=$argv[4];
+$alias=strtolower(trim($argv[4]));
 
 $list=array(
   "crutchy-/exec-irc-bot",
@@ -22,6 +22,15 @@ $list=array(
   "SoylentNews/slashcode",
   "paulej72/slashcode",
   "NCommander/slashcode");
+
+if ($alias=="~github-list")
+{
+  for ($i=0;$i<count($list);$i++)
+  {
+    privmsg($list[$i]);
+  }
+  return;
+}
 
 for ($i=0;$i<count($list);$i++)
 {
@@ -38,8 +47,8 @@ function check($repo)
   $response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
   $content=strip_headers($response);
   $data=json_decode($content,True);
-  $n=count($data);
-  for ($i=0;$i<$n;$i++)
+  $n=count($data)-1;
+  for ($i=$n;$i>=0;$i--)
   {
     $timestamp=$data[$i]["created_at"];
     $t=convert_timestamp($timestamp,"Y-m-d H:i:s ");
@@ -48,7 +57,7 @@ function check($repo)
     {
       if ($data[$i]["type"]=="PushEvent")
       {
-        pm("#github",chr(3)."13".chr(2)."push to https://github.com/$repo");
+        pm("#github",chr(3)."13".chr(2)."push to https://github.com/$repo @ ".date("H:i:s",$t));
         pm("#github","  ".$data[$i]["payload"]["ref"]);
         for ($j=0;$j<count($data[$i]["payload"]["commits"]);$j++)
         {

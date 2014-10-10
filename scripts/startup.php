@@ -33,6 +33,7 @@ set_bucket(BUCKET_CONNECTION_ESTABLISHED,"1");
 #echo "/INTERNAL ~join #soylent\n";
 
 echo "/INTERNAL ~join #comments\n";
+echo "/INTERNAL ~join #github\n";
 
 unset_bucket("<<EXEC_EVENT_HANDLERS>>");
 echo "/INTERNAL ~civ register-events\n";
