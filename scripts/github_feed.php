@@ -86,7 +86,7 @@ function check_pull_events($repo)
     $dt=microtime(True)-$t;
     if ($dt<=TIME_LIMIT_SEC)
     {
-      pm("#github",chr(3)."13"."pull request by ".$data[$i]["user"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["_links"]["html"]);
+      pm("#github",chr(3)."13"."pull request by ".$data[$i]["user"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["_links"]["html"]["href"]);
       pm("#github","  ".$data[$i]["body"]);
     }
   }
