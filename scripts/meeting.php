@@ -142,6 +142,7 @@ function meeting_join()
   $data=array();
   $data["nick"]=$nick;
   $data["timestamp"]=microtime(True);
+  $data["cmd"]="JOIN";
   $meeting_data["events"][]=$data;
 }
 
@@ -164,7 +165,12 @@ function meeting_kick()
   {
     return;
   }
-  # verify quorum
+  verify_quorum();
+  $data=array();
+  $data["nick"]=$nick;
+  $data["timestamp"]=microtime(True);
+  $data["cmd"]="KICK";
+  $meeting_data["events"][]=$data;
 }
 
 #####################################################################################################
@@ -190,7 +196,13 @@ function meeting_nick()
     {
       continue;
     }
-    # verify quorum
+    verify_quorum();
+    $data=array();
+    $data["nick"]=$new_nick;
+    $data["timestamp"]=microtime(True);
+    $data["cmd"]="NICK";
+    $data["old"]=$old_nick;
+    $meeting_data["events"][]=$data;
   }
 }
 
@@ -213,7 +225,12 @@ function meeting_part()
   {
     return;
   }
-  # verify quorum
+  verify_quorum();
+  $data=array();
+  $data["nick"]=$nick;
+  $data["timestamp"]=microtime(True);
+  $data["cmd"]="PART";
+  $meeting_data["events"][]=$data;
 }
 
 #####################################################################################################
@@ -238,7 +255,12 @@ function meeting_quit()
     {
       continue;
     }
-    # verify quorum
+    verify_quorum();
+    $data=array();
+    $data["nick"]=$nick;
+    $data["timestamp"]=microtime(True);
+    $data["cmd"]="QUIT";
+    $meeting_data["events"][]=$data;
   }
 }
 
