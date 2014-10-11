@@ -23,7 +23,11 @@ $list=array(
   "Subsentient/aqu4bot",
   "SoylentNews/slashcode",
   "paulej72/slashcode",
-  "NCommander/slashcode");
+  "NCommander/slashcode",
+  "arachnist/dsd");
+
+define("TIME_LIMIT_SEC",900); # 15 mins
+define("CREATE_TIME_FORMAT","Y-m-d H:i:s ");
 
 if ($alias=="~github-list")
 {
@@ -46,19 +50,14 @@ check_issue_events("SoylentNews/slashcode");
 
 function check_push_events($repo)
 {
-  $host="api.github.com";
-  $port=443;
-  $uri="/repos/$repo/events";
-  $response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
-  $content=strip_headers($response);
-  $data=json_decode($content,True);
+  $data=get_api_data("/repos/$repo/events");
   $n=count($data)-1;
   for ($i=$n;$i>=0;$i--)
   {
     $timestamp=$data[$i]["created_at"];
-    $t=convert_timestamp($timestamp,"Y-m-d H:i:s ");
+    $t=convert_timestamp($timestamp,CREATE_TIME_FORMAT);
     $dt=microtime(True)-$t;
-    if ($dt<=900) # 15 minutes
+    if ($dt<=TIME_LIMIT_SEC)
     {
       if ($data[$i]["type"]=="PushEvent")
       {
@@ -78,19 +77,14 @@ function check_push_events($repo)
 
 function check_pull_events($repo)
 {
-  $host="api.github.com";
-  $port=443;
-  $uri="/repos/$repo/pulls";
-  $response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
-  $content=strip_headers($response);
-  $data=json_decode($content,True);
+  $data=get_api_data("/repos/$repo/pulls");
   $n=count($data)-1;
   for ($i=$n;$i>=0;$i--)
   {
     $timestamp=$data[$i]["created_at"];
-    $t=convert_timestamp($timestamp,"Y-m-d H:i:s ");
+    $t=convert_timestamp($timestamp,CREATE_TIME_FORMAT);
     $dt=microtime(True)-$t;
-    if ($dt<=900) # 15 minutes
+    if ($dt<=TIME_LIMIT_SEC)
     {
       pm("#github",chr(3)."13"."pull request by ".$data[$i]["user"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["_links"]["html"]);
       pm("#github","  ".$data[$i]["body"]);
@@ -102,23 +96,29 @@ function check_pull_events($repo)
 
 function check_issue_events($repo)
 {
-  $host="api.github.com";
-  $port=443;
-  $uri="/repos/$repo/issues/events";
-  $response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
-  $content=strip_headers($response);
-  $data=json_decode($content,True);
+  $data=get_api_data("/repos/$repo/issues/events");
   $n=count($data)-1;
   for ($i=$n;$i>=0;$i--)
   {
     $timestamp=$data[$i]["created_at"];
-    $t=convert_timestamp($timestamp,"Y-m-d H:i:s ");
+    $t=convert_timestamp($timestamp,CREATE_TIME_FORMAT);
     $dt=microtime(True)-$t;
-    if ($dt<=900) # 15 minutes
+    if ($dt<=TIME_LIMIT_SEC)
     {
       pm("#github",chr(3)."13"."issue ".$data[$i]["event"]." by ".$data[$i]["actor"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["issue"]["html_url"]);
     }
   }
+}
+
+#####################################################################################################
+
+function get_api_data($uri)
+{
+  $host="api.github.com";
+  $port=443;
+  $response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
+  $content=strip_headers($response);
+  return json_decode($content,True);
 }
 
 #####################################################################################################
