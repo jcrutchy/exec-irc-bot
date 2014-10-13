@@ -150,7 +150,7 @@ function process_weather(&$location,$nick)
   {
     if ($location=="")
     {
-      return 0;
+      return False;
     }
     $loc=$location;
   }

@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 15-sep-2014
 
 #####################################################################################################
 
@@ -48,7 +47,7 @@ switch ($alias)
     }
     else
     {
-      privmsg("weather error: $trailing");
+      privmsg("syntax: ~weather <location>");
     }
     break;
   case "~weather-old":
