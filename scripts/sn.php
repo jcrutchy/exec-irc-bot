@@ -186,8 +186,8 @@ switch ($alias)
     $extra_headers["Cookie"]=sn_login();
     $uri="/submit.pl?op=list";
     $response=wget($host,$uri,$port,ICEWEASEL_UA,$extra_headers);
-    $delim1="<option value=\"\">";
-    $delim2=" None</option>";
+    $delim1="<a href=\"//soylentnews.org/submit.pl?op=list\"> Only <b>";
+    $delim2="</b> submissions in the queue";
     $count=extract_text($response,$delim1,$delim2);
     if ($count!==False)
     {
