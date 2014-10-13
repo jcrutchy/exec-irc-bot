@@ -135,9 +135,7 @@ $admin_is_sock="";
 
 $irc_pause=False;
 
-$logged_chans=array();
-$buckets[BUCKET_LOGGED_CHANS]=serialize($logged_chans);
-unset($logged_chans);
+initialize_buckets();
 
 $throttle_time=False; # set when "throttled" is detected in a message from the server
 $rawmsg_times=array();

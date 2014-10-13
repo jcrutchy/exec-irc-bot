@@ -5,6 +5,15 @@
 
 #####################################################################################################
 
+function initialize_buckets()
+{
+  global $buckets;
+  $logged_chans=array();
+  $buckets[BUCKET_LOGGED_CHANS]=serialize($logged_chans);
+}
+
+#####################################################################################################
+
 function init()
 {
   $items=parse_data("INIT");
@@ -664,6 +673,7 @@ function buckets_flush($items)
 {
   global $buckets;
   $buckets=array();
+  initialize_buckets();
   privmsg($items["destination"],$items["nick"],"buckets flushed");
 }
 
