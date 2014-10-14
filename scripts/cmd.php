@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 8-aug-2014
 
 #####################################################################################################
 #                                                                                                   #
@@ -27,7 +26,7 @@ $nick=$argv[6];
 switch (strtoupper($cmd))
 {
   case "PONG":
-    echo "/INTERNAL ~ping $trailing\n";
+    #echo "/INTERNAL ~pong $trailing\n";
     break;
   case "INTERNAL":
     break;

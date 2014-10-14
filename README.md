@@ -1,8 +1,8 @@
 exec-irc-bot readme
 ===================
 
-This is the home of crutchy's 'exec' bot source code which lurks on irc.sylnt.us (SoylentNews IRC).
+This is the home of crutchy's 'exec' bot, which lurks on SoylentNews IRC (irc.sylnt.us).
 
-The bot script is 'irc.php' (contains constants and main loop), which requires 'irc_lib.php' (contains only bot functions).
+The main bot script is 'irc.php', which requires 'irc_lib.php' (functions).
 
 Alias scripts are stored under the 'scripts' directory.

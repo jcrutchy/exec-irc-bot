@@ -194,6 +194,7 @@ function meeting_nick()
     $meeting_data=get_array_bucket("MEETING_DATA_".$channel);
     if (isset($meeting_data["description"])==False)
     {
+      term_echo("meeting_nick: meeting description not found in meeting data for channel $channel");
       continue;
     }
     verify_quorum();
@@ -397,12 +398,12 @@ function meeting_open()
   $meeting_data["description"]=$trailing;
   $meeting_data_changed=True;
   meeting_msg("================== $trailing ==================");
-  meeting_msg("$nick hereby calls this meeting to order");
-  meeting_msg("meeting has commenced @ ".date("H:i (T)",$start_time)." on ".date("l, j F Y",$start_time));
-  meeting_msg("meeting is currently chaired by $nick");
+  #meeting_msg("$nick hereby calls this meeting to order");
+  #meeting_msg("meeting has commenced @ ".date("H:i (T)",$start_time)." on ".date("l, j F Y",$start_time));
+  #meeting_msg("meeting is currently chaired by $nick");
   if ($trailing==BOARD_MEETING)
   {
-    meeting_msg("note: this is an official board meeting; only board members may vote");
+    #meeting_msg("note: this is an official board meeting; only board members may vote");
   }
 }
 
@@ -431,9 +432,9 @@ function meeting_close()
     return;
   }
   $finish_time=microtime(True);
-  meeting_msg("$nick hereby adjourns the meeting at ".date("H:i (T)",$finish_time)." on ".date("l, j F Y",$finish_time));
+  #meeting_msg("$nick hereby adjourns the meeting at ".date("H:i (T)",$finish_time)." on ".date("l, j F Y",$finish_time));
   meeting_msg("================== // ==================");
-  privmsg("preparing minutes and posting to wiki...");
+  #privmsg("preparing minutes and posting to wiki...");
   $title="Test page";
   $section=$meeting_data["description"]." - ".date("F j Y",$meeting_data["chairs"][0]["start"]);
   $start_time=$meeting_data["chairs"][0]["start"];
@@ -478,7 +479,7 @@ function meeting_close()
   $text=$text."<p>table of motions (ayes/nays/carried):</p>";
   $text=$text."<p>table of assignments:</p>";
   $text=$text."<p>formatted irc script:</p>";
-  if (login(True)==False)
+  /*if (login(True)==False)
   {
     privmsg("error logging into wiki");
     return;
@@ -491,7 +492,7 @@ function meeting_close()
   {
     privmsg("successfully updated wiki - http://wiki.soylentnews.org/wiki/Test_page");
   }
-  logout(True);
+  logout(True);*/
   $meeting_data=array();
   unset_bucket("MEETING_DATA_".$dest);
 }

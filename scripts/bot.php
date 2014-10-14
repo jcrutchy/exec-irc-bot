@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 9-sep-2014
 
 #####################################################################################################
 
@@ -113,8 +112,8 @@ switch ($cmd)
     }
     $cmd=strtoupper($parts[0]);
     array_shift($parts);
+    $data=$trailing;
     $trailing=trim(implode(" ",$parts));
-    $data="";
     switch ($cmd)
     {
       case "JOIN":

@@ -60,6 +60,7 @@
 ~sed-internal|10|0|0|1||INTERNAL||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
 ~privmsg-internal|5|0|0|1||INTERNAL||0|php scripts/privmsg.php %%trailing%% %%nick%% %%dest%%
 ~welcome-internal|30|0|0|1||INTERNAL||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
+#~pong|10|0|0|0||INTERNAL||0|php scripts/ping.php %%trailing%% %%alias%%
 
 ~verifier-nick-change|30|0|0|1||INTERNAL||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~verifier-nick|30|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
@@ -70,7 +71,7 @@
 ~github-feed|60|900|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~feeds-internal|500|1800|0|1||INTERNAL||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed|120|0|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~ping|10|300|0|0||INTERNAL||0|php scripts/ping.php %%trailing%% %%nick%% %%dest%%
+#~ping|10|300|0|0||INTERNAL||0|php scripts/ping.php %%trailing%% %%alias%%
 
 ~op|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~deop|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
