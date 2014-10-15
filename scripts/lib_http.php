@@ -11,6 +11,13 @@ $url_blacklist=array("kidd","porn","goat","xxx","sex","fuck");
 
 #####################################################################################################
 
+function authorization_header_value($uname,$passwd)
+{
+  return "Basic ".base64_encode("$uname:$passwd");
+}
+
+#####################################################################################################
+
 function shorten_url($url,$keyword="",$title="")
 {
   if ($url=="")

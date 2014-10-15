@@ -3,7 +3,19 @@
 # gpl2
 # by crutchy
 
-# <TheMightyBuzzard> should see if you can watch pull requests instead of commits. save some headaches.
+# provide personal access tokens as the username and provide a blank password or a password of x-oauth-basic
+# https://developer.github.com/v3/auth/#basic-authentication
+# https://github.com/settings/applications
+# /nas/server/git/pwd/gh_tok
+
+/*
+The Authorization header is constructed as follows:
+    Username and password are combined into a string "username:password"
+    The resulting string is then encoded using the RFC2045-MIME variant of Base64, except not limited to 76 char/line
+    The authorization method and a space i.e. "Basic " is then put before the encoded string.
+For example, if the user agent uses 'Aladdin' as the username and 'open sesame' as the password then the header is formed as follows:
+Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+*/
 
 #####################################################################################################
 
@@ -54,6 +66,10 @@ function check_push_events($repo)
   $n=count($data)-1;
   for ($i=$n;$i>=0;$i--)
   {
+    if (isset($data[$i]["created_at"])==False)
+    {
+      continue;
+    }
     $timestamp=$data[$i]["created_at"];
     $t=convert_timestamp($timestamp,CREATE_TIME_FORMAT);
     $dt=microtime(True)-$t;
@@ -81,6 +97,10 @@ function check_pull_events($repo)
   $n=count($data)-1;
   for ($i=$n;$i>=0;$i--)
   {
+    if (isset($data[$i]["created_at"])==False)
+    {
+      continue;
+    }
     $timestamp=$data[$i]["created_at"];
     $t=convert_timestamp($timestamp,CREATE_TIME_FORMAT);
     $dt=microtime(True)-$t;
@@ -100,6 +120,10 @@ function check_issue_events($repo)
   $n=count($data)-1;
   for ($i=$n;$i>=0;$i--)
   {
+    if (isset($data[$i]["created_at"])==False)
+    {
+      continue;
+    }
     $timestamp=$data[$i]["created_at"];
     $t=convert_timestamp($timestamp,CREATE_TIME_FORMAT);
     $dt=microtime(True)-$t;
@@ -116,7 +140,10 @@ function get_api_data($uri)
 {
   $host="api.github.com";
   $port=443;
-  $response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
+  $uname=file_get_contents("../pwd/gh_tok");
+  $headers=array();
+  $headers["Authorization"]=authorization_header_value($uname,"");
+  $response=wget($host,$uri,$port,ICEWEASEL_UA,$headers,60);
   $content=strip_headers($response);
   return json_decode($content,True);
 }
