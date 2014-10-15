@@ -3,20 +3,6 @@
 # gpl2
 # by crutchy
 
-# provide personal access tokens as the username and provide a blank password or a password of x-oauth-basic
-# https://developer.github.com/v3/auth/#basic-authentication
-# https://github.com/settings/applications
-# /nas/server/git/pwd/gh_tok
-
-/*
-The Authorization header is constructed as follows:
-    Username and password are combined into a string "username:password"
-    The resulting string is then encoded using the RFC2045-MIME variant of Base64, except not limited to 76 char/line
-    The authorization method and a space i.e. "Basic " is then put before the encoded string.
-For example, if the user agent uses 'Aladdin' as the username and 'open sesame' as the password then the header is formed as follows:
-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
-*/
-
 #####################################################################################################
 
 ini_set("display_errors","on");
@@ -49,9 +35,6 @@ if ($alias=="~github-list")
   }
   return;
 }
-
-check_push_events("crutchy-/exec-irc-bot");
-return;
 
 for ($i=0;$i<count($list);$i++)
 {
@@ -141,15 +124,12 @@ function check_issue_events($repo)
 
 function get_api_data($uri)
 {
-  #return "";
   $host="api.github.com";
   $port=443;
-  $uname=file_get_contents("../pwd/gh_tok");
+  $tok=file_get_contents("../pwd/gh_tok");
   $headers=array();
-  $headers["Authorization"]=authorization_header_value($uname,"x-oauth-basic");
-  $headers="";
+  $headers["Authorization"]="token $tok";
   $response=wget($host,$uri,$port,ICEWEASEL_UA,$headers,60);
-  #var_dump($response);
   $content=strip_headers($response);
   return json_decode($content,True);
 }

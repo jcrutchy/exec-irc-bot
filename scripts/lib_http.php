@@ -11,9 +11,9 @@ $url_blacklist=array("kidd","porn","goat","xxx","sex","fuck");
 
 #####################################################################################################
 
-function authorization_header_value($uname,$passwd)
+function authorization_header_value($uname,$passwd,$prefix)
 {
-  return "Basic ".base64_encode("$uname:$passwd");
+  return "$prefix ".base64_encode("$uname:$passwd");
 }
 
 #####################################################################################################
