@@ -319,6 +319,7 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
     }
   }
   $headers=$headers."Connection: Close\r\n\r\n";
+  #var_dump($headers);
   fwrite($fp,$headers);
   $response="";
   while (!feof($fp))

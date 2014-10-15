@@ -50,6 +50,9 @@ if ($alias=="~github-list")
   return;
 }
 
+check_push_events("crutchy-/exec-irc-bot");
+return;
+
 for ($i=0;$i<count($list);$i++)
 {
   check_push_events($list[$i]);
@@ -138,12 +141,15 @@ function check_issue_events($repo)
 
 function get_api_data($uri)
 {
+  #return "";
   $host="api.github.com";
   $port=443;
   $uname=file_get_contents("../pwd/gh_tok");
   $headers=array();
-  $headers["Authorization"]=authorization_header_value($uname,"");
+  $headers["Authorization"]=authorization_header_value($uname,"x-oauth-basic");
+  $headers="";
   $response=wget($host,$uri,$port,ICEWEASEL_UA,$headers,60);
+  #var_dump($response);
   $content=strip_headers($response);
   return json_decode($content,True);
 }
