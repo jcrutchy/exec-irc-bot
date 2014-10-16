@@ -14,6 +14,8 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=strtolower(trim($argv[4]));
 
+define("FEED_CHAN","#github");
+
 $list=array(
   "crutchy-/exec-irc-bot",
   "TheMightyBuzzard/slashcode",
@@ -105,7 +107,7 @@ function check_events($color,$uri)
         continue;
       }
       $url="https://github.com/".substr($data[$i]["repo"]["url"],$len_repos_url);
-      pm("#github",chr(3).$color.$data[$i]["type"]." by ".$data[$i]["actor"]["login"]." @ $url");
+      pm(FEED_CHAN,chr(3).$color.$data[$i]["type"]." by ".$data[$i]["actor"]["login"]." @ $url");
     }
   }
 }
@@ -129,12 +131,12 @@ function check_push_events($repo)
     {
       if ($data[$i]["type"]=="PushEvent")
       {
-        pm("#github",chr(3)."13"."push to https://github.com/$repo @ ".date("H:i:s",$t)." by ".$data[$i]["actor"]["login"]);
-        pm("#github","  ".chr(3)."03".$data[$i]["payload"]["ref"]);
+        pm(FEED_CHAN,chr(3)."13"."push to https://github.com/$repo @ ".date("H:i:s",$t)." by ".$data[$i]["actor"]["login"]);
+        pm(FEED_CHAN,"  ".chr(3)."03".$data[$i]["payload"]["ref"]);
         for ($j=0;$j<count($data[$i]["payload"]["commits"]);$j++)
         {
           $commit=$data[$i]["payload"]["commits"][$j];
-          pm("#github","  ".$commit["author"]["name"].": ".$commit["message"]);
+          pm(FEED_CHAN,"  ".$commit["author"]["name"].": ".$commit["message"]);
         }
       }
     }
@@ -158,8 +160,8 @@ function check_pull_events($repo)
     $dt=microtime(True)-$t;
     if ($dt<=TIME_LIMIT_SEC)
     {
-      pm("#github",chr(3)."13"."pull request by ".$data[$i]["user"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["_links"]["html"]["href"]);
-      pm("#github","  ".$data[$i]["body"]);
+      pm(FEED_CHAN,chr(3)."13"."pull request by ".$data[$i]["user"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["_links"]["html"]["href"]);
+      pm(FEED_CHAN,"  ".$data[$i]["body"]);
     }
   }
 }
@@ -181,7 +183,7 @@ function check_issue_events($repo)
     $dt=microtime(True)-$t;
     if ($dt<=TIME_LIMIT_SEC)
     {
-      pm("#github",chr(3)."13"."issue ".$data[$i]["event"]." by ".$data[$i]["actor"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["issue"]["html_url"]);
+      pm(FEED_CHAN,chr(3)."13"."issue ".$data[$i]["event"]." by ".$data[$i]["actor"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["issue"]["html_url"]);
     }
   }
 }
