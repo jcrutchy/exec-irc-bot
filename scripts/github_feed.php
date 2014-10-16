@@ -22,7 +22,11 @@ $list=array(
   "SoylentNews/slashcode",
   "paulej72/slashcode",
   "NCommander/slashcode",
-  "arachnist/dsd");
+  "arachnist/dsd",
+  "mrcoolbp/slashcode",
+  "pipedot/pipecode",
+  "Lagg/steamodd",
+  "SoylentNews/slashcode_vm");
 
 define("TIME_LIMIT_SEC",300); # 5 mins
 define("CREATE_TIME_FORMAT","Y-m-d H:i:s ");
@@ -39,10 +43,9 @@ if ($alias=="~github-list")
 for ($i=0;$i<count($list);$i++)
 {
   check_push_events($list[$i]);
+  check_pull_events($list[$i]);
+  check_issue_events($list[$i]);
 }
-
-check_pull_events("SoylentNews/slashcode");
-check_issue_events("SoylentNews/slashcode");
 
 #####################################################################################################
 
