@@ -67,6 +67,8 @@ check_site_events();
 
 function check_site_events()
 {
+  $repos_url="https://api.github.com/repos/";
+  $len_repos_url=strlen($repos_url);
   $data=get_api_data("/events");
   $n=count($data)-1;
   for ($i=$n;$i>=0;$i--)
@@ -84,11 +86,11 @@ function check_site_events()
       {
         continue;
       }
-      if (substr($data[$i]["repo"]["url"],0,12)<>"https://api.")
+      if (substr($data[$i]["repo"]["url"],0,$len_repos_url)<>$repos_url)
       {
         continue;
       }
-      $url="https://".substr($data[$i]["repo"]["url"],12);
+      $url="https://github.com/".substr($data[$i]["repo"]["url"],$len_repos_url);
       pm("#github",chr(3)."11".$data[$i]["type"]." by ".$data[$i]["actor"]["login"]." @ $url");
     }
   }
