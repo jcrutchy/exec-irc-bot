@@ -40,11 +40,58 @@ if ($alias=="~github-list")
   return;
 }
 
+if ($alias=="~github-atom")
+{
+  $host="api.github.com";
+  $port=443;
+  $uri="/crutchy-";
+  $tok=file_get_contents("../pwd/gh_tok");
+  $headers=array();
+  $headers["Authorization"]="token $tok";
+  $headers["Accept"]="application/atom+xml";
+  $response=wget($host,$uri,$port,ICEWEASEL_UA,$headers,60);
+  var_dump($response);
+  return;
+}
+
 for ($i=0;$i<count($list);$i++)
 {
   check_push_events($list[$i]);
   check_pull_events($list[$i]);
   check_issue_events($list[$i]);
+}
+
+check_site_events();
+
+#####################################################################################################
+
+function check_site_events()
+{
+  $data=get_api_data("/events");
+  $n=count($data)-1;
+  for ($i=$n;$i>=0;$i--)
+  {
+    if (isset($data[$i]["created_at"])==False)
+    {
+      continue;
+    }
+    $timestamp=$data[$i]["created_at"];
+    $t=convert_timestamp($timestamp,CREATE_TIME_FORMAT);
+    $dt=microtime(True)-$t;
+    if ($dt<=TIME_LIMIT_SEC)
+    {
+      if ((isset($data[$i]["type"])==False) or (isset($data[$i]["actor"]["login"])==False) or (isset($data[$i]["repo"]["url"])==False))
+      {
+        continue;
+      }
+      if (substr($data[$i]["repo"]["url"],0,12)<>"https://api.")
+      {
+        continue;
+      }
+      $url="https://".substr($data[$i]["repo"]["url"],12);
+      pm("#github",chr(3)."11".$data[$i]["type"]." by ".$data[$i]["actor"]["login"]." @ $url");
+    }
+  }
 }
 
 #####################################################################################################

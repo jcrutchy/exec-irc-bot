@@ -45,6 +45,7 @@
 ~title|30|0|0|0||||0|php scripts/title.php %%trailing%%
 ~copyright|0|0|0|0|crutchy|||0|php scripts/copyright.php %%trailing%%
 ~comments|1700|0|0|1|crutchy|||0|php scripts/comment_feed.php
+~github-atom|60|0|0|1|crutchy|||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~feeds|500|0|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 ~github-list|60|0|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
