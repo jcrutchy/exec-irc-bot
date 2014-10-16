@@ -61,15 +61,29 @@ for ($i=0;$i<count($list);$i++)
   check_issue_events($list[$i]);
 }
 
-check_site_events();
+$users=array();
+for ($i=0;$i<count($list);$i++)
+{
+  $user=substr($list[$i],0,strpos($list[$i],"/"));
+  if (in_array($user,$users)==False)
+  {
+    $users[]=$user;
+  }
+}
+for ($i=0;$i<count($users);$i++)
+{
+  check_events(11,"/users/".$users[$i]."/events");
+}
+
+#check_events(11,"/events");
 
 #####################################################################################################
 
-function check_site_events()
+function check_events($color,$uri)
 {
   $repos_url="https://api.github.com/repos/";
   $len_repos_url=strlen($repos_url);
-  $data=get_api_data("/events");
+  $data=get_api_data($uri);
   $n=count($data)-1;
   for ($i=$n;$i>=0;$i--)
   {
@@ -91,7 +105,7 @@ function check_site_events()
         continue;
       }
       $url="https://github.com/".substr($data[$i]["repo"]["url"],$len_repos_url);
-      pm("#github",chr(3)."11".$data[$i]["type"]." by ".$data[$i]["actor"]["login"]." @ $url");
+      pm("#github",chr(3).$color.$data[$i]["type"]." by ".$data[$i]["actor"]["login"]." @ $url");
     }
   }
 }
