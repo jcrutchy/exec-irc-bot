@@ -63,7 +63,7 @@ for ($i=0;$i<count($list);$i++)
   check_issue_events($list[$i]);
 }
 
-$users=array();
+/*$users=array();
 for ($i=0;$i<count($list);$i++)
 {
   $user=substr($list[$i],0,strpos($list[$i],"/"));
@@ -75,7 +75,7 @@ for ($i=0;$i<count($list);$i++)
 for ($i=0;$i<count($users);$i++)
 {
   check_events(11,"/users/".$users[$i]."/events");
-}
+}*/
 
 #check_events(11,"/events");
 

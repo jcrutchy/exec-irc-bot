@@ -201,7 +201,7 @@ function process_weather(&$location,$nick)
   {
     return False;
   }
-  $result=$location." - currrently ".$temps[0]." / ".$tempsC[0].", ".$conds[0].", wind ".$wind.", humidity ".$humidity." - ";
+  $result=$location." - currently ".$temps[0]." / ".$tempsC[0].", ".$conds[0].", wind ".$wind.", humidity ".$humidity." - ";
   $fulldays=array("Sun"=>"Sunday","Mon"=>"Monday","Tue"=>"Tuesday","Wed"=>"Wednesday","Thu"=>"Thursday","Fri"=>"Friday","Sat"=>"Saturday");
   for ($i=1;$i<=4;$i++)
   {

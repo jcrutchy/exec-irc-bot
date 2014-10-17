@@ -184,7 +184,7 @@ switch ($alias)
     $port=80;
     $extra_headers=array();
     $extra_headers["Cookie"]=sn_login();
-    $uri="/";
+    $uri="/submit.pl?op=list";
     $response=wget($host,$uri,$port,ICEWEASEL_UA,$extra_headers);
     $delim1="<a href=\"//soylentnews.org/submit.pl?op=list\"> Only <b>";
     $delim2="</b> submissions in the queue";
