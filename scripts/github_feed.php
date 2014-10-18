@@ -25,6 +25,7 @@ $list=array(
   "paulej72/slashcode",
   "NCommander/slashcode",
   "arachnist/dsd",
+  "arachnist/repost",
   "mrcoolbp/slashcode",
   "pipedot/pipecode",
   "Lagg/steamodd",
