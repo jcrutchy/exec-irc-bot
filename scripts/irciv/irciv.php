@@ -43,8 +43,10 @@ switch ($action)
     register_channel();
     break;
   case "register-events":
-    $
-    register_all_events("~civ");
+    if ($cmd=="INTERNAL")
+    {
+      register_all_events("~civ");
+    }
     break;
   case "event-join":
     # trailing = <nick> <channel>
