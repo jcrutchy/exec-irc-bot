@@ -19,6 +19,7 @@ $alias=strtolower(trim($argv[5]));
 $cmd=strtoupper(trim($argv[6]));
 
 $gm_accounts=array("crutchy");
+$gm_actions=array("register-channel");
 
 if ($trailing=="")
 {
@@ -42,6 +43,7 @@ switch ($action)
     register_channel();
     break;
   case "register-events":
+    $
     register_all_events("~civ");
     break;
   case "event-join":
