@@ -157,7 +157,7 @@ function check_push_events($repo)
                 {
                   $tree_symbol="└─";
                 }
-                pm(FEED_CHAN,"  $tree_symbol https://github.com/$repo/blob/$branch/$commit_filename");
+                pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol.chr(3)." https://github.com/$repo/blob/$branch/$commit_filename");
               }
             }
           }
