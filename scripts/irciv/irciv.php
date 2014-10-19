@@ -36,6 +36,9 @@ $trailing=trim(implode(" ",$parts));
 
 switch ($action)
 {
+  case "register-channel":
+    register_channel();
+    break;
   case "register-events":
     register_all_events("~civ");
     break;
@@ -65,6 +68,44 @@ if ($irciv_data_changed==True)
 {
   set_array_bucket($irciv_players,"IRCIV_PLAYERS");
   set_array_bucket($irciv_channels,"IRCIV_CHANNELS");
+}
+
+#####################################################################################################
+
+function register_channel()
+{
+  global $trailing;
+  global $dest;
+  global $irciv_channels;
+  global $irciv_data_changed;
+  $channel="";
+  if ($trailing<>"")
+  {
+    $channel=strtolower($trailing);
+  }
+  elseif ($dest<>"")
+  {
+    $channel=strtolower($dest);
+  }
+  if ($channel=="")
+  {
+    term_echo("register_channel: channel not specified");
+    return;
+  }
+  if (isset($irciv_channels[$channel])==False)
+  {
+    $irciv_channels[$channel]="";
+    $irciv_data_changed=True;
+    $msg="registered irciv channel $channel";
+    if ($trailing<>"")
+    {
+      pm($trailing,$msg);
+    }
+    if (($dest<>"") and ($dest<>$trailing))
+    {
+      pm($dest,$msg);
+    }
+  }
 }
 
 #####################################################################################################
