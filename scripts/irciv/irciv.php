@@ -27,6 +27,7 @@ if ($trailing=="")
 $irciv_data_changed=False;
 
 $irciv_players=get_array_bucket("IRCIV_PLAYERS");
+$irciv_channels=get_array_bucket("IRCIV_CHANNELS");
 
 $parts=explode(" ",$trailing);
 $action=strtolower($parts[0]);
@@ -63,6 +64,7 @@ switch ($action)
 if ($irciv_data_changed==True)
 {
   set_array_bucket($irciv_players,"IRCIV_PLAYERS");
+  set_array_bucket($irciv_channels,"IRCIV_CHANNELS");
 }
 
 #####################################################################################################
@@ -71,6 +73,7 @@ function civ_event_join()
 {
   global $parts;
   global $irciv_players;
+  global $irciv_channels;
   global $irciv_data_changed;
   if (count($parts)<>2)
   {
@@ -79,6 +82,10 @@ function civ_event_join()
   $nick=strtolower($parts[0]);
   $channel=strtolower($parts[1]);
   term_echo("civ_event_join: nick=$nick, channel=$channel");
+  if (isset($irciv_channels[$channel])==False)
+  {
+    return;
+  }
   $account=users_get_account($nick);
   if ($account<>"")
   {
