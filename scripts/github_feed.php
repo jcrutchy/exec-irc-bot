@@ -145,12 +145,14 @@ function check_push_events($repo)
           if (get_host_and_uri($commit_url,$commit_host,$commit_uri,$commit_port)==True)
           {
             $commit_data=get_api_data($commit_uri);
-            if (isset($commit_data["files"])==True)
+            $ref_parts=explode("/",$data[$i]["payload"]["ref"]);
+            if ((isset($commit_data["files"])==True) and (isset($ref_parts[2])==True))
             {
+              $branch=$ref_parts[2];
               for ($k=0;$k<count($commit_data["files"]);$k++)
               {
                 $commit_filename=$commit_data["files"][$k]["filename"];
-                pm(FEED_CHAN,"    https://github.com/$repo/$commit_filename");
+                pm(FEED_CHAN,"    https://github.com/$repo/blob/$branch/$commit_filename");
               }
             }
           }
