@@ -133,7 +133,7 @@ function meeting_join()
   # trailing = <nick> <channel>
   $nick=strtolower($parts[0]);
   $channel=strtolower($parts[1]);
-  term_echo("meeting_privmsg: nick=$nick, channel=$channel");
+  term_echo("meeting_join: nick=$nick, channel=$channel");
   $meeting_data=get_array_bucket("MEETING_DATA_".$channel);
   if (isset($meeting_data["description"])==False)
   {
@@ -238,14 +238,9 @@ function meeting_part()
 
 function meeting_quit()
 {
-  global $parts;
+  global $trailing;
   global $meeting_data;
-  if (count($parts)<>2)
-  {
-    return;
-  }
-  # trailing = <nick>
-  $nick=strtolower($parts[0]);
+  $nick=strtolower($trailing);
   term_echo("meeting_quit: nick=$nick");
   $channels=meeting_channel_list();
   for ($i=0;$i<count($channels);$i++)

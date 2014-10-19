@@ -138,6 +138,22 @@ function check_push_events($repo)
         {
           $commit=$data[$i]["payload"]["commits"][$j];
           pm(FEED_CHAN,"  ".$commit["author"]["name"].": ".$commit["message"]);
+          $commit_url=$commit["url"];
+          $commit_host="";
+          $commit_uri="";
+          $commit_port="";
+          if (get_host_and_uri($commit_url,$commit_host,$commit_uri,$commit_port)==True)
+          {
+            $commit_data=get_api_data($commit_uri);
+            if (isset($commit_data["files"])==True)
+            {
+              for ($k=0;$k<count($commit_data["files"]);$k++)
+              {
+                $commit_filename=$commit_data["filename"];
+                pm(FEED_CHAN,"    ".$commit_filename);
+              }
+            }
+          }
         }
       }
     }

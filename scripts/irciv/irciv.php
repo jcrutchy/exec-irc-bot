@@ -26,11 +26,7 @@ if ($trailing=="")
 
 $irciv_data_changed=False;
 
-$irciv_games=get_array_bucket("IRCIV_GAMES");
-$irciv_accounts=get_array_bucket("IRCIV_ACCOUNTS");
-$irciv_maplist=get_array_bucket("IRCIV_MAPLIST");
-$irciv_mapdata=get_array_bucket("IRCIV_MAPDATA");
-$irciv_players=get_array_bucket("IRCIV_PLAYERS_".$dest);
+$irciv_players=get_array_bucket("IRCIV_PLAYERS");
 
 $parts=explode(" ",$trailing);
 $action=strtolower($parts[0]);
@@ -66,20 +62,23 @@ switch ($action)
 
 if ($irciv_data_changed==True)
 {
-  set_array_bucket($irciv_games,"IRCIV_GAMES");
-  set_array_bucket($irciv_accounts,"IRCIV_ACCOUNTS");
-  set_array_bucket($irciv_maplist,"IRCIV_MAPLIST");
-  set_array_bucket($irciv_mapdata,"IRCIV_MAPDATA");
-  if ($dest<>"")
-  {
-    set_array_bucket($irciv_players,"IRCIV_PLAYERS_".$dest);
-  }
+  set_array_bucket($irciv_players,"IRCIV_PLAYERS");
 }
 
 #####################################################################################################
 
 function civ_event_join()
 {
+  global $parts;
+  global $irciv_players;
+  global $irciv_data_changed;
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  $nick=strtolower($parts[0]);
+  $channel=strtolower($parts[1]);
+  term_echo("civ_event_join: nick=$nick, channel=$channel");
 
 }
 
@@ -87,28 +86,85 @@ function civ_event_join()
 
 function civ_event_kick()
 {
-
+  global $parts;
+  global $irciv_players;
+  global $irciv_data_changed;
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  $nick=strtolower($parts[0]);
+  $channel=strtolower($parts[1]);
+  term_echo("civ_event_kick: nick=$nick, channel=$channel");
+  if (isset($irciv_players[$nick][$channel])==True)
+  {
+    unset($irciv_players[$nick][$channel]);
+    $irciv_data_changed=True;
+  }
 }
 
 #####################################################################################################
 
 function civ_event_nick()
 {
-
+  global $parts;
+  global $irciv_players;
+  global $irciv_data_changed;
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  $old_nick=strtolower($parts[0]);
+  $new_nick=strtolower($parts[1]);
+  term_echo("civ_event_nick: old_nick=$old_nick, new_nick=$new_nick");
+  if (isset($irciv_players[$old_nick]["account"])==True)
+  {
+    $old_account=$irciv_players[$old_nick]["account"];
+    $new_account=users_get_account($new_nick);
+    if ($old_account==$new_account)
+    {
+      $irciv_players[$new_nick]=$irciv_players[$old_nick];
+      unset($irciv_players[$old_nick]);
+      $irciv_data_changed=True;
+    }
+  }
 }
 
 #####################################################################################################
 
 function civ_event_part()
 {
-
+  global $parts;
+  global $irciv_players;
+  global $irciv_data_changed;
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  $nick=strtolower($parts[0]);
+  $channel=strtolower($parts[1]);
+  term_echo("civ_event_part: nick=$nick, channel=$channel");
+  if (isset($irciv_players[$nick][$channel])==True)
+  {
+    unset($irciv_players[$nick][$channel]);
+    $irciv_data_changed=True;
+  }
 }
 
 #####################################################################################################
 
 function civ_event_quit()
 {
-
+  global $trailing;
+  global $irciv_players;
+  global $irciv_data_changed;
+  $nick=strtolower($trailing);
+  term_echo("civ_event_quit: nick=$nick");
+  if (isset($irciv_players[$nick])==True)
+  {
+    unset($irciv_players[$nick]);
+    $irciv_data_changed=True;
+  }
 }
 
 #####################################################################################################

@@ -42,7 +42,7 @@ switch ($action)
 
 
 
-/*$data["cols"]=128;
+$data["cols"]=128;
 $data["rows"]=64;
 $coords=str_repeat(TERRAIN_OCEAN,$data["cols"]*$data["rows"]);
 
