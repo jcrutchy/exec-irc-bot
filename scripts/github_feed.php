@@ -152,10 +152,10 @@ function check_push_events($repo)
               for ($k=0;$k<count($commit_data["files"]);$k++)
               {
                 $commit_filename=$commit_data["files"][$k]["filename"];
-                $tree_symbol="├";
+                $tree_symbol="├─";
                 if ($k==(count($commit_data["files"])-1))
                 {
-                  $tree_symbol="└";
+                  $tree_symbol="└─";
                 }
                 pm(FEED_CHAN,"  $tree_symbol https://github.com/$repo/blob/$branch/$commit_filename");
               }
