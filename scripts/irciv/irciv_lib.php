@@ -70,14 +70,14 @@ $unit_strengths["warrior"]="1,0,0,1,0,0";
 
 function irciv_term_echo($msg)
 {
-  term_echo("IRCiv: $msg");
+  term_echo("irciv: $msg");
 }
 
 #####################################################################################################
 
 function irciv_privmsg($msg)
 {
-  privmsg("IRCiv: $msg");
+  privmsg("irciv: $msg");
 }
 
 #####################################################################################################
@@ -91,7 +91,7 @@ function irciv_privmsg_dest($dest,$msg)
 
 function irciv_err($msg)
 {
-  err("IRCiv error: $msg");
+  err("irciv error: $msg");
 }
 
 #####################################################################################################
@@ -549,7 +549,7 @@ function irciv_init()
 
 #####################################################################################################
 
-function map_generate($data,$landmass_count,$landmass_size,$land_spread,$ocean_char,$land_char)
+function map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,$ocean_char,$land_char)
 {
   $dir_x=array(0,1,0,-1);
   $dir_y=array(-1,0,1,0);
@@ -557,8 +557,6 @@ function map_generate($data,$landmass_count,$landmass_size,$land_spread,$ocean_c
      1 = right
      2 = down
      3 = left */
-  $cols=$data["cols"];
-  $rows=$data["rows"];
   $count=$rows*$cols;
   $coords=str_repeat($ocean_char,$count);
   $prev=microtime(True);

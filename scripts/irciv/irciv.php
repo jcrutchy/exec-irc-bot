@@ -19,7 +19,6 @@ $alias=strtolower(trim($argv[5]));
 $cmd=strtoupper(trim($argv[6]));
 
 $gm_accounts=array("crutchy");
-$gm_actions=array("register-channel");
 
 if ($trailing=="")
 {
@@ -39,9 +38,6 @@ $trailing=trim(implode(" ",$parts));
 
 switch ($action)
 {
-  case "register-channel":
-    register_channel();
-    break;
   case "register-events":
     if ($cmd=="INTERNAL")
     {
@@ -68,50 +64,18 @@ switch ($action)
     # trailing = <nick>
     civ_event_quit();
     break;
+  case "register-channel":
+    if (is_gm()==True)
+    {
+      register_channel();
+    }
+    break;
 }
 
 if ($irciv_data_changed==True)
 {
   set_array_bucket($irciv_players,"IRCIV_PLAYERS");
   set_array_bucket($irciv_channels,"IRCIV_CHANNELS");
-}
-
-#####################################################################################################
-
-function register_channel()
-{
-  global $trailing;
-  global $dest;
-  global $irciv_channels;
-  global $irciv_data_changed;
-  $channel="";
-  if ($trailing<>"")
-  {
-    $channel=strtolower($trailing);
-  }
-  elseif ($dest<>"")
-  {
-    $channel=strtolower($dest);
-  }
-  if ($channel=="")
-  {
-    term_echo("register_channel: channel not specified");
-    return;
-  }
-  if (isset($irciv_channels[$channel])==False)
-  {
-    $irciv_channels[$channel]="";
-    $irciv_data_changed=True;
-    $msg="registered irciv channel $channel";
-    if ($trailing<>"")
-    {
-      pm($trailing,$msg);
-    }
-    if (($dest<>"") and ($dest<>$trailing))
-    {
-      pm($dest,$msg);
-    }
-  }
 }
 
 #####################################################################################################
@@ -128,7 +92,7 @@ function civ_event_join()
   }
   $nick=strtolower($parts[0]);
   $channel=strtolower($parts[1]);
-  term_echo("civ_event_join: nick=$nick, channel=$channel");
+  irciv_term_echo("civ_event_join: nick=$nick, channel=$channel");
   if (isset($irciv_channels[$channel])==False)
   {
     return;
@@ -155,7 +119,7 @@ function civ_event_kick()
   }
   $nick=strtolower($parts[0]);
   $channel=strtolower($parts[1]);
-  term_echo("civ_event_kick: nick=$nick, channel=$channel");
+  irciv_term_echo("civ_event_kick: nick=$nick, channel=$channel");
   if (isset($irciv_players[$nick]["channels"][$channel])==True)
   {
     unset($irciv_players[$nick]["channels"][$channel]);
@@ -176,7 +140,7 @@ function civ_event_nick()
   }
   $old_nick=strtolower($parts[0]);
   $new_nick=strtolower($parts[1]);
-  term_echo("civ_event_nick: old_nick=$old_nick, new_nick=$new_nick");
+  irciv_term_echo("civ_event_nick: old_nick=$old_nick, new_nick=$new_nick");
   if (isset($irciv_players[$old_nick]["account"])==True)
   {
     $old_account=$irciv_players[$old_nick]["account"];
@@ -203,7 +167,7 @@ function civ_event_part()
   }
   $nick=strtolower($parts[0]);
   $channel=strtolower($parts[1]);
-  term_echo("civ_event_part: nick=$nick, channel=$channel");
+  irciv_term_echo("civ_event_part: nick=$nick, channel=$channel");
   if (isset($irciv_players[$nick]["channels"][$channel])==True)
   {
     unset($irciv_players[$nick]["channels"][$channel]);
@@ -219,12 +183,92 @@ function civ_event_quit()
   global $irciv_players;
   global $irciv_data_changed;
   $nick=strtolower($trailing);
-  term_echo("civ_event_quit: nick=$nick");
+  irciv_term_echo("civ_event_quit: nick=$nick");
   if (isset($irciv_players[$nick])==True)
   {
     unset($irciv_players[$nick]);
     $irciv_data_changed=True;
   }
+}
+
+#####################################################################################################
+
+function is_gm()
+{
+  global $nick;
+  global $gm_accounts;
+  $account=users_get_account($nick);
+  if (in_array($account,$gm_accounts)==True)
+  {
+    return True;
+  }
+  else
+  {
+    return False;
+  }
+}
+
+#####################################################################################################
+
+function register_channel()
+{
+  global $trailing;
+  global $dest;
+  global $irciv_channels;
+  global $irciv_data_changed;
+  $channel="";
+  if ($trailing<>"")
+  {
+    $channel=strtolower($trailing);
+  }
+  elseif ($dest<>"")
+  {
+    $channel=strtolower($dest);
+  }
+  if ($channel=="")
+  {
+    irciv_term_echo("register_channel: channel not specified");
+    return;
+  }
+  if (isset($irciv_channels[$channel])==True)
+  {
+    unset($irciv_channels[$channel]);
+  }
+  # TODO: clear all player data for this channel
+  $map_data=generate_map_data();
+  $irciv_channels[$channel]=$map_data;
+  $irciv_data_changed=True;
+  $msg="registered irciv channel $channel";
+  if ($trailing<>"")
+  {
+    pm($trailing,$msg);
+  }
+  if (($dest<>"") and ($dest<>$trailing))
+  {
+    pm($dest,$msg);
+  }
+}
+
+#####################################################################################################
+
+function generate_map_data()
+{
+  $cols=128;
+  $rows=64;
+  $landmass_count=50;
+  $landmass_size=80;
+  $land_spread=100;
+  if (($landmass_count*$landmass_size)>=(0.8*$cols*$rows))
+  {
+    irciv_privmsg("landmass parameter error in generating map");
+    return;
+  }
+  $coords=map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,TERRAIN_OCEAN,TERRAIN_LAND);
+  $data=array();
+  $data["cols"]=$cols;
+  $data["rows"]=$rows;
+  $data["coords"]=$coords;
+  return $data;
 }
 
 #####################################################################################################
