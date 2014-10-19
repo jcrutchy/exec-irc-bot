@@ -131,6 +131,7 @@ function civ_event_join()
   if ($account<>"")
   {
     $irciv_players[$nick]["account"]=$account;
+    $irciv_players[$nick]["channels"][$channel]="";
     $irciv_data_changed=True;
   }
 }
@@ -149,9 +150,9 @@ function civ_event_kick()
   $nick=strtolower($parts[0]);
   $channel=strtolower($parts[1]);
   term_echo("civ_event_kick: nick=$nick, channel=$channel");
-  if (isset($irciv_players[$nick][$channel])==True)
+  if (isset($irciv_players[$nick]["channels"][$channel])==True)
   {
-    unset($irciv_players[$nick][$channel]);
+    unset($irciv_players[$nick]["channels"][$channel]);
     $irciv_data_changed=True;
   }
 }
@@ -197,9 +198,9 @@ function civ_event_part()
   $nick=strtolower($parts[0]);
   $channel=strtolower($parts[1]);
   term_echo("civ_event_part: nick=$nick, channel=$channel");
-  if (isset($irciv_players[$nick][$channel])==True)
+  if (isset($irciv_players[$nick]["channels"][$channel])==True)
   {
-    unset($irciv_players[$nick][$channel]);
+    unset($irciv_players[$nick]["channels"][$channel]);
     $irciv_data_changed=True;
   }
 }
