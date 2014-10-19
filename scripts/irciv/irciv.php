@@ -79,7 +79,12 @@ function civ_event_join()
   $nick=strtolower($parts[0]);
   $channel=strtolower($parts[1]);
   term_echo("civ_event_join: nick=$nick, channel=$channel");
-
+  $account=users_get_account($nick);
+  if ($account<>"")
+  {
+    $irciv_players[$nick]["account"]=$account;
+    $irciv_data_changed=True;
+  }
 }
 
 #####################################################################################################
