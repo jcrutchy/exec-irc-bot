@@ -18,6 +18,8 @@ $start=trim($argv[4]);
 $alias=strtolower(trim($argv[5]));
 $cmd=strtoupper(trim($argv[6]));
 
+$gm_accounts=array("crutchy");
+
 if ($trailing=="")
 {
   irciv_privmsg("http://sylnt.us/irciv");
