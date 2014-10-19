@@ -149,7 +149,7 @@ function check_push_events($repo)
             {
               for ($k=0;$k<count($commit_data["files"]);$k++)
               {
-                $commit_filename=$commit_data["filename"];
+                $commit_filename=$commit_data["files"][$k]["filename"];
                 pm(FEED_CHAN,"    ".$commit_filename);
               }
             }
