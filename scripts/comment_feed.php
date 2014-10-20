@@ -201,10 +201,11 @@ for ($i=0;$i<$item_count;$i++)
           #pm("#soylent",chr(3)."score 5 comment: $user_uid ".chr(3)."02".$subject.chr(3)." - $title_output - ".chr(3)."04 $url");
           $top_score_pub=1;
         }
-        for ($k=0;$k<count($subscribers);$k++)
+        /*for ($k=0;$k<count($subscribers);$k++)
         {
-          pm($subscribers[$k],chr(3)."08^ ".$comment_body);
-        }
+          pm($subscribers[$k],chr(3)."08└─ ".$comment_body);
+        }*/
+        output(chr(3)."08└─ ".$comment_body);
       }
       elseif ($cid>$last_cid)
       {
