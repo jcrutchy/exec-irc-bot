@@ -175,7 +175,7 @@ function check_push_events($repo)
                 if ($k>5)
                 {
                   $rem=$n1-$k;
-                  pm(FEED_CHAN,"     ($rem files skipped)");
+                  pm(FEED_CHAN,"  └─ ($rem files skipped)");
                   break;
                 }
                 $commit_filename=$commit_data["files"][$k]["filename"];
