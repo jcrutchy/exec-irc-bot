@@ -172,7 +172,7 @@ function check_push_events($repo)
               $n1=count($commit_data["files"]);
               for ($k=0;$k<$n1;$k++)
               {
-                if ($k>5)
+                if ($k>4)
                 {
                   $rem=$n1-$k;
                   pm(FEED_CHAN,"  └─ ($rem files skipped)");
