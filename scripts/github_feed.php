@@ -14,6 +14,26 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=strtolower(trim($argv[4]));
 
+if ($alias=="~slashcode-issue")
+{
+  $host="api.github.com";
+  $port=443;
+  #$uri="/repos/SoylentNews/slashcode/issues";
+  $uri="/repos/crutchy-/exec-irc-bot/issues";
+  $tok=file_get_contents("../pwd/gh_tok");
+  $headers=array();
+  $headers["Authorization"]="token $tok";
+  $params=array();
+  $params["title"]="test title";
+  $params["body"]="test body";
+  $json=json_encode($params);
+  $response=wpost($host,$uri,$port,ICEWEASEL_UA,$json,$headers,60,True);
+  $content=strip_headers($response);
+  $data=json_decode($content,True);
+  var_dump($data);
+  return;
+}
+
 define("FEED_CHAN","#github");
 
 $list=array(

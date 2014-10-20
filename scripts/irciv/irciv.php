@@ -238,14 +238,14 @@ function register_channel()
   $map_data=generate_map_data();
   $irciv_channels[$channel]=$map_data;
   $irciv_data_changed=True;
-  $msg="registered irciv channel $channel";
+  $msg="registered and generated map for channel $channel";
   if ($trailing<>"")
   {
-    pm($trailing,$msg);
+    irciv_privmsg_dest($trailing,$msg);
   }
   if (($dest<>"") and ($dest<>$trailing))
   {
-    pm($dest,$msg);
+    irciv_privmsg_dest($dest,$msg);
   }
 }
 

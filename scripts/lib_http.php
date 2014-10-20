@@ -332,7 +332,7 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
 
 #####################################################################################################
 
-function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$timeout=20)
+function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$timeout=20,$params_str=False)
 {
   if (check_url($host.$uri)==False) # check url against blacklist
   {
@@ -353,14 +353,21 @@ function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$t
     term_echo("Error connecting to \"$host\".");
     return;
   }
-  $content="";
-  foreach ($params as $key => $value)
+  if ($params_str==False)
   {
-    if ($content<>"")
+    $content="";
+    foreach ($params as $key => $value)
     {
-      $content=$content."&";
+      if ($content<>"")
+      {
+        $content=$content."&";
+      }
+      $content=$content.$key."=".rawurlencode($value);
     }
-    $content=$content.$key."=".rawurlencode($value);
+  }
+  else
+  {
+    $content=$params;
   }
   $headers="POST $uri HTTP/1.0\r\n";
   $headers=$headers."Host: $host\r\n";
