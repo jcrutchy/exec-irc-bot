@@ -217,10 +217,11 @@ for ($i=0;$i<$item_count;$i++)
         }
         $msg=clean_text($msg);
         output($msg);
-        for ($k=0;$k<count($subscribers);$k++)
+        /*for ($k=0;$k<count($subscribers);$k++)
         {
           pm($subscribers[$k],chr(3)."08^ ".$comment_body);
-        }
+        }*/
+        output(chr(3)."08└─ ".$comment_body);
       }
     }
   }
