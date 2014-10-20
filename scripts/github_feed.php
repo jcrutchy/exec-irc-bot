@@ -169,11 +169,18 @@ function check_push_events($repo)
             if ((isset($commit_data["files"])==True) and (isset($ref_parts[2])==True))
             {
               $branch=$ref_parts[2];
-              for ($k=0;$k<count($commit_data["files"]);$k++)
+              $n1=count($commit_data["files"]);
+              for ($k=0;$k<$n1;$k++)
               {
+                if ($k>5)
+                {
+                  $rem=$n1-$k;
+                  pm(FEED_CHAN,"     ($rem files skipped)");
+                  break;
+                }
                 $commit_filename=$commit_data["files"][$k]["filename"];
                 $tree_symbol="├─";
-                if ($k==(count($commit_data["files"])-1))
+                if ($k==($n1-1))
                 {
                   $tree_symbol="└─";
                 }
