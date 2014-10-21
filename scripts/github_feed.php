@@ -175,7 +175,7 @@ function check_push_events($repo)
                 if ($k>4)
                 {
                   $rem=$n1-$k;
-                  pm(FEED_CHAN,"  ".chr(3)."08"."└─".chr(3)." ($rem files skipped)");
+                  pm(FEED_CHAN,"  ".chr(3)."08"."└─".chr(3)."($rem files skipped)");
                   break;
                 }
                 $commit_filename=$commit_data["files"][$k]["filename"];
@@ -191,7 +191,7 @@ function check_push_events($repo)
                 }
                 else
                 {
-                  pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol." ".$commit_status.":".chr(3)." https://github.com/$repo/blob/$branch/$commit_filename");
+                  pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol.$commit_status.":".chr(3)." https://github.com/$repo/blob/$branch/$commit_filename");
                 }
               }
             }
@@ -220,7 +220,7 @@ function check_pull_events($repo)
     if ($dt<=TIME_LIMIT_SEC)
     {
       pm(FEED_CHAN,chr(3)."13"."pull request by ".$data[$i]["user"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["_links"]["html"]["href"]);
-      pm(FEED_CHAN,"  ".$data[$i]["body"]);
+      pm(FEED_CHAN,chr(3)."08"."└─".chr(3).$data[$i]["body"]);
     }
   }
 }
