@@ -68,6 +68,199 @@ $unit_strengths["warrior"]="1,0,0,1,0,0";
 
 #####################################################################################################
 
+function civ_event_join()
+{
+  global $parts;
+  global $irciv_players;
+  global $irciv_channels;
+  global $irciv_data_changed;
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  $nick=strtolower($parts[0]);
+  $channel=strtolower($parts[1]);
+  irciv_term_echo("civ_event_join: nick=$nick, channel=$channel");
+  if (isset($irciv_channels[$channel])==False)
+  {
+    return;
+  }
+  $account=users_get_account($nick);
+  if ($account<>"")
+  {
+    $irciv_players[$nick]["account"]=$account;
+    $irciv_players[$nick]["channels"][$channel]="";
+    $irciv_data_changed=True;
+  }
+}
+
+#####################################################################################################
+
+function civ_event_kick()
+{
+  global $parts;
+  global $irciv_players;
+  global $irciv_data_changed;
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  $nick=strtolower($parts[0]);
+  $channel=strtolower($parts[1]);
+  irciv_term_echo("civ_event_kick: nick=$nick, channel=$channel");
+  if (isset($irciv_players[$nick]["channels"][$channel])==True)
+  {
+    unset($irciv_players[$nick]["channels"][$channel]);
+    $irciv_data_changed=True;
+  }
+}
+
+#####################################################################################################
+
+function civ_event_nick()
+{
+  global $parts;
+  global $irciv_players;
+  global $irciv_data_changed;
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  $old_nick=strtolower($parts[0]);
+  $new_nick=strtolower($parts[1]);
+  irciv_term_echo("civ_event_nick: old_nick=$old_nick, new_nick=$new_nick");
+  if (isset($irciv_players[$old_nick]["account"])==True)
+  {
+    $old_account=$irciv_players[$old_nick]["account"];
+    $new_account=users_get_account($new_nick);
+    if ($old_account==$new_account)
+    {
+      $irciv_players[$new_nick]=$irciv_players[$old_nick];
+      unset($irciv_players[$old_nick]);
+      $irciv_data_changed=True;
+    }
+  }
+}
+
+#####################################################################################################
+
+function civ_event_part()
+{
+  global $parts;
+  global $irciv_players;
+  global $irciv_data_changed;
+  if (count($parts)<>2)
+  {
+    return;
+  }
+  $nick=strtolower($parts[0]);
+  $channel=strtolower($parts[1]);
+  irciv_term_echo("civ_event_part: nick=$nick, channel=$channel");
+  if (isset($irciv_players[$nick]["channels"][$channel])==True)
+  {
+    unset($irciv_players[$nick]["channels"][$channel]);
+    $irciv_data_changed=True;
+  }
+}
+
+#####################################################################################################
+
+function civ_event_quit()
+{
+  global $trailing;
+  global $irciv_players;
+  global $irciv_data_changed;
+  $nick=strtolower($trailing);
+  irciv_term_echo("civ_event_quit: nick=$nick");
+  if (isset($irciv_players[$nick])==True)
+  {
+    unset($irciv_players[$nick]);
+    $irciv_data_changed=True;
+  }
+}
+
+#####################################################################################################
+
+function is_gm()
+{
+  global $nick;
+  global $gm_accounts;
+  $account=users_get_account($nick);
+  if (in_array($account,$gm_accounts)==True)
+  {
+    return True;
+  }
+  else
+  {
+    return False;
+  }
+}
+
+#####################################################################################################
+
+function register_channel()
+{
+  global $trailing;
+  global $dest;
+  global $irciv_channels;
+  global $irciv_data_changed;
+  $channel="";
+  if ($trailing<>"")
+  {
+    $channel=strtolower($trailing);
+  }
+  elseif ($dest<>"")
+  {
+    $channel=strtolower($dest);
+  }
+  if ($channel=="")
+  {
+    irciv_term_echo("register_channel: channel not specified");
+    return;
+  }
+  if (isset($irciv_channels[$channel])==True)
+  {
+    unset($irciv_channels[$channel]);
+  }
+  # TODO: clear all player data for this channel
+  $map_data=generate_map_data();
+  $irciv_channels[$channel]=$map_data;
+  $irciv_data_changed=True;
+  $msg="registered and generated map for channel $channel";
+  if ($trailing<>"")
+  {
+    irciv_privmsg_dest($trailing,$msg);
+  }
+  if (($dest<>"") and ($dest<>$trailing))
+  {
+    irciv_privmsg_dest($dest,$msg);
+  }
+}
+
+#####################################################################################################
+
+function generate_map_data()
+{
+  $cols=128;
+  $rows=64;
+  $landmass_count=50;
+  $landmass_size=80;
+  $land_spread=100;
+  if (($landmass_count*$landmass_size)>=(0.8*$cols*$rows))
+  {
+    irciv_privmsg("landmass parameter error in generating map");
+    return;
+  }
+  $coords=map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,TERRAIN_OCEAN,TERRAIN_LAND);
+  $data=array();
+  $data["cols"]=$cols;
+  $data["rows"]=$rows;
+  $data["coords"]=$coords;
+  return $data;
+}
+
+#####################################################################################################
+
 function irciv_term_echo($msg)
 {
   term_echo("irciv: $msg");
@@ -653,6 +846,598 @@ function map_dump($coords,$data,$filename)
   else
   {
     irciv_privmsg("error saving map file to \"$filename\"");
+  }
+}
+
+#####################################################################################################
+
+function privmsg_player_game_chans($nick,$msg)
+{
+  global $game_chans;
+  $nick_chans=get_bucket($nick."_channel_list");
+  if ($nick_chans=="")
+  {
+    irciv_term_echo("priv_msg_all_player_game_chans: nick \"$nick\" channels not set");
+  }
+  $nick_chans=explode(" ",$nick_chans);
+  for ($i=0;$i<count($game_chans);$i++)
+  {
+    if (in_array($game_chans[$i],$nick_chans)==True)
+    {
+      echo "IRC_RAW :".NICK_EXEC." PRIVMSG ".$game_chans[$i]." :$msg\n";
+    }
+  }
+}
+
+#####################################################################################################
+
+function set_player_color($nick,$color="")
+{
+  global $players;
+  $reserved_colors=array("255,0,255","0,0,0","255,255,255");
+  if ($color=="")
+  {
+    do
+    {
+      $color=mt_rand(0,255).",".mt_rand(0,255).",".mt_rand(0,255);
+      foreach ($players as $player => $data)
+      {
+        if (($player<>$nick) and ($color==$players[$player]["color"]))
+        {
+          continue;
+        }
+      }
+    }
+    while (in_array($color,$reserved_colors)==True);
+    $players[$nick]["color"]=$color;
+  }
+  else
+  {
+    foreach ($players as $player => $data)
+    {
+      if (($player<>$nick) and ($color==$players[$player]["color"]))
+      {
+        return False;
+      }
+    }
+    if (in_array($color,$reserved_colors)==True)
+    {
+      return False;
+    }
+    $players[$nick]["color"]=$color;
+    return True;
+  }
+}
+
+#####################################################################################################
+
+function get_new_player_id()
+{
+  global $players;
+  $player_id=1;
+  foreach ($players as $nick => $data)
+  {
+    if ($player_id<=$data["player_id"])
+    {
+      $player_id=$data["player_id"]+1;
+    }
+  }
+  return $player_id;
+}
+
+#####################################################################################################
+
+function validate_logins()
+{
+  global $players;
+  global $start;
+  foreach ($players as $nick => $data)
+  {
+    if (isset($players[$nick]["login_time"])==True)
+    {
+      if ($players[$nick]["login_time"]<$start)
+      {
+        $players[$nick]["logged_in"]=False;
+      }
+    }
+  }
+}
+
+#####################################################################################################
+
+function is_logged_in($nick)
+{
+  global $players;
+  if (isset($players[$nick]["logged_in"])==False)
+  {
+    return False;
+  }
+  if ($players[$nick]["logged_in"]==False)
+  {
+    return False;
+  }
+  else
+  {
+    return True;
+  }
+}
+
+#####################################################################################################
+
+function output_help()
+{
+  irciv_privmsg("QUICK START GUIDE");
+  irciv_privmsg("unit movement: (left|l),(right|r),(up|u),(down|d)");
+  irciv_privmsg("settler actions: (build|b)");
+  irciv_privmsg("player functions: (help|?),status,init,flag/unflag,set/unset");
+  irciv_privmsg("flags: public_status,grid,coords,city_names");
+}
+
+#####################################################################################################
+
+function player_ready($nick)
+{
+  global $players;
+  global $map_data;
+  if (isset($map_data["cols"])==False)
+  {
+    irciv_privmsg("error: map not ready");
+    return False;
+  }
+  if (isset($players[$nick])==False)
+  {
+    irciv_privmsg("player \"$nick\" not found");
+    return False;
+  }
+  return True;
+}
+
+#####################################################################################################
+
+function player_init($nick)
+{
+  global $players;
+  global $map_coords;
+  global $map_data;
+  if (player_ready($nick)==False)
+  {
+    return;
+  }
+  $players[$nick]["init_time"]=time();
+  set_player_color($nick);
+  $players[$nick]["units"]=array();
+  $players[$nick]["cities"]=array();
+  $players[$nick]["fog"]=str_repeat("0",strlen($map_coords));
+  $start_x=-1;
+  $start_y=-1;
+  if (random_coord(TERRAIN_LAND,$start_x,$start_y)==False)
+  {
+    return;
+  }
+  add_unit($nick,"settler",$start_x,$start_y);
+  add_unit($nick,"warrior",$start_x,$start_y);
+  $players[$nick]["active"]=-1;
+  cycle_active($nick);
+  $players[$nick]["start_x"]=$start_x;
+  $players[$nick]["start_y"]=$start_y;
+  status($nick);
+}
+
+#####################################################################################################
+
+function random_coord($terrain,&$x,&$y)
+{
+  global $map_coords;
+  global $map_data;
+  $start=microtime(True);
+  do
+  {
+    $x=mt_rand(0,$map_data["cols"]-1);
+    $y=mt_rand(0,$map_data["rows"]-1);
+    $coord=map_coord($map_data["cols"],$x,$y);
+    $dt=microtime(True)-$start;
+    if ($dt>TIMEOUT_RANDOM_COORD)
+    {
+      irciv_privmsg("error: random_coord timeout");
+      return False;
+    }
+  }
+  while ($map_coords[$coord]<>$terrain);
+  return True;
+}
+
+#####################################################################################################
+
+function add_unit($nick,$type,$x,$y)
+{
+  global $players;
+  global $unit_strengths;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
+  $units=&$players[$nick]["units"];
+  $data["type"]=$type;
+  $data["health"]=100;
+  $data["sight_range"]=4;
+  $data["x"]=$x;
+  $data["y"]=$y;
+  $data["strength"]=$unit_strengths[$type];
+  $units[]=$data;
+  $i=count($units)-1;
+  $units[$i]["index"]=$i;
+  unfog($nick,$x,$y,$data["sight_range"]);
+  return True;
+}
+
+#####################################################################################################
+
+function add_city($nick,$x,$y,$city_name)
+{
+  global $players;
+  if (player_ready($nick)==False)
+  {
+    return;
+  }
+  $cities=&$players[$nick]["cities"];
+  $data["name"]=$city_name;
+  $data["population"]=1;
+  $data["size"]=1;
+  $data["sight_range"]=7;
+  $data["x"]=$x;
+  $data["y"]=$y;
+  $cities[]=$data;
+  $i=count($cities)-1;
+  $cities[$i]["index"]=$i;
+  unfog($nick,$x,$y,$data["sight_range"]);
+}
+
+#####################################################################################################
+
+function unfog($nick,$x,$y,$range)
+{
+  global $players;
+  global $map_coords;
+  global $map_data;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
+  $cols=$map_data["cols"];
+  $rows=$map_data["rows"];
+  $size=2*$range+1;
+  $region=imagecreate($size,$size);
+  $white=imagecolorallocate($region,255,255,255);
+  $black=imagecolorallocate($region,0,0,0);
+  imagefill($region,0,0,$white);
+  imagefilledellipse($region,$range,$range,$size,$size,$black);
+  for ($j=0;$j<$size;$j++)
+  {
+    for ($i=0;$i<$size;$i++)
+    {
+      $xx=$x-$range+$i;
+      $yy=$y-$range+$j;
+      if (imagecolorat($region,$i,$j)==$black)
+      {
+        if (($xx>=0) and ($yy>=0) and ($xx<$cols) and ($yy<$rows))
+        {
+          $coord=map_coord($cols,$xx,$yy);
+          $players[$nick]["fog"][$coord]="1";
+        }
+      }
+    }
+  }
+  imagedestroy($region);
+}
+
+#####################################################################################################
+
+function status($nick)
+{
+  global $players;
+  global $map_data;
+  global $dest;
+  if (isset($players[$nick])==False)
+  {
+    return;
+  }
+  /*$public=False;
+  if (isset($players[$nick]["flags"]["public_status"])==True)
+  {
+    $public=True;
+  }*/
+  $public=True; # TODO: DELETE & RESTORE CODE ABOVE
+  $i=$players[$nick]["active"];
+  $unit=$players[$nick]["units"][$i];
+  $index=$unit["index"];
+  $type=$unit["type"];
+  $health=$unit["health"];
+  $x=$unit["x"];
+  $y=$unit["y"];
+  $n=count($players[$nick]["units"]);
+  if (isset($players[$nick]["status_messages"])==True)
+  {
+    for ($i=0;$i<count($players[$nick]["status_messages"]);$i++)
+    {
+      status_msg($nick,$dest." $nick => ".$players[$nick]["status_messages"][$i],$public);
+    }
+    unset($players[$nick]["status_messages"]);
+  }
+  status_msg($nick,$dest." $nick => $index/$n, $type, +$health, ($x,$y)",$public);
+}
+
+#####################################################################################################
+
+function status_msg($nick,$msg,$public)
+{
+  if ($public==False)
+  {
+    pm($nick,$msg);
+  }
+  else
+  {
+    irciv_privmsg($msg);
+  }
+}
+
+#####################################################################################################
+
+function move_active_unit($nick,$dir)
+{
+  global $players;
+  global $map_data;
+  global $map_coords;
+  global $update_players;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
+  $dir_x=array(0,1,0,-1);
+  $dir_y=array(-1,0,1,0);
+  $captions=array("up","right","down","left");
+  if (isset($players[$nick]["active"])==True)
+  {
+    $active=$players[$nick]["active"];
+    $old_x=$players[$nick]["units"][$active]["x"];
+    $old_y=$players[$nick]["units"][$active]["y"];
+    $x=$old_x+$dir_x[$dir];
+    $y=$old_y+$dir_y[$dir];
+    $caption=$captions[$dir];
+    if (($x<0) or ($x>=$map_data["cols"]) or ($y<0) or ($y>=$map_data["rows"]))
+    {
+      $players[$nick]["status_messages"][]="move $caption failed for active unit (already @ edge of map)";
+    }
+    elseif ($map_coords[map_coord($map_data["cols"],$x,$y)]<>TERRAIN_LAND)
+    {
+      $players[$nick]["status_messages"][]="move $caption failed for active unit (already @ edge of landmass)";
+    }
+    else
+    {
+      $player=is_foreign_unit($nick,$x,$y);
+      if ($player===False)
+      {
+        $players[$nick]["units"][$active]["x"]=$x;
+        $players[$nick]["units"][$active]["y"]=$y;
+        unfog($nick,$x,$y,$players[$nick]["units"][$active]["sight_range"]);
+        $type=$players[$nick]["units"][$active]["type"];
+        $players[$nick]["status_messages"][]="successfully moved $type $caption from ($old_x,$old_y) to ($x,$y)";
+        $update_players=True;
+        update_other_players($nick,$active);
+        cycle_active($nick);
+      }
+      else
+      {
+        $players[$nick]["status_messages"][]="move $caption failed for active unit (player \"$player\" is occupying)";
+        # if player is enemy, attack!
+      }
+    }
+    status($nick);
+  }
+}
+
+#####################################################################################################
+
+function is_foreign_unit($nick,$x,$y)
+{
+  global $players;
+  foreach ($players as $player => $data)
+  {
+    if ($player<>$nick)
+    {
+      for ($i=0;$i<count($players[$player]["units"]);$i++)
+      {
+        $unit=$players[$player]["units"][$i];
+        if (($unit["x"]==$x) and ($unit["y"]==$y))
+        {
+          return $player;
+        }
+      }
+    }
+  }
+  return False;
+}
+
+#####################################################################################################
+
+function is_fogged($nick,$x,$y)
+{
+  global $players;
+  global $map_data;
+  $cols=$map_data["cols"];
+  $coord=map_coord($cols,$x,$y);
+  if ($players[$nick]["fog"][$coord]=="0")
+  {
+    return True;
+  }
+  else
+  {
+    return False;
+  }
+}
+
+#####################################################################################################
+
+function update_other_players($nick,$active)
+{
+  global $players;
+  global $map_data;
+  global $map_coords;
+  $x=$players[$nick]["units"][$active]["x"];
+  $y=$players[$nick]["units"][$active]["y"];
+  foreach ($players as $player => $data)
+  {
+    if ($player==$nick)
+    {
+      continue;
+    }
+    if (player_ready($player)==False)
+    {
+      continue;
+    }
+    if (is_fogged($player,$x,$y)==False)
+    {
+      $players[$player]["status_messages"][]="player \"$nick\" moved a unit within your field of vision";
+      $players[$nick]["status_messages"][]="you moved a unit within the field of vision of player \"$player\"";
+      output_map($player);
+      status($player);
+    }
+  }
+}
+
+#####################################################################################################
+
+function delete_unit($nick,$index)
+{
+  global $players;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
+  if (isset($players[$nick]["units"][$index])==False)
+  {
+    return False;
+  }
+  $count=count($players[$nick]["units"]);
+  $next=$index+1;
+  for ($i=$next;$i<$count;$i++)
+  {
+    $players[$nick]["units"][$i]["index"]=$i-1;
+  }
+  unset($players[$nick]["units"][$index]);
+  $players[$nick]["units"]=array_values($players[$nick]["units"]);
+  return True;
+}
+
+#####################################################################################################
+
+function build_city($nick,$city_name)
+{
+  global $players;
+  global $map_data;
+  global $map_coords;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
+  if (isset($players[$nick]["active"])==False)
+  {
+    return False;
+  }
+  $unit=$players[$nick]["units"][$players[$nick]["active"]];
+  if ($unit["type"]<>"settler")
+  {
+    $players[$nick]["status_messages"][]="only settlers can build cities";
+  }
+  else
+  {
+    $x=$unit["x"];
+    $y=$unit["y"];
+    $city_exists=False;
+    $city_adjacent=False;
+    $cities=&$players[$nick]["cities"];
+    for ($i=0;$i<count($cities);$i++)
+    {
+      if ($cities[$i]["name"]==$city_name)
+      {
+        $city_exists=True;
+        $players[$nick]["status_messages"][]="city named \"$city_name\" already exists";
+        break;
+      }
+      $dx=abs($cities[$i]["x"]-$x);
+      $dy=abs($cities[$i]["y"]-$y);
+      if (($dx<MIN_CITY_SPACING) and ($dy<MIN_CITY_SPACING))
+      {
+        $city_adjacent=True;
+        $players[$nick]["status_messages"][]="city \"".$cities[$i]["name"]."\" is too close";
+        break;
+      }
+    }
+    if (($city_exists==False) and ($city_adjacent==False))
+    {
+      add_city($nick,$x,$y,$city_name);
+      #delete_unit($nick,$players[$nick]["active"]); # WORKS BUT LEAVE OUT FOR TESTING
+      $players[$nick]["status_messages"][]="successfully established the new city of \"$city_name\" at coordinates ($x,$y)";
+      cycle_active($nick);
+    }
+  }
+  status($nick);
+}
+
+#####################################################################################################
+
+function output_map($nick)
+{
+  global $players;
+  global $map_coords;
+  global $map_data;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
+  $game_id=sprintf("%02d",0);
+  $player_id=sprintf("%02d",$players[$nick]["player_id"]);
+  $timestamp=date("YmdHis",time());
+  $key=random_string(16);
+  $filename=$game_id.$player_id.$timestamp.$key;
+  $response=upload_map_image($filename,$map_coords,$map_data,$players,$nick);
+  $response_lines=explode("\n",$response);
+  $msg=trim($response_lines[count($response_lines)-1]);
+  if (trim($response_lines[0])=="HTTP/1.1 200 OK")
+  { 
+    if ($msg=="SUCCESS")
+    {
+      $players[$nick]["status_messages"][]="http://irciv.port119.net/?pid=".$players[$nick]["player_id"];
+      #$players[$nick]["status_messages"][]="http://irciv.port119.net/?map=$filename";
+    }
+  }
+  else
+  {
+    $players[$nick]["status_messages"][]=$msg;
+  }
+}
+
+#####################################################################################################
+
+function cycle_active($nick)
+{
+  global $players;
+  if (player_ready($nick)==False)
+  {
+    return False;
+  }
+  output_map($nick);
+  $n=count($players[$nick]["units"]);
+  if (isset($players[$nick]["active"])==False)
+  {
+    $players[$nick]["active"]=0;
+  }
+  else
+  {
+    $players[$nick]["active"]=$players[$nick]["active"]+1;
+    if ($players[$nick]["active"]>=$n)
+    {
+      $players[$nick]["active"]=0;
+    }
   }
 }
 
