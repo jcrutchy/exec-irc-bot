@@ -157,7 +157,7 @@ function check_push_events($repo)
         for ($j=0;$j<count($data[$i]["payload"]["commits"]);$j++)
         {
           $commit=$data[$i]["payload"]["commits"][$j];
-          pm(FEED_CHAN,"  ".$commit["author"]["name"].": ".$commit["message"]);
+          pm(FEED_CHAN,chr(3)."08"."  ".$commit["author"]["name"].": ".$commit["message"]);
           $commit_url=$commit["url"];
           $commit_host="";
           $commit_uri="";
@@ -175,7 +175,7 @@ function check_push_events($repo)
                 if ($k>4)
                 {
                   $rem=$n1-$k;
-                  pm(FEED_CHAN,"  └─ ($rem files skipped)");
+                  pm(FEED_CHAN,"  ".chr(3)."08"."└─".chr(3)." ($rem files skipped)");
                   break;
                 }
                 $commit_filename=$commit_data["files"][$k]["filename"];
