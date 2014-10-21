@@ -11,32 +11,6 @@ require_once(__DIR__."/../lib.php");
 
 define("GAME_VERSION","0.0");
 
-define("ACTION_MAP_GENERATE","map-generate");
-define("ACTION_MAP_DUMP","map-dump");
-define("ACTION_MAP_IMAGE","map-image");
-
-define("ACTION_LOGIN","login");
-define("ACTION_LOGOUT","logout");
-define("ACTION_RENAME","rename");
-define("ACTION_INIT","init");
-define("ACTION_STATUS","status");
-define("ACTION_SET","set");
-define("ACTION_UNSET","unset");
-define("ACTION_FLAG","flag");
-define("ACTION_UNFLAG","unflag");
-
-define("ACTION_PLAYER_DATA","admin-player-data");
-define("ACTION_PLAYER_UNSET","admin-player-unset");
-define("ACTION_PLAYER_EDIT","admin-player-edit");
-define("ACTION_OBJECT_EDIT","admin-object-edit");
-define("ACTION_PLAYER_LIST","admin-player-list");
-define("ACTION_MOVE_UNIT","admin-move-unit");
-define("ACTION_PART","admin-part");
-define("ACTION_INIT_GAME","init-game");
-
-define("ACTION_LOAD_DATA","load-data");
-define("ACTION_SAVE_DATA","save-data");
-
 define("TIMEOUT_RANDOM_COORD",10); # sec
 
 define("MIN_CITY_SPACING",3);
@@ -673,11 +647,11 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
 function irciv_save_data()
 {
   global $game_chans;
-  irciv_term_echo("saving IRCiv data...");
+  irciv_term_echo("saving irciv data...");
   $players=irciv_get_bucket("players");
   if (file_put_contents(IRCIV_FILE_PLAYER_DATA,$players)===False)
   {
-    irciv_term_echo("IRCiv player data not saved");
+    irciv_term_echo("irciv player data not saved");
   }
   for ($i=0;$i<count($game_chans);$i++)
   {
@@ -685,14 +659,14 @@ function irciv_save_data()
     $map_data=irciv_get_bucket("map_data_".$game_chans[$i]);
     if (file_put_contents(IRCIV_FILE_MAP_COORDS.$game_chans[$i],$map_coords)===False)
     {
-      irciv_term_echo("IRCiv map coords for channel \"".$game_chans[$i]."\" not saved");
+      irciv_term_echo("irciv map coords for channel \"".$game_chans[$i]."\" not saved");
     }
     if (file_put_contents(IRCIV_FILE_MAP_DATA.$game_chans[$i],$map_data)===False)
     {
-      irciv_term_echo("IRCiv map data for channel \"".$game_chans[$i]."\" not saved");
+      irciv_term_echo("irciv map data for channel \"".$game_chans[$i]."\" not saved");
     }
   }
-  irciv_term_echo("IRCiv data saved");
+  irciv_term_echo("irciv data saved");
 }
 
 #####################################################################################################
@@ -825,28 +799,6 @@ function map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,$o
     }
   }
   return $coords;
-}
-
-#####################################################################################################
-
-function map_dump($coords,$data,$filename)
-{
-  $cols=$data["cols"];
-  $rows=$data["rows"];
-  $out="";
-  for ($i=0;$i<$rows;$i++)
-  {
-    $out=$out.substr($coords,$i*$cols,$cols)."\n";
-  }
-  $out=trim($out);
-  if (file_put_contents($filename,$out)!==False)
-  {
-    irciv_privmsg("successfully saved map file to \"$filename\" (".round(strlen($coords)/1024,1)."kb)");
-  }
-  else
-  {
-    irciv_privmsg("error saving map file to \"$filename\"");
-  }
 }
 
 #####################################################################################################

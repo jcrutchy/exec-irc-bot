@@ -70,31 +70,7 @@ switch ($action)
       register_channel();
     }
     break;
-  case ACTION_MAP_GENERATE:
-    if ($generated==True)
-    {
-      irciv_term_echo("map already generated for channel \"$dest\"");
-      return;
-    }
-    $landmass_count=50;
-    $landmass_size=80;
-    $land_spread=100;
-    if (($landmass_count*$landmass_size)>=(0.8*$data["cols"]*$data["rows"]))
-    {
-      irciv_privmsg("landmass parameter error in generating map for channel \"$dest\"");
-      return;
-    }
-    $coords=map_generate($data,$landmass_count,$landmass_size,$land_spread,TERRAIN_OCEAN,TERRAIN_LAND);
-    irciv_privmsg("map coords generated for channel \"$dest\"");
-    break;
-  case ACTION_MAP_DUMP:
-    map_dump($coords,$data,$dest);
-    return;
-  case ACTION_MAP_IMAGE:
-    map_img($coords,$data,$dest,"","","png");
-    irciv_privmsg("saved map image file to \"$dest.png\"");
-    return;
-  case ACTION_SAVE_DATA:
+  case "save-data":
     irciv_save_data();
     return;
   case "help":
@@ -104,30 +80,7 @@ switch ($action)
       output_help();
     }
     break;
-  case ACTION_LOGOUT:
-    if (count($parts)==2)
-    {
-      $player=$parts[1];
-      if (isset($players[$player])==True)
-      {
-        $players[$player]["logged_in"]=False;
-        $update_players=True;
-        privmsg_player_game_chans($player,"logout: player \"$player\" logged out");
-        irciv_term_echo("PLAYER \"$player\" LOGOUT");
-      }
-      else
-      {
-        irciv_term_echo("logout: there is no player logged in as \"$player\"");
-      }
-    }
-    break;
-  case ACTION_ADMIN_PART:
-    if ((count($parts)==1) and ($alias==$admin_alias))
-    {
-      echo "IRC_RAW PART $dest :bye\n";
-    }
-    break;
-  case ACTION_ADMIN_PLAYER_UNSET:
+  case "player-unset":
     if ((count($parts)==2) and ($alias==$admin_alias))
     {
       $player=$parts[1];
@@ -143,7 +96,7 @@ switch ($action)
       }
     }
     break;
-  case ACTION_ADMIN_PLAYER_LIST:
+  case "player-list":
     if ((count($parts)==1) and ($alias==$admin_alias))
     {
       foreach ($players as $player => $data)
@@ -152,7 +105,7 @@ switch ($action)
       }
     }
     break;
-  case ACTION_ADMIN_PLAYER_DATA:
+  case "player-data":
     if ($alias==$admin_alias)
     {
       if (count($parts)==2)
@@ -173,7 +126,7 @@ switch ($action)
       }
     }
     break;
-  case ACTION_ADMIN_MOVE_UNIT:
+  case "move-unit":
     if ($alias==$admin_alias)
     {
       if (count($parts)==5)
@@ -201,7 +154,7 @@ switch ($action)
       }
     }
     break;
-  case ACTION_ADMIN_OBJECT_EDIT:
+  case "object-edit":
     if ($alias==$admin_alias)
     {
       if (count($parts)>=5)
@@ -247,7 +200,7 @@ switch ($action)
       }
     }
     break;
-  case ACTION_ADMIN_PLAYER_EDIT:
+  case "player-edit":
     if ($alias==$admin_alias)
     {
       if (count($parts)>=3)
@@ -291,7 +244,7 @@ switch ($action)
       }
     }
     break;
-  case ACTION_INIT:
+  case "init":
     if (count($parts)==1)
     {
       player_init($nick);
@@ -361,11 +314,11 @@ switch ($action)
       irciv_privmsg("syntax: [~civ] (build|b) City Name");
     }
     break;
-  case ACTION_STATUS:
+  case "status":
     output_map($nick);
     status($nick);
     break;
-  case ACTION_SET:
+  case "set":
     if (count($parts)==2)
     {
       $pair=explode("=",$parts[1]);
@@ -387,7 +340,7 @@ switch ($action)
       irciv_privmsg("syntax: [~civ] set key=value");
     }
     break;
-  case ACTION_UNSET:
+  case "unset":
     if (count($parts)==2)
     {
       $key=$parts[1];
@@ -407,7 +360,7 @@ switch ($action)
       irciv_privmsg("syntax: [~civ] unset key");
     }
     break;
-  case ACTION_FLAG:
+  case "flag":
     if (count($parts)==2)
     {
       $flag=$parts[1];
@@ -420,7 +373,7 @@ switch ($action)
       irciv_privmsg("syntax: [~civ] flag name");
     }
     break;
-  case ACTION_UNFLAG:
+  case "unflag":
     if (count($parts)==2)
     {
       $flag=$parts[1];
