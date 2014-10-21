@@ -187,11 +187,11 @@ function check_push_events($repo)
                 }
                 if ($commit_status=="removed")
                 {
-                  pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol.chr(3)."removed: /$repo/blob/$branch/$commit_filename");
+                  pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol."removed:".chr(3)." /$repo/blob/$branch/$commit_filename");
                 }
                 else
                 {
-                  pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol.chr(3)."$commit_status: https://github.com/$repo/blob/$branch/$commit_filename");
+                  pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol." ".$commit_status.":".chr(3)." https://github.com/$repo/blob/$branch/$commit_filename");
                 }
               }
             }
