@@ -16,7 +16,7 @@ $alias=strtolower(trim($argv[4]));
 
 if ($trailing=="")
 {
-  privmsg("http://wiki.soylentnews.org/wiki/IRC:exec#Quick_start");
+  privmsg("http://sylnt.us/exec#Quick_start");
   return;
 }
 

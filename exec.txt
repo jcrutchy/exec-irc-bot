@@ -56,7 +56,7 @@
 #~comment|30|0|0|1|crutchy|||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~comment-dump|120|0|0|1|crutchy|||0|php scripts/sn-tfa-comments.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~feed-wiki|600|1800|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#~vote|10|0|0|0|crutchy|||0|php scripts/vote.php %%trailing%% %%dest%% %%nick%%
+~vote|10|0|0|1|*|||0|php scripts/vote.php %%trailing%% %%dest%% %%nick%%
 
 # ALIASES LIMITED TO SPECIFIC COMMANDS (UNUSALLY INTERNAL)
 ~sed-internal|10|0|0|1||INTERNAL||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
@@ -124,7 +124,7 @@ rofl|15|0|0|1||||0|php scripts/confucius.php %%trailing%% %%dest%% %%nick%% %%al
 ~last|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~find-first|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~find-last|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~chart|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+~chart|0|0|0|1|crutchy|||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 ~translate|10|0|0|0||||0|php scripts/translate.php %%trailing%% %%alias%%
 ~translate-sl|10|0|0|0||||0|php scripts/translate.php %%trailing%% %%alias%%

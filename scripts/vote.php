@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 27-july-2014
 
 /*
 
