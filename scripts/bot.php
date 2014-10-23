@@ -35,12 +35,16 @@ $cmd=strtolower($parts[0]);
 array_shift($parts);
 $trailing=trim(implode(" ",$parts));
 
+$bot_nick=$parts[0];
+array_shift($parts);
+$trailing=trim(implode(" ",$parts));
+
 switch ($cmd)
 {
   case "new":
-    if (users_nick_exists($trailing,$dest)==True)
+    if (users_nick_exists($bot_nick,$dest)==True)
     {
-      privmsg("$trailing is already here");
+      privmsg("$bot_nick is already here");
       return;
     }
     $socket=fsockopen("ssl://irc.sylnt.us","6697");
@@ -50,17 +54,17 @@ switch ($cmd)
       return;
     }
     stream_set_blocking($socket,0);
-    rawmsg("NICK $trailing");
-    rawmsg("USER $trailing hostname servername :$trailing.bot");
-    add_minion($trailing);
+    rawmsg("NICK $bot_nick");
+    rawmsg("USER $bot_nick hostname servername :$bot_nick.bot");
+    add_minion($bot_nick);
     while (True)
     {
       usleep(0.1e6);
-      $data=get_bucket("MINION_CMD_$trailing");
+      $data=get_bucket("MINION_CMD_$bot_nick");
       if ($data<>"")
       {
         term_echo($data);
-        if (unset_bucket("MINION_CMD_$trailing")==True)
+        if (unset_bucket("MINION_CMD_$bot_nick")==True)
         {
           $items=parse_data($data);
           if ($items!==False)
@@ -79,7 +83,7 @@ switch ($cmd)
       {
         continue;
       }
-      term_echo($trailing." >> ".$data);
+      term_echo($bot_nick." >> ".$data);
       $items=parse_data($data);
       if ($items===False)
       {
@@ -92,7 +96,7 @@ switch ($cmd)
         term_echo("joining \"#\"...");
         dojoin("#");
       }
-      if ($items["nick"]<>$trailing)
+      if ($items["nick"]<>$bot_nick)
       {
         continue;
       }
@@ -102,52 +106,42 @@ switch ($cmd)
       }
     }
     return;
-  case "say":
-    # dogfart join #soylent
-    $bot_nick=$parts[0];
-    array_shift($parts);
-    if (count($parts)==0)
-    {
-      return;
-    }
-    $cmd=strtoupper($parts[0]);
-    array_shift($parts);
-    $data=$trailing;
-    $trailing=trim(implode(" ",$parts));
-    switch ($cmd)
-    {
-      case "JOIN":
-        $data=":$bot_nick $cmd $trailing";
-        break;
-      case "PART":
-        $data=":$bot_nick $cmd $dest :$trailing";
-        break;
-      case "QUIT":
-        $data=":$bot_nick $cmd :$trailing";
-        break;
-      case "NICK":
-        $data=":$bot_nick $cmd :$trailing";
-        break;
-      case "PRIVMSG":
-        $data=":$bot_nick $cmd $dest :$trailing";
-        break;
-    }
-    if ($data=="")
-    {
-      term_echo("unknown cmd \"$cmd\"");
-      return;
-    }
-    $items=parse_data($data);
-    if ($items!==False)
-    {
-      term_echo("MINION_CMD_$bot_nick bucket set");
-      set_bucket("MINION_CMD_$bot_nick",$data);
-    }
-    else
-    {
-      term_echo("invalid command \"$data\"");
-    }
-    return;
+  case "join":
+    $data=":$bot_nick ".strtoupper($cmd)." $trailing";
+    handle_bot_data($data,$bot_nick);
+    break;
+  case "part":
+    $data=":$bot_nick ".strtoupper($cmd)." $dest :$trailing";
+    handle_bot_data($data,$bot_nick);
+    break;
+  case "quit":
+    $data=":$bot_nick ".strtoupper($cmd)." :$trailing";
+    handle_bot_data($data,$bot_nick);
+    break;
+  case "nick":
+    $data=":$bot_nick ".strtoupper($cmd)." :$trailing";
+    handle_bot_data($data,$bot_nick);
+    break;
+  case "privmsg":
+    $data=":$bot_nick ".strtoupper($cmd)." $dest :$trailing";
+    handle_bot_data($data,$bot_nick);
+    break;
+}
+
+#####################################################################################################
+
+function handle_bot_data($data,$bot_nick)
+{
+  $items=parse_data($data);
+  if ($items!==False)
+  {
+    term_echo("MINION_CMD_$bot_nick bucket set");
+    set_bucket("MINION_CMD_$bot_nick",$data);
+  }
+  else
+  {
+    term_echo("invalid command \"$data\"");
+  }
 }
 
 #####################################################################################################
