@@ -38,6 +38,7 @@ echo "/INTERNAL ~join #github\n";
 unset_bucket("<<EXEC_EVENT_HANDLERS>>");
 echo "/INTERNAL ~civ register-events\n";
 echo "/INTERNAL ~meeting register-events\n";
+echo "/INTERNAL ~x register-events\n"; # LIVE SCRIPTING
 
 register_event_handler("NICK",":".NICK_EXEC." INTERNAL :~verifier-nick-change %%nick%% %%trailing%%");
 

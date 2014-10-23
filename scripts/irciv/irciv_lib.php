@@ -176,6 +176,7 @@ function register_channel()
 {
   global $trailing;
   global $dest;
+  global $irciv_players;
   global $irciv_channels;
   global $irciv_data_changed;
   $channel="";
@@ -197,6 +198,7 @@ function register_channel()
     unset($irciv_channels[$channel]);
   }
   # TODO: clear all player data for this channel
+  # $irciv_players (store player game data in separate var)
   $map_data=generate_map_data();
   $irciv_channels[$channel]=$map_data;
   $irciv_data_changed=True;

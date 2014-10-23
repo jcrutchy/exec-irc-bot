@@ -88,7 +88,7 @@ switch ($action)
       {
         unset($players[$player]);
         irciv_privmsg("admin: unset \"$player\"");
-        $update_players=True;
+        $irciv_data_changed=True;
       }
       else
       {
@@ -140,7 +140,7 @@ switch ($action)
           $players[$player]["units"][$index]["x"]=$x;
           $players[$player]["units"][$index]["y"]=$y;
           unfog($player,$x,$y,$players[$player]["units"][$index]["sight_range"]);
-          $update_players=True;
+          $irciv_data_changed=True;
           update_other_players($player,$index);
         }
         else
@@ -182,7 +182,7 @@ switch ($action)
               $players[$player][$array][$index][$key]=$value;
               irciv_privmsg("players[$player][$array][$index][$key]=$value");
             }
-            $update_players=True;
+            $irciv_data_changed=True;
           }
           else
           {
@@ -226,7 +226,7 @@ switch ($action)
               $players[$player][$key]=$value;
               irciv_privmsg("key \"$key\" set with value \"$value\" for player \"$player\"");
             }
-            $update_players=True;
+            $irciv_data_changed=True;
           }
           else
           {
@@ -245,11 +245,11 @@ switch ($action)
     }
     break;
   case "init":
-    if (count($parts)==1)
+    if (count($parts)==0)
     {
       player_init($nick);
-      $update_players=True;
-      irciv_privmsg("data player \"$nick\" has been initialized");
+      $irciv_data_changed=True;
+      irciv_privmsg("player \"$nick\" has been initialized");
     }
     else
     {
@@ -307,7 +307,7 @@ switch ($action)
       unset($parts[0]);
       $city_name=implode(" ",$parts);
       build_city($nick,$city_name);
-      $update_players=True;
+      $irciv_data_changed=True;
     }
     else
     {
@@ -327,7 +327,7 @@ switch ($action)
         $key=$pair[0];
         $value=$pair[1];
         $players[$nick]["settings"][$key]=$value;
-        $update_players=True;
+        $irciv_data_changed=True;
         irciv_privmsg("key \"$key\" set to value \"$value\" for player \"$nick\"");
       }
       else
@@ -347,7 +347,7 @@ switch ($action)
       if (isset($players[$nick]["settings"][$key])==True)
       {
         unset($players[$nick]["settings"][$key]);
-        $update_players=True;
+        $irciv_data_changed=True;
         irciv_privmsg("key \"$key\" unset for player \"$nick\"");
       }
       else
@@ -365,7 +365,7 @@ switch ($action)
     {
       $flag=$parts[1];
       $players[$nick]["flags"][$flag]="";
-      $update_players=True;
+      $irciv_data_changed=True;
       irciv_privmsg("flag \"$flag\" set for player \"$nick\"");
     }
     else
@@ -380,7 +380,7 @@ switch ($action)
       if (isset($players[$nick]["flags"][$flag])==True)
       {
         unset($players[$nick]["flags"][$flag]);
-        $update_players=True;
+        $irciv_data_changed=True;
         irciv_privmsg("flag \"$flag\" unset for player \"$nick\"");
       }
       else

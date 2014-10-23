@@ -5,7 +5,7 @@
 
 #####################################################################################################
 
-# ~bot say dogfart :dogfart PRIVMSG # :test
+# ~bot privmsg dogfart test
 
 /*
 <crutchy> dogfartopoly join #soylent
@@ -20,7 +20,7 @@ require_once("users_lib.php");
 
 define("BOT_BUCKET","<<MINIONS>>");
 
-refresh_minions();
+#refresh_minions();
 
 $trailing=trim($argv[1]);
 $dest=trim($argv[2]);
@@ -56,7 +56,7 @@ switch ($cmd)
     stream_set_blocking($socket,0);
     rawmsg("NICK $bot_nick");
     rawmsg("USER $bot_nick hostname servername :$bot_nick.bot");
-    add_minion($bot_nick);
+    #add_minion($bot_nick);
     while (True)
     {
       usleep(0.1e6);
@@ -126,6 +126,9 @@ switch ($cmd)
     $data=":$bot_nick ".strtoupper($cmd)." $dest :$trailing";
     handle_bot_data($data,$bot_nick);
     break;
+  case "raw":
+    handle_bot_data($trailing,$bot_nick);
+    break;
 }
 
 #####################################################################################################
@@ -157,20 +160,6 @@ function rawmsg($msg)
 function term_echo($msg)
 {
   echo "\033[35m$msg\033[0m\n";
-}
-
-#####################################################################################################
-
-function refresh_minions()
-{
-
-}
-
-#####################################################################################################
-
-function add_minion($nick)
-{
-
 }
 
 #####################################################################################################

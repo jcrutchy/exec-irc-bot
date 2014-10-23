@@ -14,8 +14,8 @@ $start=$argv[4];
 $alias=$argv[5];
 $cmd=$argv[6];
 $data=$argv[7];
-$exec=$argv[8];
-$params=$argv[9];
+$params=$argv[8];
+$timestamp=$argv[9];
 
 /*privmsg("hello world");
 term_echo("message appears in terminal only");
