@@ -21,22 +21,22 @@ $timestamp=$argv[9];
 # ~x o myscript
 # ~x c
 # ~x l
-# ~x m L5 while (True) { privmsg("flooding++"); }
+
 # ~x r L5
-# ~x i L5 while (True) { privmsg("flooding++"); }
-# ~x a while (True) { privmsg("flooding++"); }
+
+
 
 # could try a git-like branch thing, but try to keep it simple to start with
 
+$scripts=get_array_bucket("<<LIVE_SCRIPTS>>");
 $script_data=array();
 $script_lines=array();
 $script_name=get_bucket("SCRIPT_FILE_OPEN_".$nick."_".$dest);
 if ($script_name<>"")
 {
-  $scripts=get_array_bucket("<<LIVE_SCRIPTS>>");
+  $script_data=&$scripts[$script_name];
   if (isset($scripts[$script_name])==True)
   {
-    $script_data=&$scripts[$script_name];
     $script_lines=explode("\n",$script_data["code"]);
   }
 }
@@ -53,6 +53,10 @@ switch ($action)
     break;
   case "event-privmsg":
     term_echo("*** LIVE SCRIPTING PRIVMSG EVENT ***");
+    foreach ($scripts as $script_name => $data)
+    {
+      $code=$data["code"];
+    }
     break;
   case "o":
     set_bucket("SCRIPT_FILE_OPEN_".$nick."_".$dest,$trailing);
@@ -86,12 +90,15 @@ switch ($action)
     }
     break;
   case "m": # modify line
+    # ~x m L5 while (True) { privmsg("flooding++"); }
     break;
   case "r": # remove line
     break;
   case "i": # insert line
+    # ~x i L5 while (True) { privmsg("flooding++"); }
     break;
   case "a": # append line
+    # ~x a while (True) { privmsg("flooding++"); }
     if ($script_name<>"")
     {
       $script_lines[]=$trailing;

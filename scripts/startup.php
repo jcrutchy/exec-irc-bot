@@ -35,6 +35,9 @@ set_bucket(BUCKET_CONNECTION_ESTABLISHED,"1");
 echo "/INTERNAL ~join #comments\n";
 echo "/INTERNAL ~join #github\n";
 
+echo "/INTERNAL ~join #debug\n";
+echo "/INTERNAL ~join #civ\n";
+
 unset_bucket("<<EXEC_EVENT_HANDLERS>>");
 echo "/INTERNAL ~civ register-events\n";
 echo "/INTERNAL ~meeting register-events\n";

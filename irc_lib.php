@@ -134,8 +134,22 @@ function get_list_auth($items)
 function log_data($data)
 {
   $filename=EXEC_LOG_PATH.date("Ymd",time()).".txt";
-  $line="<<".date("Y-m-d H:i:s",microtime(True)).">> ".trim($data,"\n\r\0\x0B")."\n";
+  $msg=trim($data,"\n\r\0\x0B");
+  $line="<<".date("Y-m-d H:i:s",microtime(True)).">> $msg\n";
   file_put_contents($filename,$line,FILE_APPEND);
+  $items=array();
+  $items["microtime"]=microtime(True);
+  $items["time"]=date("Y-m-d H:i:s",$items["microtime"]);
+  $items["data"]=$msg;
+  $items["prefix"]="";
+  $items["params"]="";
+  $items["trailing"]="";
+  $items["nick"]=NICK;
+  $items["user"]="";
+  $items["hostname"]="";
+  $items["destination"]="";
+  $items["cmd"]="INTERNAL";
+  process_scripts($items,ALIAS_DATA);
 }
 
 #####################################################################################################

@@ -2,11 +2,15 @@
 
 # gpl2
 # by crutchy
-# 10-aug-2014
 
 #####################################################################################################
 
 require_once("lib.php");
+
+$trailing=$argv[1];
+$dest=strtolower(trim($argv[2]));
+$nick=strtolower(trim($argv[3]));
+$timestamp=$argv[4];
 
 define("IRC_LOG_PATH","/var/www/irciv.us.to/irc_logs/");
 define("IRC_LOG_INDEX_FILE","/var/www/irciv.us.to/irc_logs/index.php");

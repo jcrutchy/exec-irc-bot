@@ -42,6 +42,7 @@ define("BUCKET_EVENT_HANDLERS","<<EXEC_EVENT_HANDLERS>>");
 # reserved aliases
 define("ALIAS_ALL","*");
 define("ALIAS_LOG_ITEMS","<log>");
+define("ALIAS_DATA","<data>");
 define("ALIAS_INIT","<init>");
 define("ALIAS_STARTUP","<startup>");
 define("ALIAS_QUIT","<quit>");
@@ -162,6 +163,7 @@ $admin_aliases=array(
 
 $reserved_aliases=array(
   ALIAS_ALL,
+  ALIAS_DATA,
   ALIAS_LOG_ITEMS,
   ALIAS_INIT,
   ALIAS_STARTUP,
