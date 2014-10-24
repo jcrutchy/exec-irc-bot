@@ -14,6 +14,8 @@ add comment topic setting
 filter by story (reset when story drops off atom), filter by user, filter by content/subject keyword, etc
 */
 
+# TODO: highlight quotes different color
+
 ini_set("display_errors","on");
 require_once("lib.php");
 require_once("feeds_lib.php");
