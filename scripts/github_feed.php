@@ -178,7 +178,7 @@ function check_push_events($repo)
                   pm(FEED_CHAN,"  ".chr(3)."08"."└─".chr(3)."($rem files skipped)");
                   break;
                 }
-                $commit_filename=$commit_data["files"][$k]["filename"];
+                $commit_filename=str_replace(" ","%20",$commit_data["files"][$k]["filename"]);
                 $commit_status=$commit_data["files"][$k]["status"];
                 $tree_symbol="├─";
                 if ($k==($n1-1))
