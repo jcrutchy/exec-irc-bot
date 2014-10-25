@@ -19,6 +19,7 @@ define("IRC_HOST","irc.sylnt.us");
 define("IRC_PORT","6697");
 define("MEMORY_LIMIT","128M");
 define("OPERATOR_ACCOUNT","crutchy");
+define("DEBUG_CHAN","#debug");
 
 $admin_accounts=array("xlefay","chromas","juggs","paulej72","mrcoolbp");
 
@@ -42,7 +43,6 @@ define("BUCKET_EVENT_HANDLERS","<<EXEC_EVENT_HANDLERS>>");
 # reserved aliases
 define("ALIAS_ALL","*");
 define("ALIAS_LOG_ITEMS","<log>");
-define("ALIAS_DATA","<data>");
 define("ALIAS_INIT","<init>");
 define("ALIAS_STARTUP","<startup>");
 define("ALIAS_QUIT","<quit>");
@@ -56,6 +56,8 @@ define("CMD_BUCKET_LIST","BUCKET_LIST");
 define("CMD_INTERNAL","INTERNAL");
 define("CMD_PAUSE","BOT_IRC_PAUSE");
 define("CMD_UNPAUSE","BOT_IRC_UNPAUSE");
+define("CMD_INIT","INIT");
+define("CMD_STARTUP","STARTUP");
 
 define("PREFIX_DELIM","/");
 define("PREFIX_IRC",PREFIX_DELIM."IRC");
@@ -163,7 +165,6 @@ $admin_aliases=array(
 
 $reserved_aliases=array(
   ALIAS_ALL,
-  ALIAS_DATA,
   ALIAS_LOG_ITEMS,
   ALIAS_INIT,
   ALIAS_STARTUP,

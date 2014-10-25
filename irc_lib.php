@@ -70,8 +70,8 @@ function get_valid_data_cmd($allow_customs=True)
 function get_valid_custom_cmd()
 {
   $result=array(
-    "INIT"=>array("000"),
-    "STARTUP"=>array("000"),
+    CMD_INIT=>array("000"),
+    CMD_STARTUP=>array("000"),
     CMD_INTERNAL=>array("100","101","110","111"),
     CMD_BUCKET_GET=>array("001","101"),
     CMD_BUCKET_SET=>array("001","101"),
@@ -137,19 +137,14 @@ function log_data($data)
   $msg=trim($data,"\n\r\0\x0B");
   $line="<<".date("Y-m-d H:i:s",microtime(True)).">> $msg\n";
   file_put_contents($filename,$line,FILE_APPEND);
-  $items=array();
-  $items["microtime"]=microtime(True);
-  $items["time"]=date("Y-m-d H:i:s",$items["microtime"]);
-  $items["data"]=$msg;
-  $items["prefix"]="";
-  $items["params"]="";
-  $items["trailing"]="";
-  $items["nick"]=NICK;
-  $items["user"]="";
-  $items["hostname"]="";
-  $items["destination"]="";
-  $items["cmd"]="INTERNAL";
-  process_scripts($items,ALIAS_DATA);
+  $lmsg=strtolower($msg);
+  if ((DEBUG_CHAN<>"") and (strpos($lmsg,DEBUG_CHAN)===False))
+  {
+    if ((strpos($lmsg,"php fatal error:")!==False) or (strpos($lmsg,"php notice:")!==False))
+    {
+      rawmsg(":".NICK." PRIVMSG ".DEBUG_CHAN." :$msg");
+    }
+  }
 }
 
 #####################################################################################################
@@ -1184,6 +1179,10 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
   $items=parse_data($data);
   if ($items!==False)
   {
+    if ($items["destination"]==DEBUG_CHAN)
+    {
+      return;
+    }
     if (($auth==False) and ($is_sock==True))
     {
       log_items($items);

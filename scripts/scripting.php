@@ -59,8 +59,10 @@ switch ($action)
     }
     break;
   case "o":
+    $script_name=$trailing;
+    $scripts[$script_name]=array();
     set_bucket("SCRIPT_FILE_OPEN_".$nick."_".$dest,$trailing);
-    privmsg("script \"$trailing\" opened for editing by $nick in $dest");
+    privmsg("script \"$script_name\" opened for editing by $nick in $dest");
     break;
   case "c":
     $script_name=get_bucket("SCRIPT_FILE_OPEN_".$nick."_".$dest);

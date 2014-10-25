@@ -26,9 +26,6 @@
 # RESERVED ALIAS FOR LOGGING ITEMS
 <log>|10|0|0|1||||0|php scripts/log.php %%trailing%% %%dest%% %%nick%% %%timestamp%%
 
-# RESERVED ALIAS TRIGGERED ON EVERY LINE (INCLUDING STDOUT & STDERR)
-<data>|10|0|0|1||||0|php scripts/data.php %%data%%
-
 #####################################################################################################
 
 # REQUIRE NICKSERV IDENTIFIED USER AUTHENTICATION (WHOIS)
