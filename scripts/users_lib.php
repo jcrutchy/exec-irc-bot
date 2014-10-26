@@ -42,6 +42,14 @@ function users_get_data($nick)
 function users_get_account($nick)
 {
   $nick=strtolower(trim($nick));
+  $users=get_array_bucket(BUCKET_USERS);
+  if (isset($users[$nick])==True)
+  {
+    if (isset($users[$nick]["account"])==True)
+    {
+      return $users[$nick]["account"];
+    }
+  }
   $start=microtime(True);
   rawmsg("WHOIS $nick");
   do

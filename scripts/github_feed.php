@@ -169,6 +169,8 @@ function check_push_events($repo)
             if ((isset($commit_data["files"])==True) and (isset($ref_parts[2])==True))
             {
               $branch=$ref_parts[2];
+              $html_url=$commit_data["html_url"];
+              pm(FEED_CHAN,chr(3)."11"."  ".$html_url);
               $n1=count($commit_data["files"]);
               for ($k=0;$k<$n1;$k++)
               {
