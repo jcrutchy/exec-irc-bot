@@ -157,6 +157,8 @@ function process_weather(&$location,$nick)
   $location=$loc;
   $loc_query=filter($loc,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC." ");
   # https://www.google.com/search?gbv=1&q=weather+traralgon
+  $url="http://www.google.com/search?gbv=1&fheit=1&q=weather+".urlencode($loc_query);
+  term_echo($url);
   $response=wget("www.google.com","/search?gbv=1&fheit=1&q=weather+".urlencode($loc_query),80,ICEWEASEL_UA,"",60);
   $html=strip_headers($response);
   $delim1="<div class=\"e\">";

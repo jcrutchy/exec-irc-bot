@@ -40,6 +40,7 @@
 ~bucket|5|0|0|1|crutchy|||0|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 ~suggest|20|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~suggest-api|20|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~suggest-exec|20|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~slashcode-issue|60|0|0|1|*|||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~wiki|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~ircd|10|0|0|1|crutchy|||0|php scripts/server.php %%trailing%% %%dest%% %%nick%%

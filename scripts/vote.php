@@ -36,6 +36,85 @@ $nick=strtolower(trim($argv[3]));
 $parts=explode(" ",$trailing);
 delete_empty_elements($parts);
 
+$data=get_array_bucket("<<IRC_VOTE_DATA>>");
+
+$id=filter($parts[0],VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC."_-.");
+
+array_shift($parts);
+$trailing=implode(" ",$parts);
+
+switch ($id)
+{
+  case "list":
+    if (count($data)==0)
+    {
+      privmsg("  no votes registered");
+    }
+    else
+    {
+      foreach ($data as $vote_id => $vote_data)
+      {
+        privmsg("  ".$vote_id);
+      }
+    }
+    return;
+}
+
+if (isset($parts[0])==True)
+{
+  $action=$parts[0];
+  if ($action=="register")
+  {
+    if ($id=="")
+    {
+      privmsg("  you must specify a vote id");
+    }
+    if (($id=="register") or ($id=="list"))
+    {
+      privmsg("  invalid vote id");
+    }
+    else
+    {
+      $data[$id]=array();
+      set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+      privmsg("  vote \"$id\" registered");
+    }
+  }
+  elseif (isset($data[$id])==True)
+  {
+    switch ($action)
+    {
+      case "unregister":
+        unset_bucket("<<IRC_VOTE_DATA>>");
+        privmsg("  vote \"$id\" unregistered");
+        return;
+      case "results":
+
+        return;
+      case "open":
+
+        return;
+      case "close":
+
+        return;
+      case "+":
+      case "up":
+        $account=users_get_account($nick);
+        $data[$id][$account]=1;
+        set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+        privmsg("  upvote registered for account \"$account\"");
+        return;
+      case "-":
+      case "down":
+        $account=users_get_account($nick);
+        $data[$id][$account]=-1;
+        set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+        privmsg("  downvote registered for account \"$account\"");
+        return;
+    }
+  }
+}
+
 #####################################################################################################
 
 ?>

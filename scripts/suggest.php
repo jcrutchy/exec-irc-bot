@@ -18,6 +18,10 @@ if ($alias=="~suggest-api")
 {
   $wiki_url="http://sylnt.us/suggest-api";
 }
+elseif ($alias=="~suggest-exec")
+{
+  $wiki_url="http://sylnt.us/execsuggestions";
+}
 
 if ($trailing=="")
 {
@@ -32,6 +36,10 @@ $title="Suggestions";
 if ($alias=="~suggest-api")
 {
   $title="SN API ideas";
+}
+elseif ($alias=="~suggest-exec")
+{
+  $title="IRC:exec suggestions";
 }
 
 $section="Suggestions from IRC";
