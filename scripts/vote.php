@@ -3,6 +3,8 @@
 # gpl2
 # by crutchy
 
+# TODO: allow mixed case vote_id and option
+
 #####################################################################################################
 
 require_once("lib.php");
@@ -27,9 +29,23 @@ $id=filter($parts[0],VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC."_-.");
 array_shift($parts);
 $trailing=implode(" ",$parts);
 
+$commands=array(
+  "list","l",
+  "register",
+  "unregister",
+  "result","r",
+  "breakdown","b",
+  "add-option","ao",
+  "del-option","do",
+  "add-admin",
+  "del-admin",
+  "open",
+  "close");
+
 switch ($id)
 {
   case "list":
+  case "l":
     if (count($data)==0)
     {
       privmsg("  no polls registered");
@@ -80,7 +96,7 @@ if (isset($parts[0])==True)
     {
       privmsg("  you must specify a poll id");
     }
-    if (($id=="register") or ($id=="list"))
+    if (in_array($id,$commands)==True)
     {
       privmsg("  invalid poll id");
     }
@@ -117,6 +133,7 @@ if (isset($parts[0])==True)
         privmsg("  poll \"$id\" unregistered");
         return;
       case "result":
+      case "r":
         $n=count($data[$id]["votes"]);
         if ($n==0)
         {
@@ -148,6 +165,7 @@ if (isset($parts[0])==True)
         }
         return;
       case "breakdown":
+      case "b":
         $account=users_get_account($nick);
         if (in_array($account,$data[$id]["admins"])==False)
         {
@@ -175,6 +193,7 @@ if (isset($parts[0])==True)
         }
         return;
       case "add-option":
+      case "ao":
         $account=users_get_account($nick);
         if (in_array($account,$data[$id]["admins"])==False)
         {
@@ -194,6 +213,7 @@ if (isset($parts[0])==True)
         }
         return;
       case "del-option":
+      case "do":
         $account=users_get_account($nick);
         if (in_array($account,$data[$id]["admins"])==False)
         {
