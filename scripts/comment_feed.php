@@ -211,7 +211,7 @@ for ($i=0;$i<$item_count;$i++)
         {
           pm($subscribers[$k],chr(3)."08└─ ".$comment_body);
         }*/
-        output(chr(3)."08└─ ".$comment_body);
+        output(chr(3)."08└─".$comment_body);
       }
       elseif ($cid>$last_cid)
       {
@@ -227,7 +227,7 @@ for ($i=0;$i<$item_count;$i++)
         {
           pm($subscribers[$k],chr(3)."08^ ".$comment_body);
         }*/
-        output(chr(3)."08└─ ".$comment_body);
+        output(chr(3)."08└─".$comment_body);
       }
     }
   }

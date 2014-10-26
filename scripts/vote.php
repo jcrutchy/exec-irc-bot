@@ -63,6 +63,8 @@ switch ($id)
 if (isset($parts[0])==True)
 {
   $action=$parts[0];
+  array_shift($parts);
+  $trailing=implode(" ",$parts);
   if ($action=="register")
   {
     if ($id=="")
@@ -75,7 +77,16 @@ if (isset($parts[0])==True)
     }
     else
     {
+      $account=users_get_account($nick);
+      if ($account=="")
+      {
+        return;
+      }
       $data[$id]=array();
+      $data[$id]["founder"]=$account;
+      $data[$id]["status"]="closed";
+      $data[$id]["accounts"]=array();
+      $data[$id]["admins"]=array($account);
       set_array_bucket($data,"<<IRC_VOTE_DATA>>");
       privmsg("  vote \"$id\" registered");
     }
@@ -85,29 +96,123 @@ if (isset($parts[0])==True)
     switch ($action)
     {
       case "unregister":
-        unset_bucket("<<IRC_VOTE_DATA>>");
+        $account=users_get_account($nick);
+        if ($data[$id]["founder"]<>$account)
+        {
+          privmsg("  only the vote founder can unregister the vote");
+          return;
+        }
+        unset($data[$id]);
+        set_array_bucket($data,"<<IRC_VOTE_DATA>>");
         privmsg("  vote \"$id\" unregistered");
         return;
-      case "results":
-
+      case "result":
+        $result=0;
+        foreach ($data[$id]["accounts"] as $account => $value)
+        {
+          $result=$result+$value;
+        }
+        privmsg("  tally of votes for \"$id\" => $result");
+        return;
+      case "breakdown":
+        $account=users_get_account($nick);
+        if (in_array($account,$data[$id]["admins"])==False)
+        {
+          privmsg("  only a vote admin may output vote breakdown");
+          return;
+        }
+        foreach ($data[$id]["accounts"] as $account => $value)
+        {
+          privmsg("  $account => $value");
+        }
+        return;
+      case "add-admin":
+        $account=users_get_account($nick);
+        if ($data[$id]["founder"]<>$account)
+        {
+          privmsg("  only the vote founder can add vote admins");
+          return;
+        }
+        $admin_account=users_get_account($parts[0]);
+        if ($admin_account=="")
+        {
+          privmsg("  invalid admin");
+        }
+        if (in_array($admin_account,$data[$id]["admins"])==False)
+        {
+          $data[$id]["admins"][]=$admin_account;
+          set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+          privmsg("  account \"$admin_account\" added as admin for vote \"$id\"");
+        }
+        else
+        {
+          privmsg("  admin \"$admin_account\" already exists for vote \"$id\"");
+        }
+        return;
+      case "del-admin":
+        $account=users_get_account($nick);
+        if ($data[$id]["founder"]<>$account)
+        {
+          privmsg("  only the vote founder can delete vote admins");
+          return;
+        }
+        $admin_account=$parts[0];
+        $index=array_search($admin_account,$data[$id]["admins"]);
+        if ($index!==False)
+        {
+          unset($data[$id]["admins"][$index]);
+          $data[$id]["admins"]=array_values($data[$id]["admins"]);
+          set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+          privmsg("  account \"$admin_account\" deleted froms admins for vote \"$id\"");
+        }
+        else
+        {
+          privmsg("  admin \"$admin_account\" not found in admins for vote \"$id\"");
+        }
         return;
       case "open":
-
+        $account=users_get_account($nick);
+        if (in_array($account,$data[$id]["admins"])==False)
+        {
+          privmsg("  only a vote admin may open the vote");
+          return;
+        }
+        $data[$id]["status"]="open";
+        set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+        privmsg("  vote \"$id\" opened");
         return;
       case "close":
-
+        $account=users_get_account($nick);
+        if (in_array($account,$data[$id]["admins"])==False)
+        {
+          privmsg("  only a vote admin may close the vote");
+          return;
+        }
+        $data[$id]["status"]="closed";
+        set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+        privmsg("  vote \"$id\" closed");
         return;
       case "+":
       case "up":
+        if ($data[$id]["status"]<>"open")
+        {
+          privmsg("  vote \"$id\" not currently open for voting");
+          return;
+        }
         $account=users_get_account($nick);
-        $data[$id][$account]=1;
+        $data[$id]["accounts"][$account]=1;
         set_array_bucket($data,"<<IRC_VOTE_DATA>>");
         privmsg("  upvote registered for account \"$account\"");
         return;
       case "-":
       case "down":
+        if ($data[$id]["status"]<>"open")
+        {
+          privmsg("  vote \"$id\" not currently open for voting");
+          return;
+        }
         $account=users_get_account($nick);
-        $data[$id][$account]=-1;
+        $data[$id]["accounts"][$account]=-1;
         set_array_bucket($data,"<<IRC_VOTE_DATA>>");
         privmsg("  downvote registered for account \"$account\"");
         return;
