@@ -4,6 +4,9 @@
 # by crutchy
 
 # TODO: allow mixed case vote_id and option
+# TODO: poll description with spaces
+# TODO: option description with spaces
+# TODO: saving vote bucket to file and loading on startup
 
 #####################################################################################################
 
@@ -24,7 +27,7 @@ delete_empty_elements($parts);
 
 $data=get_array_bucket("<<IRC_VOTE_DATA>>");
 
-$id=filter($parts[0],VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC."_-.");
+$id=filter($parts[0],VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC."_-.?");
 
 array_shift($parts);
 $trailing=implode(" ",$parts);
