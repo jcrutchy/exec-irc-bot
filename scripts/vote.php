@@ -6,6 +6,7 @@
 # TODO: saving vote bucket to file and loading on startup
 # TODO: add sort action to sort options by option_id
 # TODO: colors
+# TODO: add another list command that just lists options for single poll
 
 #####################################################################################################
 
@@ -66,13 +67,15 @@ switch ($id)
     }
     else
     {
-      if (count($data)==0)
-      {
-        privmsg("  no polls currently available");
-        return;
-      }
       foreach ($data as $poll_id => $poll_data)
       {
+        if (isset($data[strtolower($trailing)])==True)
+        {
+          if ($poll_id<>strtolower($trailing))
+          {
+            continue;
+          }
+        }
         $n=count($poll_data["options"]);
         $suffix="";
         if ($poll_data["description"]<>"")
@@ -157,6 +160,44 @@ elseif (isset($data[$id])==True)
   {
     case "sort":
 
+      return;
+    case "list":
+    case "l":
+      $poll_data=$data[$id];
+      $n=count($poll_data["options"]);
+      $suffix="";
+      if ($poll_data["description"]<>"")
+      {
+        $suffix=": ".$poll_data["description"];
+      }
+      if ($n==0)
+      {
+        privmsg("  ".$id.$suffix);
+        privmsg("    [no poll options]");
+        continue;
+      }
+      else
+      {
+        privmsg("  ".$poll_id.$suffix);
+      }
+      $i=0;
+      foreach ($poll_data["options"] as $option_id => $option_description)
+      {
+        $suffix="";
+        if ($option_description<>"")
+        {
+          $suffix=": ".$option_description;
+        }
+        if ($i==($n-1))
+        {
+          privmsg("  └─".$option_id.$suffix);
+        }
+        else
+        {
+          privmsg("  ├─".$option_id.$suffix);
+        }
+        $i++;
+      }
       return;
     case "unregister":
       $account=users_get_account($nick);
