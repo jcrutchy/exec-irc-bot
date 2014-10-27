@@ -3,31 +3,40 @@
 # gpl2
 # by crutchy
 
-# TODO: allow mixed case vote_id and option
-# TODO: poll description with spaces
-# TODO: option description with spaces
 # TODO: saving vote bucket to file and loading on startup
+# TODO: add sort action to sort options by option_id
+# TODO: colors
 
 #####################################################################################################
 
 require_once("lib.php");
 
-$trailing=strtolower(trim($argv[1]));
+$trailing=trim($argv[1]);
 $dest=strtolower(trim($argv[2]));
 $nick=strtolower(trim($argv[3]));
 
-if (($trailing=="") or ($trailing=="?") or ($trailing=="help"))
+if (($trailing=="") or ($trailing=="?") or (strtolower($trailing)=="help"))
 {
   privmsg("  http://sylnt.us/vote");
   return;
 }
+
+$founders=array(
+  "crutchy",
+  "chromas",
+  "bytram",
+  "mrcoolbp",
+  "juggs",
+  "themightybuzzard",
+  "arti",
+  "paulej72");
 
 $parts=explode(" ",$trailing);
 delete_empty_elements($parts);
 
 $data=get_array_bucket("<<IRC_VOTE_DATA>>");
 
-$id=filter($parts[0],VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC."_-.?");
+$id=strtolower(filter($parts[0],VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC."_-.?"));
 
 array_shift($parts);
 $trailing=implode(" ",$parts);
@@ -60,272 +69,374 @@ switch ($id)
         privmsg("  no polls currently available");
         return;
       }
-      foreach ($data as $vote_id => $vote_data)
+      foreach ($data as $poll_id => $poll_data)
       {
-        $n=count($vote_data["options"]);
+        $n=count($poll_data["options"]);
+        $suffix="";
+        if ($poll_data["description"]<>"")
+        {
+          $suffix=": ".$poll_data["description"];
+        }
         if ($n==0)
         {
-          privmsg("  $vote_id [no options]");
+          privmsg("  ".$poll_id.$suffix);
+          privmsg("    [no poll options]");
           continue;
         }
         else
         {
-          privmsg("  $vote_id");
+          privmsg("  ".$poll_id.$suffix);
         }
-        for ($i=0;$i<$n;$i++)
+        $i=0;
+        foreach ($poll_data["options"] as $option_id => $option_description)
         {
+          $suffix="";
+          if ($option_description<>"")
+          {
+            $suffix=": ".$option_description;
+          }
           if ($i==($n-1))
           {
-            privmsg("  └─".$vote_data["options"][$i]);
+            privmsg("  └─".$option_id.$suffix);
           }
           else
           {
-            privmsg("  ├─".$vote_data["options"][$i]);
+            privmsg("  ├─".$option_id.$suffix);
           }
+          $i++;
         }
       }
     }
     return;
 }
-
-if (isset($parts[0])==True)
+$action=strtolower($parts[0]);
+array_shift($parts);
+if ($action=="register")
 {
-  $action=$parts[0];
-  array_shift($parts);
-  $trailing=implode(" ",$parts);
-  if ($action=="register")
+  if ($id=="")
   {
-    if ($id=="")
+    privmsg("  you must specify a poll id");
+  }
+  if (in_array($id,$commands)==True)
+  {
+    privmsg("  invalid poll id");
+  }
+  else
+  {
+    $account=users_get_account($nick);
+    if (in_array($account,$founders)==False)
     {
-      privmsg("  you must specify a poll id");
+      privmsg("  account \"$account\" not in founders list - please contact crutchy if you would like to be added");
+      return;
     }
-    if (in_array($id,$commands)==True)
+    $data[$id]=array();
+    $data[$id]["description"]=implode(" ",$parts);
+    $data[$id]["founder"]=$account;
+    $data[$id]["status"]="closed";
+    $data[$id]["options"]=array();
+    $data[$id]["votes"]=array();
+    $data[$id]["admins"]=array($account);
+    set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+    $suffix="";
+    if ($data[$id]["description"]<>"")
     {
-      privmsg("  invalid poll id");
+      $suffix=" [".$data[$id]["description"]."]";
     }
-    else
-    {
+    privmsg("  poll \"$id\"$suffix registered");
+  }
+}
+elseif (isset($data[$id])==True)
+{
+  switch ($action)
+  {
+    case "unregister":
+      $account=users_get_account($nick);
+      if ($data[$id]["founder"]<>$account)
+      {
+        privmsg("  only the poll founder can unregister the poll");
+        return;
+      }
+      $suffix="";
+      if ($data[$id]["description"]<>"")
+      {
+        $suffix=" [".$data[$id]["description"]."]";
+      }
+      privmsg("  poll \"$id\"$suffix unregistered");
+      unset($data[$id]);
+      set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+      return;
+    case "result":
+    case "r":
+      $suffix="";
+      if ($data[$id]["description"]<>"")
+      {
+        $suffix=" [".$data[$id]["description"]."]";
+      }
+      $n=count($data[$id]["votes"]);
+      if ($n==0)
+      {
+        privmsg("  no votes for poll \"$id\"$suffix are registered");
+        return;
+      }
+      $tally=array();
+      foreach ($data[$id]["options"] as $option_id => $option_description)
+      {
+        $tally[$option_id]=0;
+      }
+      foreach ($data[$id]["votes"] as $account => $option_id)
+      {
+        $tally[$option_id]=$tally[$option_id]+1;
+      }
+      privmsg("  voting result for poll \"$id\"$suffix:");
+      $n=count($tally);
+      $i=0;
+      foreach ($tally as $option_id => $result)
+      {
+        $suffix="";
+        if ($data[$id]["options"][$option_id]<>"")
+        {
+          $suffix=": ".$data[$id]["options"][$option_id];
+        }
+        if ($i==($n-1))
+        {
+          privmsg("  └─".$option_id.$suffix." => $result");
+        }
+        else
+        {
+          privmsg("  ├─".$option_id.$suffix." => $result");
+        }
+        $i++;
+      }
+      return;
+    case "breakdown":
+    case "b":
+      $suffix="";
+      if ($data[$id]["description"]<>"")
+      {
+        $suffix=" [".$data[$id]["description"]."]";
+      }
+      $account=users_get_account($nick);
+      if (in_array($account,$data[$id]["admins"])==False)
+      {
+        privmsg("  only a poll admin may output the vote breakdown for a poll");
+        return;
+      }
+      $n=count($data[$id]["votes"]);
+      if ($n==0)
+      {
+        privmsg("  no votes for poll \"$id\"$suffix are registered");
+        return;
+      }
+      privmsg("  voting breakdown for poll \"$id\"$suffix:");
+      $i=0;
+      foreach ($data[$id]["votes"] as $account => $option_id)
+      {
+        $suffix="";
+        if ($data[$id]["options"][$option_id]<>"")
+        {
+          $suffix=": ".$data[$id]["options"][$option_id];
+        }
+        if ($i==($n-1))
+        {
+          privmsg("  └─$account => ".$option_id.$suffix);
+        }
+        else
+        {
+          privmsg("  ├─$account => ".$option_id.$suffix);
+        }
+        $i++;
+      }
+      return;
+    case "add-option":
+    case "ao":
+      $suffix="";
+      if ($data[$id]["description"]<>"")
+      {
+        $suffix=" [".$data[$id]["description"]."]";
+      }
+      $account=users_get_account($nick);
+      if (in_array($account,$data[$id]["admins"])==False)
+      {
+        privmsg("  only a poll admin may add an option for a poll");
+        return;
+      }
+      $option_id=strtolower($parts[0]);
+      array_shift($parts);
+      if (isset($data[$id]["options"][$option_id])==False)
+      {
+        $description=implode(" ",$parts);
+        $data[$id]["options"][$option_id]=$description;
+        set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+        $opt_suffix="";
+        if ($description<>"")
+        {
+          $opt_suffix=" [$description]";
+        }
+        privmsg("  option \"$option_id\"$opt_suffix added for poll \"$id\"$suffix");
+      }
+      else
+      {
+        $opt_suffix="";
+        if ($data[$id]["options"][$option_id]<>"")
+        {
+          $opt_suffix=" [".$data[$id]["options"][$option_id]."]";
+        }
+        privmsg("  option \"$option_id\"$opt_suffix already exists for poll \"$id\"$suffix");
+      }
+      return;
+    case "del-option":
+    case "do":
+      $suffix="";
+      if ($data[$id]["description"]<>"")
+      {
+        $suffix=" [".$data[$id]["description"]."]";
+      }
+      $account=users_get_account($nick);
+      if (in_array($account,$data[$id]["admins"])==False)
+      {
+        privmsg("  only a poll admin may delete an option for a poll");
+        return;
+      }
+      $option_id=strtolower($parts[0]);
+      if (isset($data[$id]["options"][$option_id])==True)
+      {
+        $opt_suffix="";
+        if ($data[$id]["options"][$option_id]<>"")
+        {
+          $opt_suffix=" [".$data[$id]["options"][$option_id]."]";
+        }
+        privmsg("  option \"$option_id\"$opt_suffix deleted for poll \"$id\"$suffix");
+        unset($data[$id]["options"][$option_id]);
+        set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+      }
+      else
+      {
+        privmsg("  option \"$option_id\" not found for poll \"$id\"$suffix");
+      }
+      return;
+    case "add-admin":
+      $suffix="";
+      if ($data[$id]["description"]<>"")
+      {
+        $suffix=" [".$data[$id]["description"]."]";
+      }
+      $account=users_get_account($nick);
+      if ($data[$id]["founder"]<>$account)
+      {
+        privmsg("  only the poll founder can add poll admins");
+        return;
+      }
+      $admin_account=users_get_account(strtolower($parts[0]));
+      if ($admin_account=="")
+      {
+        privmsg("  invalid admin");
+      }
+      if (in_array($admin_account,$data[$id]["admins"])==False)
+      {
+        $data[$id]["admins"][]=$admin_account;
+        set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+        privmsg("  account \"$admin_account\" added as admin for poll \"$id\"$suffix");
+      }
+      else
+      {
+        privmsg("  admin \"$admin_account\" already exists for poll \"$id\"$suffix");
+      }
+      return;
+    case "del-admin":
+      $suffix="";
+      if ($data[$id]["description"]<>"")
+      {
+        $suffix=" [".$data[$id]["description"]."]";
+      }
+      $account=users_get_account($nick);
+      if ($data[$id]["founder"]<>$account)
+      {
+        privmsg("  only the poll founder can delete poll admins");
+        return;
+      }
+      $admin_account=strtolower($parts[0]);
+      if ($account==$admin_account)
+      {
+        privmsg("  founder cannot be deleted from poll admins");
+        return;
+      }
+      $index=array_search($admin_account,$data[$id]["admins"]);
+      if ($index!==False)
+      {
+        unset($data[$id]["admins"][$index]);
+        $data[$id]["admins"]=array_values($data[$id]["admins"]);
+        set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+        privmsg("  account \"$admin_account\" deleted froms admins for poll \"$id\"$suffix");
+      }
+      else
+      {
+        privmsg("  admin \"$admin_account\" not found in admins for poll \"$id\"$suffix");
+      }
+      return;
+    case "open":
+      $suffix="";
+      if ($data[$id]["description"]<>"")
+      {
+        $suffix=" [".$data[$id]["description"]."]";
+      }
+      $account=users_get_account($nick);
+      if (in_array($account,$data[$id]["admins"])==False)
+      {
+        privmsg("  only a poll admin may open the poll for voting");
+        return;
+      }
+      $data[$id]["status"]="open";
+      set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+      privmsg("  poll \"$id\"$suffix opened for voting");
+      return;
+    case "close":
+      $suffix="";
+      if ($data[$id]["description"]<>"")
+      {
+        $suffix=" [".$data[$id]["description"]."]";
+      }
+      $account=users_get_account($nick);
+      if (in_array($account,$data[$id]["admins"])==False)
+      {
+        privmsg("  only a poll admin may close the poll for voting");
+        return;
+      }
+      $data[$id]["status"]="closed";
+      set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+      privmsg("  poll \"$id\"$suffix closed for voting");
+      return;
+    default:
+      $suffix="";
+      if ($data[$id]["description"]<>"")
+      {
+        $suffix=" [".$data[$id]["description"]."]";
+      }
+      if ($data[$id]["status"]<>"open")
+      {
+        privmsg("  poll \"$id\"$suffix is not currently open for voting");
+        return;
+      }
       $account=users_get_account($nick);
       if ($account=="")
       {
         return;
       }
-      $data[$id]=array();
-      $data[$id]["founder"]=$account;
-      $data[$id]["status"]="closed";
-      $data[$id]["options"]=array();
-      $data[$id]["votes"]=array();
-      $data[$id]["admins"]=array($account);
+      if (isset($data[$id]["options"][$action])==False)
+      {
+        privmsg("  invalid option for poll \"$id\"$suffix");
+        return;
+      }
+      $data[$id]["votes"][$account]=$action;
       set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-      privmsg("  poll \"$id\" registered");
+      $opt_suffix="";
+      if ($data[$id]["options"][$action]<>"")
+      {
+        $opt_suffix=" [".$data[$id]["options"][$action]."]";
+      }
+      privmsg("  vote registered by account \"$account\" with option \"$action\"$opt_suffix for poll \"$id\"$suffix");
+      return;
     }
   }
-  elseif (isset($data[$id])==True)
-  {
-    switch ($action)
-    {
-      case "unregister":
-        $account=users_get_account($nick);
-        if ($data[$id]["founder"]<>$account)
-        {
-          privmsg("  only the poll founder can unregister the poll");
-          return;
-        }
-        unset($data[$id]);
-        set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-        privmsg("  poll \"$id\" unregistered");
-        return;
-      case "result":
-      case "r":
-        $n=count($data[$id]["votes"]);
-        if ($n==0)
-        {
-          privmsg("  no votes for poll \"$id\" are registered");
-          return;
-        }
-        $tally=array();
-        for ($i=0;$i<count($data[$id]["options"]);$i++)
-        {
-          $tally[$data[$id]["options"][$i]]=0;
-        }
-        foreach ($data[$id]["votes"] as $account => $option)
-        {
-          $tally[$option]=$tally[$option]+1;
-        }
-        $n=count($tally);
-        $i=0;
-        foreach ($tally as $option => $result)
-        {
-          if ($i==($n-1))
-          {
-            privmsg("  └─$option => $result");
-          }
-          else
-          {
-            privmsg("  ├─$option => $result");
-          }
-          $i++;
-        }
-        return;
-      case "breakdown":
-      case "b":
-        $account=users_get_account($nick);
-        if (in_array($account,$data[$id]["admins"])==False)
-        {
-          privmsg("  only a poll admin may output the vote breakdown for a poll");
-          return;
-        }
-        $n=count($data[$id]["votes"]);
-        if ($n==0)
-        {
-          privmsg("  no votes for poll \"$id\" are registered");
-          return;
-        }
-        $i=0;
-        foreach ($data[$id]["votes"] as $account => $option)
-        {
-          if ($i==($n-1))
-          {
-            privmsg("  └─$account => $option");
-          }
-          else
-          {
-            privmsg("  ├─$account => $option");
-          }
-          $i++;
-        }
-        return;
-      case "add-option":
-      case "ao":
-        $account=users_get_account($nick);
-        if (in_array($account,$data[$id]["admins"])==False)
-        {
-          privmsg("  only a poll admin may add an option for a poll");
-          return;
-        }
-        $option=$parts[0];
-        if (in_array($option,$data[$id]["options"])==False)
-        {
-          $data[$id]["options"][]=$option;
-          set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-          privmsg("  option \"$option\" added for poll \"$id\"");
-        }
-        else
-        {
-          privmsg("  option \"$option\" already exists for poll \"$id\"");
-        }
-        return;
-      case "del-option":
-      case "do":
-        $account=users_get_account($nick);
-        if (in_array($account,$data[$id]["admins"])==False)
-        {
-          privmsg("  only a poll admin may delete an option for a poll");
-          return;
-        }
-        $option=$parts[0];
-        $index=array_search($option,$data[$id]["options"]);
-        if ($index!==False)
-        {
-          unset($data[$id]["options"][$index]);
-          $data[$id]["options"]=array_values($data[$id]["options"]);
-          set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-          privmsg("  option \"$option\" deleted for poll \"$id\"");
-        }
-        else
-        {
-          privmsg("  option \"$option\" not found for poll \"$id\"");
-        }
-        return;
-      case "add-admin":
-        $account=users_get_account($nick);
-        if ($data[$id]["founder"]<>$account)
-        {
-          privmsg("  only the poll founder can add poll admins");
-          return;
-        }
-        $admin_account=users_get_account($parts[0]);
-        if ($admin_account=="")
-        {
-          privmsg("  invalid admin");
-        }
-        if (in_array($admin_account,$data[$id]["admins"])==False)
-        {
-          $data[$id]["admins"][]=$admin_account;
-          set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-          privmsg("  account \"$admin_account\" added as admin for poll \"$id\"");
-        }
-        else
-        {
-          privmsg("  admin \"$admin_account\" already exists for poll \"$id\"");
-        }
-        return;
-      case "del-admin":
-        $account=users_get_account($nick);
-        if ($data[$id]["founder"]<>$account)
-        {
-          privmsg("  only the poll founder can delete poll admins");
-          return;
-        }
-        $admin_account=$parts[0];
-        $index=array_search($admin_account,$data[$id]["admins"]);
-        if ($index!==False)
-        {
-          unset($data[$id]["admins"][$index]);
-          $data[$id]["admins"]=array_values($data[$id]["admins"]);
-          set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-          privmsg("  account \"$admin_account\" deleted froms admins for poll \"$id\"");
-        }
-        else
-        {
-          privmsg("  admin \"$admin_account\" not found in admins for poll \"$id\"");
-        }
-        return;
-      case "open":
-        $account=users_get_account($nick);
-        if (in_array($account,$data[$id]["admins"])==False)
-        {
-          privmsg("  only a poll admin may open the poll for voting");
-          return;
-        }
-        $data[$id]["status"]="open";
-        set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-        privmsg("  poll \"$id\" opened for voting");
-        return;
-      case "close":
-        $account=users_get_account($nick);
-        if (in_array($account,$data[$id]["admins"])==False)
-        {
-          privmsg("  only a poll admin may close the poll for voting");
-          return;
-        }
-        $data[$id]["status"]="closed";
-        set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-        privmsg("  poll \"$id\" closed for voting");
-        return;
-      default:
-        if ($data[$id]["status"]<>"open")
-        {
-          privmsg("  poll \"$id\" is not currently open for voting");
-          return;
-        }
-        $account=users_get_account($nick);
-        if ($account=="")
-        {
-          return;
-        }
-        if (in_array($action,$data[$id]["options"])==False)
-        {
-          privmsg("  invalid option for poll \"$id\"");
-          return;
-        }
-        $data[$id]["votes"][$account]=$action;
-        set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-        privmsg("  vote registered by account \"$account\" with option \"$action\" for poll \"$id\"");
-        return;
-    }
-  }
-}
 
 #####################################################################################################
 
