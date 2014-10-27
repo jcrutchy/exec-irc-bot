@@ -17,6 +17,8 @@ $nick=strtolower(trim($argv[3]));
 
 if (($trailing=="") or ($trailing=="?") or (strtolower($trailing)=="help"))
 {
+  privmsg("  to vote: ~vote poll_id option_id");
+  privmsg("  example: ~vote beverage coffee");
   privmsg("  http://sylnt.us/vote");
   return;
 }
