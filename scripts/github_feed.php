@@ -193,7 +193,12 @@ function check_push_events($repo)
                 }
                 else
                 {
-                  pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol.$commit_status.":".chr(3)." https://github.com/$repo/blob/$branch/$commit_filename");
+                  $commit_changes="";
+                  if (isset($commit_data["files"][$k]["changes"])==True)
+                  {
+                    $commit_changes=" [".$commit_data["files"][$k]["changes"]."]";
+                  }
+                  pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol.$commit_status.$commit_changes.":".chr(3)." https://github.com/$repo/blob/$branch/$commit_filename");
                 }
               }
             }
