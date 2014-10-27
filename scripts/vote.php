@@ -45,14 +45,14 @@ $commands=array(
   "list","l",
   "register",
   "unregister",
-  "result","r",
   "breakdown","b",
   "add-option","ao",
   "del-option","do",
   "add-admin",
   "del-admin",
   "open",
-  "close");
+  "close",
+  "sort");
 
 switch ($id)
 {
@@ -109,8 +109,12 @@ switch ($id)
     }
     return;
 }
-$action=strtolower($parts[0]);
-array_shift($parts);
+$action="";
+if (isset($parts[0])==True)
+{
+  $action=strtolower($parts[0]);
+  array_shift($parts);
+}
 if ($action=="register")
 {
   if ($id=="")
@@ -149,6 +153,9 @@ elseif (isset($data[$id])==True)
 {
   switch ($action)
   {
+    case "sort":
+
+      return;
     case "unregister":
       $account=users_get_account($nick);
       if ($data[$id]["founder"]<>$account)
@@ -164,49 +171,6 @@ elseif (isset($data[$id])==True)
       privmsg("  poll \"$id\"$suffix unregistered");
       unset($data[$id]);
       set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-      return;
-    case "result":
-    case "r":
-      $suffix="";
-      if ($data[$id]["description"]<>"")
-      {
-        $suffix=" [".$data[$id]["description"]."]";
-      }
-      $n=count($data[$id]["votes"]);
-      if ($n==0)
-      {
-        privmsg("  no votes for poll \"$id\"$suffix are registered");
-        return;
-      }
-      $tally=array();
-      foreach ($data[$id]["options"] as $option_id => $option_description)
-      {
-        $tally[$option_id]=0;
-      }
-      foreach ($data[$id]["votes"] as $account => $option_id)
-      {
-        $tally[$option_id]=$tally[$option_id]+1;
-      }
-      privmsg("  voting result for poll \"$id\"$suffix:");
-      $n=count($tally);
-      $i=0;
-      foreach ($tally as $option_id => $result)
-      {
-        $suffix="";
-        if ($data[$id]["options"][$option_id]<>"")
-        {
-          $suffix=": ".$data[$id]["options"][$option_id];
-        }
-        if ($i==($n-1))
-        {
-          privmsg("  └─".$option_id.$suffix." => $result");
-        }
-        else
-        {
-          privmsg("  ├─".$option_id.$suffix." => $result");
-        }
-        $i++;
-      }
       return;
     case "breakdown":
     case "b":
@@ -410,6 +374,45 @@ elseif (isset($data[$id])==True)
       if ($data[$id]["description"]<>"")
       {
         $suffix=" [".$data[$id]["description"]."]";
+      }
+      if ($action=="")
+      {
+        $n=count($data[$id]["votes"]);
+        if ($n==0)
+        {
+          privmsg("  no votes for poll \"$id\"$suffix are registered");
+          return;
+        }
+        $tally=array();
+        foreach ($data[$id]["options"] as $option_id => $option_description)
+        {
+          $tally[$option_id]=0;
+        }
+        foreach ($data[$id]["votes"] as $account => $option_id)
+        {
+          $tally[$option_id]=$tally[$option_id]+1;
+        }
+        privmsg("  voting result for poll \"$id\"$suffix:");
+        $n=count($tally);
+        $i=0;
+        foreach ($tally as $option_id => $result)
+        {
+          $suffix="";
+          if ($data[$id]["options"][$option_id]<>"")
+          {
+            $suffix=": ".$data[$id]["options"][$option_id];
+          }
+          if ($i==($n-1))
+          {
+            privmsg("  └─".$option_id.$suffix." => $result");
+          }
+          else
+          {
+            privmsg("  ├─".$option_id.$suffix." => $result");
+          }
+          $i++;
+        }
+        return;
       }
       if ($data[$id]["status"]<>"open")
       {

@@ -252,13 +252,13 @@ switch($alias)
       privmsg("$trailing: unable to find definition");
     }
     break;
-  /*case "~define-list":
+  case "~define-list":
     foreach ($terms as $term => $def)
     {
-      #term_echo("[$term] => $def");
-      privmsg("[$term] => $def");
+      term_echo("[$term] => $def");
+      #privmsg("[$term] => $def");
     }
-    break;*/
+    break;
 }
 file_put_contents(DEFINE_SOURCES_FILE,serialize($sources));
 
