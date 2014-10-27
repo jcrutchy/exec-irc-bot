@@ -196,7 +196,7 @@ function check_push_events($repo)
                   $commit_changes="";
                   if (isset($commit_data["files"][$k]["changes"])==True)
                   {
-                    $commit_changes=" [".$commit_data["files"][$k]["changes"]."]";
+                    $commit_changes=" [".$commit_data["files"][$k]["changes"]." lines]";
                   }
                   pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol.$commit_status.$commit_changes.":".chr(3)." https://github.com/$repo/blob/$branch/$commit_filename");
                 }
