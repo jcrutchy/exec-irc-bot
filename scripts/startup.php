@@ -13,6 +13,8 @@ echo "################ BEGIN STARTUP ################\n";
 
 set_bucket(BUCKET_CONNECTION_ESTABLISHED,"1");
 
+echo "/INTERNAL ~buckets-load\n";
+
 #echo "/INTERNAL ~sedbot-ii\n";
 #echo "/INTERNAL ~sedbot-tail0\n";
 
