@@ -6,6 +6,7 @@
 # TODO: saving vote bucket to file and loading on startup
 # TODO: add sort action to sort options by option_id
 # TODO: colors
+# TODO: add list-admin command for given poll
 
 #####################################################################################################
 
@@ -48,8 +49,8 @@ $commands=array(
   "register",
   "unregister",
   "breakdown","b",
-  "add-option","ao",
-  "del-option","do",
+  "add-option","ao","oa",
+  "del-option","do","od",
   "add-admin",
   "del-admin",
   "open",
@@ -237,6 +238,7 @@ elseif (isset($data[$id])==True)
       return;
     case "add-option":
     case "ao":
+    case "oa":
       $suffix="";
       if ($data[$id]["description"]<>"")
       {
@@ -274,6 +276,7 @@ elseif (isset($data[$id])==True)
       return;
     case "del-option":
     case "do":
+    case "od":
       $suffix="";
       if ($data[$id]["description"]<>"")
       {

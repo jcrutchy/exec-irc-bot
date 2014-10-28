@@ -18,14 +18,6 @@ $data=$argv[7];
 $params=$argv[8];
 $timestamp=$argv[9];
 
-# ~x o myscript
-# ~x c
-# ~x l
-
-# ~x r L5
-
-
-
 # could try a git-like branch thing, but try to keep it simple to start with
 
 $scripts=get_array_bucket("<<LIVE_SCRIPTS>>");
@@ -34,10 +26,9 @@ $script_lines=array();
 $script_name=get_bucket("SCRIPT_FILE_OPEN_".$nick."_".$dest);
 if ($script_name<>"")
 {
-  $script_data=&$scripts[$script_name];
-  if (isset($scripts[$script_name])==True)
+  if (isset($scripts[$script_name]["code"])==True)
   {
-    $script_lines=explode("\n",$script_data["code"]);
+    $script_lines=explode("\n",$scripts[$script_name]["code"]);
   }
 }
 
@@ -55,10 +46,12 @@ switch ($action)
     term_echo("*** LIVE SCRIPTING PRIVMSG EVENT ***");
     foreach ($scripts as $script_name => $data)
     {
-      $code=$data["code"];
+      #$code=$data["code"];
+      #term_echo($script_name.": ".$code);
     }
     break;
-  case "o":
+  case "o": # open script
+    # ~x o myscript
     $script_name=$trailing;
     $scripts[$script_name]=array();
     set_bucket("SCRIPT_FILE_OPEN_".$nick."_".$dest,$trailing);
@@ -95,6 +88,7 @@ switch ($action)
     # ~x m L5 while (True) { privmsg("flooding++"); }
     break;
   case "r": # remove line
+    # ~x r L5
     break;
   case "i": # insert line
     # ~x i L5 while (True) { privmsg("flooding++"); }
@@ -115,7 +109,7 @@ switch ($action)
 
 if ($script_name<>"")
 {
-  $script_data["code"]=implode("\n",$script_lines);
+  $scripts[$script_name]["code"]=implode("\n",$script_lines);
   set_array_bucket($scripts,"<<LIVE_SCRIPTS>>");
 }
 
