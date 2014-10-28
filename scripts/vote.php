@@ -6,7 +6,6 @@
 # TODO: saving vote bucket to file and loading on startup
 # TODO: add sort action to sort options by option_id
 # TODO: colors
-# TODO: add another list command that just lists options for single poll
 
 #####################################################################################################
 
@@ -92,24 +91,6 @@ switch ($id)
         {
           privmsg("  ".$poll_id.$suffix);
         }
-        $i=0;
-        foreach ($poll_data["options"] as $option_id => $option_description)
-        {
-          $suffix="";
-          if ($option_description<>"")
-          {
-            $suffix=": ".$option_description;
-          }
-          if ($i==($n-1))
-          {
-            privmsg("  └─".$option_id.$suffix);
-          }
-          else
-          {
-            privmsg("  ├─".$option_id.$suffix);
-          }
-          $i++;
-        }
       }
     }
     return;
@@ -178,7 +159,7 @@ elseif (isset($data[$id])==True)
       }
       else
       {
-        privmsg("  ".$poll_id.$suffix);
+        privmsg("  ".$id.$suffix);
       }
       $i=0;
       foreach ($poll_data["options"] as $option_id => $option_description)
