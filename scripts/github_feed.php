@@ -196,7 +196,9 @@ function check_push_events($repo)
                   $commit_changes="";
                   if ((isset($commit_data["files"][$k]["additions"])==True) and (isset($commit_data["files"][$k]["deletions"])==True))
                   {
-                    $commit_changes=" [+".$commit_data["files"][$k]["additions"].",-".$commit_data["files"][$k]["deletions"]."]";
+                    $additions=$commit_data["files"][$k]["additions"];
+                    $deletions=$commit_data["files"][$k]["deletions"];
+                    $commit_changes=" [+$additions,-$deletions]";
                   }
                   pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol.$commit_status.$commit_changes.":".chr(3)." https://github.com/$repo/blob/$branch/$commit_filename");
                 }

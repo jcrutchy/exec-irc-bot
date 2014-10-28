@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 29-aug-2014
 
 /*
 <crutchy> c++
