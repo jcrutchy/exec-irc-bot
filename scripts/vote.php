@@ -141,7 +141,14 @@ elseif (isset($data[$id])==True)
   switch ($action)
   {
     case "sort":
-
+      $suffix="";
+      if ($data[$id]["description"]<>"")
+      {
+        $suffix=" [".$data[$id]["description"]."]";
+      }
+      ksort($data[$id]["options"]);
+      set_array_bucket($data,"<<IRC_VOTE_DATA>>");
+      privmsg("  options for poll \"$id\"$suffix are now alphabetically sorted");
       return;
     case "list":
     case "l":

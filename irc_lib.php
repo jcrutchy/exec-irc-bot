@@ -140,7 +140,7 @@ function log_data($data)
   $lmsg=strtolower($msg);
   if ((DEBUG_CHAN<>"") and (strpos($lmsg,DEBUG_CHAN)===False))
   {
-    if ((strpos($lmsg,"php fatal error:")!==False) or (strpos($lmsg,"php notice:")!==False))
+    if ((strpos($lmsg,"php warning:")!==False) or (strpos($lmsg,"php fatal error:")!==False) or (strpos($lmsg,"php notice:")!==False))
     {
       rawmsg(":".NICK." PRIVMSG ".DEBUG_CHAN." :$msg");
     }

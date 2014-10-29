@@ -15,7 +15,7 @@ $dest=$argv[3];
 $ltrailing=strtolower($trailing);
 
 $responses=array(
-  "baysplosion"=>"http://www.youtube.com/watch?feature=player_detailpage&v=v7ssUivM-eM#t=5",
+  #"baysplosion"=>"http://www.youtube.com/watch?feature=player_detailpage&v=v7ssUivM-eM#t=5",
   "i like trains"=>"http://www.youtube.com/watch?v=5DjOL2we8ko",
   "sammich"=>"http://www.youtube.com/watch?v=BEGWDuvNLKo");
 
