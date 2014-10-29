@@ -4,9 +4,7 @@
 # by crutchy
 
 # TODO: saving vote bucket to file and loading on startup
-# TODO: add sort action to sort options by option_id
 # TODO: colors
-# TODO: add list-admin command for given poll
 
 #####################################################################################################
 
@@ -53,6 +51,7 @@ $commands=array(
   "del-option","do","od",
   "add-admin",
   "del-admin",
+  "list-admin",
   "open",
   "close",
   "sort");
@@ -369,6 +368,31 @@ elseif (isset($data[$id])==True)
       else
       {
         privmsg("  admin \"$admin_account\" not found in admins for poll \"$id\"$suffix");
+      }
+      return;
+    case "list-admin":
+      $suffix="";
+      if ($data[$id]["description"]<>"")
+      {
+        $suffix=" [".$data[$id]["description"]."]";
+      }
+      privmsg("  admin accounts for poll \"$id\"$suffix:");
+      $n=count($data[$id]["admins"]);
+      for ($i=0;$i<$n;$i++)
+      {
+        $founder_suffix="";
+        if ($data[$id]["admins"][$i]==$data[$id]["founder"])
+        {
+          $founder_suffix=" (poll founder)";
+        }
+        if ($i==($n-1))
+        {
+          privmsg("  └─".$data[$id]["admins"][$i].$founder_suffix);
+        }
+        else
+        {
+          privmsg("  ├─".$data[$id]["admins"][$i].$founder_suffix);
+        }
       }
       return;
     case "open":

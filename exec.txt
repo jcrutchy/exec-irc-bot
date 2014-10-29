@@ -33,7 +33,7 @@
 ~exec-del|5|0|0|0|@|||0|php scripts/exec.php %%trailing%% %%alias%%
 ~exec-save|5|0|0|0|@|||0|php scripts/exec.php %%trailing%% %%alias%%
 ~startup|60|0|0|1|@|||0|php scripts/startup.php
-~x|120|0|0|1|crutchy,chromas|||0|php scripts/scripting.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%params%% %%timestamp%%
+~x|120|0|0|1|@|||0|php scripts/scripting.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%params%% %%timestamp%%
 ~tests|0|0|0|1|crutchy|||0|php test.php
 ~users|0|0|0|0|crutchy|||0|php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~say|2|0|1|0|crutchy,chromas,monopoly|||0|php scripts/say.php %%trailing%% %%nick%%
