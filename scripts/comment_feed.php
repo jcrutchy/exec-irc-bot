@@ -5,6 +5,11 @@
 
 #####################################################################################################
 
+# http://tmbvm.ddns.net/api.pl?m=comment&op=latest
+# http://tmbvm.ddns.net/api.pl?m=comment&op=latest&since=27700
+# limited to 50 comments (absolute)
+# http://tmbvm.ddns.net/api.pl?m=user&op=get_nick&uid=18
+
 /*
 <crutchy> could make some funky settings out of this
 <crutchy> instead of privmsging a channel, it could notice any nick that registered to receive them

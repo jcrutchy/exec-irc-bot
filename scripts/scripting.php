@@ -73,8 +73,8 @@ switch ($action)
       eval($code);
     }
     return;
-  case "o": # open script
-    # ~x o myscript
+  case "open": # open script
+    # ~x open myscript
     if ($trailing=="")
     {
       privmsg("error: script name not specified");
@@ -86,8 +86,8 @@ switch ($action)
     $data_changed=True;
     privmsg("script \"$script_name\" opened for editing by $nick in $dest");
     break;
-  case "c":
-    $script_name=get_bucket("LOADED_SCRIPT_".$nick."_".$dest);
+  case "close": # close currently open script
+    # ~x close
     if ($script_name<>"")
     {
       unset_bucket("LOADED_SCRIPT_".$nick."_".$dest);
@@ -98,8 +98,7 @@ switch ($action)
       privmsg("error: no scripts opened for editing by $nick in $dest");
     }
     break;
-  case "l":
-    $script_name=get_bucket("LOADED_SCRIPT_".$nick."_".$dest);
+  case "list":
     if ($script_name<>"")
     {
       $n=count($script_lines);
@@ -114,11 +113,11 @@ switch ($action)
       privmsg("error: no scripts opened for editing by $nick in $dest");
     }
     break;
-  case "m": # modify line
-    # ~x m L5 while (True) { privmsg("flooding++"); }
+  case "rep": # replace text
+    # ~x mod [L]5 while (True) { privmsg("flooding++"); }
     break;
-  case "r": # remove line
-    # ~x r [L]5
+  case "rem": # remove line
+    # ~x rem [L]5
     if ($trailing=="")
     {
       privmsg("error: line number not specified");
@@ -143,11 +142,41 @@ switch ($action)
     $data_changed=True;
     privmsg("script line removed");
     break;
-  case "i": # insert line
-    # ~x i L5 while (True) { privmsg("flooding++"); }
+  case "ins": # insert line
+    # ~x ins [L]5 while (True) { privmsg("flooding++"); }
+    $line_no=$parts[0];
+    array_shift($parts);
+    $trailing=trim(implode(" ",$parts));
+    if ($line_no=="")
+    {
+      privmsg("error: line number not specified");
+      break;
+    }
+    if (strtoupper($line_no[0])=="L")
+    {
+      $line_no=substr($line_no,1);
+    }
+    if (exec_is_integer($line_no)==False)
+    {
+      privmsg("error: invalid line number");
+      break;
+    }
+    if (isset($script_lines[$line_no-1])==False)
+    {
+      privmsg("error: line number not found");
+      break;
+    }
+    if ($trailing=="")
+    {
+      privmsg("error: no code to insert");
+      break;
+    }
+    array_splice($script_lines,$line_no-1,0,$trailing);
+    $data_changed=True;
+    privmsg("script line inserted");
     break;
-  case "a": # append line
-    # ~x a while (True) { privmsg("flooding++"); }
+  case "add": # append line
+    # ~x add while (True) { privmsg("flooding++"); }
     if ($script_name=="")
     {
       privmsg("error: no scripts opened for editing by $nick in $dest");
