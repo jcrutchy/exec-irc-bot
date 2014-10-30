@@ -21,6 +21,7 @@ $params=$argv[8];
 $timestamp=$argv[9];
 
 $scripts=get_array_bucket("<<LIVE_SCRIPTS>>");
+$code="";
 $script_data=array();
 $script_lines=array();
 $script_name=get_bucket("LOADED_SCRIPT_".$nick."_".$dest);
@@ -28,7 +29,11 @@ if ($script_name<>"")
 {
   if (isset($scripts[$script_name]["code"])==True)
   {
-    $script_lines=explode("\n",trim(base64_decode($scripts[$script_name]["code"])));
+    $code=trim(base64_decode($scripts[$script_name]["code"]));
+    if ($code<>"")
+    {
+      $script_lines=explode("\n",$code);
+    }
   }
 }
 
@@ -59,6 +64,10 @@ switch ($action)
     foreach ($scripts as $script_name => $data)
     {
       $code=trim(base64_decode($data["code"]));
+      if ($code=="")
+      {
+        continue;
+      }
       $code=implode(" ",explode("\n",$code));
       term_echo("*** LIVE SCRIPT: ".$code);
       eval($code);
@@ -109,16 +118,30 @@ switch ($action)
     # ~x m L5 while (True) { privmsg("flooding++"); }
     break;
   case "r": # remove line
-    # ~x r 5
+    # ~x r [L]5
     if ($trailing=="")
     {
       privmsg("error: line number not specified");
       break;
     }
-    $i=$trailing;
-    unset($script_lines[$i]);
+    if (strtoupper($trailing[0])=="L")
+    {
+      $trailing=substr($trailing,1);
+    }
+    if (exec_is_integer($trailing)==False)
+    {
+      privmsg("error: invalid line number");
+      break;
+    }
+    if (isset($script_lines[$trailing-1])==False)
+    {
+      privmsg("error: line number not found");
+      break;
+    }
+    unset($script_lines[$trailing-1]);
+    $script_lines=array_values($script_lines);
     $data_changed=True;
-    privmsg("script line appended");
+    privmsg("script line removed");
     break;
   case "i": # insert line
     # ~x i L5 while (True) { privmsg("flooding++"); }

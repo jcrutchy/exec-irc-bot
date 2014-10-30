@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 3-sep-2014
 
 #####################################################################################################
 
@@ -114,7 +113,7 @@ set_bucket("<<GDAY_LAST_ACTION>>",$action1);
 set_bucket("<<GDAY_LAST_CONTAINER>>",$container);
 set_bucket("<<GDAY_LAST_BEVERAGE>>",$beverage);
 
-privmsg("* $nick $adverb $action1 $container of $beverage $action2 $trailing");
+privmsg(chr(1)."ACTION $adverb $action1 $container of $beverage $action2 $trailing".chr(1));
 
 #####################################################################################################
 
