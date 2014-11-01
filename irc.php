@@ -118,6 +118,7 @@ require_once("irc_lib.php");
 set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)
 ini_set("memory_limit",MEMORY_LIMIT);
 ini_set("display_errors","on"); # output errors to stdout
+date_default_timezone_set("UTC");
 
 define("START_TIME",microtime(True)); # used for %%start%% template
 

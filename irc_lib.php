@@ -140,7 +140,7 @@ function log_data($data)
   $lmsg=strtolower($msg);
   if ((DEBUG_CHAN<>"") and (strpos($lmsg,DEBUG_CHAN)===False))
   {
-    if ((strpos($lmsg,"php warning:")!==False) or (strpos($lmsg,"php fatal error:")!==False) or (strpos($lmsg,"php notice:")!==False))
+    if ((strpos($lmsg,"php parse error:")!==False) or (strpos($lmsg,"php warning:")!==False) or (strpos($lmsg,"php fatal error:")!==False) or (strpos($lmsg,"php notice:")!==False))
     {
       rawmsg(":".NICK." PRIVMSG ".DEBUG_CHAN." :$msg");
     }
@@ -644,7 +644,8 @@ function buckets_save($items)
     privmsg($items["destination"],$items["nick"],"error saving buckets file");
     return;
   }
-  privmsg($items["destination"],$items["nick"],"successfully saved buckets file");
+  $size=round(strlen($data)/1024,1);
+  privmsg($items["destination"],$items["nick"],"successfully saved buckets file ($size kb)");
 }
 
 #####################################################################################################

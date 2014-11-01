@@ -1,0 +1,8 @@
+https://github.com/facebook/hhvm/wiki/Prebuilt-Packages-on-Debian-7
+
+wget -O - http://dl.hhvm.com/conf/hhvm.gpg.key | apt-key add -
+echo deb http://dl.hhvm.com/debian wheezy main | tee /etc/apt/sources.list.d/hhvm.list
+apt-get update
+apt-get install hhvm
+
+hhvm irc.php

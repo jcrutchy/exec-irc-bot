@@ -20,6 +20,7 @@ $data=$argv[7];
 $params=$argv[8];
 $timestamp=$argv[9];
 
+$global_execute=get_bucket("LIVE_SCRIPT_GLOBAL_EXECUTE");
 $scripts=get_array_bucket("<<LIVE_SCRIPTS>>");
 $code="";
 $script_data=array();
@@ -52,6 +53,11 @@ switch ($action)
   case "event-privmsg":
     term_echo("*** LIVE SCRIPTING PRIVMSG EVENT ***");
     # trailing = crutchy # test
+    term_echo("*** LIVE SCRIPTING GLOBAL EXECUTE: $global_execute");
+    if ($global_execute<>"enabled")
+    {
+      return;
+    }
     $parts=explode(" ",$trailing);
     if (count($parts)>2)
     {
@@ -60,6 +66,13 @@ switch ($action)
       array_shift($parts);
       array_shift($parts);
       $trailing=trim(implode(" ",$parts));
+    }
+    term_echo("*** LIVE SCRIPTING: nick=$nick");
+    term_echo("*** LIVE SCRIPTING: dest=$dest");
+    term_echo("*** LIVE SCRIPTING: trailing=$trailing");
+    if ($dest==NICK_EXEC)
+    {
+      return;
     }
     foreach ($scripts as $script_name => $data)
     {
@@ -73,6 +86,39 @@ switch ($action)
       eval($code);
     }
     return;
+  case "global":
+    if (($trailing=="on") or ($trailing=="off"))
+    {
+      if ($trailing=="on")
+      {
+        set_bucket("LIVE_SCRIPT_GLOBAL_EXECUTE","enabled");
+        privmsg("live script global exec flag set");
+      }
+      else
+      {
+        unset_bucket("LIVE_SCRIPT_GLOBAL_EXECUTE");
+        privmsg("live script global exec flag cleared");
+      }
+    }
+    break;
+  case "kill":
+    if ($trailing=="")
+    {
+      unset_bucket("LIVE_SCRIPT_GLOBAL_EXECUTE");
+      privmsg("live script global exec flag cleared");
+    }
+    break;
+  case "enable":
+    if ($trailing=="")
+    {
+      privmsg("error: script name not specified");
+      break;
+    }
+
+    break;
+  case "delete-script":
+
+    break;
   case "open": # open script
     # ~x open myscript
     if ($trailing=="")
@@ -81,9 +127,12 @@ switch ($action)
       break;
     }
     $script_name=$trailing;
-    $scripts[$script_name]=array();
     set_bucket("LOADED_SCRIPT_".$nick."_".$dest,$trailing);
-    $data_changed=True;
+    if (isset($scripts[$script_name])==False)
+    {
+      $scripts[$script_name]=array();
+      $data_changed=True;
+    }
     privmsg("script \"$script_name\" opened for editing by $nick in $dest");
     break;
   case "close": # close currently open script
@@ -99,22 +148,73 @@ switch ($action)
     }
     break;
   case "list":
+    term_echo("*** LIVE SCRIPTING LIST ACTION: $script_name");
     if ($script_name<>"")
     {
       $n=count($script_lines);
-      for ($i=0;$i<$n;$i++)
+      if ($n==0)
       {
-        $L=$i+1;
-        privmsg("[L$L] ".$script_lines[$i]);
+        privmsg("no lines in \"$script_name\" script");
+      }
+      else
+      {
+        for ($i=0;$i<$n;$i++)
+        {
+          $L=$i+1;
+          privmsg("[L$L] ".$script_lines[$i]);
+        }
       }
     }
     else
     {
       privmsg("error: no scripts opened for editing by $nick in $dest");
     }
-    break;
+    return;
   case "rep": # replace text
-    # ~x mod [L]5 while (True) { privmsg("flooding++"); }
+    # ~x rep [L]5 old text|new text
+    $line_no=$parts[0];
+    array_shift($parts);
+    $trailing=trim(implode(" ",$parts));
+    if ($line_no=="")
+    {
+      privmsg("error: line number not specified");
+      break;
+    }
+    if (strtoupper($line_no[0])=="L")
+    {
+      $line_no=substr($line_no,1);
+    }
+    if (exec_is_integer($line_no)==False)
+    {
+      privmsg("error: invalid line number");
+      break;
+    }
+    if (isset($script_lines[$line_no-1])==False)
+    {
+      privmsg("error: line number not found");
+      break;
+    }
+    $parts=explode("|",$trailing);
+    if (count($parts)<2)
+    {
+      privmsg("error: invalid replace syntax");
+      break;
+    }
+    $old_text=$parts[0];
+    if (count($parts)<2)
+    {
+      privmsg("error: nothing to replace");
+      break;
+    }
+    array_shift($parts);
+    $new_text=implode("|",$parts);
+    $n=0;
+    $script_lines[$line_no-1]=str_replace($old_text,$new_text,$script_lines[$line_no-1],$n);
+    if ($n>0)
+    {
+      $data_changed=True;
+      privmsg("$n replacements made");
+    }
     break;
   case "rem": # remove line
     # ~x rem [L]5
