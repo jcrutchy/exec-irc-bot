@@ -76,6 +76,14 @@ switch ($action)
     }
     foreach ($scripts as $script_name => $data)
     {
+      if (isset($data["enabled"])==False)
+      {
+        continue;
+      }
+      if ($data["enabled"]<>True)
+      {
+        continue;
+      }
       $code=trim(base64_decode($data["code"]));
       if ($code=="")
       {
@@ -114,7 +122,36 @@ switch ($action)
       privmsg("error: script name not specified");
       break;
     }
-
+    if (isset($scripts[$trailing])==False)
+    {
+      privmsg("error: script named \"$trailing\" not found");
+      break;
+    }
+    $scripts[$trailing]["enabled"]=True;
+    $data_changed=True;
+    privmsg("script \"$trailing\" enabled");
+    break;
+  case "disable":
+    if ($trailing=="")
+    {
+      privmsg("error: script name not specified");
+      break;
+    }
+    if (isset($scripts[$trailing])==False)
+    {
+      privmsg("error: script named \"$trailing\" not found");
+      break;
+    }
+    if (isset($scripts[$trailing]["enabled"])==True)
+    {
+      unset($scripts[$trailing]["enabled"]);
+      $data_changed=True;
+      privmsg("script \"$trailing\" disabled");
+    }
+    else
+    {
+      privmsg("script \"$trailing\" already disabled");
+    }
     break;
   case "delete-script":
 
@@ -144,11 +181,10 @@ switch ($action)
     }
     else
     {
-      privmsg("error: no scripts opened for editing by $nick in $dest");
+      privmsg("error: no script opened for editing by $nick in $dest");
     }
     break;
-  case "list":
-    term_echo("*** LIVE SCRIPTING LIST ACTION: $script_name");
+  case "code":
     if ($script_name<>"")
     {
       $n=count($script_lines);
@@ -167,11 +203,33 @@ switch ($action)
     }
     else
     {
-      privmsg("error: no scripts opened for editing by $nick in $dest");
+      privmsg("error: no script opened for editing by $nick in $dest");
     }
     return;
-  case "rep": # replace text
-    # ~x rep [L]5 old text|new text
+  case "list":
+    privmsg("scripts available:");
+    $n=count($scripts);
+    $i=0;
+    foreach ($scripts as $script_name => $data)
+    {
+      $msg=$script_name;
+      if (isset($data["enabled"])==True)
+      {
+        $msg=$msg." [enabled]";
+      }
+      if ($i==($n-1))
+      {
+        privmsg("└─".$msg);
+      }
+      else
+      {
+        privmsg("├─".$msg);
+      }
+      $i++;
+    }
+    return;
+  case "replace": # replace text
+    # ~x replace [L]5 old text|new text
     $line_no=$parts[0];
     array_shift($parts);
     $trailing=trim(implode(" ",$parts));
@@ -216,8 +274,8 @@ switch ($action)
       privmsg("$n replacements made");
     }
     break;
-  case "rem": # remove line
-    # ~x rem [L]5
+  case "delete-line":
+    # ~x delete-line [L]5
     if ($trailing=="")
     {
       privmsg("error: line number not specified");
@@ -242,8 +300,8 @@ switch ($action)
     $data_changed=True;
     privmsg("script line removed");
     break;
-  case "ins": # insert line
-    # ~x ins [L]5 while (True) { privmsg("flooding++"); }
+  case "insert":
+    # ~x insert [L]5 while (True) { privmsg("flooding++"); }
     $line_no=$parts[0];
     array_shift($parts);
     $trailing=trim(implode(" ",$parts));
@@ -275,7 +333,7 @@ switch ($action)
     $data_changed=True;
     privmsg("script line inserted");
     break;
-  case "add": # append line
+  case "add":
     # ~x add while (True) { privmsg("flooding++"); }
     if ($script_name=="")
     {
