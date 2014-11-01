@@ -36,7 +36,7 @@
 ~x|120|0|0|1|@|||0|php scripts/scripting.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%params%% %%timestamp%%
 ~tests|0|0|0|1|crutchy|||0|php test.php
 ~users|0|0|0|0|crutchy|||0|php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~say|2|0|1|0|crutchy,chromas,monopoly|||0|php scripts/say.php %%trailing%% %%nick%%
+~say|10|0|0|1|crutchy,chromas,monopoly|||0|php scripts/say.php %%trailing%% %%nick%%
 ~bucket|5|0|0|1|crutchy|||0|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 ~suggest|20|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~suggest-api|20|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%

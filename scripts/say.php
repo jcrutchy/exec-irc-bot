@@ -2,21 +2,29 @@
 
 # gpl2
 # by crutchy
-# 17-june-2014
-
-# say.php
 
 #####################################################################################################
 
 ini_set("display_errors","on");
 require_once("lib.php");
 
-/*if ((substr($argv[1],0,1)=="/") and (substr($argv[1],1,1)<>"/"))
-{
-  return;
-}*/
+$trailing=$argv[1];
+$parts=explode(" ",$trailing);
+$dest=strtolower($parts[0]);
+$ischan=users_chan_exists($dest);
+$isnick=users_nick_exists($dest);
 
-echo $argv[1]."\n";
+if (($ischan==True) or ($isnick==True))
+{
+  array_shift($parts);
+  $trailing=implode(" ",$parts);
+  pm($dest,$trailing);
+  pm("crutchy",$trailing);
+}
+else
+{
+  privmsg($trailing);
+}
 
 #####################################################################################################
 

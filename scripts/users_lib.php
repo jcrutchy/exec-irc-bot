@@ -92,6 +92,38 @@ function users_get_channels($nick)
 
 #####################################################################################################
 
+function users_get_all_channels()
+{
+  $channels=array();
+  $users=get_array_bucket(BUCKET_USERS);
+  foreach ($users as $nick => $nick_data)
+  {
+    foreach ($nick_data["channels"] as $channel => $chan_data)
+    {
+      $channels[]=$channel;
+    }
+  }
+  sort($channels);
+  return $channels;
+}
+
+#####################################################################################################
+
+function users_chan_exists($channel)
+{
+  $channels=users_get_all_channels();
+  if (in_array($channel,$channels)==True)
+  {
+    return True;
+  }
+  else
+  {
+    return False;
+  }
+}
+
+#####################################################################################################
+
 function users_count_nicks($channel)
 {
   $nicks=array();
