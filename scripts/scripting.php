@@ -51,9 +51,7 @@ switch ($action)
     register_event_handler("PRIVMSG",":".NICK_EXEC." INTERNAL :~x event-privmsg %%nick%% %%dest%% %%trailing%%");
     break;
   case "event-privmsg":
-    term_echo("*** LIVE SCRIPTING PRIVMSG EVENT ***");
     # trailing = crutchy # test
-    term_echo("*** LIVE SCRIPTING GLOBAL EXECUTE: $global_execute");
     if ($global_execute<>"enabled")
     {
       return;
@@ -67,9 +65,6 @@ switch ($action)
       array_shift($parts);
       $trailing=trim(implode(" ",$parts));
     }
-    term_echo("*** LIVE SCRIPTING: nick=$nick");
-    term_echo("*** LIVE SCRIPTING: dest=$dest");
-    term_echo("*** LIVE SCRIPTING: trailing=$trailing");
     if ($dest==NICK_EXEC)
     {
       return;
@@ -110,11 +105,8 @@ switch ($action)
     }
     break;
   case "kill":
-    if ($trailing=="")
-    {
-      unset_bucket("LIVE_SCRIPT_GLOBAL_EXECUTE");
-      privmsg("live script global exec flag cleared");
-    }
+    unset_bucket("LIVE_SCRIPT_GLOBAL_EXECUTE");
+    term_echo("*** LIVE SCRIPTING KILLED: live script global exec flag cleared with kill command");
     break;
   case "enable":
     if ($trailing=="")
@@ -184,7 +176,8 @@ switch ($action)
       privmsg("error: no script opened for editing by $nick in $dest");
     }
     break;
-  case "code":
+  case "code": # outputs lines of code for currently open script
+    # ~x code
     if ($script_name<>"")
     {
       $n=count($script_lines);

@@ -16,7 +16,7 @@ function initialize_buckets()
 
 function init()
 {
-  $items=parse_data("INIT");
+  $items=parse_data(CMD_INIT);
   process_scripts($items,ALIAS_INIT);
 }
 
@@ -24,7 +24,7 @@ function init()
 
 function startup()
 {
-  $items=parse_data("STARTUP");
+  $items=parse_data(CMD_STARTUP);
   process_scripts($items,ALIAS_STARTUP);
 }
 
@@ -100,7 +100,15 @@ function get_list($items)
       {
         $msg=$msg." ";
       }
-      $msg=$msg.$alias;
+      if (strlen($msg.$alias)>(MAX_MSG_LENGTH-1))
+      {
+        privmsg($items["destination"],$items["nick"]," ".$msg);
+        $msg=$alias;
+      }
+      else
+      {
+        $msg=$msg.$alias;
+      }
     }
   }
   privmsg($items["destination"],$items["nick"]," ".$msg);
@@ -123,7 +131,15 @@ function get_list_auth($items)
       {
         $msg=$msg." ";
       }
-      $msg=$msg.$alias;
+      if (strlen($msg.$alias)>(MAX_MSG_LENGTH-1))
+      {
+        privmsg($items["destination"],$items["nick"]," ".$msg);
+        $msg=$alias;
+      }
+      else
+      {
+        $msg=$msg.$alias;
+      }
     }
   }
   privmsg($items["destination"],$items["nick"]," ".$msg);

@@ -26,7 +26,7 @@ $admin_accounts=array("xlefay","chromas","juggs","paulej72","mrcoolbp");
 #####################################################################################################
 
 define("EXEC_DELIM","|");
-define("MAX_MSG_LENGTH",800);
+define("MAX_MSG_LENGTH",458);
 define("IGNORE_TIME",20); # seconds (alias abuse control)
 define("DELTA_TOLERANCE",1.5); # seconds (alias abuse control)
 define("TEMPLATE_DELIM","%%");
