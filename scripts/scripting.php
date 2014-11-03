@@ -30,7 +30,7 @@ if ($script_name<>"")
 {
   if (isset($scripts[$script_name]["code"])==True)
   {
-    $code=trim(base64_decode($scripts[$script_name]["code"]));
+    $code=base64_decode($scripts[$script_name]["code"]);
     if ($code<>"")
     {
       $script_lines=explode("\n",$code);
@@ -346,7 +346,7 @@ switch ($action)
 
 if (($data_changed==True) and ($script_name<>""))
 {
-  $scripts[$script_name]["code"]=base64_encode(trim(implode("\n",$script_lines)));
+  $scripts[$script_name]["code"]=base64_encode(implode("\n",$script_lines));
   set_array_bucket($scripts,"<<LIVE_SCRIPTS>>");
 }
 

@@ -42,115 +42,20 @@ $unit_strengths["warrior"]="1,0,0,1,0,0";
 
 #####################################################################################################
 
-function civ_event_join()
+function get_game_list()
 {
-  global $parts;
-  global $irciv_players;
-  global $irciv_channels;
-  global $irciv_data_changed;
-  if (count($parts)<>2)
+  $prefix="IRCIV_GAME_";
+  $len_prefix=strlen($prefix);
+  $buckets=bucket_list();
+  $game_list=array();
+  for ($i=0;$i<count($buckets);$i++)
   {
-    return;
-  }
-  $nick=strtolower($parts[0]);
-  $channel=strtolower($parts[1]);
-  irciv_term_echo("civ_event_join: nick=$nick, channel=$channel");
-  if (isset($irciv_channels[$channel])==False)
-  {
-    return;
-  }
-  $account=users_get_account($nick);
-  if ($account<>"")
-  {
-    $irciv_players[$nick]["account"]=$account;
-    $irciv_players[$nick]["channels"][$channel]="";
-    $irciv_data_changed=True;
-  }
-}
-
-#####################################################################################################
-
-function civ_event_kick()
-{
-  global $parts;
-  global $irciv_players;
-  global $irciv_data_changed;
-  if (count($parts)<>2)
-  {
-    return;
-  }
-  $nick=strtolower($parts[0]);
-  $channel=strtolower($parts[1]);
-  irciv_term_echo("civ_event_kick: nick=$nick, channel=$channel");
-  if (isset($irciv_players[$nick]["channels"][$channel])==True)
-  {
-    unset($irciv_players[$nick]["channels"][$channel]);
-    $irciv_data_changed=True;
-  }
-}
-
-#####################################################################################################
-
-function civ_event_nick()
-{
-  global $parts;
-  global $irciv_players;
-  global $irciv_data_changed;
-  if (count($parts)<>2)
-  {
-    return;
-  }
-  $old_nick=strtolower($parts[0]);
-  $new_nick=strtolower($parts[1]);
-  irciv_term_echo("civ_event_nick: old_nick=$old_nick, new_nick=$new_nick");
-  if (isset($irciv_players[$old_nick]["account"])==True)
-  {
-    $old_account=$irciv_players[$old_nick]["account"];
-    $new_account=users_get_account($new_nick);
-    if ($old_account==$new_account)
+    if (substr($buckets[$i],0,$len_prefix)==$prefix)
     {
-      $irciv_players[$new_nick]=$irciv_players[$old_nick];
-      unset($irciv_players[$old_nick]);
-      $irciv_data_changed=True;
+      $game_list[]=$buckets[$i];
     }
   }
-}
-
-#####################################################################################################
-
-function civ_event_part()
-{
-  global $parts;
-  global $irciv_players;
-  global $irciv_data_changed;
-  if (count($parts)<>2)
-  {
-    return;
-  }
-  $nick=strtolower($parts[0]);
-  $channel=strtolower($parts[1]);
-  irciv_term_echo("civ_event_part: nick=$nick, channel=$channel");
-  if (isset($irciv_players[$nick]["channels"][$channel])==True)
-  {
-    unset($irciv_players[$nick]["channels"][$channel]);
-    $irciv_data_changed=True;
-  }
-}
-
-#####################################################################################################
-
-function civ_event_quit()
-{
-  global $trailing;
-  global $irciv_players;
-  global $irciv_data_changed;
-  $nick=strtolower($trailing);
-  irciv_term_echo("civ_event_quit: nick=$nick");
-  if (isset($irciv_players[$nick])==True)
-  {
-    unset($irciv_players[$nick]);
-    $irciv_data_changed=True;
-  }
+  return $game_list;
 }
 
 #####################################################################################################
@@ -193,14 +98,17 @@ function register_channel()
     irciv_term_echo("register_channel: channel not specified");
     return;
   }
+  if (users_chan_exists($channel)==False)
+  {
+    irciv_privmsg("error: channel not found");
+    return;
+  }
   if (isset($irciv_channels[$channel])==True)
   {
     unset($irciv_channels[$channel]);
   }
-  # TODO: clear all player data for this channel
-  # $irciv_players (store player game data in separate var)
   $map_data=generate_map_data();
-  $irciv_channels[$channel]=$map_data;
+  $irciv_channels[$channel]["map"]=$map_data;
   $irciv_data_changed=True;
   $msg="registered and generated map for channel $channel";
   if ($trailing<>"")

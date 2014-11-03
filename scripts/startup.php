@@ -13,8 +13,6 @@ echo "################ BEGIN STARTUP ################\n";
 
 set_bucket(BUCKET_CONNECTION_ESTABLISHED,"1");
 
-echo "/INTERNAL ~buckets-load\n";
-
 #echo "/INTERNAL ~sedbot-ii\n";
 #echo "/INTERNAL ~sedbot-tail0\n";
 
@@ -41,7 +39,6 @@ echo "/INTERNAL ~join #debug\n";
 echo "/INTERNAL ~join #civ\n";
 
 unset_bucket("<<EXEC_EVENT_HANDLERS>>");
-echo "/INTERNAL ~civ register-events\n";
 echo "/INTERNAL ~meeting register-events\n";
 echo "/INTERNAL ~x register-events\n"; # LIVE SCRIPTING
 

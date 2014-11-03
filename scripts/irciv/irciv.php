@@ -26,10 +26,12 @@ if ($trailing=="")
   return;
 }
 
+$game_data=array();
+if ($dest<>"")
+{
+  $game_data=get_array_bucket("IRCIV_GAME_".$dest);
+}
 $irciv_data_changed=False;
-
-$irciv_players=get_array_bucket("IRCIV_PLAYERS");
-$irciv_channels=get_array_bucket("IRCIV_CHANNELS");
 
 $parts=explode(" ",$trailing);
 $action=strtolower($parts[0]);
@@ -38,32 +40,6 @@ $trailing=trim(implode(" ",$parts));
 
 switch ($action)
 {
-  case "register-events":
-    if ($cmd=="INTERNAL")
-    {
-      register_all_events("~civ");
-    }
-    break;
-  case "event-join":
-    # trailing = <nick> <channel>
-    civ_event_join();
-    break;
-  case "event-kick":
-    # trailing = <channel> <nick>
-    civ_event_kick();
-    break;
-  case "event-nick":
-    # trailing = <old-nick> <new-nick>
-    civ_event_nick();
-    break;
-  case "event-part":
-    # trailing = <nick> <channel>
-    civ_event_part();
-    break;
-  case "event-quit":
-    # trailing = <nick>
-    civ_event_quit();
-    break;
   case "register-channel":
     if (is_gm()==True)
     {
@@ -73,26 +49,29 @@ switch ($action)
   case "save-data":
     irciv_save_data();
     return;
+  case "game-list":
+    $games=get_game_list();
+    var_dump($games);
+    return;
   case "help":
   case "?":
-    if (count($parts)==1)
+    if (count($parts)==0)
     {
       output_help();
     }
     break;
   case "player-unset":
-    if ((count($parts)==2) and ($alias==$admin_alias))
+    if (is_gm()==True)
     {
-      $player=$parts[1];
-      if (isset($players[$player])==True)
+      if (isset($irciv_player_data[$trailing])==True)
       {
-        unset($players[$player]);
-        irciv_privmsg("admin: unset \"$player\"");
+        unset($irciv_player_data[$trailing]);
+        irciv_privmsg("admin: unset \"$trailing\"");
         $irciv_data_changed=True;
       }
       else
       {
-        irciv_privmsg("admin: player \"$player\" not found");
+        irciv_privmsg("admin: player \"$trailing\" not found");
       }
     }
     break;
@@ -106,7 +85,7 @@ switch ($action)
     }
     break;
   case "player-data":
-    if ($alias==$admin_alias)
+    if (is_gm()==True)
     {
       if (count($parts)==2)
       {
@@ -127,7 +106,7 @@ switch ($action)
     }
     break;
   case "move-unit":
-    if ($alias==$admin_alias)
+    if (is_gm()==True)
     {
       if (count($parts)==5)
       {
@@ -155,7 +134,7 @@ switch ($action)
     }
     break;
   case "object-edit":
-    if ($alias==$admin_alias)
+    if (is_gm()==True)
     {
       if (count($parts)>=5)
       {
@@ -201,7 +180,7 @@ switch ($action)
     }
     break;
   case "player-edit":
-    if ($alias==$admin_alias)
+    if (is_gm()==True)
     {
       if (count($parts)>=3)
       {
@@ -395,10 +374,9 @@ switch ($action)
     break;
 }
 
-if ($irciv_data_changed==True)
+if (($dest<>"") and ($irciv_data_changed==True))
 {
-  set_array_bucket($irciv_players,"IRCIV_PLAYERS");
-  set_array_bucket($irciv_channels,"IRCIV_CHANNELS");
+  set_array_bucket($game_data,"IRCIV_GAME_".$dest);
 }
 
 #####################################################################################################

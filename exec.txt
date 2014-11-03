@@ -131,15 +131,15 @@ rofl|15|0|0|1||||0|php scripts/confucius.php %%trailing%% %%dest%% %%nick%% %%al
 ~translate|10|0|0|0||||0|php scripts/translate.php %%trailing%% %%alias%%
 ~translate-sl|10|0|0|0||||0|php scripts/translate.php %%trailing%% %%alias%%
 
-~weather|60|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
-~weather-old|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
-~weather-add|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
-~weather-del|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
-~weather-prefs|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+#~weather|60|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+#~weather-old|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+#~weather-add|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+#~weather-del|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+#~weather-prefs|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
 
-~time|60|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
-~time-add|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
-~time-del|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
+#~time|60|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
+#~time-add|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
+#~time-del|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
 
 ~help|20|0|0|1||||0|php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
