@@ -18,19 +18,23 @@ if ($alias=="~slashcode-issue")
 {
   $host="api.github.com";
   $port=443;
-  #$uri="/repos/SoylentNews/slashcode/issues";
-  $uri="/repos/crutchy-/exec-irc-bot/issues";
-  $tok=file_get_contents("../pwd/gh_tok");
+  # SoylentNews/slashcode
+  $username="crutchy-";
+  $repo="exec-irc-bot";
+  $uri="/repos/$username/$repo/issues";
+  $tok=trim(file_get_contents("../pwd/gh_tok"));
   $headers=array();
   $headers["Authorization"]="token $tok";
+  $headers["Content-Type"]="application/json";
+  $headers["Accept"]="application/vnd.github.v3+json";
   $params=array();
   $params["title"]="test title";
   $params["body"]="test body";
-  $json=json_encode($params);
-  $response=wpost($host,$uri,$port,ICEWEASEL_UA,$json,$headers,60,True);
+  $json=json_encode($params,JSON_PRETTY_PRINT);
+  $response=wpost($host,$uri,$port,ICEWEASEL_UA,$json,$headers,60,True,True);
   $content=strip_headers($response);
   $data=json_decode($content,True);
-  var_dump($data);
+  var_dump($response);
   return;
 }
 
@@ -63,42 +67,12 @@ if ($alias=="~github-list")
   return;
 }
 
-if ($alias=="~github-atom")
-{
-  $host="api.github.com";
-  $port=443;
-  $uri="/crutchy-";
-  $tok=file_get_contents("../pwd/gh_tok");
-  $headers=array();
-  $headers["Authorization"]="token $tok";
-  $headers["Accept"]="application/atom+xml";
-  $response=wget($host,$uri,$port,ICEWEASEL_UA,$headers,60);
-  var_dump($response);
-  return;
-}
-
 for ($i=0;$i<count($list);$i++)
 {
   check_push_events($list[$i]);
   check_pull_events($list[$i]);
   check_issue_events($list[$i]);
 }
-
-/*$users=array();
-for ($i=0;$i<count($list);$i++)
-{
-  $user=substr($list[$i],0,strpos($list[$i],"/"));
-  if (in_array($user,$users)==False)
-  {
-    $users[]=$user;
-  }
-}
-for ($i=0;$i<count($users);$i++)
-{
-  check_events(11,"/users/".$users[$i]."/events");
-}*/
-
-#check_events(11,"/events");
 
 #####################################################################################################
 
@@ -262,9 +236,10 @@ function get_api_data($uri)
 {
   $host="api.github.com";
   $port=443;
-  $tok=file_get_contents("../pwd/gh_tok");
+  $tok=trim(file_get_contents("../pwd/gh_tok"));
   $headers=array();
   $headers["Authorization"]="token $tok";
+  $headers["Accept"]="application/vnd.github.v3+json";
   $response=wget($host,$uri,$port,ICEWEASEL_UA,$headers,60);
   $content=strip_headers($response);
   return json_decode($content,True);

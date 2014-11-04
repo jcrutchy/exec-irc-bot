@@ -332,7 +332,7 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
 
 #####################################################################################################
 
-function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$timeout=20,$params_str=False)
+function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$timeout=20,$params_str=False,$dump_request=False)
 {
   if (check_url($host.$uri)==False) # check url against blacklist
   {
@@ -383,6 +383,10 @@ function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$t
   }
   $headers=$headers."Connection: Close\r\n\r\n";
   $request=$headers.$content;
+  if ($dump_request==True)
+  {
+    var_dump($request);
+  }
   fwrite($fp,$request);
   $response="";
   while (!feof($fp))
