@@ -225,6 +225,8 @@ else
   rawmsg("USER ".NICK." hostname servername :".NICK.".bot");
 }
 
+$antiflog=True;
+
 # main program loop
 while (True)
 {
@@ -242,7 +244,11 @@ while (True)
   $handles=array_values($handles);
   handle_socket($socket);
   handle_direct_stdin();
-  usleep(0.05e6); # 0.05 second to prevent cpu flogging
+  if ($antiflog==True)
+  {
+    usleep(0.05e6); # 0.05 second to prevent cpu flogging
+  }
+  $antiflog=True;
   process_timed_execs();
 }
 

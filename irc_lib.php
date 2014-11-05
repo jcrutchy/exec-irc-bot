@@ -720,6 +720,7 @@ function buckets_list($items)
 
 function handle_socket($socket)
 {
+  global $antiflog;
   global $irc_pause;
   if ($irc_pause==True)
   {
@@ -732,6 +733,7 @@ function handle_socket($socket)
   $data=fgets($socket);
   if ($data!==False)
   {
+    $antiflog=False;
     if (pingpong($data)==False)
     {
       handle_data($data,True);
