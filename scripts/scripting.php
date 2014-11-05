@@ -146,7 +146,20 @@ switch ($action)
     }
     break;
   case "delete-script":
-
+    # ~x delete-script myscript
+    if ($trailing=="")
+    {
+      privmsg("error: script name not specified");
+      break;
+    }
+    if (isset($scripts[$trailing])==False)
+    {
+      privmsg("error: script named \"$trailing\" not found");
+      break;
+    }
+    unset($scripts[$trailing]);
+    $data_changed=True;
+    privmsg("deleted script \"$trailing\"");
     break;
   case "open": # open script
     # ~x open myscript
