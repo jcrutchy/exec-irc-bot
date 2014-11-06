@@ -89,6 +89,12 @@ switch ($action)
       eval($code);
     }
     return;
+  case "import":
+
+    break;
+  case "export":
+
+    break;
   case "global":
     if (($trailing=="on") or ($trailing=="off"))
     {
@@ -158,9 +164,9 @@ switch ($action)
       break;
     }
     unset($scripts[$trailing]);
-    $data_changed=True;
+    set_array_bucket($scripts,"<<LIVE_SCRIPTS>>");
     privmsg("deleted script \"$trailing\"");
-    break;
+    return;
   case "open": # open script
     # ~x open myscript
     if ($trailing=="")
@@ -213,8 +219,13 @@ switch ($action)
     }
     return;
   case "list":
-    privmsg("scripts available:");
     $n=count($scripts);
+    if ($n==0)
+    {
+      privmsg("no scripts available");
+      return;
+    }
+    privmsg("scripts available:");
     $i=0;
     foreach ($scripts as $script_name => $data)
     {
