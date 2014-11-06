@@ -15,13 +15,7 @@ define("TIMEOUT_RANDOM_COORD",10); # sec
 
 define("MIN_CITY_SPACING",3);
 
-define("BUCKET_USERDATA_PREFIX","irciv_user_");
-define("BUCKET_PLAYERSDATA_PREFIX","irciv_players_");
-define("BUCKET_MAPDATA_PREFIX","irciv_map_");
-
-define("FILE_PLAYER_DATA","../data/irciv_player_data");
-define("FILE_MAP_DATA","../data/irciv_map_data_");
-define("FILE_MAP_COORDS","../data/irciv_map_coords_");
+define("DATA_FILE_PATH","../data/irciv/");
 
 define("TERRAIN_OCEAN","O");
 define("TERRAIN_LAND","L");
@@ -46,13 +40,15 @@ function get_game_list()
 {
   $prefix="IRCIV_GAME_";
   $len_prefix=strlen($prefix);
-  $buckets=bucket_list();
+  $buckets_str=bucket_list();
+  $buckets_arr=explode(" ",$buckets_str);
   $game_list=array();
-  for ($i=0;$i<count($buckets);$i++)
+  for ($i=0;$i<count($buckets_arr);$i++)
   {
-    if (substr($buckets[$i],0,$len_prefix)==$prefix)
+    if (substr($buckets_arr[$i],0,$len_prefix)==$prefix)
     {
-      $game_list[]=$buckets[$i];
+      $channel=substr($buckets_arr[$i],$len_prefix);
+      $game_list[$channel]=$buckets_arr[$i];
     }
   }
   return $game_list;
@@ -81,21 +77,19 @@ function register_channel()
 {
   global $trailing;
   global $dest;
-  global $irciv_players;
-  global $irciv_channels;
+  global $game_data;
   global $irciv_data_changed;
+  irciv_term_echo("trailing = \"$trailing\"");
   $channel="";
   if ($trailing<>"")
   {
-    $channel=strtolower($trailing);
+    irciv_privmsg("syntax: [~civ] register-channel");
+    return;
   }
-  elseif ($dest<>"")
-  {
-    $channel=strtolower($dest);
-  }
+  $channel=strtolower($dest);
   if ($channel=="")
   {
-    irciv_term_echo("register_channel: channel not specified");
+    irciv_term_echo("error: channel not specified");
     return;
   }
   if (users_chan_exists($channel)==False)
@@ -103,21 +97,22 @@ function register_channel()
     irciv_privmsg("error: channel not found");
     return;
   }
-  if (isset($irciv_channels[$channel])==True)
+  if (isset($game_data["map"])==True)
   {
-    unset($irciv_channels[$channel]);
+    irciv_privmsg("error: existing map data found");
+    return;
   }
   $map_data=generate_map_data();
-  $irciv_channels[$channel]["map"]=$map_data;
+  $game_data["map"]=$map_data;
   $irciv_data_changed=True;
-  $msg="registered and generated map for channel $channel";
+  $msg="map generated for channel $channel";
   if ($trailing<>"")
   {
     irciv_privmsg_dest($trailing,$msg);
   }
   if (($dest<>"") and ($dest<>$trailing))
   {
-    irciv_privmsg_dest($dest,$msg);
+    irciv_privmsg($msg);
   }
 }
 
@@ -147,49 +142,14 @@ function generate_map_data()
 
 function irciv_term_echo($msg)
 {
-  term_echo("irciv: $msg");
+  echo "\033[36m$msg\033[0m\n";
 }
 
 #####################################################################################################
 
 function irciv_privmsg($msg)
 {
-  privmsg("irciv: $msg");
-}
-
-#####################################################################################################
-
-function irciv_privmsg_dest($dest,$msg)
-{
-  pm($dest,$msg);
-}
-
-#####################################################################################################
-
-function irciv_err($msg)
-{
-  err("irciv error: $msg");
-}
-
-#####################################################################################################
-
-function irciv_get_bucket($suffix)
-{
-  return get_bucket(BUCKET_PREFIX.$suffix);
-}
-
-#####################################################################################################
-
-function irciv_set_bucket($suffix,$data)
-{
-  set_bucket(BUCKET_PREFIX.$suffix,$data);
-}
-
-#####################################################################################################
-
-function irciv_unset_bucket($suffix)
-{
-  unset_bucket(BUCKET_PREFIX.$suffix);
+  privmsg($msg);
 }
 
 #####################################################################################################
@@ -556,27 +516,74 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
 
 function irciv_save_data()
 {
-  global $game_chans;
-  irciv_term_echo("saving irciv data...");
-  $players=irciv_get_bucket("players");
-  if (file_put_contents(IRCIV_FILE_PLAYER_DATA,$players)===False)
+  global $dest;
+  $games=get_game_list();
+  $n=count($games);
+  if ($n==0)
   {
-    irciv_term_echo("irciv player data not saved");
+    if ($dest<>"")
+    {
+      irciv_privmsg("no games registered");
+    }
+    else
+    {
+      irciv_term_echo("no games registered");
+    }
+    return;
   }
-  for ($i=0;$i<count($game_chans);$i++)
+  $chanlist=array();
+  foreach ($games as $channel => $bucket)
   {
-    $map_coords=irciv_get_bucket("map_coords_".$game_chans[$i]);
-    $map_data=irciv_get_bucket("map_data_".$game_chans[$i]);
-    if (file_put_contents(IRCIV_FILE_MAP_COORDS.$game_chans[$i],$map_coords)===False)
+    $game_bucket=get_bucket($bucket);
+    $filename=DATA_FILE_PATH.$channel;
+    if (file_put_contents($filename,$game_bucket)===False)
     {
-      irciv_term_echo("irciv map coords for channel \"".$game_chans[$i]."\" not saved");
+      if ($dest<>"")
+      {
+        irciv_privmsg("error saving channel data file \"$filename\"");
+      }
+      else
+      {
+        irciv_term_echo("error saving channel data file \"$filename\"");
+      }
     }
-    if (file_put_contents(IRCIV_FILE_MAP_DATA.$game_chans[$i],$map_data)===False)
+    else
     {
-      irciv_term_echo("irciv map data for channel \"".$game_chans[$i]."\" not saved");
+      $chanlist[]=$channel;
+      if ($dest<>"")
+      {
+        irciv_privmsg("channel data file \"$filename\" saved successfully");
+      }
+      else
+      {
+        irciv_term_echo("channel data file \"$filename\" saved successfully");
+      }
     }
   }
-  irciv_term_echo("irciv data saved");
+  $data=implode("\n",$chanlist);
+  $filename=DATA_FILE_PATH."irciv_chan_list";
+  if (file_put_contents($filename,$data)===False)
+  {
+    if ($dest<>"")
+    {
+      irciv_privmsg("error saving irciv channel list file \"$filename\"");
+    }
+    else
+    {
+      irciv_term_echo("error saving irciv channel list file \"$filename\"");
+    }
+  }
+  else
+  {
+    if ($dest<>"")
+    {
+      irciv_privmsg("irciv channel list file \"$filename\" saved successfully");
+    }
+    else
+    {
+      irciv_term_echo("irciv channel list file \"$filename\" saved successfully");
+    }
+  }
 }
 
 #####################################################################################################

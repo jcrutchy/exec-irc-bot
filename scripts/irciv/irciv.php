@@ -51,7 +51,28 @@ switch ($action)
     return;
   case "game-list":
     $games=get_game_list();
-    var_dump($games);
+    $n=count($games);
+    if ($n==0)
+    {
+      irciv_privmsg("no irciv games registered");
+    }
+    else
+    {
+      irciv_privmsg("registered games:");
+      $i=0;
+      foreach ($games as $channel => $bucket)
+      {
+        if ($i==($n-1))
+        {
+          irciv_privmsg("  └─ $channel");
+        }
+        else
+        {
+          irciv_privmsg("  ├─ $channel");
+        }
+        $i++;
+      }
+    }
     return;
   case "help":
   case "?":
