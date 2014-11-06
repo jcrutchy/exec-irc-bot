@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 9-sep-2014
 
 # http://wiki.soylentnews.org/wiki/Rss_sources
 

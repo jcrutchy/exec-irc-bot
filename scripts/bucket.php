@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 30-aug-2014
 
 ini_set("display_errors","on");
 

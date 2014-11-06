@@ -2,7 +2,6 @@
 
 # gpl2
 # by crutchy
-# 22-aug-2014
 
 # maybe eventually change to ~query
 

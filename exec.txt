@@ -43,27 +43,25 @@
 ~suggest-exec|20|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~slashcode-issue|60|0|0|1|*|||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~wiki|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
-~ircd|10|0|0|1|crutchy|||0|php scripts/server.php %%trailing%% %%dest%% %%nick%%
-~bot|0|0|0|1|crutchy|||0|php scripts/bot.php %%trailing%% %%dest%% %%nick%%
-~title|30|0|0|0||||0|php scripts/title.php %%trailing%%
-~copyright|0|0|0|0|crutchy|||0|php scripts/copyright.php %%trailing%%
-~comments|1700|0|0|1|crutchy|||0|php scripts/comment_feed.php
-~github-atom|120|0|0|1|crutchy|||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#~ircd|10|0|0|1|crutchy|||0|php scripts/server.php %%trailing%% %%dest%% %%nick%%
+#~bot|0|0|0|1|crutchy|||0|php scripts/bot.php %%trailing%% %%dest%% %%nick%%
+#~title|30|0|0|0||||0|php scripts/title.php %%trailing%%
+#~copyright|0|0|0|0|crutchy|||0|php scripts/copyright.php %%trailing%%
+#~comments|1700|0|0|1|crutchy|||0|php scripts/comment_feed.php
 #~feeds|500|0|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 ~github-list|60|0|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
-~tama|30|0|0|1|crutchy,arti,chromas|||0|php scripts/tama.php %%trailing%% %%dest%% %%nick%%
-
 #~comment|30|0|0|1|crutchy|||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~comment-dump|120|0|0|1|crutchy|||0|php scripts/sn-tfa-comments.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #~feed-wiki|600|1800|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+
 ~vote|10|0|0|1|*|||0|php scripts/vote.php %%trailing%% %%dest%% %%nick%%
 
 # ALIASES LIMITED TO SPECIFIC COMMANDS (UNUSALLY INTERNAL)
 ~sed-internal|10|0|0|1||INTERNAL||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
-~privmsg-internal|5|0|0|1||INTERNAL||0|php scripts/privmsg.php %%trailing%% %%nick%% %%dest%%
-~welcome-internal|30|0|0|1||INTERNAL||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
+#~privmsg-internal|5|0|0|1||INTERNAL||0|php scripts/privmsg.php %%trailing%% %%nick%% %%dest%%
+#~welcome-internal|30|0|0|1||INTERNAL||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
 #~pong|10|0|0|0||INTERNAL||0|php scripts/ping.php %%trailing%% %%alias%%
 
 ~verifier-nick-change|30|0|0|1||INTERNAL||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
@@ -88,45 +86,45 @@
 # GENERAL USAGE ALIASES
 ~|5|0|1|1||||0|php scripts/about.php %%trailing%%
 ~sed|10|0|0|0||||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
-~welcome|10|0|0|0||||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
-~remind|9999|0|0|0||||0|php scripts/remind.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#~welcome|10|0|0|0||||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
+#~remind|9999|0|0|0||||0|php scripts/remind.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~cowsay|10|0|1|0||||0|cowsay %%trailing%%
 ~moo|10|0|1|1||||0|apt-get moo
-~fortune|5|0|1|1||||0|fortune -s
-~header|20|0|0|0||||0|php scripts/header.php %%trailing%% %%alias%%
-~header-login|20|0|0|0||||0|php scripts/header.php %%trailing%% %%alias%%
+#~fortune|5|0|1|1||||0|fortune -s
+#~header|20|0|0|0||||0|php scripts/header.php %%trailing%% %%alias%%
+#~header-login|20|0|0|0||||0|php scripts/header.php %%trailing%% %%alias%%
 ~php|5|0|0|0||||0|php scripts/php.php %%trailing%%
 ~join|5|0|0|0||||0|php scripts/join.php %%trailing%%
-~invite|5|0|0|0||||0|php scripts/join.php %%trailing%%
+#~invite|5|0|0|0||||0|php scripts/join.php %%trailing%%
 ~part|5|0|0|1||||0|php scripts/part.php %%dest%% %%trailing%%
 ~isup|30|0|0|0||||0|php scripts/isup.php %%trailing%%
-~rainbow|5|0|0|0||||0|php scripts/rainbow.php %%trailing%%
+#~rainbow|5|0|0|0||||0|php scripts/rainbow.php %%trailing%%
 ~queue|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-~uid|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-~up|5|0|0|1||||0|php scripts/up.php %%start%%
-~location|5|0|0|0||||0|php scripts/location.php %%trailing%%
+#~uid|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#~up|5|0|0|1||||0|php scripts/up.php %%start%%
+#~location|5|0|0|0||||0|php scripts/location.php %%trailing%%
 ~staff|20|0|0|1||||0|php scripts/staff.php %%trailing%%
 ~g'day|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
 ~gday|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
 ~g'night|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
 ~gnight|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
 
-~scramble|10|0|0|1||||0|php scripts/scramble.php %%trailing%% %%nick%% %%dest%%
+#~scramble|10|0|0|1||||0|php scripts/scramble.php %%trailing%% %%nick%% %%dest%%
 
 #rofl|5|0|1|1||||0|fortune -s -o
 
-rofl|15|0|0|1||||0|php scripts/confucius.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
+#rofl|15|0|0|1||||0|php scripts/confucius.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
 
-~openthepodbaydoors|5|0|1|1||||0|fortune -s -o
+#~openthepodbaydoors|5|0|1|1||||0|fortune -s -o
 
-~cid|5|0|0|1||||0|php scripts/comment_utils.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
+#~cid|5|0|0|1||||0|php scripts/comment_utils.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
 
 ~count|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~first|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~last|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~find-first|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 ~find-last|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-~chart|0|0|0|1|crutchy|||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#~chart|0|0|0|1|crutchy|||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 
 ~translate|10|0|0|0||||0|php scripts/translate.php %%trailing%% %%alias%%
 ~translate-sl|10|0|0|0||||0|php scripts/translate.php %%trailing%% %%alias%%
@@ -141,7 +139,7 @@ rofl|15|0|0|1||||0|php scripts/confucius.php %%trailing%% %%dest%% %%nick%% %%al
 #~time-add|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
 #~time-del|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
 
-~help|20|0|0|1||||0|php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#~help|20|0|0|1||||0|php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 #~feed-sources|5|0|0|1||||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #~feed-add|5|0|0|1||||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
@@ -156,11 +154,11 @@ rofl|15|0|0|1||||0|php scripts/confucius.php %%trailing%% %%dest%% %%nick%% %%al
 ~define-list|60|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
 ~define-add|10|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
 ~define-delete|10|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
-~define-count|5|0|0|1||||0|php scripts/definitions.php %%trailing%% %%alias%%
-~define-sources|5|0|0|1||||0|php scripts/definitions.php %%trailing%% %%alias%%
-~define-source-edit|5|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
-~define-source-param|5|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
-~define-source-delete|5|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
+#~define-count|5|0|0|1||||0|php scripts/definitions.php %%trailing%% %%alias%%
+#~define-sources|5|0|0|1||||0|php scripts/definitions.php %%trailing%% %%alias%%
+#~define-source-edit|5|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
+#~define-source-param|5|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
+#~define-source-delete|5|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
 
 #####################################################################################################
 
