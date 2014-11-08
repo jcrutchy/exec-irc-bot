@@ -5,6 +5,12 @@
 
 #####################################################################################################
 
+/*
+exec:~civ|300|0|0|1||||0|php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
+*/
+
+#####################################################################################################
+
 ini_set("display_errors","on");
 
 date_default_timezone_set("UTC");
@@ -48,6 +54,9 @@ switch ($action)
     break;
   case "save-data":
     irciv_save_data();
+    return;
+  case "load-data":
+    irciv_load_data();
     return;
   case "game-list":
     $games=get_game_list();

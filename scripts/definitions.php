@@ -255,8 +255,8 @@ switch($alias)
     foreach ($terms as $term => $def)
     {
       term_echo("[$term] => $def");
-      #privmsg("[$term] => $def");
     }
+    privmsg("definitions added in irc has been output to terminal");
     break;
 }
 file_put_contents(DEFINE_SOURCES_FILE,serialize($sources));

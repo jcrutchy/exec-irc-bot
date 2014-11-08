@@ -28,6 +28,11 @@
 
 #####################################################################################################
 
+# INCLUDES
+include ./scripts
+
+#####################################################################################################
+
 # REQUIRE NICKSERV IDENTIFIED USER AUTHENTICATION (WHOIS)
 ~exec-add|5|0|0|0|@|||0|php scripts/exec.php %%trailing%% %%alias%%
 ~exec-del|5|0|0|0|@|||0|php scripts/exec.php %%trailing%% %%alias%%
@@ -162,7 +167,7 @@
 
 #####################################################################################################
 
-~civ|300|0|0|1||||0|php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
+#~civ|300|0|0|1||||0|php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
 ~meeting|60|0|0|1||||0|php scripts/meeting.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
 
 #####################################################################################################

@@ -590,17 +590,18 @@ function irciv_save_data()
 
 function irciv_load_data()
 {
-  global $game_chans;
-  irciv_term_echo("loading IRCiv data...");
-  if (file_exists(IRCIV_FILE_PLAYER_DATA)==True)
+  $filename=DATA_FILE_PATH."irciv_chan_list";
+  if (file_exists($filename)==True)
   {
-    $players=file_get_contents(IRCIV_FILE_PLAYER_DATA);
-    irciv_set_bucket("players",$players);
+    $players=file_get_contents($filename);
+
   }
   else
   {
     irciv_term_echo("IRCiv player data not found");
   }
+
+
   for ($i=0;$i<count($game_chans);$i++)
   {
     if (file_exists(IRCIV_FILE_MAP_COORDS.$game_chans[$i])==True)
