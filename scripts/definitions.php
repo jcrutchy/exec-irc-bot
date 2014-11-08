@@ -3,6 +3,22 @@
 # gpl2
 # by crutchy
 
+#####################################################################################################
+
+/*
+exec:~define|20|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
+exec:~define-list|60|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
+exec:~define-add|10|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
+exec:~define-delete|10|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
+exec:~define-count|5|0|0|1||||0|php scripts/definitions.php %%trailing%% %%alias%%
+exec:~define-sources|5|0|0|1||||0|php scripts/definitions.php %%trailing%% %%alias%%
+exec:~define-source-edit|5|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
+exec:~define-source-param|5|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
+exec:~define-source-delete|5|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
+*/
+
+#####################################################################################################
+
 # maybe eventually change to ~query
 
 # http://api.urbandictionary.com/v0/define?term=shitton

@@ -5,6 +5,16 @@
 
 #####################################################################################################
 
+/*
+exec:~op|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~deop|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~voice|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~devoice|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~kick|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+*/
+
+#####################################################################################################
+
 ini_set("display_errors","on");
 require_once("lib.php");
 

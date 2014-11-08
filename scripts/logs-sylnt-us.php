@@ -2,7 +2,17 @@
 
 # gpl2
 # by crutchy
-# 29-aug-2014
+
+#####################################################################################################
+
+/*
+exec:~count|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~first|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~last|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~find-first|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~find-last|0|0|0|1||||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~chart|0|0|0|1|crutchy|||0|php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+*/
 
 #####################################################################################################
 
@@ -241,6 +251,8 @@ if ($trailing<>"")
         if (strpos($lmsg,$ltrailing)!==False)
         {
           $msg=html_entity_decode($privmsg2[$i]["msg"],ENT_QUOTES,"UTF-8");
+          # http://logs.sylnt.us/%23soylent/2014-03-15.html#00:03:26
+          # urlencode($dest);
           privmsg("last privmsg containing \"$trailing\" in $dest: [".$privmsg2[$i]["date"]." ".$privmsg2[$i]["time"]."] <".$privmsg2[$i]["nick"]."> ".$msg);
           break;
         }

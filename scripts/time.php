@@ -2,7 +2,14 @@
 
 # gpl2
 # by crutchy
-# 29-aug-2014
+
+#####################################################################################################
+
+/*
+exec:~time|60|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
+exec:~time-add|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
+exec:~time-del|10|0|0|1||||0|php scripts/time.php %%alias%% %%trailing%% %%nick%%
+*/
 
 #####################################################################################################
 

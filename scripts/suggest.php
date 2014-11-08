@@ -5,6 +5,14 @@
 
 #####################################################################################################
 
+/*
+exec:~suggest|20|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~suggest-api|20|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~suggest-exec|20|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+*/
+
+#####################################################################################################
+
 require_once("lib.php");
 require_once("wiki_lib.php");
 

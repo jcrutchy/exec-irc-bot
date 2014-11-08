@@ -5,6 +5,12 @@
 
 #####################################################################################################
 
+/*
+exec:~title|30|0|0|0||||0|php scripts/title.php %%trailing%%
+*/
+
+#####################################################################################################
+
 # http://www.smh.com.au/world/barack-obamas-military-action-in-iraq-speaks-to-core-audience-20140808-1021gd.html
 
 require_once("lib.php");

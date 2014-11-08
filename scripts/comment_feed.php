@@ -5,6 +5,13 @@
 
 #####################################################################################################
 
+/*
+exec:~comments|1700|0|0|1|crutchy|||0|php scripts/comment_feed.php
+exec:~comments-internal|1700|1800|0|1||INTERNAL||0|php scripts/comment_feed.php
+*/
+
+#####################################################################################################
+
 # http://tmbvm.ddns.net/api.pl?m=comment&op=latest
 # http://tmbvm.ddns.net/api.pl?m=comment&op=latest&since=27700
 # limited to 50 comments (absolute)

@@ -5,6 +5,12 @@
 
 #####################################################################################################
 
+/*
+exec:~meeting|60|0|0|1||||0|php scripts/meeting.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
+*/
+
+#####################################################################################################
+
 # http://wiki.soylentnews.org/wiki/Board_Meetings_Rules_of_Order
 
 ini_set("display_errors","on");

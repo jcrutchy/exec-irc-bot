@@ -5,6 +5,12 @@
 
 #####################################################################################################
 
+/*
+exec:~alias|timeout|repeat|0|1|account-list|cmd-list|dest-list|0|php scripts/blah.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%params%% %%timestamp%%
+*/
+
+#####################################################################################################
+
 require_once("lib.php");
 
 $trailing=$argv[1];
@@ -16,14 +22,6 @@ $cmd=$argv[6];
 $data=$argv[7];
 $params=$argv[8];
 $timestamp=$argv[9];
-
-/*privmsg("hello world");
-term_echo("message appears in terminal only");
-pm(NICK_EXEC,"message");
-err("show this message in terminal and die");
-$data=get_bucket("index");
-set_bucket("index",$data);
-wget($host,$uri,80);*/
 
 #####################################################################################################
 

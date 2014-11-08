@@ -3,6 +3,19 @@
 # gpl2
 # by crutchy
 
+#####################################################################################################
+
+/*
+exec:~comment|30|0|0|1|crutchy|||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~verifier-nick-change|30|0|0|1||INTERNAL||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~verifier-nick|30|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~funding|30|900|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~queue|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~uid|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+*/
+
+#####################################################################################################
+
 /*
 - the bot could keeep track of irc comments and if you type something like
   "~comment Bytram, i think you're right" the bot could tack it to the end of Bytram's last comment posting

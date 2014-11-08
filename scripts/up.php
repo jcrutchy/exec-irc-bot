@@ -2,14 +2,23 @@
 
 # gpl2
 # by crutchy
-# 25-july-2014
+
+#####################################################################################################
+
+/*
+exec:~up|5|0|0|1||||0|php scripts/up.php %%start%%
+*/
+
+#####################################################################################################
 
 require_once("lib.php");
 
 $uptime=microtime(True)-$argv[1];
-privmsg("uptime: ".secsToTime($uptime));
+privmsg("uptime: ".secs_to_time($uptime));
 
-function secsToTime($secs) # by chromas, 17-april-2014
+#####################################################################################################
+
+function secs_to_time($secs) # by chromas, 17-april-2014
 {
   $ss=$secs;
   $dd=floor($secs/86400);
@@ -20,5 +29,7 @@ function secsToTime($secs) # by chromas, 17-april-2014
   $secs=$secs%60;
   return $dd."d ".$hh.":".$mm.":".$secs;
 }
+
+#####################################################################################################
 
 ?>

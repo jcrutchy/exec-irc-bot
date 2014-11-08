@@ -3,6 +3,14 @@
 # gpl2
 # by crutchy
 
+#####################################################################################################
+
+/*
+exec:~wiki|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+*/
+
+#####################################################################################################
+
 # http://www.mediawiki.org/wiki/Manual:Bots
 # http://en.wikipedia.org/wiki/Wikipedia:Creating_a_bot
 

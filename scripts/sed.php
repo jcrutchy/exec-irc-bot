@@ -3,6 +3,27 @@
 # gpl2
 # by crutchy
 
+#####################################################################################################
+
+/*
+exec:~sed-internal|10|0|0|1||INTERNAL||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
+exec:~sed|10|0|0|0||||0|php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
+#exec:~sedbot-ii|0|0|0|1|crutchy|||0|ii -s irc.sylnt.us -p 6667 -n SedBot2 -f SedBot2
+#exec:~sedbot-cmd|0|0|0|1|crutchy|||0|echo %%trailing%% > ~/irc/irc.sylnt.us/in
+#exec:~sedbot-awk1|0|0|0|1|crutchy|||0|tail -Fn1 /home/jared/irc/irc.sylnt.us/#soylent/out | /home/jared/sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#soylent/in
+#exec:~sedbot-awk2|0|0|0|1|crutchy|||0|tail -Fn1 /home/jared/irc/irc.sylnt.us/##/out | /home/jared/sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/##/in
+#exec:~sedbot-awk3|0|0|0|1|crutchy|||0|tail -Fn1 /home/jared/irc/irc.sylnt.us/#test/out | /home/jared/sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#test/in
+#exec:~sedbot-tail0|0|0|0|1|crutchy|||0|tail -Fn1 ~/irc/irc.sylnt.us/out
+#exec:~sedbot-tail1|0|0|0|1|crutchy|||0|tail -Fn1 ~/irc/irc.sylnt.us/#soylent/out
+#exec:~sedbot-tail2|0|0|0|1|crutchy|||0|tail -Fn1 ~/irc/irc.sylnt.us/##/out
+#exec:~sedbot-tail3|0|0|0|1|crutchy|||0|tail -Fn1 ~/irc/irc.sylnt.us/#test/out
+#exec:~sedbot-talk1|0|0|0|0|crutchy|||0|echo %%trailing%% > ~/irc/irc.sylnt.us/#soylent/in
+#exec:~sedbot-talk2|0|0|0|0|crutchy|||0|echo %%trailing%% > ~/irc/irc.sylnt.us/##/in
+#exec:~sedbot-talk3|0|0|0|0|crutchy|||0|echo %%trailing%% > ~/irc/irc.sylnt.us/#test/in
+*/
+
+#####################################################################################################
+
 /*
 <crutchy> c++
 <Bender> karma - c: 0

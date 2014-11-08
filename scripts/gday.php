@@ -5,6 +5,15 @@
 
 #####################################################################################################
 
+/*
+exec:~g'day|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
+exec:~gday|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
+exec:~g'night|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
+exec:~gnight|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
+*/
+
+#####################################################################################################
+
 require_once("lib.php");
 
 $trailing=trim($argv[1]);
@@ -17,15 +26,21 @@ if ($trailing=="")
 
 $adverbs=array(
   "brazenly",
-  "surreptitiously",
   "spontaneously",
   "prematurely",
-  "lagubriously",
-  "insubordinately",
-  "pulchritudinously",
   "unjustifiably",
   "insatiably",
-  "fanatically"); # thanks to prospectacle
+  "abnormally",
+  "abrasively",
+  "accidentally",
+  "allegedly",
+  "clumsily",
+  "cohesively",
+  "covertly",
+  "dexterously",
+  "diabolically",
+  "fanatically",
+  "suspiciously");
 $actions=array(
   "cracks open"=>"for",
   "passes"=>"to",
