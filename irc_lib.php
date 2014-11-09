@@ -333,7 +333,7 @@ function handle_stdout($handle)
           rawmsg($prefix_msg);
           return;
         case PREFIX_EXEC_ADD:
-          if (load_exec_line($prefix_msg,False)!==False)
+          if (load_exec_line($prefix_msg,"",False)!==False)
           {
             privmsg($handle["destination"],$handle["nick"],"successfully added exec line");
           }
@@ -1183,6 +1183,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
   global $admin_data;
   global $admin_is_sock;
   global $admin_aliases;
+  global $exec_errors;
   global $exec_list;
   global $throttle_time;
   global $ignore_list;
@@ -1478,6 +1479,73 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
           process_scripts($items,ALIAS_QUIT);
         }
         break;
+      case ALIAS_ADMIN_EXEC_CONFLICTS:
+        if (count($args)==1)
+        {
+          # TODO
+        }
+        break;
+      case ALIAS_ADMIN_EXEC_LIST:
+        if (count($args)==1)
+        {
+          # TODO
+        }
+        break;
+      case ALIAS_ADMIN_EXEC_TIMERS:
+        if (count($args)==1)
+        {
+          # TODO
+        }
+        break;
+      case ALIAS_ADMIN_EXEC_ERRORS:
+        if (count($args)==1)
+        {
+          $n=count($exec_errors);
+          if ($n>0)
+          {
+            privmsg($items["destination"],$items["nick"],"exec load errors:");
+            $i=0;
+            foreach ($exec_errors as $filename => $messages)
+            {
+              if ($i==($n-1))
+              {
+                privmsg($items["destination"],$items["nick"],"  └─".$filename);
+                for ($j=0;$j<count($messages);$j++)
+                {
+                  if ($j==(count($messages)-1))
+                  {
+                    privmsg($items["destination"],$items["nick"],"     └─".$messages[$j]);
+                  }
+                  else
+                  {
+                    privmsg($items["destination"],$items["nick"],"     ├─".$messages[$j]);
+                  }
+                }
+              }
+              else
+              {
+                privmsg($items["destination"],$items["nick"],"  ├─".$filename);
+                for ($j=0;$j<count($messages);$j++)
+                {
+                  if ($j==(count($messages)-1))
+                  {
+                    privmsg($items["destination"],$items["nick"],"  │  └─".$messages[$j]);
+                  }
+                  else
+                  {
+                    privmsg($items["destination"],$items["nick"],"  │  ├─".$messages[$j]);
+                  }
+                }
+              }
+              $i++;
+            }
+          }
+          else
+          {
+            privmsg($items["destination"],$items["nick"],"no errors");
+          }
+        }
+        break;
       default:
         process_scripts($items); # execute scripts occurring for a specific alias
         process_scripts($items,ALIAS_ALL); # process scripts occuring for every line (* alias)
@@ -1489,7 +1557,9 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
 
 function exec_load()
 {
+  global $exec_errors;
   global $exec_list;
+  $exec_errors=array();
   $exec_list=array();
   if (file_exists(EXEC_FILE)==False)
   {
@@ -1521,7 +1591,7 @@ function exec_load()
     }
     else
     {
-      load_exec_line($data[$i]);
+      load_exec_line($data[$i],EXEC_FILE);
     }
   }
   return $exec_list;
@@ -1550,15 +1620,16 @@ function load_exec_include($filename)
     if (substr($line,0,strlen(INCLUDE_EXEC))==INCLUDE_EXEC)
     {
       $exec=substr($line,strlen(INCLUDE_EXEC));
-      load_exec_line($exec);
+      load_exec_line($exec,$filename);
     }
   }
 }
 
 #####################################################################################################
 
-function load_exec_line($line,$saved=True)
+function load_exec_line($line,$filename,$saved=True)
 {
+  global $exec_errors;
   global $exec_list;
   $line=trim($line);
   if ($line=="")
@@ -1572,7 +1643,9 @@ function load_exec_line($line,$saved=True)
   $parts=explode(EXEC_DELIM,$line);
   if (count($parts)<10)
   {
-    term_echo("EXEC LINE ERROR 1: $line");
+    $msg="not enough parameters: $line";
+    term_echo($msg);
+    $exec_errors[$filename][]=$msg;
     return False;
   }
   $alias=trim($parts[0]);
@@ -1618,7 +1691,9 @@ function load_exec_line($line,$saved=True)
   $cmd=trim(implode("|",$parts)); # shell command
   if (($alias=="") or (is_numeric($timeout)==False) or (is_numeric($repeat)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or (($reserved<>"0") and ($reserved<>"1")) or ($cmd==""))
   {
-    term_echo("EXEC LINE ERROR 2: $line");
+    $msg="invalid parameter: $line";
+    term_echo($msg);
+    $exec_errors[$filename][]=$msg;
     return False;
   }
   $cmd_parts=explode(" ",$cmd);
@@ -1632,7 +1707,9 @@ function load_exec_line($line,$saved=True)
         $filename=__DIR__."/".$filename;
         if (file_exists($filename)==False)
         {
-          term_echo("EXEC LINE ERROR 3: $line");
+          $msg="php file not found: $line";
+          term_echo($msg);
+          $exec_errors[$filename][]=$msg;
           return False;
         }
       }
@@ -1651,6 +1728,7 @@ function load_exec_line($line,$saved=True)
   $result["cmd"]=$cmd;
   $result["saved"]=$saved;
   $result["line"]=$line;
+  $result["file"]=$filename;
   $exec_list[$alias]=$result;
   term_echo("SUCCESS: $line");
   return $result;

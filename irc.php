@@ -3,6 +3,8 @@
 # gpl2
 # by crutchy
 
+# http://us.php.net/manual/en/ref.sem.php
+
 #####################################################################################################
 
 # installation-specific settings
@@ -94,6 +96,10 @@ define("ALIAS_ADMIN_BUCKETS_SAVE","~buckets-save"); # save buckets to file
 define("ALIAS_ADMIN_BUCKETS_LOAD","~buckets-load"); # load buckets from file
 define("ALIAS_ADMIN_BUCKETS_FLUSH","~buckets-flush"); # re-initialize buckets
 define("ALIAS_ADMIN_BUCKETS_LIST","~buckets-list"); # output list of set bucket indexes to the terminal
+define("ALIAS_ADMIN_EXEC_CONFLICTS","~exec-conflicts");
+define("ALIAS_ADMIN_EXEC_LIST","~exec-list");
+define("ALIAS_ADMIN_EXEC_TIMERS","~exec-timers");
+define("ALIAS_ADMIN_EXEC_ERRORS","~exec-errors");
 define("ALIAS_LOG","~log");
 define("ALIAS_LOCK","~lock");
 define("ALIAS_UNLOCK","~unlock");
@@ -164,7 +170,11 @@ $admin_aliases=array(
   ALIAS_ADMIN_BUCKETS_LIST,
   ALIAS_ADMIN_IGNORE,
   ALIAS_ADMIN_UNIGNORE,
-  ALIAS_ADMIN_LIST_IGNORE);
+  ALIAS_ADMIN_LIST_IGNORE,
+  ALIAS_ADMIN_EXEC_CONFLICTS,
+  ALIAS_ADMIN_EXEC_LIST,
+  ALIAS_ADMIN_EXEC_TIMERS,
+  ALIAS_ADMIN_EXEC_ERRORS);
 
 $reserved_aliases=array(
   ALIAS_ALL,
@@ -185,6 +195,7 @@ $silent_timeout_commands=array(
 
 $valid_data_cmd=get_valid_data_cmd();
 
+$exec_errors=array(); # stores exec load errors
 $exec_list=exec_load();
 if ($exec_list===False)
 {
@@ -223,8 +234,11 @@ if ($socket===False)
 else
 {
   stream_set_blocking($socket,0);
-  rawmsg("NICK ".NICK);
-  rawmsg("USER ".NICK." hostname servername :".NICK.".bot");
+  if (ftell($socket)==0)
+  {
+    rawmsg("NICK ".NICK);
+    rawmsg("USER ".NICK." hostname servername :".NICK.".bot");
+  }
 }
 
 $antiflog=True;
