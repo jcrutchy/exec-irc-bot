@@ -4,6 +4,8 @@
 # by crutchy
 
 # http://us.php.net/manual/en/ref.sem.php
+# $sock = stream_socket_client('unix:///full/path/to/my/socket.sock', $errno, $errstr);
+# http://php.net/manual/en/function.stream-socket-client.php
 
 #####################################################################################################
 
@@ -29,7 +31,9 @@ $admin_accounts=array("xlefay","chromas","juggs","paulej72","mrcoolbp");
 
 define("EXEC_DELIM","|");
 define("EXEC_INCLUDE","include ");
-define("INCLUDE_EXEC","exec:");
+define("EXEC_STARTUP","startup ");
+define("FILE_DIRECTIVE_EXEC","exec:");
+define("FILE_DIRECTIVE_STARTUP","startup:");
 define("MAX_MSG_LENGTH",458);
 define("IGNORE_TIME",20); # seconds (alias abuse control)
 define("DELTA_TOLERANCE",1.5); # seconds (alias abuse control)
@@ -195,6 +199,8 @@ $silent_timeout_commands=array(
 
 $valid_data_cmd=get_valid_data_cmd();
 
+$startup=array();
+
 $exec_errors=array(); # stores exec load errors
 $exec_list=exec_load();
 if ($exec_list===False)
@@ -234,11 +240,8 @@ if ($socket===False)
 else
 {
   stream_set_blocking($socket,0);
-  if (ftell($socket)==0)
-  {
-    rawmsg("NICK ".NICK);
-    rawmsg("USER ".NICK." hostname servername :".NICK.".bot");
-  }
+  rawmsg("NICK ".NICK);
+  rawmsg("USER ".NICK." hostname servername :".NICK.".bot");
 }
 
 $antiflog=True;

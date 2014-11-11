@@ -24,8 +24,23 @@ function init()
 
 function startup()
 {
+  global $startup;
   $items=parse_data(CMD_STARTUP);
   process_scripts($items,ALIAS_STARTUP);
+  $file_lines=array();
+  for ($i=0;$i<count($startup);$i++)
+  {
+    load_directory($startup[$i],$file_lines,FILE_DIRECTIVE_STARTUP);
+  }
+  foreach ($file_lines as $filename => $commands)
+  {
+    for ($i=0;$i<count($commands);$i++)
+    {
+      term_echo("STARTUP: ".$commands[$i]);
+      handle_data(":".NICK." ".CMD_INTERNAL." :".$commands[$i]."\n",False,False,True);
+    }
+  }
+  unset($file_lines);
 }
 
 #####################################################################################################
@@ -333,7 +348,7 @@ function handle_stdout($handle)
           rawmsg($prefix_msg);
           return;
         case PREFIX_EXEC_ADD:
-          if (load_exec_line($prefix_msg,"",False)!==False)
+          if (load_exec_line($prefix_msg,$msg,False)!==False)
           {
             privmsg($handle["destination"],$handle["nick"],"successfully added exec line");
           }
@@ -1559,6 +1574,8 @@ function exec_load()
 {
   global $exec_errors;
   global $exec_list;
+  global $startup;
+  $startup=array();
   $exec_errors=array();
   $exec_list=array();
   if (file_exists(EXEC_FILE)==False)
@@ -1576,18 +1593,31 @@ function exec_load()
     $line=trim($data[$i]);
     if (substr($line,0,strlen(EXEC_INCLUDE))==EXEC_INCLUDE)
     {
+      $file_lines=array();
       $include=substr($line,strlen(EXEC_INCLUDE));
       if (file_exists($include)==True)
       {
         if (is_dir($include)==True)
         {
-          load_exec_directory($include);
+          load_directory($include,$file_lines,FILE_DIRECTIVE_EXEC);
         }
         else
         {
-          load_exec_include($include);
+          load_include($include,$file_lines,FILE_DIRECTIVE_EXEC);
         }
       }
+      foreach ($file_lines as $filename => $exec_lines)
+      {
+        for ($j=0;$j<count($exec_lines);$j++)
+        {
+          load_exec_line($exec_lines[$j],$filename);
+        }
+      }
+      unset($file_lines);
+    }
+    elseif (substr($line,0,strlen(EXEC_STARTUP))==EXEC_STARTUP)
+    {
+      $startup[]=substr($line,strlen(EXEC_STARTUP));
     }
     else
     {
@@ -1599,28 +1629,28 @@ function exec_load()
 
 #####################################################################################################
 
-function load_exec_include($filename)
+function load_include($filename,&$lines,$directive)
 {
   global $exec_list;
   if (file_exists($filename)==False)
   {
-    term_echo("load_exec_include: \"$filename\" not found");
+    term_echo("load_include: \"$filename\" not found");
     return;
   }
   $data=file_get_contents($filename);
   if ($data===False)
   {
-    term_echo("load_exec_include: unable to read \"$filename\"");
+    term_echo("load_include: unable to read \"$filename\"");
     return;
   }
   $data=explode("\n",$data);
   for ($i=0;$i<count($data);$i++)
   {
     $line=trim($data[$i]);
-    if (substr($line,0,strlen(INCLUDE_EXEC))==INCLUDE_EXEC)
+    if (substr($line,0,strlen($directive))==$directive)
     {
-      $exec=substr($line,strlen(INCLUDE_EXEC));
-      load_exec_line($exec,$filename);
+      $line=substr($line,strlen($directive));
+      $lines[$filename][]=$line;
     }
   }
 }
@@ -2337,11 +2367,11 @@ function delete_empty_elements(&$array)
 
 #####################################################################################################
 
-function load_exec_directory($dir)
+function load_directory($dir,&$lines,$directive)
 {
   if ((file_exists($dir)==True) and (is_dir($dir)==True))
   {
-    term_echo("load_exec_directory: \"$dir\" found");
+    term_echo("load_directory: \"$dir\" found");
     $handle=opendir($dir);
     while (($file=readdir($handle))!==False)
     {
@@ -2352,18 +2382,18 @@ function load_exec_directory($dir)
       $fullname=$dir."/".$file;
       if (is_dir($fullname)==True)
       {
-        load_exec_directory($fullname);
+        load_directory($fullname,$lines,$directive);
       }
       else
       {
-        load_exec_include($fullname);
+        load_include($fullname,$lines,$directive);
       }
     }
     closedir($handle);
   }
   else
   {
-    term_echo("load_exec_directory: \"$dir\" not found");
+    term_echo("load_directory: \"$dir\" not found");
   }
 }
 

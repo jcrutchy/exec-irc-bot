@@ -6,7 +6,7 @@
 #####################################################################################################
 
 /*
-exec:~define|20|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
+exec:~define|30|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
 exec:~define-list|60|0|0|1|crutchy|||0|php scripts/definitions.php %%trailing%% %%alias%%
 exec:~define-add|10|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
 exec:~define-delete|10|0|0|0||||0|php scripts/definitions.php %%trailing%% %%alias%%
