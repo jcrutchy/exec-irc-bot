@@ -12,11 +12,8 @@ require_once("lib.php");
 
 echo "################ BEGIN INIT ################\n";
 
-echo "/INTERNAL ~buckets-load\n";
-sleep(4);
 set_bucket(BUCKET_CONNECTION_ESTABLISHED,"0");
 unset_bucket(BUCKET_USERS);
-unset_bucket("<<EXEC_EVENT_HANDLERS>>");
 
 echo "################# END INIT #################\n";
 

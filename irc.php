@@ -30,10 +30,14 @@ $admin_accounts=array("xlefay","chromas","juggs","paulej72","mrcoolbp");
 #####################################################################################################
 
 define("EXEC_DELIM","|");
-define("EXEC_INCLUDE","include ");
-define("EXEC_STARTUP","startup ");
-define("FILE_DIRECTIVE_EXEC","exec:");
-define("FILE_DIRECTIVE_STARTUP","startup:");
+define("EXEC_DIRECTIVE_DELIM"," ");
+define("EXEC_INCLUDE","include");
+define("EXEC_INIT","init");
+define("EXEC_STARTUP","startup");
+define("FILE_DIRECTIVE_DELIM",":");
+define("FILE_DIRECTIVE_EXEC","exec");
+define("FILE_DIRECTIVE_INIT","init");
+define("FILE_DIRECTIVE_STARTUP","startup");
 define("MAX_MSG_LENGTH",458);
 define("IGNORE_TIME",20); # seconds (alias abuse control)
 define("DELTA_TOLERANCE",1.5); # seconds (alias abuse control)
@@ -151,8 +155,6 @@ $admin_is_sock="";
 
 $irc_pause=False;
 
-initialize_buckets();
-
 $throttle_time=False; # set when "throttled" is detected in a message from the server
 $rawmsg_times=array();
 
@@ -199,6 +201,7 @@ $silent_timeout_commands=array(
 
 $valid_data_cmd=get_valid_data_cmd();
 
+$init=array();
 $startup=array();
 
 $exec_errors=array(); # stores exec load errors

@@ -7,7 +7,7 @@
 
 /*
 exec:~privmsg-internal|5|0|0|1||INTERNAL||0|php scripts/privmsg.php %%trailing%% %%nick%% %%dest%%
-startup:~privmsg-internal register-events
+init:~privmsg-internal register-events
 */
 
 #####################################################################################################

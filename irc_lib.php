@@ -8,16 +8,34 @@
 function initialize_buckets()
 {
   global $buckets;
-  $logged_chans=array();
-  $buckets[BUCKET_LOGGED_CHANS]=serialize($logged_chans);
+  $empty=array();
+  $buckets[BUCKET_LOGGED_CHANS]=serialize($empty);
+  $buckets[BUCKET_EVENT_HANDLERS]=serialize($empty);
 }
 
 #####################################################################################################
 
 function init()
 {
+  global $init;
   $items=parse_data(CMD_INIT);
+  buckets_load($items);
+  initialize_buckets();
   process_scripts($items,ALIAS_INIT);
+  $file_lines=array();
+  for ($i=0;$i<count($init);$i++)
+  {
+    load_directory($init[$i],$file_lines,FILE_DIRECTIVE_INIT);
+  }
+  foreach ($file_lines as $filename => $commands)
+  {
+    for ($i=0;$i<count($commands);$i++)
+    {
+      term_echo("FILE INIT: ".$commands[$i]);
+      handle_data(":".NICK." ".CMD_INTERNAL." :".$commands[$i]."\n",False,False,True);
+    }
+  }
+  unset($file_lines);
 }
 
 #####################################################################################################
@@ -36,7 +54,7 @@ function startup()
   {
     for ($i=0;$i<count($commands);$i++)
     {
-      term_echo("STARTUP: ".$commands[$i]);
+      term_echo("FILE STARTUP: ".$commands[$i]);
       handle_data(":".NICK." ".CMD_INTERNAL." :".$commands[$i]."\n",False,False,True);
     }
   }
@@ -1574,8 +1592,10 @@ function exec_load()
 {
   global $exec_errors;
   global $exec_list;
+  global $init;
   global $startup;
   $startup=array();
+  $init=array();
   $exec_errors=array();
   $exec_list=array();
   if (file_exists(EXEC_FILE)==False)
@@ -1591,37 +1611,42 @@ function exec_load()
   for ($i=0;$i<count($data);$i++)
   {
     $line=trim($data[$i]);
-    if (substr($line,0,strlen(EXEC_INCLUDE))==EXEC_INCLUDE)
+    $line_parts=explode(EXEC_DIRECTIVE_DELIM,$line);
+    $directive=$line_parts[0];
+    array_shift($line_parts);
+    $trailing=implode(EXEC_DIRECTIVE_DELIM,$line_parts);
+    switch ($directive)
     {
-      $file_lines=array();
-      $include=substr($line,strlen(EXEC_INCLUDE));
-      if (file_exists($include)==True)
-      {
-        if (is_dir($include)==True)
+      case EXEC_INCLUDE:
+        $file_lines=array();
+        if (file_exists($trailing)==True)
         {
-          load_directory($include,$file_lines,FILE_DIRECTIVE_EXEC);
+          if (is_dir($trailing)==True)
+          {
+            load_directory($trailing,$file_lines,FILE_DIRECTIVE_EXEC);
+          }
+          else
+          {
+            load_include($trailing,$file_lines,FILE_DIRECTIVE_EXEC);
+          }
         }
-        else
+        foreach ($file_lines as $filename => $exec_lines)
         {
-          load_include($include,$file_lines,FILE_DIRECTIVE_EXEC);
+          for ($j=0;$j<count($exec_lines);$j++)
+          {
+            load_exec_line($exec_lines[$j],$filename);
+          }
         }
-      }
-      foreach ($file_lines as $filename => $exec_lines)
-      {
-        for ($j=0;$j<count($exec_lines);$j++)
-        {
-          load_exec_line($exec_lines[$j],$filename);
-        }
-      }
-      unset($file_lines);
-    }
-    elseif (substr($line,0,strlen(EXEC_STARTUP))==EXEC_STARTUP)
-    {
-      $startup[]=substr($line,strlen(EXEC_STARTUP));
-    }
-    else
-    {
-      load_exec_line($data[$i],EXEC_FILE);
+        unset($file_lines);
+        break;
+      case EXEC_STARTUP:
+        $startup[]=$trailing;
+        break;
+      case EXEC_INIT:
+        $init[]=$trailing;
+        break;
+      default:
+        load_exec_line($data[$i],EXEC_FILE);
     }
   }
   return $exec_list;
@@ -1647,9 +1672,10 @@ function load_include($filename,&$lines,$directive)
   for ($i=0;$i<count($data);$i++)
   {
     $line=trim($data[$i]);
-    if (substr($line,0,strlen($directive))==$directive)
+    $dir_delim=$directive.FILE_DIRECTIVE_DELIM;
+    if (substr($line,0,strlen($dir_delim))==$dir_delim)
     {
-      $line=substr($line,strlen($directive));
+      $line=substr($line,strlen($dir_delim));
       $lines[$filename][]=$line;
     }
   }
