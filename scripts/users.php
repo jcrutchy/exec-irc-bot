@@ -7,6 +7,7 @@
 
 /*
 exec:~users|0|0|0|0|crutchy|||0|php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
+init:~bucket <<EXEC_USERS>> unset
 */
 
 #####################################################################################################

@@ -7,6 +7,7 @@
 
 /*
 exec:~civ|300|0|0|1||||0|php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
+startup:~join #civ
 */
 
 #####################################################################################################

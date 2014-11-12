@@ -19,7 +19,6 @@ define("VALID_NUMERIC","0123456789");
 
 # VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC
 
-define("BUCKET_CONNECTION_ESTABLISHED","<<IRC_CONNECTION_ESTABLISHED>>");
 define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 
 #####################################################################################################

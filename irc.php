@@ -15,7 +15,7 @@ define("PASSWORD_FILE","../pwd/".NICK);
 define("BUCKETS_FILE","../data/buckets");
 define("IGNORE_FILE","../data/ignore");
 define("EXEC_FILE","exec.txt");
-define("INIT_CHAN_LIST","#"); # comma delimited
+define("INIT_CHAN_LIST","#,#debug"); # comma delimited
 define("EXEC_LOG_PATH","/var/www/irciv.us.to/exec_logs/");
 define("IRC_LOG_URL","http://irciv.us.to/irc_logs/");
 define("IRC_HOST_CONNECT","irc.sylnt.us");
@@ -51,6 +51,7 @@ define("BUCKET_LOGGED_CHANS","<<LOGGED_CHANNELS>>");
 define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 define("BUCKET_USERS","<<EXEC_USERS>>");
 define("BUCKET_EVENT_HANDLERS","<<EXEC_EVENT_HANDLERS>>");
+define("BUCKET_CONNECTION_ESTABLISHED","<<IRC_CONNECTION_ESTABLISHED>>");
 
 # reserved aliases
 define("ALIAS_ALL","*");

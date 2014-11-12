@@ -11,6 +11,7 @@ function initialize_buckets()
   $empty=array();
   $buckets[BUCKET_LOGGED_CHANS]=serialize($empty);
   $buckets[BUCKET_EVENT_HANDLERS]=serialize($empty);
+  $buckets[BUCKET_CONNECTION_ESTABLISHED]="0";
 }
 
 #####################################################################################################
@@ -43,6 +44,8 @@ function init()
 function startup()
 {
   global $startup;
+  global $buckets;
+  $buckets[BUCKET_CONNECTION_ESTABLISHED]="1";
   $items=parse_data(CMD_STARTUP);
   process_scripts($items,ALIAS_STARTUP);
   $file_lines=array();

@@ -12,6 +12,9 @@ exec:~verifier-nick|30|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nic
 exec:~funding|30|900|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~queue|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~uid|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~sn-internal|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+init:~bucket <<verifier_nick>> NetCraft
+init:~sn-internal register-events
 */
 
 #####################################################################################################
@@ -37,6 +40,9 @@ define("BUCKET_VERIFIER_NICK","<<verifier_nick>>");
 
 switch ($alias)
 {
+  case "~sn-internal":
+    register_event_handler("NICK",":".NICK_EXEC." INTERNAL :~verifier-nick-change %%nick%% %%trailing%%");
+    return;
   case "~uid":
     $host="www.soylentnews.org";
     $port=80;

@@ -42,13 +42,11 @@ switch (strtoupper($cmd))
     break;
   case "JOIN":
     # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
-    #echo "/INTERNAL ~meeting JOIN $params\n";
     #echo "/INTERNAL ~welcome-internal JOIN $params\n";
     break;
   case "KICK":
     # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
     # :exec!~exec@709-27-2-01.cust.aussiebb.net KICK #comments Loggie :commanded by crutchy
-    #echo "/INTERNAL ~meeting KICK $params\n";
     echo "/INTERNAL ~sed-internal KICK $params\n";
     #echo "/INTERNAL ~welcome-internal KICK $params\n";
     break;
@@ -63,14 +61,11 @@ switch (strtoupper($cmd))
     break;
   case "PART":
     # :Drop!~Drop___@via1-vhat2-0-3-jppz214.perr.cable.virginm.net PART #Soylent :Leaving
-    #echo "/INTERNAL ~meeting PART $dest\n";
     echo "/INTERNAL ~sed-internal PART $dest\n";
     #echo "/INTERNAL ~welcome-internal PART $dest\n";
     break;
   case "PRIVMSG":
-    #echo "/INTERNAL ~meeting PRIVMSG $trailing\n";
     echo "/INTERNAL ~sed-internal PRIVMSG $trailing\n";
-    #echo "/INTERNAL ~privmsg-internal $trailing\n";
     break;
   case "QUIT":
     break;
@@ -91,7 +86,6 @@ switch (strtoupper($cmd))
     break;
   case "330":
     # :irc.sylnt.us 330 exec crutchy_ crutchy :is logged in as
-    #echo "/INTERNAL ~meeting 330 $params\n";
     break;
   case "353":
     # :irc.sylnt.us 353 exec = #civ :exec @crutchy chromas arti
@@ -107,15 +101,12 @@ switch (strtoupper($cmd))
     break;
   case "318":
     # :irc.sylnt.us 318 crutchy crutchy :End of /WHOIS list.
-    #echo "/INTERNAL ~meeting 318 $params\n";
     break;
   case "315":
     # :irc.sylnt.us 315 crutchy #Soylent :End of /WHO list.
-    #echo "/INTERNAL ~meeting 315 $params\n";
     break;
   case "354":
     # :irc.sylnt.us 354 crutchy 152 #Soylent mrcoolbp H@+
-    #echo "/INTERNAL ~meeting 354 $params\n";
     break;
   case "322":
     # :irc.sylnt.us 322 crutchy # 8 :exec's home base and proving ground. testing of other bots and general chit chat welcome :-)
