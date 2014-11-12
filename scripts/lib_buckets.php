@@ -5,6 +5,20 @@
 
 #####################################################################################################
 
+function save_bucket_to_file($index,$filename)
+{
+  # TODO
+}
+
+#####################################################################################################
+
+function load_bucket_from_file($index,$filename)
+{
+  # TODO
+}
+
+#####################################################################################################
+
 function register_all_events($alias,$privmsg=False)
 {
   register_event_handler("JOIN",":".NICK_EXEC." INTERNAL :$alias event-join %%nick%% %%params%%");

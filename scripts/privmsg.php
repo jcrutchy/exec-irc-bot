@@ -26,11 +26,29 @@ if ($trailing=="register-events")
   return;
 }
 
+$keywords=array(
+  "crutchy",
+  "exec",
+  "bot",
+  "~",
+  "wiki",
+  "xlefay",
+  "charybdis",
+  "delphi",
+  "php",
+  "irciv");
+
+$ltrailing=strtolower($trailing);
+
 if ($dest<>"crutchy")
 {
-  if ((strpos(strtolower($trailing),"crutchy")!==False) or (strpos(strtolower($trailing),"exec")!==False))
+  for ($i=0;$i<count($keywords);$i++)
   {
-    pm("crutchy","[$dest] <$nick> $trailing");
+    if (strpos($ltrailing,$keywords[$i])!==False)
+    {
+      pm("crutchy","[$dest] <$nick> $trailing");
+      return;
+    }
   }
 }
 
