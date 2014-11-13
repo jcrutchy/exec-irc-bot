@@ -173,7 +173,7 @@ function process_weather(&$location,$nick)
   $html=html_entity_decode($html,ENT_QUOTES,"UTF-8");
   $html=html_entity_decode($html,ENT_QUOTES,"UTF-8");
   $location=trim(strip_tags(extract_raw_tag($html,"h3")));
-  $wind=trim(strip_tags(extract_text($html,"style=\"white-space:nowrap;padding-right:15px;color:#666\">Wind: ","</span>")));
+  $wind=trim(strip_tags(extract_text_nofalse($html,"style=\"white-space:nowrap;padding-right:15px;color:#666\">Wind: ","</span>")));
   $humidity=extract_text($html,"style=\"white-space:nowrap;padding-right:0px;vertical-align:top;color:#666\">Humidity: ","</td>");
   $parts=explode("<td",$html);
   $temps=array();
@@ -199,17 +199,24 @@ function process_weather(&$location,$nick)
       $days[]=$day;
     }
   }
-  if ((count($conds)<>5) or (count($temps)<>10) or (count($tempsC)<>10) or (count($days)<>4))
+  $offset=0;
+  $wind_caption=", wind ".$wind;
+  if ($wind=="")
+  {
+    $offset=1;
+    $wind_caption="";
+  }
+  if ((count($conds)<>5) or (count($temps)<>(10-$offset)) or (count($tempsC)<>(10-$offset)) or (count($days)<>4))
   {
     return False;
   }
-  $result=$location." - currently ".$temps[0]." / ".$tempsC[0].", ".$conds[0].", wind ".$wind.", humidity ".$humidity." - ";
+  $result=$location." - currently ".$temps[0]." / ".$tempsC[0].", ".$conds[0].$wind_caption.", humidity ".$humidity." - ";
   $fulldays=array("Sun"=>"Sunday","Mon"=>"Monday","Tue"=>"Tuesday","Wed"=>"Wednesday","Thu"=>"Thursday","Fri"=>"Friday","Sat"=>"Saturday");
   for ($i=1;$i<=4;$i++)
   {
     $day=$days[$i-1];
     $day=$fulldays[$day];
-    $result=$result.$day." ".$conds[$i]." (".$temps[$i*2+1]."-".$temps[$i*2]." / ".$tempsC[$i*2+1]."-".$tempsC[$i*2].")";
+    $result=$result.$day." ".$conds[$i]." (".$temps[$i*2+1-$offset]."-".$temps[$i*2-$offset]." / ".$tempsC[$i*2+1-$offset]."-".$tempsC[$i*2-$offset].")";
     if ($i<4)
     {
       $result=$result.", ";

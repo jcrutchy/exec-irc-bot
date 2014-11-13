@@ -19,6 +19,26 @@ function load_bucket_from_file($index,$filename)
 
 #####################################################################################################
 
+function save_array_bucket_element_to_file($index,$key,$filename)
+{
+  $bucket=get_array_bucket($index);
+  if (isset($bucket[$key])==False)
+  {
+    return False;
+  }
+  $data=json_encode($bucket[$key],JSON_PRETTY_PRINT);
+  exec_file_write($filename,$data);
+}
+
+#####################################################################################################
+
+function load_array_bucket_element_from_file($index,$key,$filename)
+{
+  # TODO
+}
+
+#####################################################################################################
+
 function register_all_events($alias,$privmsg=False)
 {
   register_event_handler("JOIN",":".NICK_EXEC." INTERNAL :$alias event-join %%nick%% %%params%%");

@@ -243,6 +243,21 @@ function extract_text($text,$delim1,$delim2,$delim2opt=False)
 
 #####################################################################################################
 
+function extract_text_nofalse($text,$delim1,$delim2,$delim2opt=False)
+{
+  $result=extract_text($text,$delim1,$delim2,$delim2opt);
+  if ($result===False)
+  {
+    return "";
+  }
+  else
+  {
+    return $result;
+  }
+}
+
+#####################################################################################################
+
 function replace_first($search,$replace,$subject)
 {
   $lsubject=strtolower($subject);
