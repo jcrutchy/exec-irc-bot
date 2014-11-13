@@ -13,6 +13,8 @@ require_once("users_lib.php");
 
 define("NICK_EXEC","exec");
 
+define("DATA_PATH","../data/");
+
 define("VALID_UPPERCASE","ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 define("VALID_LOWERCASE","abcdefghijklmnopqrstuvwxyz");
 define("VALID_NUMERIC","0123456789");
@@ -23,23 +25,38 @@ define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 
 #####################################################################################################
 
+function exec_file_delete($filename)
+{
+  if (file_exists(DATA_PATH.$filename)==True)
+  {
+    unlink(DATA_PATH.$filename);
+    if (file_exists(DATA_PATH.$filename)==False)
+    {
+      return True;
+    }
+  }
+  return False;
+}
+
+#####################################################################################################
+
 function exec_file_append($filename,$data)
 {
-  file_put_contents("../data/".$filename,$data."\n",FILE_APPEND);
+  file_put_contents(DATA_PATH.$filename,$data."\n",FILE_APPEND);
 }
 
 #####################################################################################################
 
 function exec_file_write($filename,$data)
 {
-  file_put_contents("../data/".$filename,implode("\n",$data));
+  file_put_contents(DATA_PATH.$filename,implode("\n",$data));
 }
 
 #####################################################################################################
 
 function exec_file_read($filename)
 {
-  $fn="../data/".$filename;
+  $fn=DATA_PATH.$filename;
   if (file_exists($fn)==True)
   {
     $data=file_get_contents($fn);

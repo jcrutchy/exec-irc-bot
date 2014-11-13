@@ -57,6 +57,7 @@ if (strlen($syntax)<500)
   else
   {
     privmsg($syntax);
+    privmsg("http://php.net/manual/en/function.$msg.php");
   }
 }
 

@@ -27,14 +27,29 @@ function save_array_bucket_element_to_file($index,$key,$filename)
     return False;
   }
   $data=json_encode($bucket[$key],JSON_PRETTY_PRINT);
-  exec_file_write($filename,$data);
+  file_put_contents(DATA_PATH.$filename,$data);
+  return True;
 }
 
 #####################################################################################################
 
 function load_array_bucket_element_from_file($index,$key,$filename)
 {
-  # TODO
+  $fn=DATA_PATH.$filename;
+  if (file_exists($fn)==False)
+  {
+    return False;
+  }
+  $data=file_get_contents($fn);
+  $element=json_decode($data,True);
+  if ($element==NULL)
+  {
+    return False;
+  }
+  $bucket=get_array_bucket($index);
+  $bucket[$key]=$element;
+  set_array_bucket($bucket,$index,True);
+  return True;
 }
 
 #####################################################################################################
@@ -164,9 +179,20 @@ function bucket_read($cmd,$index="")
 
 #####################################################################################################
 
-function set_bucket($index,$data)
+function set_bucket($index,$data,$timeout=5)
 {
   echo "/BUCKET_SET $index $data\n";
+  $t=microtime(True);
+  do
+  {
+    usleep(0.05e6);
+    $test=get_bucket($index);
+    if ((microtime(True)-$t)>$timeout)
+    {
+      return False;
+    }
+  }
+  while ($test<>$data);
 }
 
 #####################################################################################################
