@@ -59,15 +59,8 @@ $params["subj"]=trim(substr($source_title,0,100));
 $params["primaryskid"]="1";
 $params["tid"]="6";
 $params["sub_type"]="plain";
-#$params["op"]="PreviewStory";
 $params["story"]="stuff stuffity stuff stuff stuff";
-
-#$response=wpost($host,$uri,$port,ICEWEASEL_UA,$params);
-#$html=strip_headers($response);
-
 $params["op"]="SubmitStory";
-
-#sleep(25);
 
 $response=wpost($host,$uri,$port,ICEWEASEL_UA,$params);
 $html=strip_headers($response);
