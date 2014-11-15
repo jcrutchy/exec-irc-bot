@@ -26,17 +26,18 @@ if ($trailing=="register-events")
   return;
 }
 
+if ($trailing=="!stats")
+{
+  privmsg("http://stats.sylnt.us/social/soylent/");
+  return;
+}
+
 $keywords=array(
   "crutchy",
   "exec",
-  "bot",
-  "~",
-  "wiki",
-  "xlefay",
-  "charybdis",
-  "delphi",
-  "php",
   "irciv");
+
+# TODO: color code "crutchy" lines
 
 $ltrailing=strtolower($trailing);
 

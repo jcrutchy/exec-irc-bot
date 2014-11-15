@@ -6,7 +6,8 @@
 #####################################################################################################
 
 /*
-exec:~vote|10|0|0|1|*|||0|php scripts/vote.php %%trailing%% %%dest%% %%nick%%
+exec:~vote|10|0|0|1|*|||0|php scripts/vote.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~kickpoll|10|0|0|1|*|||0|php scripts/vote.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################
@@ -21,12 +22,21 @@ require_once("lib.php");
 $trailing=trim($argv[1]);
 $dest=strtolower(trim($argv[2]));
 $nick=strtolower(trim($argv[3]));
+$alias=$argv[3];
+
+if ($alias=="~quickpoll")
+{
+  # TODO: ~quickpoll description wth spaces [yes|no|maybe|light it on fire]
+  # TODO: ~quickpoll maybe
+  # TODO: quickpoll is automatically opened for 1 minute and then outputs results and then deletes
+  return;
+}
 
 if (($trailing=="") or ($trailing=="?") or (strtolower($trailing)=="help"))
 {
-  privmsg("  to vote: ~vote poll_id option_id");
-  privmsg("  example: ~vote beverage coffee");
-  privmsg("  http://sylnt.us/vote");
+  notice($nick,"  to vote: ~vote poll_id option_id");
+  notice($nick,"  example: ~vote beverage coffee");
+  notice($nick,"  http://sylnt.us/vote");
   return;
 }
 
@@ -70,7 +80,7 @@ switch ($id)
   case "l":
     if (count($data)==0)
     {
-      privmsg("  no polls registered");
+      notice($nick,"  no polls registered");
     }
     else
     {
@@ -91,13 +101,13 @@ switch ($id)
         }
         if ($n==0)
         {
-          privmsg("  ".$poll_id.$suffix);
-          privmsg("    [no poll options]");
+          notice($nick,"  ".$poll_id.$suffix);
+          #notice($nick,"    [no poll options]");
           continue;
         }
         else
         {
-          privmsg("  ".$poll_id.$suffix);
+          notice($nick,"  ".$poll_id.$suffix);
         }
       }
     }
@@ -113,18 +123,18 @@ if ($action=="register")
 {
   if ($id=="")
   {
-    privmsg("  you must specify a poll id");
+    notice($nick,"  you must specify a poll id");
   }
   if (in_array($id,$commands)==True)
   {
-    privmsg("  invalid poll id");
+    notice($nick,"  invalid poll id");
   }
   else
   {
     $account=users_get_account($nick);
     if (in_array($account,$founders)==False)
     {
-      privmsg("  account \"$account\" not in founders list - please contact crutchy if you would like to be added");
+      notice($nick,"  account \"$account\" not in founders list - please contact crutchy if you would like to be added");
       return;
     }
     $data[$id]=array();
@@ -140,7 +150,7 @@ if ($action=="register")
     {
       $suffix=" [".$data[$id]["description"]."]";
     }
-    privmsg("  poll \"$id\"$suffix registered");
+    notice($nick,"  poll \"$id\"$suffix registered");
   }
 }
 elseif (isset($data[$id])==True)
@@ -155,7 +165,7 @@ elseif (isset($data[$id])==True)
       }
       ksort($data[$id]["options"]);
       set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-      privmsg("  options for poll \"$id\"$suffix are now alphabetically sorted");
+      notice($nick,"  options for poll \"$id\"$suffix are now alphabetically sorted");
       return;
     case "list":
     case "l":
@@ -168,13 +178,13 @@ elseif (isset($data[$id])==True)
       }
       if ($n==0)
       {
-        privmsg("  ".$id.$suffix);
-        privmsg("    [no poll options]");
+        notice($nick,"  ".$id.$suffix);
+        notice($nick,"    [no poll options]");
         continue;
       }
       else
       {
-        privmsg("  ".$id.$suffix);
+        notice($nick,"  ".$id.$suffix);
       }
       $i=0;
       foreach ($poll_data["options"] as $option_id => $option_description)
@@ -186,11 +196,11 @@ elseif (isset($data[$id])==True)
         }
         if ($i==($n-1))
         {
-          privmsg("  └─".$option_id.$suffix);
+          notice($nick,"  └─".$option_id.$suffix);
         }
         else
         {
-          privmsg("  ├─".$option_id.$suffix);
+          notice($nick,"  ├─".$option_id.$suffix);
         }
         $i++;
       }
@@ -199,7 +209,7 @@ elseif (isset($data[$id])==True)
       $account=users_get_account($nick);
       if ($data[$id]["founder"]<>$account)
       {
-        privmsg("  only the poll founder can unregister the poll");
+        notice($nick,"  only the poll founder can unregister the poll");
         return;
       }
       $suffix="";
@@ -207,7 +217,7 @@ elseif (isset($data[$id])==True)
       {
         $suffix=" [".$data[$id]["description"]."]";
       }
-      privmsg("  poll \"$id\"$suffix unregistered");
+      notice($nick,"  poll \"$id\"$suffix unregistered");
       unset($data[$id]);
       set_array_bucket($data,"<<IRC_VOTE_DATA>>");
       return;
@@ -221,16 +231,16 @@ elseif (isset($data[$id])==True)
       $account=users_get_account($nick);
       if (in_array($account,$data[$id]["admins"])==False)
       {
-        privmsg("  only a poll admin may output the vote breakdown for a poll");
+        notice($nick,"  only a poll admin may output the vote breakdown for a poll");
         return;
       }
       $n=count($data[$id]["votes"]);
       if ($n==0)
       {
-        privmsg("  no votes for poll \"$id\"$suffix are registered");
+        notice($nick,"  no votes for poll \"$id\"$suffix are registered");
         return;
       }
-      privmsg("  voting breakdown for poll \"$id\"$suffix:");
+      notice($nick,"  voting breakdown for poll \"$id\"$suffix:");
       $i=0;
       foreach ($data[$id]["votes"] as $account => $option_id)
       {
@@ -241,11 +251,11 @@ elseif (isset($data[$id])==True)
         }
         if ($i==($n-1))
         {
-          privmsg("  └─$account => ".$option_id.$suffix);
+          notice($nick,"  └─$account => ".$option_id.$suffix);
         }
         else
         {
-          privmsg("  ├─$account => ".$option_id.$suffix);
+          notice($nick,"  ├─$account => ".$option_id.$suffix);
         }
         $i++;
       }
@@ -261,7 +271,7 @@ elseif (isset($data[$id])==True)
       $account=users_get_account($nick);
       if (in_array($account,$data[$id]["admins"])==False)
       {
-        privmsg("  only a poll admin may add an option for a poll");
+        notice($nick,"  only a poll admin may add an option for a poll");
         return;
       }
       $option_id=strtolower($parts[0]);
@@ -276,7 +286,7 @@ elseif (isset($data[$id])==True)
         {
           $opt_suffix=" [$description]";
         }
-        privmsg("  option \"$option_id\"$opt_suffix added for poll \"$id\"$suffix");
+        notice($nick,"  option \"$option_id\"$opt_suffix added for poll \"$id\"$suffix");
       }
       else
       {
@@ -285,7 +295,7 @@ elseif (isset($data[$id])==True)
         {
           $opt_suffix=" [".$data[$id]["options"][$option_id]."]";
         }
-        privmsg("  option \"$option_id\"$opt_suffix already exists for poll \"$id\"$suffix");
+        notice($nick,"  option \"$option_id\"$opt_suffix already exists for poll \"$id\"$suffix");
       }
       return;
     case "del-option":
@@ -299,7 +309,7 @@ elseif (isset($data[$id])==True)
       $account=users_get_account($nick);
       if (in_array($account,$data[$id]["admins"])==False)
       {
-        privmsg("  only a poll admin may delete an option for a poll");
+        notice($nick,"  only a poll admin may delete an option for a poll");
         return;
       }
       $option_id=strtolower($parts[0]);
@@ -310,13 +320,13 @@ elseif (isset($data[$id])==True)
         {
           $opt_suffix=" [".$data[$id]["options"][$option_id]."]";
         }
-        privmsg("  option \"$option_id\"$opt_suffix deleted for poll \"$id\"$suffix");
+        notice($nick,"  option \"$option_id\"$opt_suffix deleted for poll \"$id\"$suffix");
         unset($data[$id]["options"][$option_id]);
         set_array_bucket($data,"<<IRC_VOTE_DATA>>");
       }
       else
       {
-        privmsg("  option \"$option_id\" not found for poll \"$id\"$suffix");
+        notice($nick,"  option \"$option_id\" not found for poll \"$id\"$suffix");
       }
       return;
     case "add-admin":
@@ -328,23 +338,23 @@ elseif (isset($data[$id])==True)
       $account=users_get_account($nick);
       if ($data[$id]["founder"]<>$account)
       {
-        privmsg("  only the poll founder can add poll admins");
+        notice($nick,"  only the poll founder can add poll admins");
         return;
       }
       $admin_account=users_get_account(strtolower($parts[0]));
       if ($admin_account=="")
       {
-        privmsg("  invalid admin");
+        notice($nick,"  invalid admin");
       }
       if (in_array($admin_account,$data[$id]["admins"])==False)
       {
         $data[$id]["admins"][]=$admin_account;
         set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-        privmsg("  account \"$admin_account\" added as admin for poll \"$id\"$suffix");
+        notice($nick,"  account \"$admin_account\" added as admin for poll \"$id\"$suffix");
       }
       else
       {
-        privmsg("  admin \"$admin_account\" already exists for poll \"$id\"$suffix");
+        notice($nick,"  admin \"$admin_account\" already exists for poll \"$id\"$suffix");
       }
       return;
     case "del-admin":
@@ -356,13 +366,13 @@ elseif (isset($data[$id])==True)
       $account=users_get_account($nick);
       if ($data[$id]["founder"]<>$account)
       {
-        privmsg("  only the poll founder can delete poll admins");
+        notice($nick,"  only the poll founder can delete poll admins");
         return;
       }
       $admin_account=strtolower($parts[0]);
       if ($account==$admin_account)
       {
-        privmsg("  founder cannot be deleted from poll admins");
+        notice($nick,"  founder cannot be deleted from poll admins");
         return;
       }
       $index=array_search($admin_account,$data[$id]["admins"]);
@@ -371,11 +381,11 @@ elseif (isset($data[$id])==True)
         unset($data[$id]["admins"][$index]);
         $data[$id]["admins"]=array_values($data[$id]["admins"]);
         set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-        privmsg("  account \"$admin_account\" deleted froms admins for poll \"$id\"$suffix");
+        notice($nick,"  account \"$admin_account\" deleted froms admins for poll \"$id\"$suffix");
       }
       else
       {
-        privmsg("  admin \"$admin_account\" not found in admins for poll \"$id\"$suffix");
+        notice($nick,"  admin \"$admin_account\" not found in admins for poll \"$id\"$suffix");
       }
       return;
     case "list-admin":
@@ -384,7 +394,7 @@ elseif (isset($data[$id])==True)
       {
         $suffix=" [".$data[$id]["description"]."]";
       }
-      privmsg("  admin accounts for poll \"$id\"$suffix:");
+      notice($nick,"  admin accounts for poll \"$id\"$suffix:");
       $n=count($data[$id]["admins"]);
       for ($i=0;$i<$n;$i++)
       {
@@ -395,11 +405,11 @@ elseif (isset($data[$id])==True)
         }
         if ($i==($n-1))
         {
-          privmsg("  └─".$data[$id]["admins"][$i].$founder_suffix);
+          notice($nick,"  └─".$data[$id]["admins"][$i].$founder_suffix);
         }
         else
         {
-          privmsg("  ├─".$data[$id]["admins"][$i].$founder_suffix);
+          notice($nick,"  ├─".$data[$id]["admins"][$i].$founder_suffix);
         }
       }
       return;
@@ -412,12 +422,12 @@ elseif (isset($data[$id])==True)
       $account=users_get_account($nick);
       if (in_array($account,$data[$id]["admins"])==False)
       {
-        privmsg("  only a poll admin may open the poll for voting");
+        notice($nick,"  only a poll admin may open the poll for voting");
         return;
       }
       $data[$id]["status"]="open";
       set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-      privmsg("  poll \"$id\"$suffix opened for voting");
+      notice($nick,"  poll \"$id\"$suffix opened for voting");
       return;
     case "close":
       $suffix="";
@@ -428,12 +438,12 @@ elseif (isset($data[$id])==True)
       $account=users_get_account($nick);
       if (in_array($account,$data[$id]["admins"])==False)
       {
-        privmsg("  only a poll admin may close the poll for voting");
+        notice($nick,"  only a poll admin may close the poll for voting");
         return;
       }
       $data[$id]["status"]="closed";
       set_array_bucket($data,"<<IRC_VOTE_DATA>>");
-      privmsg("  poll \"$id\"$suffix closed for voting");
+      notice($nick,"  poll \"$id\"$suffix closed for voting");
       return;
     default:
       $suffix="";
@@ -446,7 +456,7 @@ elseif (isset($data[$id])==True)
         $n=count($data[$id]["votes"]);
         if ($n==0)
         {
-          privmsg("  no votes for poll \"$id\"$suffix are registered");
+          notice($nick,"  no votes for poll \"$id\"$suffix are registered");
           return;
         }
         $tally=array();
@@ -458,7 +468,7 @@ elseif (isset($data[$id])==True)
         {
           $tally[$option_id]=$tally[$option_id]+1;
         }
-        privmsg("  voting result for poll \"$id\"$suffix:");
+        notice($nick,"  voting result for poll \"$id\"$suffix:");
         $n=count($tally);
         $i=0;
         foreach ($tally as $option_id => $result)
@@ -470,11 +480,11 @@ elseif (isset($data[$id])==True)
           }
           if ($i==($n-1))
           {
-            privmsg("  └─".$option_id.$suffix." => $result");
+            notice($nick,"  └─".$option_id.$suffix." => $result");
           }
           else
           {
-            privmsg("  ├─".$option_id.$suffix." => $result");
+            notice($nick,"  ├─".$option_id.$suffix." => $result");
           }
           $i++;
         }
@@ -482,7 +492,7 @@ elseif (isset($data[$id])==True)
       }
       if ($data[$id]["status"]<>"open")
       {
-        privmsg("  poll \"$id\"$suffix is not currently open for voting");
+        notice($nick,"  poll \"$id\"$suffix is not currently open for voting");
         return;
       }
       $account=users_get_account($nick);
@@ -492,7 +502,7 @@ elseif (isset($data[$id])==True)
       }
       if (isset($data[$id]["options"][$action])==False)
       {
-        privmsg("  invalid option for poll \"$id\"$suffix");
+        notice($nick,"  invalid option for poll \"$id\"$suffix");
         return;
       }
       $data[$id]["votes"][$account]=$action;
@@ -502,7 +512,7 @@ elseif (isset($data[$id])==True)
       {
         $opt_suffix=" [".$data[$id]["options"][$action]."]";
       }
-      privmsg("  vote registered by account \"$account\" with option \"$action\"$opt_suffix for poll \"$id\"$suffix");
+      notice($nick,"  vote registered by account \"$account\" with option \"$action\"$opt_suffix for poll \"$id\"$suffix");
       return;
     }
   }

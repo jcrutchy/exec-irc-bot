@@ -14,6 +14,15 @@ init:~x register-events
 
 # could try a git-like branch thing, but try to keep it simple to start with
 
+/*
+whilst the code is currently limited to php, it could potentially be adapted to execute code in
+other languages using their command-line interpreters. it also doesn't have to be limited to code.
+it could potentially be used to collaborate on lines of non-executing text (such as for
+collaborative editing of SN submissions). with some tweaks it could be possible to collaborate on
+code as well, with other users being able to add/edit/delete lines but requiring the operator to
+re-enable the script for changes to come into effect. 
+*/
+
 #####################################################################################################
 
 ini_set("display_errors","on");
