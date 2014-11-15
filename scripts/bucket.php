@@ -4,7 +4,7 @@
 # by crutchy
 
 /*
-exec:~bucket|5|0|0|1|crutchy|||0|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
+exec:~bucket|5|0|0|1|@|||0|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
 */
 
 ini_set("display_errors","on");
