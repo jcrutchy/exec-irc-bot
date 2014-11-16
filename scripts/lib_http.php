@@ -473,6 +473,42 @@ function strip_first_tag(&$html,$tag)
 
 #####################################################################################################
 
+function extract_meta_content($html,$name)
+{
+  # <meta name="description" content="Researchers have made a breakthrough in blah blah blah." id="metasummary" />
+  $lhtml=strtolower($html);
+  $lname=strtolower($name);
+  $parts=explode("<meta ",$lhtml);
+  array_shift($parts);
+  if (count($parts)==0)
+  {
+    return False;
+  }
+  for ($i=0;$i<count($parts);$i++)
+  {
+    $n=extract_text($parts[$i],"name=\"","\"");
+    if ($n===False)
+    {
+      continue;
+    }
+    if ($n<>$lname)
+    {
+      continue;
+    }
+    $result=extract_text($parts[$i],"content=\"","\"");
+    break;
+  }
+  $i=strpos($lhtml,$result);
+  if ($i===False)
+  {
+    return False;
+  }
+  $result=substr($html,$i,strlen($result));
+  return $result;
+}
+
+#####################################################################################################
+
 function strip_comments(&$html)
 {
   $i=strpos($html,"<!--");

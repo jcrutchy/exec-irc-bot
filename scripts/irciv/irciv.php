@@ -36,7 +36,7 @@ if ($trailing=="")
 $game_data=array();
 if ($dest<>"")
 {
-  $game_data=get_array_bucket("IRCIV_GAME_".$dest);
+  $game_data=get_array_bucket(GAME_BUCKET_PREFIX.$dest);
 }
 $irciv_data_changed=False;
 
@@ -407,7 +407,7 @@ switch ($action)
 
 if (($dest<>"") and ($irciv_data_changed==True))
 {
-  set_array_bucket($game_data,"IRCIV_GAME_".$dest);
+  set_array_bucket($game_data,GAME_BUCKET_PREFIX.$dest);
 }
 
 #####################################################################################################

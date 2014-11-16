@@ -27,6 +27,8 @@ define("IMAGE_CITY_FLAG","city_flag.png");
 
 define("PATH_IMAGES",__DIR__."/images/");
 
+define("GAME_BUCKET_PREFIX","IRCIV_GAME_");
+
 #####################################################################################################
 
 # d=defense,a=attack,l=land,s=sea,a=air
@@ -534,7 +536,8 @@ function irciv_save_data()
   $chanlist=array();
   foreach ($games as $channel => $bucket)
   {
-    $game_bucket=get_bucket($bucket);
+    $game_bucket=get_array_bucket($bucket);
+    $game_bucket=json_encode($game_bucket,JSON_PRETTY_PRINT);
     $filename=DATA_FILE_PATH.$channel;
     if (file_put_contents($filename,$game_bucket)===False)
     {
@@ -591,37 +594,40 @@ function irciv_save_data()
 function irciv_load_data()
 {
   $filename=DATA_FILE_PATH."irciv_chan_list";
-  if (file_exists($filename)==True)
+  if (file_exists($filename)==False)
   {
-    $players=file_get_contents($filename);
-
+    irciv_term_echo("error: channel list file not found");
+    return;
   }
-  else
-  {
-    irciv_term_echo("IRCiv player data not found");
-  }
-
-
+  $game_chans=file_get_contents($filename);
+  $game_chans=explode("\n",$game_chans);
   for ($i=0;$i<count($game_chans);$i++)
   {
-    if (file_exists(IRCIV_FILE_MAP_COORDS.$game_chans[$i])==True)
+    $chan=trim($game_chans[$i]);
+    if ($chan=="")
     {
-      $map_coords=file_get_contents(IRCIV_FILE_MAP_COORDS.$game_chans[$i]);
-      irciv_set_bucket("map_coords_".$game_chans[$i],$map_coords);
+      continue;
     }
-    else
+    if (users_chan_exists($chan)==False)
     {
-      irciv_term_echo("IRCiv map coords for channel \"".$game_chans[$i]."\" not found");
+      irciv_privmsg("error: channel \"$chan\" not found");
+      continue;
     }
-    if (file_exists(IRCIV_FILE_MAP_DATA.$game_chans[$i])==True)
+    $filename=DATA_FILE_PATH.$chan;
+    if (file_exists($filename)==False)
     {
-      $map_data=file_get_contents(IRCIV_FILE_MAP_DATA.$game_chans[$i]);
-      irciv_set_bucket("map_data_".$game_chans[$i],$map_data);
+      irciv_privmsg("error: file \"$filename\" not found");
+      continue;
     }
-    else
+    $game_bucket=file_get_contents($filename);
+    $game_bucket=json_decode($game_bucket,True);
+    if ($game_bucket===NULL)
     {
-      irciv_term_echo("IRCiv map data for channel \"".$game_chans[$i]."\" not found");
+      irciv_privmsg("error: json_decode returned null when processing \"$filename\"");
+      continue;
     }
+    set_array_bucket($game_bucket,GAME_BUCKET_PREFIX.$chan,True);
+    irciv_privmsg("game data for channel \"$chan\" loaded successfully");
   }
 }
 
