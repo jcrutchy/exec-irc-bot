@@ -54,8 +54,12 @@ $source_body=extract_meta_content($source_html,"description");
 
 if (($source_body===False) or ($source_body==""))
 {
-  privmsg("error: description meta content not found or empty");
-  return;
+  $source_body=extract_meta_content($source_html,"og:description");
+  if (($source_body===False) or ($source_body==""))
+  {
+    privmsg("error: description meta content not found or empty");
+    return;
+  }
 }
 
 $source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");

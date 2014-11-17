@@ -484,6 +484,7 @@ function extract_meta_content($html,$name)
   {
     return False;
   }
+  $result="";
   for ($i=0;$i<count($parts);$i++)
   {
     $n=extract_text($parts[$i],"name=\"","\"");
