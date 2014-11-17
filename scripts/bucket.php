@@ -165,7 +165,35 @@ if ($alias=="~cd")
 if ($alias=="~ls")
 {
   $color="06";
-
+  $paths=get_array_bucket("<<USER_PATHS>>");
+  $bucket=get_array_bucket("<<USER_VARS>>");
+  if (isset($paths[$nick])==True)
+  {
+    $output=array();
+    foreach ($bucket as $name => $value)
+    {
+      if (substr($name,0,strlen($paths[$nick]))==$paths[$nick])
+      {
+        $output[]=$name;
+      }
+    }
+    $n=count($output);
+    if ($n==0)
+    {
+      privmsg(chr(3).$color."no vars found in ".$paths[$nick]);
+    }
+    else
+    {
+      for ($i=0;$i<count($output);$i++)
+      {
+        privmsg(chr(3).$color.$output[$i]);
+      }
+    }
+  }
+  else
+  {
+    privmsg(chr(3).$color."path not found for $nick");
+  }
   return;
 }
 
