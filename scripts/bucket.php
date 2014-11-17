@@ -92,19 +92,69 @@ if ($alias=="~cd")
   }
   else
   {
-    $delims="./\\>";
     $delim="";
-    for ($i=0;$i<strlen($path);$i++)
+    if (isset($paths[$nick])==True)
     {
-      if (strpos($delims,$path[$i])!==False)
+      $delim=var_get_path_delim($paths[$nick]);
+      if ($delim=="")
       {
-        $delim=$path[$i];
-        break;
+        privmsg(chr(3).$color."invalid/no path delimiter");
+        return;
       }
     }
-    if (substr($path,strlen($path)-1)<>$delim)
+    if ($path==($delim.$delim))
     {
-      $path=$path.$delim;
+      if (isset($paths[$nick])==True)
+      {
+        $path=$paths[$nick];
+        if (substr($path,strlen($path)-1)==$delim)
+        {
+          $path=substr($path,0,strlen($path)-1);
+        }
+        $parts=explode($delim,$path);
+        array_pop($parts);
+        $path=implode($delim,$parts);
+        if (substr($path,strlen($path)-1)<>$delim)
+        {
+          $path=$path.$delim;
+        }
+      }
+      else
+      {
+        privmsg(chr(3).$color."path not found for $nick");
+        return;
+      }
+    }
+    else
+    {
+      $delim=var_get_path_delim($path);
+      if (isset($paths[$nick])==True)
+      {
+        $delim=var_get_path_delim($paths[$nick]);
+        if ($delim<>"")
+        {
+          if (strpos(trim($trailing),$delim)===False)
+          {
+            if (substr($path,strlen($path)-1)<>$delim)
+            {
+              $path=$path.$delim;
+            }
+            $path=$paths[$nick].trim($trailing);
+          }
+        }
+      }
+      if ($delim<>"")
+      {
+        if (strpos($path,$delim.$delim)!==False)
+        {
+          privmsg(chr(3).$color."invalid path");
+          return;
+        }
+        if (substr($path,strlen($path)-1)<>$delim)
+        {
+          $path=$path.$delim;
+        }
+      }
     }
     $paths[$nick]=$path;
     privmsg(chr(3).$color."$nick@".NICK_EXEC.":$path");
@@ -179,5 +229,24 @@ if (count($parts)==1)
   }
   return;
 }
+
+#####################################################################################################
+
+function var_get_path_delim($path)
+{
+  $delims="$./\\>";
+  $delim="";
+  for ($i=0;$i<strlen($path);$i++)
+  {
+    if (strpos($delims,$path[$i])!==False)
+    {
+      $delim=$path[$i];
+      break;
+    }
+  }
+  return $delim;
+}
+
+#####################################################################################################
 
 ?>
