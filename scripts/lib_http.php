@@ -473,7 +473,7 @@ function strip_first_tag(&$html,$tag)
 
 #####################################################################################################
 
-function extract_meta_content($html,$name)
+function extract_meta_content($html,$name,$key="name")
 {
   # <meta name="description" content="Researchers have made a breakthrough in blah blah blah." id="metasummary" />
   $lhtml=strtolower($html);
@@ -487,7 +487,7 @@ function extract_meta_content($html,$name)
   $result="";
   for ($i=0;$i<count($parts);$i++)
   {
-    $n=extract_text($parts[$i],"name=\"","\"");
+    $n=extract_text($parts[$i],"$key=\"","\"");
     if ($n===False)
     {
       continue;
@@ -498,6 +498,10 @@ function extract_meta_content($html,$name)
     }
     $result=extract_text($parts[$i],"content=\"","\"");
     break;
+  }
+  if ($result=="")
+  {
+    return False;
   }
   $i=strpos($lhtml,$result);
   if ($i===False)

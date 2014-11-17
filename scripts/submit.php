@@ -11,6 +11,9 @@ exec:~submit|120|0|0|1|crutchy|||0|php scripts/submit.php %%trailing%% %%dest%% 
 
 #####################################################################################################
 
+# TODO: INCORPORATE HYPERLINK IN SUMMARY TEXT
+# TODO: USE #rss-bot FOR MASS TEST INPUTS BUT DON'T ACTUALLY SUBMIT TO SITE
+
 require_once("lib.php");
 
 $trailing=$argv[1];
@@ -54,7 +57,7 @@ $source_body=extract_meta_content($source_html,"description");
 
 if (($source_body===False) or ($source_body==""))
 {
-  $source_body=extract_meta_content($source_html,"og:description");
+  $source_body=extract_meta_content($source_html,"og:description","property");
   if (($source_body===False) or ($source_body==""))
   {
     privmsg("error: description meta content not found or empty");
