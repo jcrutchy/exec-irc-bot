@@ -218,8 +218,8 @@ switch ($alias)
     $verifier_nick=get_bucket(BUCKET_VERIFIER_NICK);
     $verifier_account="chromas";
     $verifier_msg="exec_test_sn_site_down";
-    $host="www.soylentnews.org";
-    $host_g="www.google.com";
+    $host="soylentnews.org";
+    $host_g="google.com";
     $uri="/";
     $port=80;
     $response=wtouch($host,$uri,$port,120);
@@ -234,7 +234,8 @@ switch ($alias)
       }
       else
       {
-        pm("#soylent",chr(3)."08".chr(2)."*** ALERT: \"".strtoupper($host)."\" HOST IS UNAVAILABLE ON PORT $port ***");
+        # DON'T TRUST EXEC TO ALERT ANYTHING ON IT'S OWN
+        #pm("#soylent",chr(3)."08".chr(2)."*** ALERT: \"".strtoupper($host)."\" HOST IS UNAVAILABLE ON PORT $port ***");
       }
       return;
     }

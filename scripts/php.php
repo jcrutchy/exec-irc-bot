@@ -11,15 +11,10 @@ exec:~php|5|0|0|0||||0|php scripts/php.php %%trailing%%
 
 #####################################################################################################
 
-# TODO: privmsg URL to php.net function reference
-
-# thanks to prospectacle for link to download doc files
-
 require_once("lib.php");
 $msg=$argv[1];
 $msg=str_replace("_","-",$msg);
 $msg=filter($msg,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC."-");
-#$filename="/var/include/vhosts/irciv.us.to/data/php_manual/php-chunked-xhtml/function.".$msg.".html";
 $filename="../data/php_manual/php-chunked-xhtml/function.".$msg.".html";
 if (file_exists($filename)==False)
 {
