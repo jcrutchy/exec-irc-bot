@@ -28,16 +28,16 @@ function execfs_get_path_delim($path)
 
 #####################################################################################################
 
-function execfs_rm($name,$nick,&$msg)
+function execfs_rm($name,$user,&$msg)
 {
   $name=trim($name);
   $bucket=get_array_bucket(BUCKET_EXECFS_VARS);
   $paths=get_array_bucket(BUCKET_EXECFS_PATHS);
   if (isset($bucket[$name])==False)
   {
-    if (isset($paths[$nick])==True)
+    if (isset($paths[$user])==True)
     {
-      $name=$paths[$nick].$name;
+      $name=$paths[$user].$name;
     }
   }
   if (isset($bucket[$name])==False)
