@@ -33,8 +33,8 @@ if ($alias=="~var")
   }
   $parts=explode("=",$trailing);
   $name=trim($parts[0]);
-  $bucket=get_array_bucket("<<USER_VARS>>");
-  $paths=get_array_bucket("<<USER_PATHS>>");
+  $bucket=get_array_bucket(BUCKET_EXECFS_VARS);
+  $paths=get_array_bucket(BUCKET_EXECFS_PATHS);
   if (isset($paths[$nick])==True)
   {
     $name=$paths[$nick].$name;
@@ -56,33 +56,24 @@ if ($alias=="~var")
     $value=trim(implode("=",$parts));
     $bucket[$name]=$value;
     privmsg(chr(3).$color."$name = $value");
-    set_array_bucket($bucket,"<<USER_VARS>>",True);
+    set_array_bucket($bucket,BUCKET_EXECFS_VARS,True);
   }
   return;
 }
 if ($alias=="~rm")
 {
-  $name=trim($trailing);
-  $bucket=get_array_bucket("<<USER_VARS>>");
-  $paths=get_array_bucket("<<USER_PATHS>>");
-  if (isset($paths[$nick])==True)
+  $color="06";
+  $msg="";
+  execfs_rm($trailing,$nick,$msg);
+  if ($msg<>"")
   {
-    $name=$paths[$nick].$name;
-  }
-  if (isset($bucket[$name])==False)
-  {
-    privmsg(chr(3).$color."$name not found");
-  }
-  else
-  {
-    unset($bucket[$name]);
-    privmsg(chr(3).$color."$name deleted");
+    privmsg(chr(3).$color.$msg);
   }
 }
 if ($alias=="~cd")
 {
   $color="06";
-  $paths=get_array_bucket("<<USER_PATHS>>");
+  $paths=get_array_bucket(BUCKET_EXECFS_PATHS);
   $path=trim($trailing);
   if ($path=="")
   {
@@ -101,7 +92,7 @@ if ($alias=="~cd")
     $delim="";
     if (isset($paths[$nick])==True)
     {
-      $delim=var_get_path_delim($paths[$nick]);
+      $delim=execfs_get_path_delim($paths[$nick]);
       if ($delim=="")
       {
         privmsg(chr(3).$color."invalid/no path delimiter");
@@ -133,10 +124,10 @@ if ($alias=="~cd")
     }
     else
     {
-      $delim=var_get_path_delim($path);
+      $delim=execfs_get_path_delim($path);
       if (isset($paths[$nick])==True)
       {
-        $delim=var_get_path_delim($paths[$nick]);
+        $delim=execfs_get_path_delim($paths[$nick]);
         if ($delim<>"")
         {
           if (strpos(trim($trailing),$delim)===False)
@@ -165,14 +156,14 @@ if ($alias=="~cd")
     $paths[$nick]=$path;
     privmsg(chr(3).$color."$nick@".NICK_EXEC.":$path");
   }
-  set_array_bucket($paths,"<<USER_PATHS>>",True);
+  set_array_bucket($paths,BUCKET_EXECFS_PATHS,True);
   return;
 }
 if ($alias=="~ls")
 {
   $color="06";
-  $paths=get_array_bucket("<<USER_PATHS>>");
-  $bucket=get_array_bucket("<<USER_VARS>>");
+  $paths=get_array_bucket(BUCKET_EXECFS_PATHS);
+  $bucket=get_array_bucket(BUCKET_EXECFS_VARS);
   if (isset($paths[$nick])==True)
   {
     $output=array();
