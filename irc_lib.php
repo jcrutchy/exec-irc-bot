@@ -246,6 +246,12 @@ function handle_relay_requests()
   {
     return;
   }
+  $errstr="ERROR:";
+  if (strpos($content,$errstr)!==False)
+  {
+    term_echo($content);
+    return;
+  }
   $request_lines=explode("\n",$content);
   for ($i=0;$i<count($request_lines);$i++)
   {
