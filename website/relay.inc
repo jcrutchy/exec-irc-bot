@@ -7,8 +7,8 @@
 
 define("FILENAME_PREFIX_REQUEST","request__");
 define("FILENAME_PREFIX_RESPONSE","response__");
-define("FILE_PATH_REQUESTS","/var/include/vhosts/irciv.us.to/relay/requests");
-define("FILE_PATH_RESPONSES","/var/include/vhosts/irciv.us.to/relay/responses");
+define("FILE_PATH_REQUESTS","/var/include/vhosts/irciv.us.to/relay/requests/");
+define("FILE_PATH_RESPONSES","/var/include/vhosts/irciv.us.to/relay/responses/");
 define("TOKENS_FILE","/var/include/vhosts/irciv.us.to/relay/tokens");
 define("CLIENT_TIMEOUT",60); # seconds
 
@@ -150,8 +150,6 @@ else
   $request_data["remote_port"]=$_SERVER["REMOTE_PORT"];
   $request_data["request_method"]=$_SERVER["REQUEST_METHOD"];
   $request_data["request_uri"]=$_SERVER["REQUEST_URI"];
-  $request_data["referer"]=$_SERVER["HTTP_REFERER"];
-  $request_data["user_agent"]=$_SERVER["HTTP_USER_AGENT"];
   $content=serialize($request_data);
   if ($content===False)
   {
