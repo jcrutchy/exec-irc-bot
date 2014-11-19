@@ -21,11 +21,6 @@ define("MEMORY_LIMIT","128M");
 define("OPERATOR_ACCOUNT","crutchy");
 define("DEBUG_CHAN","#debug");
 
-define("RELAY_HOST","irciv.us.to");
-define("RELAY_URI","/?exec");
-define("RELAY_PORT","80");
-define("EXEC_KEY_FILE","../pwd/exec_key");
-
 $admin_accounts=array("xlefay","chromas","juggs","paulej72","mrcoolbp");
 
 #####################################################################################################
@@ -132,7 +127,6 @@ define("ANTI_FLOOD_DELAY",0.6); # sec
 define("RAWMSG_TIME_COUNT",6); # messages to send without any delays
 
 require_once("irc_lib.php");
-require_once("./scripts/lib_http.php");
 
 set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)
 ini_set("memory_limit",MEMORY_LIMIT);
@@ -152,8 +146,6 @@ $handles=array(); # stores executed process information
 $time_deltas=array(); # keeps track of how often nicks call an alias (used for alias abuse control)
 $buckets=array(); # common place for scripts to store stuff (index cannot contain spaces, bucket content must be a string)
 $dest_overrides=array(); # optionally stores a destination for each nick, which treats every privmsg by that nick as having the set destination
-
-$relay_requests=array();
 
 $admin_data="";
 $admin_is_sock="";
