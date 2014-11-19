@@ -22,7 +22,7 @@ define("OPERATOR_ACCOUNT","crutchy");
 define("DEBUG_CHAN","#debug");
 
 define("RELAY_HOST","irciv.us.to");
-define("RELAY_URI","/");
+define("RELAY_URI","/?exec");
 define("RELAY_PORT","80");
 define("EXEC_KEY_FILE","../pwd/exec_key");
 
