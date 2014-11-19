@@ -263,7 +263,6 @@ while (True)
   $handles=array_values($handles);
   handle_socket($socket);
   handle_direct_stdin();
-  handle_relay_requests();
   if ($antiflog==True)
   {
     usleep(0.05e6); # 0.05 second to prevent cpu flogging
