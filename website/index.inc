@@ -7,7 +7,7 @@
 
 if (isset($_GET["exec"])==True)
 {
-  require_once(__DIR__."/exec.inc");
+  require_once(__DIR__."/relay.inc");
   return;
 }
 
