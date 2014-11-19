@@ -240,15 +240,16 @@ function handle_relay_requests()
   $response=wpost(RELAY_HOST,RELAY_URI,RELAY_PORT,"",$params);
   unset($key);
   unset($params);
-  $content=strip_headers($response);
-  if ($content=="NO REQUESTS")
+  $content=trim(strip_headers($response));
+  $errstr="<html";
+  if (($content=="") or ($content=="NO REQUESTS") or (strpos($content,$errstr)!==False))
   {
     return;
   }
   $request_lines=explode("\n",$content);
   for ($i=0;$i<count($request_lines);$i++)
   {
-    $request_data=unserialize($request_lines[$i]);
+    $request_data=@unserialize($request_lines[$i]);
     if ($request_data===False)
     {
       term_echo("RELAY ERROR: PROBLEM UNSERIALIZING REQUEST DATA");
