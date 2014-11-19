@@ -157,7 +157,7 @@ else
   {
     die("ERROR 10: PROBLEM SERIALIZING REQUEST DATA ARRAY");
   }
-  if (file_put_contents($request_filename,$data)===False)
+  if (file_put_contents($request_filename,$content)===False)
   {
     die("ERROR 11: UNABLE TO WRITE REQUEST FILE");
   }
