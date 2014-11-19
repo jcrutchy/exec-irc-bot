@@ -7,8 +7,8 @@
 
 define("FILENAME_PREFIX_REQUEST","request__");
 define("FILENAME_PREFIX_RESPONSE","response__");
-define("FILE_PATH_REQUESTS","../relay/requests");
-define("FILE_PATH_RESPONSES","../relay/responses");
+define("FILE_PATH_REQUESTS","/var/include/vhosts/irciv.us.to/relay/requests");
+define("FILE_PATH_RESPONSES","/var/include/vhosts/irciv.us.to/relay/responses");
 define("TOKENS_FILE","/var/include/vhosts/irciv.us.to/relay/tokens");
 define("CLIENT_TIMEOUT",60); # seconds
 
