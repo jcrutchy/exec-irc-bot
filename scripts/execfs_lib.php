@@ -28,6 +28,13 @@ function execfs_get_path_delim($path)
 
 #####################################################################################################
 
+function execfs_set($name,$user,&$msg)
+{
+
+}
+
+#####################################################################################################
+
 function execfs_rm($name,$user,&$msg)
 {
   $name=trim($name);
@@ -42,7 +49,7 @@ function execfs_rm($name,$user,&$msg)
   }
   if (isset($bucket[$name])==False)
   {
-    $msg="$name not found";
+    $msg="error: $name not found";
     return False;
   }
   else

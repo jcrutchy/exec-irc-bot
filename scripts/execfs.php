@@ -4,7 +4,8 @@
 # by crutchy
 
 /*
-exec:~var|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~get|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~set|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~rm|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~ls|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~cd|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
@@ -22,13 +23,37 @@ $nick=strtolower(trim($argv[2]));
 $dest=strtolower(trim($argv[3]));
 $alias=strtolower(trim($argv[4]));
 
-if ($alias=="~var")
+if ($alias=="~get")
 {
   $color="06";
   if ($trailing=="")
   {
-    privmsg("syntax: ~var name=value");
-    privmsg("if = is omitted, the value of name is returned");
+    privmsg("syntax: ~get name");
+    return;
+  }
+  $name=trim($trailing);
+  $bucket=get_array_bucket(BUCKET_EXECFS_VARS);
+  $paths=get_array_bucket(BUCKET_EXECFS_PATHS);
+  if (isset($paths[$nick])==True)
+  {
+    $name=$paths[$nick].$name;
+  }
+  if (isset($bucket[$name])==False)
+  {
+    privmsg(chr(3).$color."error: $name not found");
+  }
+  else
+  {
+    privmsg(chr(3).$color."$name = ".$bucket[$name]);
+  }
+  return;
+}
+if ($alias=="~set")
+{
+  $color="06";
+  if ($trailing=="")
+  {
+    privmsg("syntax: ~set name=value");
     return;
   }
   $parts=explode("=",$trailing);
@@ -41,14 +66,7 @@ if ($alias=="~var")
   }
   if (count($parts)==1)
   {
-    if (isset($bucket[$name])==False)
-    {
-      privmsg(chr(3).$color."$name not found");
-    }
-    else
-    {
-      privmsg(chr(3).$color."$name = ".$bucket[$name]);
-    }
+    privmsg(chr(3).$color."error: value is missing");
   }
   else
   {
@@ -84,7 +102,7 @@ if ($alias=="~cd")
     }
     else
     {
-      privmsg(chr(3).$color."path not found for $nick");
+      privmsg(chr(3).$color."error: path not found for $nick");
     }
   }
   else
@@ -95,7 +113,7 @@ if ($alias=="~cd")
       $delim=execfs_get_path_delim($paths[$nick]);
       if ($delim=="")
       {
-        privmsg(chr(3).$color."invalid/no path delimiter");
+        privmsg(chr(3).$color."error: invalid/missing path delimiter");
         return;
       }
     }
@@ -118,7 +136,7 @@ if ($alias=="~cd")
       }
       else
       {
-        privmsg(chr(3).$color."path not found for $nick");
+        privmsg(chr(3).$color."error: path not found for $nick");
         return;
       }
     }
@@ -144,7 +162,7 @@ if ($alias=="~cd")
       {
         if (strpos($path,$delim.$delim)!==False)
         {
-          privmsg(chr(3).$color."invalid path");
+          privmsg(chr(3).$color."error: invalid path");
           return;
         }
         if (substr($path,strlen($path)-1)<>$delim)
@@ -177,7 +195,7 @@ if ($alias=="~ls")
     $n=count($output);
     if ($n==0)
     {
-      privmsg(chr(3).$color."no vars found in ".$paths[$nick]);
+      privmsg(chr(3).$color."error: no vars found in ".$paths[$nick]);
     }
     else
     {
@@ -189,7 +207,7 @@ if ($alias=="~ls")
   }
   else
   {
-    privmsg(chr(3).$color."path not found for $nick");
+    privmsg(chr(3).$color."error: path not found for $nick");
   }
   return;
 }

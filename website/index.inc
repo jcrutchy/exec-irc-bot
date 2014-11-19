@@ -2,9 +2,14 @@
 
 # gpl2
 # by crutchy
-# 12-sep-2014
 
 #####################################################################################################
+
+if (isset($_GET["exec"])==True)
+{
+  require_once(__DIR__."/exec.inc");
+  return;
+}
 
 if (isset($_GET["stats"])==True)
 {
@@ -22,15 +27,7 @@ define("MAPS_PATH","../maps");
 
 if ((isset($_POST["exec_key"])==True) and (isset($_FILES["image"])==True))
 {
-  $ref=file_get_contents("/var/include/vhosts/irciv.us.to/pwd/exec_key");
-  if ($ref===False)
-  {
-    die("ERROR: UNABLE TO LOAD REFERENCE KEY");
-  }
-  if ($ref!==$_POST["exec_key"])
-  {
-    die("ERROR: KEY MISMATCH");
-  }
+  check_exec_key();
   if (valid_filename($_FILES["image"]["name"])==False)
   {
     die("ERROR: INVALID FILENAME");
@@ -143,6 +140,21 @@ function valid_filename($value)
     }
   }
   return True;
+}
+
+#####################################################################################################
+
+function check_exec_key()
+{
+  $key=file_get_contents("../pwd/exec_key");
+  if ($key===False)
+  {
+    die("ERROR: UNABLE TO READ EXEC KEY FILE");
+  }
+  if ($key!==$_POST["exec_key"])
+  {
+    die("ERROR: EXEC KEY MISMATCH");
+  }
 }
 
 #####################################################################################################
