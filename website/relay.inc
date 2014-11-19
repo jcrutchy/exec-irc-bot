@@ -22,16 +22,16 @@ if (isset($_POST["exec_key"])==True)
     $response_filename=FILE_PATH_RESPONSES.FILENAME_PREFIX_RESPONSE.$request_id;
     if (file_exists($request_filename)==False)
     {
-      die("ERROR: REQUEST FILE NOT FOUND");
+      die("ERROR 01: REQUEST FILE NOT FOUND");
     }
     $data=trim($_POST["data"]);
     if (file_put_contents($response_filename,$data)===False)
     {
-      die("ERROR: UNABLE TO WRITE RESPONSE FILE");
+      die("ERROR 02: UNABLE TO WRITE RESPONSE FILE");
     }
     if (file_exists($response_filename)==False)
     {
-      die("ERROR: RESPONSE FILE NOT FOUND");
+      die("ERROR 03: RESPONSE FILE NOT FOUND");
     }
     die("SUCCESSFULLY CREATED RESPONSE FILE");
   }
@@ -81,7 +81,7 @@ else
   }
   if ($token===False)
   {
-    die("ERROR: AUTH TOKEN NOT FOUND");
+    die("ERROR 04: AUTH TOKEN NOT FOUND");
   }
   $username=False;
   if (isset($_GET["username"])==True)
@@ -94,16 +94,16 @@ else
   }
   if ($username===False)
   {
-    die("ERROR: USERNAME NOT FOUND");
+    die("ERROR 05: USERNAME NOT FOUND");
   }
   if (file_exists(TOKENS_FILE)==False)
   {
-    die("ERROR: SERVER TOKENS FILE NOT FOUND");
+    die("ERROR 06: SERVER TOKENS FILE NOT FOUND");
   }
   $tokens_file=file_get_contents(TOKENS_FILE);
   if ($tokens_file===False)
   {
-    die("ERROR: UNABLE TO READ SERVER TOKENS FILE");
+    die("ERROR 07: UNABLE TO READ SERVER TOKENS FILE");
   }
   $token_lines=explode("\n",$tokens_file);
   $auth=False;
@@ -121,7 +121,7 @@ else
   }
   if ($auth==False)
   {
-    die("ERROR: AUTHENTICATION FAILED");
+    die("ERROR 08: AUTHENTICATION FAILED");
   }
   $data="";
   if (isset($_GET["data"])==True)
@@ -134,7 +134,7 @@ else
   }
   if ($data=="")
   {
-    die("ERROR: NO DATA TO PROCESS");
+    die("ERROR 09: NO DATA TO PROCESS");
   }
   $request_id=microtime(True);
   $request_filename=FILE_PATH_REQUESTS.FILENAME_PREFIX_REQUEST.$request_id;
@@ -155,15 +155,15 @@ else
   $content=serialize($request_data);
   if ($content===False)
   {
-    die("ERROR: PROBLEM SERIALIZING REQUEST DATA ARRAY");
+    die("ERROR 10: PROBLEM SERIALIZING REQUEST DATA ARRAY");
   }
   if (file_put_contents($request_filename,$data)===False)
   {
-    die("ERROR: UNABLE TO WRITE REQUEST FILE");
+    die("ERROR 11: UNABLE TO WRITE REQUEST FILE");
   }
   if (file_exists($request_filename)===False)
   {
-    die("ERROR: REQUEST FILE NOT FOUND");
+    die("ERROR 12: REQUEST FILE NOT FOUND");
   }
   $t=microtime(True);
   $error=False;
@@ -178,12 +178,12 @@ else
     $response_content=file_get_contents($response_filename);
     if ($response_content===False)
     {
-      $error="ERROR: UNABLE TO READ RESPONSE FILE";
+      $error="ERROR 13: UNABLE TO READ RESPONSE FILE";
       break;
     }
     if (strlen($response_content)==0)
     {
-      $error="ERROR: EMPTY RESPONSE FILE";
+      $error="ERROR 14: EMPTY RESPONSE FILE";
       break;
     }
     break;
@@ -198,7 +198,7 @@ else
   }
   if ((file_exists($request_filename)==True) or (file_exists($response_filename)==True))
   {
-    die("ERROR: UNABLE TO DELETE REQUEST AND/OR RESPONSE FILE");
+    die("ERROR 15: UNABLE TO DELETE REQUEST AND/OR RESPONSE FILE");
   }
   if ($error!==False)
   {
@@ -206,7 +206,7 @@ else
   }
   if ($response_content=="")
   {
-    die("ERROR: REQUEST TIMED OUT");
+    die("ERROR 16: REQUEST TIMED OUT");
   }
   die($response_content);
 }

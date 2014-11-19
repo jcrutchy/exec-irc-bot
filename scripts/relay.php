@@ -6,7 +6,7 @@
 #####################################################################################################
 
 /*
-exec:~relay-internal|60|5|0|1||INTERNAL||0|php scripts/relay.php
+exec:~relay-internal|60|20|0|1||INTERNAL||0|php scripts/relay.php
 */
 
 #####################################################################################################
@@ -33,7 +33,7 @@ if (($content=="") or ($content=="NO REQUESTS") or (strpos($content,$errstr)!==F
 {
   return;
 }
-$errstr="ERROR:";
+$errstr="ERROR";
 if (strpos($content,$errstr)!==False)
 {
   term_echo($content);
