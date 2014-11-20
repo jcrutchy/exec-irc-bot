@@ -19,68 +19,87 @@ define("CLIENT_TIMEOUT",60); # seconds
 error_reporting(E_ALL);
 set_time_limit(0);
 ob_implicit_flush();
-$sock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
-if ($sock===False)
+$server=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
+if ($server===False)
 {
   echo "socket_create() failed: reason: ".socket_strerror(socket_last_error())."\n";
 }
-if (socket_bind($sock,LISTEN_ADDRESS,LISTEN_PORT)===False)
+if (socket_bind($server,LISTEN_ADDRESS,LISTEN_PORT)===False)
 {
-  echo "socket_bind() failed: reason: ".socket_strerror(socket_last_error($sock))."\n";
+  echo "socket_bind() failed: reason: ".socket_strerror(socket_last_error($server))."\n";
 }
-if (socket_listen($sock,5)===False)
+if (socket_listen($server,5)===False)
 {
-  echo "socket_listen() failed: reason: ".socket_strerror(socket_last_error($sock))."\n";
+  echo "socket_listen() failed: reason: ".socket_strerror(socket_last_error($server))."\n";
 }
+socket_set_nonblock($server);
+echo "waiting for client...\n";
 do
 {
-  $msgsock=socket_accept($sock);
-  if ($msgsock===False)
+  $client=socket_accept($server);
+  if ($client===False)
   {
-    echo "socket_accept() failed: reason: ".socket_strerror(socket_last_error($sock))."\n";
+    usleep(100);
+  }
+  elseif ($client>0)
+  {
+    $addr="";
+    $port=0;
+    if (socket_getpeername($client,$addr,$port)==True)
+    {
+      echo "connected to remote address $addr on port $port\n";
+    }
+    socket_set_nonblock($client);
+    do
+    {
+      $buf="";
+      do
+      {
+        $chunk=socket_read($client,2048,PHP_BINARY_READ);
+        if ($chunk===False)
+        {
+          echo "client disconnected\n";
+          break 2;
+        }
+        $buf=$buf.$chunk;
+        usleep(100);
+      }
+      while ($chunk<>"");
+      $buf=trim($buf);
+      if ($buf=="")
+      {
+        continue;
+      }
+      echo "message received: $buf\n";
+      switch ($buf)
+      {
+        case "quit":
+          echo "quit received\n";
+          break 2;
+        case "shutdown":
+          echo "shutdown received\n";
+          socket_close($client);
+          break 3;
+      }
+      $response=get_requests();
+      if ($response<>"")
+      {
+        socket_write($client,$response,strlen($response));
+        echo "$response\n";
+      }
+      usleep(300);
+    }
+    while (True);
+    socket_close($client);
+  }
+  else
+  {
+    echo "socket_accept() failed: reason: ".socket_strerror(socket_last_error($server))."\n";
     break;
   }
-  $addr="";
-  $port=0;
-  if (socket_getpeername($msgsock,$addr,$port)==True)
-  {
-    echo "connected to remote address $addr on port $port\n";
-  }
-  do
-  {
-    $buf=socket_read($msgsock,2048,PHP_NORMAL_READ);
-    if ($buf===False)
-    {
-      echo "socket_read() failed: reason: ".socket_strerror(socket_last_error($msgsock))."\n";
-      break 2;
-    }
-    $buf=trim($buf);
-    if ($buf=="")
-    {
-      continue;
-    }
-    switch ($buf)
-    {
-      case "quit":
-        echo "quit received\n";
-        break 2;
-      case "shutdown":
-        echo "shutdown received\n";
-        socket_close($msgsock);
-        break 3;
-    }
-    $response=get_requests();
-    if ($response<>"")
-    {
-      socket_write($msgsock,$response,strlen($response));
-      echo "$response\n";
-    }
-  }
-  while (True);
-  socket_close($msgsock);
 }
 while (True);
-socket_close($sock);
+socket_close($server);
 
 #####################################################################################################
 
