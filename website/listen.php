@@ -36,7 +36,7 @@ socket_set_nonblock($server);
 echo "waiting for client...\n";
 do
 {
-  $client=socket_accept($server);
+  $client=@socket_accept($server);
   if ($client===False)
   {
     usleep(100);
