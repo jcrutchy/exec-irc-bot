@@ -32,73 +32,79 @@ if (socket_listen($server,5)===False)
 {
   echo "socket_listen() failed: reason: ".socket_strerror(socket_last_error($server))."\n";
 }
-socket_set_nonblock($server);
+$clients=array($server);
 echo "waiting for client...\n";
-do
+while (True)
 {
-  $client=@socket_accept($server);
-  if ($client===False)
+  $read=$clients;
+  $requests=get_requests();
+  if ($requests=="")
+  {
+    continue;
+  }
+  foreach ($clients as $send_client)
+  {
+    if ($send_client==$server)
+    {
+      continue;
+    }
+    socket_write($send_client,$requests."\n");
+  }
+  $write=NULL;
+  $except=NULL;
+  if (socket_select($read,$write,$except,0)<1)
   {
     usleep(100);
+    continue;
   }
-  elseif ($client>0)
+  if (in_array($server,$read)==False)
   {
-    $addr="";
-    $port=0;
-    if (socket_getpeername($client,$addr,$port)==True)
-    {
-      echo "connected to remote address $addr on port $port\n";
-    }
-    socket_set_nonblock($client);
-    do
-    {
-      $buf="";
-      do
-      {
-        $chunk=socket_read($client,2048,PHP_BINARY_READ);
-        if ($chunk===False)
-        {
-          echo "client disconnected\n";
-          break 2;
-        }
-        $buf=$buf.$chunk;
-        usleep(100);
-      }
-      while ($chunk<>"");
-      $buf=trim($buf);
-      if ($buf=="")
-      {
-        continue;
-      }
-      echo "message received: $buf\n";
-      switch ($buf)
-      {
-        case "quit":
-          echo "quit received\n";
-          break 2;
-        case "shutdown":
-          echo "shutdown received\n";
-          socket_close($client);
-          break 3;
-      }
-      $response=get_requests();
-      if ($response<>"")
-      {
-        socket_write($client,$response,strlen($response));
-        echo "$response\n";
-      }
-      usleep(300);
-    }
-    while (True);
-    socket_close($client);
+    usleep(100);
+    continue;
   }
-  else
+  $client=socket_accept($server);
+  $clients[]=$client;
+  $addr="";
+  if (socket_getpeername($client,$addr)==True)
   {
-    echo "socket_accept() failed: reason: ".socket_strerror(socket_last_error($server))."\n";
-    break;
+    echo "connected to remote address $addr\n";
+  }
+  $n=count($clients)-1;
+  socket_write($client,"successfully connected to notification server\nthere are $n clients connected\n");
+  $key=array_search($server,$read);
+  unset($read[$key]);
+  foreach ($read as $read_client)
+  {
+    usleep(100);
+    $data=@socket_read($read_client,1024,PHP_NORMAL_READ);
+    if ($data===False)
+    {
+      socket_close($read_client);
+      $key=array_search($read_client,$clients);
+      unset($clients[$key]);
+      echo "client disconnected\n";
+      continue;
+    }
+    $data=trim($data);
+    if ($data=="")
+    {
+      continue;
+    }
+    echo "message received: $data\n";
+    if (($data=="quit") or ($data=="shutdown"))
+    {
+      echo "$data received\n";
+      socket_close($read_client);
+      $key=array_search($read_client,$clients);
+      unset($clients[$key]);
+      if ($data=="quit")
+      {
+        break;
+      }
+      break 2;
+    }
   }
 }
-while (True);
 socket_close($server);
 
 #####################################################################################################
