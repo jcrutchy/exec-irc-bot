@@ -36,20 +36,19 @@ $clients=array($server);
 echo "waiting for client...\n";
 while (True)
 {
-  $read=$clients;
   $requests=get_requests();
-  if ($requests=="")
+  if ($requests<>"")
   {
-    continue;
-  }
-  foreach ($clients as $send_client)
-  {
-    if ($send_client==$server)
+    foreach ($clients as $send_client)
     {
-      continue;
+      if ($send_client==$server)
+      {
+        continue;
+      }
+      socket_write($send_client,$requests."\n");
     }
-    socket_write($send_client,$requests."\n");
   }
+  $read=$clients;
   $write=NULL;
   $except=NULL;
   if (socket_select($read,$write,$except,0)<1)
@@ -57,22 +56,20 @@ while (True)
     usleep(100);
     continue;
   }
-  if (in_array($server,$read)==False)
+  if (in_array($server,$read)==True)
   {
-    usleep(100);
-    continue;
+    $client=socket_accept($server);
+    $clients[]=$client;
+    $addr="";
+    if (socket_getpeername($client,$addr)==True)
+    {
+      echo "connected to remote address $addr\n";
+    }
+    $n=count($clients)-1;
+    socket_write($client,"successfully connected to notification server\nthere are $n clients connected\n");
+    $key=array_search($server,$read);
+    unset($read[$key]);
   }
-  $client=socket_accept($server);
-  $clients[]=$client;
-  $addr="";
-  if (socket_getpeername($client,$addr)==True)
-  {
-    echo "connected to remote address $addr\n";
-  }
-  $n=count($clients)-1;
-  socket_write($client,"successfully connected to notification server\nthere are $n clients connected\n");
-  $key=array_search($server,$read);
-  unset($read[$key]);
   foreach ($read as $read_client)
   {
     usleep(100);
