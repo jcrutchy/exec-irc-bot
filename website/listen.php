@@ -48,6 +48,12 @@ do
       echo "socket_read() failed: reason: ".socket_strerror(socket_last_error($msgsock))."\n";
       break 2;
     }
+    $addr="";
+    $port=0;
+    if (socket_getpeername($msgsock,$addr,$port)==True)
+    {
+      echo "connected to remote address $address on port $port\n";
+    }
     $buf=trim($buf);
     if ($buf=="")
     {
