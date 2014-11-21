@@ -72,7 +72,7 @@ if ($alias=="~github-list")
 {
   for ($i=0;$i<count($list);$i++)
   {
-    privmsg($list[$i]);
+    notice($nick,$list[$i]);
   }
   return;
 }
