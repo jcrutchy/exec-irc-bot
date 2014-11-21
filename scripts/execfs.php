@@ -6,6 +6,8 @@
 /*
 exec:~get|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~set|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~cp|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~mv|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~rm|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~ls|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~cd|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
@@ -76,6 +78,16 @@ if ($alias=="~set")
     privmsg(chr(3).$color."$name = $value");
     set_array_bucket($bucket,BUCKET_EXECFS_VARS,True);
   }
+  return;
+}
+if ($alias=="~cp")
+{
+  # TODO
+  return;
+}
+if ($alias=="~mv")
+{
+  # TODO
   return;
 }
 if ($alias=="~rm")

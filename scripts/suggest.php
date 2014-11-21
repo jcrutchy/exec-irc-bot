@@ -6,9 +6,10 @@
 #####################################################################################################
 
 /*
-exec:~suggest|20|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~suggest-api|20|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~suggest-exec|20|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~suggest|30|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~suggest-api|30|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~suggest-exec|30|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~suggest-rss|30|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################
@@ -30,6 +31,10 @@ elseif ($alias=="~suggest-exec")
 {
   $wiki_url="http://sylnt.us/execsuggestions";
 }
+elseif ($alias=="~suggest-rss")
+{
+  $wiki_url="http://wiki.soylentnews.org/wiki/IRC:Regurgitator";
+}
 
 if ($trailing=="")
 {
@@ -48,6 +53,10 @@ if ($alias=="~suggest-api")
 elseif ($alias=="~suggest-exec")
 {
   $title="IRC:exec suggestions";
+}
+elseif ($alias=="~suggest-rss")
+{
+  $title="IRC:Regurgitator";
 }
 
 $section="Suggestions from IRC";

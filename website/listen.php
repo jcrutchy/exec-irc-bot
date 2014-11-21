@@ -3,8 +3,6 @@
 # gpl2
 # by crutchy
 
-# http://php.net/manual/en/sockets.examples.php
-
 #####################################################################################################
 
 define("LISTEN_ADDRESS","192.168.0.21");
@@ -19,10 +17,15 @@ define("CLIENT_TIMEOUT",60); # seconds
 error_reporting(E_ALL);
 set_time_limit(0);
 ob_implicit_flush();
+get_requests(True);
 $server=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
 if ($server===False)
 {
   echo "socket_create() failed: reason: ".socket_strerror(socket_last_error())."\n";
+}
+if (socket_get_option($server,SOL_SOCKET,SO_REUSEADDR)===False)
+{
+  echo "socket_get_option() failed: reason: ".socket_strerror(socket_last_error($server))."\n";
 }
 if (socket_bind($server,LISTEN_ADDRESS,LISTEN_PORT)===False)
 {
@@ -39,6 +42,7 @@ while (True)
   $requests=get_requests();
   if ($requests<>"")
   {
+    echo "request(s) received: $requests\n";
     foreach ($clients as $send_client)
     {
       if ($send_client==$server)
@@ -53,7 +57,7 @@ while (True)
   $except=NULL;
   if (socket_select($read,$write,$except,0)<1)
   {
-    usleep(100);
+    usleep(10000);
     continue;
   }
   if (in_array($server,$read)==True)
@@ -72,7 +76,7 @@ while (True)
   }
   foreach ($read as $read_client)
   {
-    usleep(100);
+    usleep(10000);
     $data=@socket_read($read_client,1024,PHP_NORMAL_READ);
     if ($data===False)
     {
@@ -100,13 +104,22 @@ while (True)
       }
       break 2;
     }
+    $addr="";
+    socket_getpeername($read_client,$addr);
+    foreach ($clients as $send_client)
+    {
+      if (($send_client<>$read_client) and ($send_client<>$server))
+      {
+        socket_write($send_client,"broadcast from $addr: $data"."\n");
+      }
+    }
   }
 }
 socket_close($server);
 
 #####################################################################################################
 
-function get_requests()
+function get_requests($purge=False)
 {
   $files=scandir(FILE_PATH_REQUESTS);
   $requests=array();
@@ -121,13 +134,15 @@ function get_requests()
     {
       continue;
     }
-    $request_data=file_get_contents($filename);
-    if ($request_data===False)
+    if ($purge==False)
     {
-      unlink($filename);
-      continue;
+      $request_data=file_get_contents($filename);
+      if ($request_data!==False)
+      {
+        $requests[]=$request_data;
+      }
     }
-    $requests[]=$request_data;
+    unlink($filename);
   }
   if (count($requests)==0)
   {

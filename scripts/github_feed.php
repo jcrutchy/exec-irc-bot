@@ -52,6 +52,7 @@ define("FEED_CHAN","#github");
 $list=array(
   "crutchy-/exec-irc-bot",
   "TheMightyBuzzard/slashcode",
+  "TheMightyBuzzard/api-testing",
   "chromatos/pas",
   "Subsentient/aqu4bot",
   "SoylentNews/slashcode",

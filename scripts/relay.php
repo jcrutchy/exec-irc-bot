@@ -6,8 +6,7 @@
 #####################################################################################################
 
 /*
-SCRIPT IS DISABLED
-#exec:~relay-internal|60|8|0|1||INTERNAL||0|php scripts/relay.php
+exec:~relay|0|0|0|1|@|||0|php scripts/relay.php %%trailing%% %%dest%% %%nick%%
 */
 
 #####################################################################################################
@@ -18,8 +17,65 @@ define("RELAY_HOST","irciv.us.to");
 define("RELAY_URI","/?exec");
 define("RELAY_PORT","80");
 define("EXEC_KEY_FILE","../pwd/exec_key");
+define("NOTIFY_HOST","192.168.0.21");
+define("NOTIFY_PORT",50000);
 
-$key=file_get_contents(EXEC_KEY_FILE);
+$trailing=$argv[1];
+$dest=$argv[2];
+$nick=$argv[3];
+
+$errno=0;
+$errstr="";
+$socket=@fsockopen(NOTIFY_HOST,NOTIFY_PORT,$errno,$errstr,5);
+
+if ($socket===False)
+{
+  notice($nick,"ERROR: UNABLE TO CONNECT TO NOTIFICATION SERVER");
+  return;
+}
+
+notice($nick,"CONNECTED TO NOTIFICATION SERVER");
+
+while (True)
+{
+  $data=fgets($socket);
+  if ($data===False)
+  {
+    $meta=stream_get_meta_data($socket);
+    if ($meta["eof"]==True)
+    {
+      notice($nick,"CONNECTION TERMINATED");
+      return;
+    }
+    continue;
+  }
+  $data=trim($data);
+  if (strpos($data,"quit-bot-relay")!==False)
+  {
+    notice($nick,"quitting relay");
+    return;
+  }
+  $arr=@unserialize($data);
+  if ($arr===False)
+  {
+    notice($nick,$data);
+  }
+  else
+  {
+    if ((isset($arr["data"])==True) and (isset($arr["username"])==True))
+    {
+      notice($nick,"sent from ".$arr["username"].": ".$arr["data"]);
+    }
+    else
+    {
+      var_dump($arr);
+    }
+  }
+}
+
+#####################################################################################################
+
+/*$key=file_get_contents(EXEC_KEY_FILE);
 if ($key===False)
 {
   term_echo("ERROR: UNABLE TO READ EXEC KEY FILE");
@@ -63,7 +119,7 @@ for ($i=0;$i<count($request_lines);$i++)
   # need to make /REMOTE and REMOTE cmd stdout handlers (unsets request from dest in process data)
   # remote handler calls send_relay_response function
   send_relay_response($request_data["request_id"],"farts are awesome");
-}
+}*/
 
 #####################################################################################################
 
