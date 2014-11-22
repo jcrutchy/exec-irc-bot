@@ -55,15 +55,27 @@ $list=array(
   "TheMightyBuzzard/api-testing",
   "chromatos/pas",
   "Subsentient/aqu4bot",
+  "Subsentient/epoch",
+  "Subsentient/bricktick",
+  "Subsentient/wzblue",
   "SoylentNews/slashcode",
+  "SoylentNews/slashcode_vm",
   "paulej72/slashcode",
   "NCommander/slashcode",
   "arachnist/dsd",
   "arachnist/repost",
   "mrcoolbp/slashcode",
   "pipedot/pipecode",
+  "Lagg/userscripts",
+  "Lagg/dotfiles",
   "Lagg/steamodd",
-  "SoylentNews/slashcode_vm");
+  "Lagg/c3-code",
+  "Lagg/tinyfeeds",
+  "Lagg/weechat-scripts",
+  "Lagg/steam-tracker",
+  "Lagg/steam-swissapiknife");
+
+sort($list);
 
 define("TIME_LIMIT_SEC",300); # 5 mins
 define("CREATE_TIME_FORMAT","Y-m-d H:i:s ");

@@ -69,15 +69,15 @@ function wtouch($host,$uri,$port,$timeout=5)
   $errstr="";
   if ($port==80)
   {
-    $fp=fsockopen($host,80,$errno,$errstr,$timeout);
+    $fp=@fsockopen($host,80,$errno,$errstr,$timeout);
   }
   elseif ($port==443)
   {
-    $fp=fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
+    $fp=@fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
   }
   else
   {
-    $fp=fsockopen($host,$port,$errno,$errstr,$timeout);
+    $fp=@fsockopen($host,$port,$errno,$errstr,$timeout);
   }
   if ($fp===False)
   {

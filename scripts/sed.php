@@ -84,7 +84,8 @@ switch ($flag)
   case 7:
     for ($i=0;$i<count($delims);$i++)
     {
-      if (sed($msg,$nick,$dest,$delims[$i])==True)
+      #if (sed($msg,$nick,$dest,$delims[$i])==True)
+      if (shell_sed($msg,$nick,$dest,$delims[$i])==True)
       {
         return;
       }
@@ -99,6 +100,58 @@ switch ($flag)
     return;
 }
 set_bucket("last_".strtolower($nick)."_".strtolower($dest),$msg);
+
+#####################################################################################################
+
+function shell_sed($trailing,$nick,$dest,$delim="/")
+{
+  return False;
+  #$nick1
+  /*$replnick=$nick;
+  $command=$trailing;
+  $parts=explode(" ",$trailing);
+  $sed_nick=strtolower(trim($parts[0]));
+  array_shift($parts);
+  $sed_trailing=implode(" ",$parts);
+  $sed_nick_last=substr($sed_nick,strlen($sed_nick)-1);
+  $suffix_chars=":,";
+  if (strpos($suffix_chars,$sed_nick_last)!==False)
+  {
+    $sed_nick=trim(substr($sed_nick,0,strlen($sed_nick)-1));
+  }
+  $sed_trailing_first=strtolower(substr($sed_trailing,0,1));
+  if (($sed_trailing_first=="s") and ($sed_nick<>""))
+  {
+    $replnick=$sed_nick;
+    $command=$sed_trailing;
+  }
+
+  $index="last_".strtolower($replnick)."_".strtolower($dest);
+  $subject=get_bucket($index);
+  if ($subject=="")
+  {
+    privmsg("last message by \"$nick\" not found");
+    return False;
+  }
+  $subject=escapeshellarg($subject);
+  $command=escapeshellarg($trailing);
+  $cmd="echo $subject | sed -e $command 2>&1";
+  pm("#debug",$cmd);
+  $result=shell_exec($cmd);
+  $result=trim($result);
+  pm("#debug",$result);
+  $errstr="sed: -e expression";
+  if (substr($result,0,strlen($errstr))==$errstr)
+  {
+    return False;
+  }
+  if ($result=="")
+  {
+    return False;
+  }
+  privmsg("<$nick> $result");
+  return True;*/
+}
 
 #####################################################################################################
 
