@@ -38,6 +38,10 @@ switch ($cmd)
     $channels=users_get_channels($nick);
     privmsg(implode(" ",$channels));
     break;
+  case "all-channels":
+    $channels=users_get_all_channels();
+    privmsg(implode(" ",$channels));
+    break;
   case "count":
     $channel=strtolower(trim($trailing));
     $n=users_count_nicks($channel);
@@ -53,6 +57,29 @@ switch ($cmd)
     if (isset($user["account"])==True)
     {
       privmsg("account: ".$user["account"]);
+    }
+    if (isset($user["prefix"])==True)
+    {
+      privmsg("prefix: ".$user["prefix"]);
+    }
+    if (isset($user["user"])==True)
+    {
+      privmsg("user: ".$user["user"]);
+    }
+    if (isset($user["hostname"])==True)
+    {
+      privmsg("hostname: ".$user["hostname"]);
+    }
+    if (isset($user["connected"])==True)
+    {
+      if ($user["connected"]==True)
+      {
+        privmsg("connected: yes");
+      }
+      else
+      {
+        privmsg("connected: no");
+      }
     }
     var_dump($user);
     break;

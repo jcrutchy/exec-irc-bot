@@ -794,9 +794,37 @@ function has_account_list($alias)
 
 #####################################################################################################
 
-function handle_join($nick,$channel)
+function handle_privmsg(&$items)
 {
   global $buckets;
+  $nick=strtolower(trim($items["nick"]));
+  if ($nick=="")
+  {
+    term_echo("*** USERS: handle_privmsg: empty nick");
+    return;
+  }
+  if (isset($buckets[BUCKET_USERS])==True)
+  {
+    $users=unserialize($buckets[BUCKET_USERS]);
+  }
+  else
+  {
+    $users=array();
+  }
+  $users[$nick]["prefix"]=trim($items["prefix"]);
+  $users[$nick]["user"]=trim($items["user"]);
+  $users[$nick]["hostname"]=trim($items["hostname"]);
+  $users[$nick]["connected"]=True;
+  $buckets[BUCKET_USERS]=serialize($users);
+}
+
+#####################################################################################################
+
+function handle_join(&$items)
+{
+  global $buckets;
+  $nick=strtolower(trim($items["nick"]));
+  $channel=strtolower(trim($items["params"]));
   if (($nick=="") or ($channel==""))
   {
     term_echo("*** USERS: handle_join: empty nick or channel");
@@ -812,14 +840,19 @@ function handle_join($nick,$channel)
     $users=array();
   }
   $users[$nick]["channels"][$channel]=microtime(True);
+  $users[$nick]["prefix"]=trim($items["prefix"]);
+  $users[$nick]["user"]=trim($items["user"]);
+  $users[$nick]["hostname"]=trim($items["hostname"]);
+  $users[$nick]["connected"]=True;
   $buckets[BUCKET_USERS]=serialize($users);
 }
 
 #####################################################################################################
 
-function handle_kick($trailing) # <channel> <kicked_nick>
+function handle_kick(&$items)
 {
   global $buckets;
+  $trailing=strtolower(trim($items["trailing"]));
   $parts=explode(" ",$trailing);
   if (count($parts)<>2)
   {
@@ -844,7 +877,11 @@ function handle_kick($trailing) # <channel> <kicked_nick>
   }
   if (isset($users[$kicked_nick]["channels"][$channel])==True)
   {
+    $users[$kicked_nick]["prefix"]=trim($items["prefix"]);
+    $users[$kicked_nick]["user"]=trim($items["user"]);
+    $users[$kicked_nick]["hostname"]=trim($items["hostname"]);
     unset($users[$kicked_nick]["channels"][$channel]);
+    $users[$kicked_nick]["connected"]=True;
     $buckets[BUCKET_USERS]=serialize($users);
   }
   else
@@ -855,9 +892,11 @@ function handle_kick($trailing) # <channel> <kicked_nick>
 
 #####################################################################################################
 
-function handle_nick($old_nick,$new_nick)
+function handle_nick(&$items)
 {
   global $buckets;
+  $old_nick=strtolower(trim($items["nick"]));
+  $new_nick=strtolower(trim($items["trailing"]));
   if (($old_nick=="") or ($new_nick==""))
   {
     return;
@@ -882,14 +921,20 @@ function handle_nick($old_nick,$new_nick)
     term_echo("*** USERS: handle_nick: bucket data not found");
   }
   $users[$new_nick]=$user;
+  $users[$new_nick]["prefix"]=trim($items["prefix"]);
+  $users[$new_nick]["user"]=trim($items["user"]);
+  $users[$new_nick]["hostname"]=trim($items["hostname"]);
+  $users[$new_nick]["connected"]=True;
   $buckets[BUCKET_USERS]=serialize($users);
 }
 
 #####################################################################################################
 
-function handle_part($nick,$channel)
+function handle_part(&$items)
 {
   global $buckets;
+  $nick=strtolower(trim($items["nick"]));
+  $channel=strtolower(trim($items["destination"]));
   if (($nick=="") or ($channel==""))
   {
     term_echo("*** USERS: handle_part: empty channel or nick");
@@ -906,6 +951,10 @@ function handle_part($nick,$channel)
   }
   if (isset($users[$nick]["channels"][$channel])==True)
   {
+    $users[$nick]["prefix"]=trim($items["prefix"]);
+    $users[$nick]["user"]=trim($items["user"]);
+    $users[$nick]["hostname"]=trim($items["hostname"]);
+    $users[$nick]["connected"]=True;
     unset($users[$nick]["channels"][$channel]);
     $buckets[BUCKET_USERS]=serialize($users);
   }
@@ -917,9 +966,10 @@ function handle_part($nick,$channel)
 
 #####################################################################################################
 
-function handle_quit($nick)
+function handle_quit(&$items)
 {
   global $buckets;
+  $nick=strtolower(trim($items["nick"]));
   if ($nick=="")
   {
     term_echo("*** USERS: handle_quit: empty nick");
@@ -936,7 +986,11 @@ function handle_quit($nick)
   }
   if (isset($users[$nick])==True)
   {
-    unset($users[$nick]);
+    $users[$nick]["prefix"]=trim($items["prefix"]);
+    $users[$nick]["user"]=trim($items["user"]);
+    $users[$nick]["hostname"]=trim($items["hostname"]);
+    $users[$nick]["connected"]=False;
+    $users[$nick]["channels"]=array();
     $buckets[BUCKET_USERS]=serialize($users);
   }
   else
@@ -947,9 +1001,10 @@ function handle_quit($nick)
 
 #####################################################################################################
 
-function handle_kill($nick)
+function handle_kill(&$items)
 {
   global $buckets;
+  $nick=strtolower(trim($items["params"]));
   if ($nick=="")
   {
     term_echo("*** USERS: handle_kill: empty nick");
@@ -966,7 +1021,11 @@ function handle_kill($nick)
   }
   if (isset($users[$nick])==True)
   {
-    unset($users[$nick]);
+    $users[$nick]["prefix"]=trim($items["prefix"]);
+    $users[$nick]["user"]=trim($items["user"]);
+    $users[$nick]["hostname"]=trim($items["hostname"]);
+    $users[$nick]["connected"]=False;
+    $users[$nick]["channels"]=array();
     $buckets[BUCKET_USERS]=serialize($users);
   }
   else
@@ -977,10 +1036,21 @@ function handle_kill($nick)
 
 #####################################################################################################
 
-function handle_319($trailing) # <calling_nick> <subject_nick> <chan1> <+chan2> <@chan3>
+function handle_311(&$items)
 {
   global $buckets;
-  $parts=explode(" ",$trailing);
+  # :irc.sylnt.us 311 exec crutchy ~crutchy 709-27-2-01.cust.aussiebb.net * :crutchy
+  # TODO: assign prefix, user, hostname and connected
+}
+
+#####################################################################################################
+
+function handle_319(&$items)
+{
+  global $buckets;
+  $params=strtolower(trim($items["params"]));
+  $trailing=strtolower(trim($items["trailing"]));
+  $parts=explode(" ","$params $trailing");
   if (count($parts)<3)
   {
     term_echo("*** USERS: handle_319: invalid number of parts");
@@ -1026,10 +1096,11 @@ function handle_319($trailing) # <calling_nick> <subject_nick> <chan1> <+chan2> 
 
 #####################################################################################################
 
-function handle_330($trailing) # <calling_nick> <subject_nick> <account>
+function handle_330(&$items)
 {
   global $buckets;
-  $parts=explode(" ",$trailing);
+  $params=strtolower(trim($items["params"]));
+  $parts=explode(" ",$params);
   if (count($parts)<>3)
   {
     term_echo("*** USERS: handle_330: invalid number of parts");
@@ -1062,10 +1133,12 @@ function handle_330($trailing) # <calling_nick> <subject_nick> <account>
 
 #####################################################################################################
 
-function handle_353($trailing) # <calling_nick> = <channel> <nick1> <+nick2> <@nick3>
+function handle_353(&$items)
 {
   global $buckets;
-  $parts=explode(" ",$trailing);
+  $params=strtolower(trim($items["params"]));
+  $trailing=strtolower(trim($items["trailing"]));
+  $parts=explode(" ","$params $trailing");
   if (count($parts)<4)
   {
     term_echo("*** USERS: handle_353: invalid number of parts");
@@ -1113,47 +1186,40 @@ function handle_353($trailing) # <calling_nick> = <channel> <nick1> <+nick2> <@n
 function handle_events(&$items)
 {
   $cmd=strtoupper(trim($items["cmd"]));
-  $nick=strtolower(trim($items["nick"]));
-  $params=strtolower(trim($items["params"]));
-  $trailing=strtolower(trim($items["trailing"]));
   switch ($cmd)
   {
+    case "PRIVMSG":
+      handle_privmsg($items);
+      break;
     case "JOIN":
-      # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
-      handle_join($nick,$params);
+      handle_join($items);
       break;
     case "KICK":
-      # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
-      # :exec!~exec@709-27-2-01.cust.aussiebb.net KICK #comments Loggie :commanded by crutchy
-      handle_kick($trailing);
+      handle_kick($items);
       break;
     case "KILL":
-      # dogfart >> :juggs!~juggs@Soylent/Staff/IRC/juggs KILL dogfart :crutchy_made_me
-      # dogfart >> :dogfart!~dogfart@709-27-2-01.cust.aussiebb.net QUIT :Killed (juggs (crutchy_made_me))
-      handle_kill($params);
+      handle_kill($items);
       break;
     case "NICK":
-      # :Landon_!~Landon@Soylent/Staff/IRC/Landon NICK :Landon
-      handle_nick($nick,$trailing);
+      handle_nick($items);
       break;
     case "PART":
-      # :Drop!~Drop___@via1-vhat2-0-3-jppz214.perr.cable.virginm.net PART #Soylent :Leaving
-      handle_part($nick,$trailing);
+      handle_part($items);
       break;
     case "QUIT":
-      handle_quit($nick);
+      handle_quit($items);
+      break;
+    case "311":
+      handle_311($items);
       break;
     case "319":
-      # :irc.sylnt.us 319 exec crutchy :#wiki +#test #sublight #help @#exec #derp @#civ @#1 @#0 ## @#/ @#> @#~ @#
-      handle_319("$params $trailing");
+      handle_319($items);
       break;
     case "330":
-      # :irc.sylnt.us 330 exec crutchy_ crutchy :is logged in as
-      handle_330($params);
+      handle_330($items);
       break;
     case "353":
-      # :irc.sylnt.us 353 exec = #civ :exec @crutchy chromas arti
-      handle_353("$params $trailing");
+      handle_353($items);
       break;
   }
   script_event_handlers($cmd,$items);

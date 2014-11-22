@@ -51,6 +51,8 @@ switch (strtoupper($cmd))
     #echo "/INTERNAL ~welcome-internal KICK $params\n";
     break;
   case "KILL":
+    # :juggs!~juggs@Soylent/Staff/IRC/juggs KILL dogfart :crutchy_made_me
+    # :dogfart!~dogfart@709-27-2-01.cust.aussiebb.net QUIT :Killed (juggs (crutchy_made_me))
     break;
   case "MODE":
     break;

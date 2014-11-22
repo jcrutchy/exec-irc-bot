@@ -8,7 +8,7 @@
 /*
 exec:~github-list|60|0|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~github-feed|280|300|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~slashcode-issue|60|0|0|1|*|||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~slashcode-issue|60|0|0|1|crutchy,TheMightyBuzzard|||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 startup:~join #github
 */
 
@@ -25,9 +25,19 @@ $alias=strtolower(trim($argv[4]));
 
 if ($alias=="~slashcode-issue")
 {
+  $parts=explode(",",$trailing);
+  $title=trim($parts[0]);
+  array_shift($parts);
+  $body=trim(implode(",",$parts));
+  if (($title=="") or ($body==""))
+  {
+    privmsg("syntax: ~slashcode-issue title, body");
+    return;
+  }
   $host="api.github.com";
   $port=443;
-  # SoylentNews/slashcode
+  #$username="SoylentNews";
+  #$repo="slashcode";
   $username="crutchy-";
   $repo="exec-irc-bot";
   $uri="/repos/$username/$repo/issues";
@@ -37,13 +47,20 @@ if ($alias=="~slashcode-issue")
   $headers["Content-Type"]="application/json";
   $headers["Accept"]="application/vnd.github.v3+json";
   $params=array();
-  $params["title"]="test title";
-  $params["body"]="test body";
+  $params["title"]=$title;
+  $params["body"]=$body."\n\nsubmitted by exec from $dest @ irc.sylnt.us";
   $json=json_encode($params,JSON_PRETTY_PRINT);
-  $response=wpost($host,$uri,$port,ICEWEASEL_UA,$json,$headers,60,True,True);
+  $response=wpost($host,$uri,$port,ICEWEASEL_UA,$json,$headers,60,True,False);
   $content=strip_headers($response);
   $data=json_decode($content,True);
-  var_dump($response);
+  if (isset($data["html_url"])==True)
+  {
+    privmsg($data["html_url"]);
+  }
+  else
+  {
+    privmsg("there was an error submitting the issue");
+  }
   return;
 }
 
@@ -54,13 +71,16 @@ $list=array(
   "TheMightyBuzzard/slashcode",
   "TheMightyBuzzard/api-testing",
   "chromatos/pas",
+  "morganbengtsson/Micro-reader",
   "Subsentient/aqu4bot",
   "Subsentient/epoch",
   "Subsentient/bricktick",
   "Subsentient/wzblue",
   "SoylentNews/slashcode",
   "SoylentNews/slashcode_vm",
+  "cosurgi/trunk",
   "paulej72/slashcode",
+  "eapache/starscope",
   "NCommander/slashcode",
   "arachnist/dsd",
   "arachnist/repost",

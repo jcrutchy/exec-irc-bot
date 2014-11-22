@@ -6,3 +6,5 @@ This is the home of crutchy's 'exec' bot, which lurks on SoylentNews IRC (irc.sy
 The main bot script is 'irc.php', which requires 'irc_lib.php' (functions).
 
 Alias scripts are stored under the 'scripts' directory.
+
+Documentation can be found at http://sylnt.us/exec
