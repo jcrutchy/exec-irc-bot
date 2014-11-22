@@ -84,6 +84,8 @@ $list=array(
   "NCommander/slashcode",
   "arachnist/dsd",
   "arachnist/repost",
+  "idies/pyJHTDB",
+  "chichilalescu/pyNT",
   "mrcoolbp/slashcode",
   "pipedot/pipecode",
   "Lagg/userscripts",
