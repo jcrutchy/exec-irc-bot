@@ -30,55 +30,59 @@ switch ($cmd)
   case "nicks":
     $channel=strtolower(trim($trailing));
     $nicks=users_get_nicks($channel);
-    privmsg(implode(" ",$nicks));
+    notice($nick,implode(" ",$nicks));
     break;
   case "channels":
     $nick=strtolower(trim($trailing));
     $account=users_get_account($nick);
     $channels=users_get_channels($nick);
-    privmsg(implode(" ",$channels));
+    notice($nick,implode(" ",$channels));
     break;
   case "all-channels":
     $channels=users_get_all_channels();
-    privmsg(implode(" ",$channels));
+    notice($nick,implode(" ",$channels));
     break;
   case "count":
     $channel=strtolower(trim($trailing));
     $n=users_count_nicks($channel);
-    privmsg("nicks in $channel: $n");
+    notice($nick,"nicks in $channel: $n");
     break;
   case "data":
     $nick=strtolower(trim($trailing));
     $user=users_get_data($nick);
     if (isset($user["channels"])==True)
     {
-      privmsg("channels: ".implode(" ",array_keys($user["channels"])));
+      notice($nick,"channels: ".implode(" ",array_keys($user["channels"])));
+    }
+    if (isset($user["nicks"])==True)
+    {
+      notice($nick,"nicks: ".implode(" ",array_keys($user["nicks"])));
     }
     if (isset($user["account"])==True)
     {
-      privmsg("account: ".$user["account"]);
+      notice($nick,"account: ".$user["account"]);
     }
     if (isset($user["prefix"])==True)
     {
-      privmsg("prefix: ".$user["prefix"]);
+      notice($nick,"prefix: ".$user["prefix"]);
     }
     if (isset($user["user"])==True)
     {
-      privmsg("user: ".$user["user"]);
+      notice($nick,"user: ".$user["user"]);
     }
     if (isset($user["hostname"])==True)
     {
-      privmsg("hostname: ".$user["hostname"]);
+      notice($nick,"hostname: ".$user["hostname"]);
     }
     if (isset($user["connected"])==True)
     {
       if ($user["connected"]==True)
       {
-        privmsg("connected: yes");
+        notice($nick,"connected: yes");
       }
       else
       {
-        privmsg("connected: no");
+        notice($nick,"connected: no");
       }
     }
     var_dump($user);
@@ -88,7 +92,7 @@ switch ($cmd)
     $account=users_get_account($nick);
     if ($account!==False)
     {
-      privmsg("account for $nick: $account");
+      notice($nick,"account for $nick: $account");
     }
     break;
 }

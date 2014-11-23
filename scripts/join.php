@@ -16,6 +16,12 @@ require_once("lib.php");
 
 $channel=trim($argv[1]);
 
+$parts=explode(",",$channel);
+if (in_array("0",$parts)==True)
+{
+  return;
+}
+
 if (($channel<>"") and ($channel<>"0"))
 {
   echo "/IRC JOIN $channel\n";

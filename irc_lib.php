@@ -794,35 +794,58 @@ function has_account_list($alias)
 
 #####################################################################################################
 
-function handle_privmsg(&$items)
+function get_users($nick="")
 {
   global $buckets;
+  $users=array();
+  if (isset($buckets[BUCKET_USERS])==True)
+  {
+    $users=unserialize($buckets[BUCKET_USERS]);
+  }
+  if ($nick<>"")
+  {
+    if (isset($users[$nick]["channels"])==False)
+    {
+      $users[$nick]["channels"]=array();
+    }
+    if (isset($users[$nick]["nicks"])==False)
+    {
+      $users[$nick]["nicks"]=array();
+    }
+  }
+  return $users;
+}
+
+#####################################################################################################
+
+function set_users($users)
+{
+  global $buckets;
+  $buckets[BUCKET_USERS]=serialize($users);
+}
+
+#####################################################################################################
+
+function handle_privmsg(&$items)
+{
   $nick=strtolower(trim($items["nick"]));
   if ($nick=="")
   {
     term_echo("*** USERS: handle_privmsg: empty nick");
     return;
   }
-  if (isset($buckets[BUCKET_USERS])==True)
-  {
-    $users=unserialize($buckets[BUCKET_USERS]);
-  }
-  else
-  {
-    $users=array();
-  }
+  $users=get_users($nick);
   $users[$nick]["prefix"]=trim($items["prefix"]);
   $users[$nick]["user"]=trim($items["user"]);
   $users[$nick]["hostname"]=trim($items["hostname"]);
   $users[$nick]["connected"]=True;
-  $buckets[BUCKET_USERS]=serialize($users);
+  set_users($users);
 }
 
 #####################################################################################################
 
 function handle_join(&$items)
 {
-  global $buckets;
   $nick=strtolower(trim($items["nick"]));
   $channel=strtolower(trim($items["params"]));
   if (($nick=="") or ($channel==""))
@@ -831,27 +854,21 @@ function handle_join(&$items)
     return;
   }
   term_echo("*** USERS: handle_join: nick=$nick, channel=$channel");
-  if (isset($buckets[BUCKET_USERS])==True)
-  {
-    $users=unserialize($buckets[BUCKET_USERS]);
-  }
-  else
-  {
-    $users=array();
-  }
-  $users[$nick]["channels"][$channel]=microtime(True);
+  $users=get_users($nick);
+  $t=microtime(True);
+  $users[$nick]["nicks"][$nick]=$t;
+  $users[$nick]["channels"][$channel]=$t;
   $users[$nick]["prefix"]=trim($items["prefix"]);
   $users[$nick]["user"]=trim($items["user"]);
   $users[$nick]["hostname"]=trim($items["hostname"]);
   $users[$nick]["connected"]=True;
-  $buckets[BUCKET_USERS]=serialize($users);
+  set_users($users);
 }
 
 #####################################################################################################
 
 function handle_kick(&$items)
 {
-  global $buckets;
   $trailing=strtolower(trim($items["trailing"]));
   $parts=explode(" ",$trailing);
   if (count($parts)<>2)
@@ -867,14 +884,7 @@ function handle_kick(&$items)
     return;
   }
   term_echo("*** USERS: handle_kick: channel=$channel, kicked_nick=$kicked_nick");
-  if (isset($buckets[BUCKET_USERS])==True)
-  {
-    $users=unserialize($buckets[BUCKET_USERS]);
-  }
-  else
-  {
-    $users=array();
-  }
+  $users=get_users($kicked_nick);
   if (isset($users[$kicked_nick]["channels"][$channel])==True)
   {
     $users[$kicked_nick]["prefix"]=trim($items["prefix"]);
@@ -882,7 +892,7 @@ function handle_kick(&$items)
     $users[$kicked_nick]["hostname"]=trim($items["hostname"]);
     unset($users[$kicked_nick]["channels"][$channel]);
     $users[$kicked_nick]["connected"]=True;
-    $buckets[BUCKET_USERS]=serialize($users);
+    set_users($users);
   }
   else
   {
@@ -894,7 +904,6 @@ function handle_kick(&$items)
 
 function handle_nick(&$items)
 {
-  global $buckets;
   $old_nick=strtolower(trim($items["nick"]));
   $new_nick=strtolower(trim($items["trailing"]));
   if (($old_nick=="") or ($new_nick==""))
@@ -902,15 +911,8 @@ function handle_nick(&$items)
     return;
   }
   term_echo("*** USERS: handle_nick: old_nick=$old_nick, new_nick=$new_nick");
+  $users=get_users($old_nick);
   $user=array();
-  if (isset($buckets[BUCKET_USERS])==True)
-  {
-    $users=unserialize($buckets[BUCKET_USERS]);
-  }
-  else
-  {
-    $users=array();
-  }
   if (isset($users[$old_nick])==True)
   {
     $user=$users[$old_nick];
@@ -921,18 +923,18 @@ function handle_nick(&$items)
     term_echo("*** USERS: handle_nick: bucket data not found");
   }
   $users[$new_nick]=$user;
+  $users[$new_nick]["nicks"][$new_nick]=microtime(True);
   $users[$new_nick]["prefix"]=trim($items["prefix"]);
   $users[$new_nick]["user"]=trim($items["user"]);
   $users[$new_nick]["hostname"]=trim($items["hostname"]);
   $users[$new_nick]["connected"]=True;
-  $buckets[BUCKET_USERS]=serialize($users);
+  set_users($users);
 }
 
 #####################################################################################################
 
 function handle_part(&$items)
 {
-  global $buckets;
   $nick=strtolower(trim($items["nick"]));
   $channel=strtolower(trim($items["destination"]));
   if (($nick=="") or ($channel==""))
@@ -941,22 +943,22 @@ function handle_part(&$items)
     return;
   }
   term_echo("*** USERS: handle_part: nick=$nick, channel=$channel");
-  if (isset($buckets[BUCKET_USERS])==True)
-  {
-    $users=unserialize($buckets[BUCKET_USERS]);
-  }
-  else
-  {
-    $users=array();
-  }
+  $users=get_users($nick);
   if (isset($users[$nick]["channels"][$channel])==True)
   {
     $users[$nick]["prefix"]=trim($items["prefix"]);
     $users[$nick]["user"]=trim($items["user"]);
     $users[$nick]["hostname"]=trim($items["hostname"]);
-    $users[$nick]["connected"]=True;
     unset($users[$nick]["channels"][$channel]);
-    $buckets[BUCKET_USERS]=serialize($users);
+    if (count($users[$nick]["channels"])>0)
+    {
+      $users[$nick]["connected"]=True;
+    }
+    else
+    {
+      $users[$nick]["connected"]=False;
+    }
+    set_users($users);
   }
   else
   {
@@ -968,7 +970,6 @@ function handle_part(&$items)
 
 function handle_quit(&$items)
 {
-  global $buckets;
   $nick=strtolower(trim($items["nick"]));
   if ($nick=="")
   {
@@ -976,14 +977,7 @@ function handle_quit(&$items)
     return;
   }
   term_echo("*** USERS: handle_quit: nick=$nick");
-  if (isset($buckets[BUCKET_USERS])==True)
-  {
-    $users=unserialize($buckets[BUCKET_USERS]);
-  }
-  else
-  {
-    $users=array();
-  }
+  $users=get_users($nick);
   if (isset($users[$nick])==True)
   {
     $users[$nick]["prefix"]=trim($items["prefix"]);
@@ -991,7 +985,7 @@ function handle_quit(&$items)
     $users[$nick]["hostname"]=trim($items["hostname"]);
     $users[$nick]["connected"]=False;
     $users[$nick]["channels"]=array();
-    $buckets[BUCKET_USERS]=serialize($users);
+    set_users($users);
   }
   else
   {
@@ -1003,7 +997,6 @@ function handle_quit(&$items)
 
 function handle_kill(&$items)
 {
-  global $buckets;
   $nick=strtolower(trim($items["params"]));
   if ($nick=="")
   {
@@ -1011,14 +1004,7 @@ function handle_kill(&$items)
     return;
   }
   term_echo("*** USERS: handle_kill: nick=$nick");
-  if (isset($buckets[BUCKET_USERS])==True)
-  {
-    $users=unserialize($buckets[BUCKET_USERS]);
-  }
-  else
-  {
-    $users=array();
-  }
+  $users=get_users($nick);
   if (isset($users[$nick])==True)
   {
     $users[$nick]["prefix"]=trim($items["prefix"]);
@@ -1026,7 +1012,7 @@ function handle_kill(&$items)
     $users[$nick]["hostname"]=trim($items["hostname"]);
     $users[$nick]["connected"]=False;
     $users[$nick]["channels"]=array();
-    $buckets[BUCKET_USERS]=serialize($users);
+    set_users($users);
   }
   else
   {
@@ -1038,7 +1024,6 @@ function handle_kill(&$items)
 
 function handle_311(&$items)
 {
-  global $buckets;
   # :irc.sylnt.us 311 exec crutchy ~crutchy 709-27-2-01.cust.aussiebb.net * :crutchy
   # TODO: assign prefix, user, hostname and connected
 }
@@ -1047,7 +1032,6 @@ function handle_311(&$items)
 
 function handle_319(&$items)
 {
-  global $buckets;
   $params=strtolower(trim($items["params"]));
   $trailing=strtolower(trim($items["trailing"]));
   $parts=explode(" ","$params $trailing");
@@ -1062,14 +1046,7 @@ function handle_319(&$items)
     term_echo("*** USERS: handle_319: empty subject_nick");
     return;
   }
-  if (isset($buckets[BUCKET_USERS])==True)
-  {
-    $users=unserialize($buckets[BUCKET_USERS]);
-  }
-  else
-  {
-    $users=array();
-  }
+  $users=get_users($subject_nick);
   for ($i=2;$i<count($parts);$i++)
   {
     $channel=$parts[$i];
@@ -1084,21 +1061,35 @@ function handle_319(&$items)
       $channel=substr($channel,1);
       if ($channel=="")
       {
-        term_echo("*** USERS: handle_319: empty auth channel");
+        term_echo("*** USERS: handle_319: empty auth channel (1)");
         continue;
+      }
+      $auth=$channel[0];
+      if (($auth=="+") or ($auth=="@"))
+      {
+        $channel=substr($channel,1);
+        if ($channel=="")
+        {
+          term_echo("*** USERS: handle_319: empty auth channel (2)");
+          continue;
+        }
       }
     }
     term_echo("*** USERS: handle_319: subject_nick=$subject_nick, channel=$channel");
-    $users[$subject_nick]["channels"][$channel]=microtime(True);
+    $t=microtime(True);
+    $users[$subject_nick]["channels"][$channel]=$t;
+    if (isset($users[$subject_nick]["nicks"][$subject_nick])==False)
+    {
+      $users[$subject_nick]["nicks"][$subject_nick]=$t;
+    }
   }
-  $buckets[BUCKET_USERS]=serialize($users);
+  set_users($users);
 }
 
 #####################################################################################################
 
 function handle_330(&$items)
 {
-  global $buckets;
   $params=strtolower(trim($items["params"]));
   $parts=explode(" ",$params);
   if (count($parts)<>3)
@@ -1118,24 +1109,16 @@ function handle_330(&$items)
     term_echo("*** USERS: handle_330: empty account");
     return;
   }
-  if (isset($buckets[BUCKET_USERS])==True)
-  {
-    $users=unserialize($buckets[BUCKET_USERS]);
-  }
-  else
-  {
-    $users=array();
-  }
+  $users=get_users($subject_nick);
   $users[$subject_nick]["account"]=strtolower($account);
   $users[$subject_nick]["account_updated"]=microtime(True);
-  $buckets[BUCKET_USERS]=serialize($users);
+  set_users($users);
 }
 
 #####################################################################################################
 
 function handle_353(&$items)
 {
-  global $buckets;
   $params=strtolower(trim($items["params"]));
   $trailing=strtolower(trim($items["trailing"]));
   $parts=explode(" ","$params $trailing");
@@ -1150,14 +1133,7 @@ function handle_353(&$items)
     term_echo("*** USERS: handle_353: empty channel");
     return;
   }
-  if (isset($buckets[BUCKET_USERS])==True)
-  {
-    $users=unserialize($buckets[BUCKET_USERS]);
-  }
-  else
-  {
-    $users=array();
-  }
+  $users=get_users();
   for ($i=3;$i<count($parts);$i++)
   {
     $nick=$parts[$i];
@@ -1176,9 +1152,14 @@ function handle_353(&$items)
         continue;
       }
     }
-    $users[$nick]["channels"][$channel]=microtime(True);
+    $t=microtime(True);
+    $users[$nick]["channels"][$channel]=$t;
+    if (isset($users[$nick]["nicks"][$nick])==False)
+    {
+      $users[$nick]["nicks"][$nick]=$t;
+    }
   }
-  $buckets[BUCKET_USERS]=serialize($users);
+  set_users($users);
 }
 
 #####################################################################################################

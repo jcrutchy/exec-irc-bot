@@ -44,6 +44,8 @@ so i think i'm going pascal+ for awhile
 <crutchy> works if i escape them manually at least
 */
 
+# TODO: s/foo/bar/# where # is a number representing the #'th instance
+
 #####################################################################################################
 
 require_once("lib.php");
