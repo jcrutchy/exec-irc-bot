@@ -3,6 +3,19 @@
 # gpl2
 # by crutchy
 
+/***************************************************************************************************/
+/*                                                                                                 */
+/*                                     SECURITY VULNERABILITY                                      */
+/*                                     ======================                                      */
+/*                                                                                                 */
+/*  THE BOT CAN BE TRICKED INTO EXECUTING RESTRICTED COMMANDS BY PUTTING THEM IN A PAGE TITLE.     */
+/*                                                                                                 */
+/*  EXAMPLE: <title>~say test</title>                                                              */
+/*                                                                                                 */
+/*  THIS CAN BE OVERCOME BY SIMPLY PREFIXING OUTPUT WITH SOMETHING (LIKE "^ " FOR EXAMPLE).        */
+/*                                                                                                 */
+/***************************************************************************************************/
+
 #####################################################################################################
 
 /*
@@ -10,8 +23,6 @@
 */
 
 #####################################################################################################
-
-# http://www.smh.com.au/world/barack-obamas-military-action-in-iraq-speaks-to-core-audience-20140808-1021gd.html
 
 require_once("lib.php");
 $trailing=trim($argv[1]);

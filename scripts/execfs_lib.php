@@ -99,7 +99,7 @@ function execfs_get(&$fs,$nick,$name)
 
 function execfs_set(&$fs,$nick,$name,$value)
 {
-
+  # create path as required
 }
 
 #####################################################################################################

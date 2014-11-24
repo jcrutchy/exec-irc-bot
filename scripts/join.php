@@ -17,20 +17,20 @@ $parts=explode(",",$argv[1]);
 $prefixes="#&";
 for ($i=0;$i<count($parts);$i++)
 {
-  $chan=trim($parts[$i]);
-  if (strpos($prefixes,substr($chan,0,1))===False)
+  $parts[$i]=trim($parts[$i]);
+  if (strpos($prefixes,substr($parts[$i],0,1))===False)
   {
     return;
   }
 }
-$channel=implode(",",$parts);
-if (($channel<>"") and ($channel<>"0"))
+$chans=trim(implode(",",$parts));
+if ($chans<>"")
 {
-  echo "/IRC JOIN $channel\n";
+  echo "/IRC JOIN $chans\n";
 }
 else
 {
-  privmsg("syntax: ~join <channel>");
+  privmsg("syntax: ~join <channel>[,<channel>[,<channel>]]");
 }
 
 #####################################################################################################
