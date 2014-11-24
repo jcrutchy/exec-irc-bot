@@ -168,7 +168,7 @@ function privmsg($msg)
 
 function action($msg)
 {
-  rawmsg(chr(1)."ACTION $msg");
+  privmsg(chr(1)."ACTION $msg".chr(1));
 }
 
 #####################################################################################################
@@ -183,6 +183,13 @@ function rawmsg($msg)
 function pm($nick,$msg)
 {
   echo "/IRC :".NICK_EXEC." PRIVMSG $nick :$msg\n";
+}
+
+#####################################################################################################
+
+function pm_action($nick,$msg)
+{
+  pm($nick,chr(1)."ACTION $msg".chr(1));
 }
 
 #####################################################################################################

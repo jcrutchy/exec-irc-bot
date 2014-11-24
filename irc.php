@@ -21,6 +21,8 @@ define("MEMORY_LIMIT","128M");
 define("OPERATOR_ACCOUNT","crutchy");
 define("DEBUG_CHAN","#debug");
 
+# TODO: ADD FLAG TO HAVE EXEC IGNORE ITSELF
+
 $admin_accounts=array("xlefay","chromas","juggs","paulej72","mrcoolbp");
 
 #####################################################################################################

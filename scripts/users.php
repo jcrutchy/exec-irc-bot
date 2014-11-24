@@ -33,9 +33,9 @@ switch ($cmd)
     notice($nick,implode(" ",$nicks));
     break;
   case "channels":
-    $nick=strtolower(trim($trailing));
-    $account=users_get_account($nick);
-    $channels=users_get_channels($nick);
+    $subject_nick=strtolower(trim($trailing));
+    $account=users_get_account($subject_nick);
+    $channels=users_get_channels($subject_nick);
     notice($nick,implode(" ",$channels));
     break;
   case "all-channels":
@@ -48,8 +48,8 @@ switch ($cmd)
     notice($nick,"nicks in $channel: $n");
     break;
   case "data":
-    $nick=strtolower(trim($trailing));
-    $user=users_get_data($nick);
+    $subject_nick=strtolower(trim($trailing));
+    $user=users_get_data($subject_nick);
     if (isset($user["channels"])==True)
     {
       notice($nick,"channels: ".implode(" ",array_keys($user["channels"])));
@@ -88,11 +88,11 @@ switch ($cmd)
     var_dump($user);
     break;
   case "account":
-    $nick=strtolower(trim($trailing));
-    $account=users_get_account($nick);
+    $subject_nick=strtolower(trim($trailing));
+    $account=users_get_account($subject_nick);
     if ($account!==False)
     {
-      notice($nick,"account for $nick: $account");
+      notice($nick,"account for $subject_nick: $account");
     }
     break;
 }

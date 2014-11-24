@@ -5,60 +5,136 @@
 
 #####################################################################################################
 
-define("BUCKET_EXECFS_VARS","<<EXECFS_VARS>>");
-define("BUCKET_EXECFS_PATHS","<<EXECFS_PATHS>>");
-define("BUCKET_EXECFS_PERMISSIONS","<<EXECFS_PERMISSIONS>>");
+define("BUCKET_FS","<<EXECFS>>");
+define("PATH_DELIM","/");
 
 #####################################################################################################
 
-function execfs_get_path_delim($path)
+function get_fs()
 {
-  $delims="$./\\>";
-  $delim="";
-  for ($i=0;$i<strlen($path);$i++)
+  $fs=get_array_bucket(BUCKET_FS);
+  if (isset($fs["modified"])==False)
   {
-    if (strpos($delims,$path[$i])!==False)
-    {
-      $delim=$path[$i];
-      break;
-    }
+    $fs["filesystem"][PATH_DELIM]=array();
+    $fs["filesystem"][PATH_DELIM]["children"]=array();
+    $fs["filesystem"][PATH_DELIM]["vars"]=array();
+    $fs["permissions"][PATH_DELIM]=array();
+    $fs["permissions"][PATH_DELIM]["children"]=array();
+    $fs["permissions"][PATH_DELIM]["vars"]=array();
+    $fs["paths"]=array();
+    $fs["modified"]=True;
   }
-  return $delim;
+  return $fs;
 }
 
 #####################################################################################################
 
-function execfs_set($name,$user,&$msg)
+function set_fs(&$fs)
+{
+  if ($fs["modified"]==False)
+  {
+    return;
+  }
+  $fs["modified"]=False;
+  set_array_bucket($fs,BUCKET_FS,True);
+}
+
+#####################################################################################################
+
+function get_path(&$fs,$path)
+{
+  # /path/to/my/var
+  if (isset($fs["paths"][$nick])==False)
+  {
+    $fs["paths"][$nick]=PATH_DELIM;
+    $fs["modified"]=True;
+    return PATH_DELIM;
+  }
+  $parts=explode(PATH_DELIM,$fs["paths"][$nick]);
+  array_shift($parts);
+  $result=&$fs["filesystem"][PATH_DELIM];
+  for ($i=0;$i<count($parts);$i++)
+  {
+    $child=$parts[$i];
+    if ($child=="")
+    {
+      return False;
+    }
+    if (isset($result["children"][$child])==True)
+    {
+
+    }
+    else
+    {
+      privmsg("error: path not found");
+      return False;
+    }
+  }
+}
+
+#####################################################################################################
+
+function get_current_path(&$fs,$nick)
+{
+  if (isset($fs["paths"][$nick])==False)
+  {
+    $fs["paths"][$nick]=PATH_DELIM;
+    $fs["modified"]=True;
+    return PATH_DELIM;
+  }
+  return get_path($fs,$fs["paths"][$nick]);
+}
+
+#####################################################################################################
+
+function execfs_get(&$fs,$nick,$name)
+{
+  # ~get [%path%]%name%
+  
+  $path=get_current_path($fs,$nick);
+
+}
+
+#####################################################################################################
+
+function execfs_set(&$fs,$nick,$name,$value)
 {
 
 }
 
 #####################################################################################################
 
-function execfs_rm($name,$user,&$msg)
+function execfs_cp(&$fs)
 {
-  $name=trim($name);
-  $bucket=get_array_bucket(BUCKET_EXECFS_VARS);
-  $paths=get_array_bucket(BUCKET_EXECFS_PATHS);
-  if (isset($bucket[$name])==False)
-  {
-    if (isset($paths[$user])==True)
-    {
-      $name=$paths[$user].$name;
-    }
-  }
-  if (isset($bucket[$name])==False)
-  {
-    $msg="error: $name not found";
-    return False;
-  }
-  else
-  {
-    unset($bucket[$name]);
-    $msg="$name deleted";
-    set_array_bucket($bucket,BUCKET_EXECFS_VARS,True);
-    return True;
-  }
+
+}
+
+#####################################################################################################
+
+function execfs_mv(&$fs)
+{
+
+}
+
+#####################################################################################################
+
+function execfs_rm(&$fs)
+{
+
+}
+
+#####################################################################################################
+
+function execfs_ls(&$fs)
+{
+
+}
+
+#####################################################################################################
+
+function execfs_cd(&$fs)
+{
+
 }
 
 #####################################################################################################

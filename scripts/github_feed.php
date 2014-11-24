@@ -14,6 +14,9 @@ startup:~join #github
 
 #####################################################################################################
 
+# https://confluence.atlassian.com/display/BITBUCKET/Use+the+Bitbucket+REST+APIs
+# https://bitbucket.org/api/1.0/repositories/bcsd/uselessd/events
+
 ini_set("display_errors","on");
 date_default_timezone_set("UTC");
 require_once("lib.php");
