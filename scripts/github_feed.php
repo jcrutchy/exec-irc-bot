@@ -6,6 +6,7 @@
 #####################################################################################################
 
 /*
+exec:~bitbucket|60|0|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~github-list|60|0|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~github-feed|280|300|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~slashcode-issue|60|0|0|1|crutchy,TheMightyBuzzard|||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
@@ -103,10 +104,13 @@ $list=array(
   "Lagg/steam-tracker",
   "Lagg/steam-swissapiknife");
 
+$list_bitbucket=array(
+  "bcsd/uselessd");
+
 sort($list);
 
 define("TIME_LIMIT_SEC",300); # 5 mins
-define("CREATE_TIME_FORMAT","Y-m-d H:i:s ");
+define("CREATE_TIME_FORMAT","Y-m-d H:i:s "); # github
 
 if ($alias=="~github-list")
 {
@@ -117,6 +121,16 @@ if ($alias=="~github-list")
   return;
 }
 
+if ($alias=="~bitbucket")
+{
+  for ($i=0;$i<count($list_bitbucket);$i++)
+  {
+    check_push_events_bitbucket($list_bitbucket[$i]);
+  }
+  return;
+}
+
+# github events
 for ($i=0;$i<count($list);$i++)
 {
   check_push_events($list[$i]);
@@ -124,37 +138,70 @@ for ($i=0;$i<count($list);$i++)
   check_issue_events($list[$i]);
 }
 
+# bitbucket events
+/*for ($i=0;$i<count($list_bitbucket);$i++)
+{
+  check_push_events_bitbucket($list_bitbucket[$i]);
+}*/
+
 #####################################################################################################
 
-function check_events($color,$uri)
+function check_push_events_bitbucket($repo)
 {
-  $repos_url="https://api.github.com/repos/";
-  $len_repos_url=strlen($repos_url);
-  $data=get_api_data($uri);
-  $n=count($data)-1;
-  for ($i=$n;$i>=0;$i--)
+  $data=get_api_data("/api/1.0/repositories/$repo/events","bitbucket");
+  file_put_contents("/nas/server/git/pretty_json",json_encode($data,JSON_PRETTY_PRINT));
+  $changesets=get_api_data("/api/1.0/repositories/$repo/changesets?limit=50","bitbucket");
+  for ($i=0;$i<count($data["events"]);$i++)
   {
-    if (isset($data[$i]["created_at"])==False)
+    if (isset($data["events"][$i]["utc_created_on"])==False)
     {
       continue;
     }
-    $timestamp=$data[$i]["created_at"];
-    $t=convert_timestamp($timestamp,CREATE_TIME_FORMAT);
+    $timestamp=$data["events"][$i]["utc_created_on"];
+    $t=convert_timestamp($timestamp,"Y-m-d H:i:s      ");
     $dt=microtime(True)-$t;
-    if ($dt<=TIME_LIMIT_SEC)
+    #if ($dt<=TIME_LIMIT_SEC)
+    #{
+      if ($data["events"][$i]["event"]=="pushed")
+      {
+        pm(FEED_CHAN,chr(3)."13"."push to https://bitbucket.org/$repo @ ".date("H:i:s",$t)." by ".$data["events"][$i]["user"]["username"]);
+        $commits=$data["events"][$i]["description"]["commits"];
+        for ($j=0;$j<count($commits);$j++)
+        {
+          $changeset=bitbucket_get_changeset($changesets,$commits[$j]["hash"]);
+          if ($changeset===False)
+          {
+            pm(FEED_CHAN,"changeset not found");
+            continue;
+          }
+          $desc=$commits[$j]["description"];
+          if ($desc<>$changeset["message"])
+          {
+            continue;
+          }
+          pm(FEED_CHAN,chr(3)."11"."  ".$changeset["author"].": ".$changeset["message"]);
+          $url="https://bitbucket.org/$repo/commits/".$commits[$j]["hash"];
+          pm(FEED_CHAN,chr(3)."11"."  ".$url);
+        }
+      }
+    #}
+    return;
+  }
+}
+
+#####################################################################################################
+
+function bitbucket_get_changeset(&$changesets,$hash)
+{
+  for ($i=0;$i<count($changesets["changesets"]);$i++)
+  {
+    $raw_node=$changesets["changesets"][$i]["raw_node"];
+    if ($hash==$raw_node)
     {
-      if ((isset($data[$i]["type"])==False) or (isset($data[$i]["actor"]["login"])==False) or (isset($data[$i]["repo"]["url"])==False))
-      {
-        continue;
-      }
-      if (substr($data[$i]["repo"]["url"],0,$len_repos_url)<>$repos_url)
-      {
-        continue;
-      }
-      $url="https://github.com/".substr($data[$i]["repo"]["url"],$len_repos_url);
-      pm(FEED_CHAN,chr(3).$color.$data[$i]["type"]." by ".$data[$i]["actor"]["login"]." @ $url");
+      return $changesets["changesets"][$i];
     }
   }
+  return False;
 }
 
 #####################################################################################################
@@ -165,11 +212,11 @@ function check_push_events($repo)
   $n=count($data)-1;
   for ($i=$n;$i>=0;$i--)
   {
-    if (isset($data[$i]["created_at"])==False)
+    if (isset($data[$i]["utc_created_on"])==False)
     {
       continue;
     }
-    $timestamp=$data[$i]["created_at"];
+    $timestamp=$data[$i]["utc_created_on"];
     $t=convert_timestamp($timestamp,CREATE_TIME_FORMAT);
     $dt=microtime(True)-$t;
     if ($dt<=TIME_LIMIT_SEC)
@@ -282,14 +329,22 @@ function check_issue_events($repo)
 
 #####################################################################################################
 
-function get_api_data($uri)
+function get_api_data($uri,$mode="github")
 {
   $host="api.github.com";
   $port=443;
-  $tok=trim(file_get_contents("../pwd/gh_tok"));
-  $headers=array();
-  $headers["Authorization"]="token $tok";
-  $headers["Accept"]="application/vnd.github.v3+json";
+  if ($mode=="bitbucket")
+  {
+    $host="bitbucket.org";
+    $headers="";
+  }
+  else
+  {
+    $tok=trim(file_get_contents("../pwd/gh_tok"));
+    $headers=array();
+    $headers["Authorization"]="token $tok";
+    $headers["Accept"]="application/vnd.github.v3+json";
+  }
   $response=wget($host,$uri,$port,ICEWEASEL_UA,$headers,60);
   $content=strip_headers($response);
   return json_decode($content,True);
