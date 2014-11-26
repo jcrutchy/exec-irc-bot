@@ -114,9 +114,6 @@ if ($alias=="~github-list")
   return;
 }
 
-check_push_events("crutchy-/exec-irc-bot");
-return;
-
 for ($i=0;$i<count($list);$i++)
 {
   check_push_events($list[$i]);
