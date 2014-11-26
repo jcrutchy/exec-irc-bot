@@ -6,7 +6,6 @@
 #####################################################################################################
 
 /*
-exec:~bitbucket|60|0|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~github-list|60|0|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~github-feed|280|300|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~slashcode-issue|60|0|0|1|crutchy,TheMightyBuzzard|||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
@@ -14,9 +13,6 @@ startup:~join #github
 */
 
 #####################################################################################################
-
-# https://confluence.atlassian.com/display/BITBUCKET/Use+the+Bitbucket+REST+APIs
-# https://bitbucket.org/api/1.0/repositories/bcsd/uselessd/events
 
 ini_set("display_errors","on");
 date_default_timezone_set("UTC");
@@ -104,13 +100,10 @@ $list=array(
   "Lagg/steam-tracker",
   "Lagg/steam-swissapiknife");
 
-$list_bitbucket=array(
-  "bcsd/uselessd");
-
 sort($list);
 
 define("TIME_LIMIT_SEC",300); # 5 mins
-define("CREATE_TIME_FORMAT","Y-m-d H:i:s "); # github
+define("CREATE_TIME_FORMAT","Y-m-d H:i:s ");
 
 if ($alias=="~github-list")
 {
@@ -121,88 +114,15 @@ if ($alias=="~github-list")
   return;
 }
 
-/*if ($alias=="~bitbucket")
-{
-  for ($i=0;$i<count($list_bitbucket);$i++)
-  {
-    check_push_events_bitbucket($list_bitbucket[$i]);
-  }
-  return;
-}*/
+check_push_events("crutchy-/exec-irc-bot");
+return;
 
-# github events
 for ($i=0;$i<count($list);$i++)
 {
   check_push_events($list[$i]);
   check_pull_events($list[$i]);
   check_issue_events($list[$i]);
 }
-
-# bitbucket events
-/*for ($i=0;$i<count($list_bitbucket);$i++)
-{
-  check_push_events_bitbucket($list_bitbucket[$i]);
-}*/
-
-#####################################################################################################
-
-/*function check_push_events_bitbucket($repo)
-{
-  $data=get_api_data("/api/1.0/repositories/$repo/events","bitbucket");
-  file_put_contents("/nas/server/git/pretty_json",json_encode($data,JSON_PRETTY_PRINT));
-  $changesets=get_api_data("/api/1.0/repositories/$repo/changesets?limit=50","bitbucket");
-  for ($i=0;$i<count($data["events"]);$i++)
-  {
-    if (isset($data["events"][$i]["utc_created_on"])==False)
-    {
-      continue;
-    }
-    $timestamp=$data["events"][$i]["utc_created_on"];
-    $t=convert_timestamp($timestamp,"Y-m-d H:i:s      ");
-    $dt=microtime(True)-$t;
-    #if ($dt<=TIME_LIMIT_SEC)
-    #{
-      if ($data["events"][$i]["event"]=="pushed")
-      {
-        pm(FEED_CHAN,chr(3)."13"."push to https://bitbucket.org/$repo @ ".date("H:i:s",$t)." by ".$data["events"][$i]["user"]["username"]);
-        $commits=$data["events"][$i]["description"]["commits"];
-        for ($j=0;$j<count($commits);$j++)
-        {
-          $changeset=bitbucket_get_changeset($changesets,$commits[$j]["hash"]);
-          if ($changeset===False)
-          {
-            pm(FEED_CHAN,"changeset not found");
-            continue;
-          }
-          $desc=$commits[$j]["description"];
-          if ($desc<>$changeset["message"])
-          {
-            continue;
-          }
-          pm(FEED_CHAN,chr(3)."11"."  ".$changeset["author"].": ".$changeset["message"]);
-          $url="https://bitbucket.org/$repo/commits/".$commits[$j]["hash"];
-          pm(FEED_CHAN,chr(3)."11"."  ".$url);
-        }
-      }
-    #}
-    return;
-  }
-}
-
-#####################################################################################################
-
-function bitbucket_get_changeset(&$changesets,$hash)
-{
-  for ($i=0;$i<count($changesets["changesets"]);$i++)
-  {
-    $raw_node=$changesets["changesets"][$i]["raw_node"];
-    if ($hash==$raw_node)
-    {
-      return $changesets["changesets"][$i];
-    }
-  }
-  return False;
-}*/
 
 #####################################################################################################
 
@@ -212,68 +132,70 @@ function check_push_events($repo)
   $n=count($data)-1;
   for ($i=$n;$i>=0;$i--)
   {
-    if (isset($data[$i]["utc_created_on"])==False)
+    if (isset($data[$i]["created_at"])==False)
     {
       continue;
     }
-    $timestamp=$data[$i]["utc_created_on"];
+    if ($data[$i]["type"]<>"PushEvent")
+    {
+      continue;
+    }
+    $timestamp=$data[$i]["created_at"];
     $t=convert_timestamp($timestamp,CREATE_TIME_FORMAT);
     $dt=microtime(True)-$t;
-    if ($dt<=TIME_LIMIT_SEC)
+    if ($dt>TIME_LIMIT_SEC)
     {
-      if ($data[$i]["type"]=="PushEvent")
+      continue;
+    }
+    pm(FEED_CHAN,chr(3)."13"."push to https://github.com/$repo @ ".date("H:i:s",$t)." by ".$data[$i]["actor"]["login"]);
+    pm(FEED_CHAN,"  ".chr(3)."03".$data[$i]["payload"]["ref"]);
+    for ($j=0;$j<count($data[$i]["payload"]["commits"]);$j++)
+    {
+      $commit=$data[$i]["payload"]["commits"][$j];
+      pm(FEED_CHAN,chr(3)."11"."  ".$commit["author"]["name"].": ".$commit["message"]);
+      $commit_url=$commit["url"];
+      $commit_host="";
+      $commit_uri="";
+      $commit_port="";
+      if (get_host_and_uri($commit_url,$commit_host,$commit_uri,$commit_port)==True)
       {
-        pm(FEED_CHAN,chr(3)."13"."push to https://github.com/$repo @ ".date("H:i:s",$t)." by ".$data[$i]["actor"]["login"]);
-        pm(FEED_CHAN,"  ".chr(3)."03".$data[$i]["payload"]["ref"]);
-        for ($j=0;$j<count($data[$i]["payload"]["commits"]);$j++)
+        $commit_data=get_api_data($commit_uri);
+        $ref_parts=explode("/",$data[$i]["payload"]["ref"]);
+        if ((isset($commit_data["files"])==True) and (isset($ref_parts[2])==True))
         {
-          $commit=$data[$i]["payload"]["commits"][$j];
-          pm(FEED_CHAN,chr(3)."11"."  ".$commit["author"]["name"].": ".$commit["message"]);
-          $commit_url=$commit["url"];
-          $commit_host="";
-          $commit_uri="";
-          $commit_port="";
-          if (get_host_and_uri($commit_url,$commit_host,$commit_uri,$commit_port)==True)
+          $branch=$ref_parts[2];
+          $html_url=$commit_data["html_url"];
+          pm(FEED_CHAN,chr(3)."11"."  ".$html_url);
+          $n1=count($commit_data["files"]);
+          for ($k=0;$k<$n1;$k++)
           {
-            $commit_data=get_api_data($commit_uri);
-            $ref_parts=explode("/",$data[$i]["payload"]["ref"]);
-            if ((isset($commit_data["files"])==True) and (isset($ref_parts[2])==True))
+            if ($k>4)
             {
-              $branch=$ref_parts[2];
-              $html_url=$commit_data["html_url"];
-              pm(FEED_CHAN,chr(3)."11"."  ".$html_url);
-              $n1=count($commit_data["files"]);
-              for ($k=0;$k<$n1;$k++)
+              $rem=$n1-$k;
+              pm(FEED_CHAN,"  ".chr(3)."08"."└─".chr(3)."($rem files skipped)");
+              break;
+            }
+            $commit_filename=str_replace(" ","%20",$commit_data["files"][$k]["filename"]);
+            $commit_status=$commit_data["files"][$k]["status"];
+            $tree_symbol="├─";
+            if ($k==($n1-1))
+            {
+              $tree_symbol="└─";
+            }
+            if ($commit_status=="removed")
+            {
+              pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol."removed:".chr(3)." /$repo/blob/$branch/$commit_filename");
+            }
+            else
+            {
+              $commit_changes="";
+              if ((isset($commit_data["files"][$k]["additions"])==True) and (isset($commit_data["files"][$k]["deletions"])==True))
               {
-                if ($k>4)
-                {
-                  $rem=$n1-$k;
-                  pm(FEED_CHAN,"  ".chr(3)."08"."└─".chr(3)."($rem files skipped)");
-                  break;
-                }
-                $commit_filename=str_replace(" ","%20",$commit_data["files"][$k]["filename"]);
-                $commit_status=$commit_data["files"][$k]["status"];
-                $tree_symbol="├─";
-                if ($k==($n1-1))
-                {
-                  $tree_symbol="└─";
-                }
-                if ($commit_status=="removed")
-                {
-                  pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol."removed:".chr(3)." /$repo/blob/$branch/$commit_filename");
-                }
-                else
-                {
-                  $commit_changes="";
-                  if ((isset($commit_data["files"][$k]["additions"])==True) and (isset($commit_data["files"][$k]["deletions"])==True))
-                  {
-                    $additions=$commit_data["files"][$k]["additions"];
-                    $deletions=$commit_data["files"][$k]["deletions"];
-                    $commit_changes=" [+$additions,-$deletions]";
-                  }
-                  pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol.$commit_status.$commit_changes.":".chr(3)." https://github.com/$repo/blob/$branch/$commit_filename");
-                }
+                $additions=$commit_data["files"][$k]["additions"];
+                $deletions=$commit_data["files"][$k]["deletions"];
+                $commit_changes=" [+$additions,-$deletions]";
               }
+              pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol.$commit_status.$commit_changes.":".chr(3)." https://github.com/$repo/blob/$branch/$commit_filename");
             }
           }
         }
@@ -329,22 +251,14 @@ function check_issue_events($repo)
 
 #####################################################################################################
 
-function get_api_data($uri,$mode="github")
+function get_api_data($uri)
 {
   $host="api.github.com";
   $port=443;
-  if ($mode=="bitbucket")
-  {
-    $host="bitbucket.org";
-    $headers="";
-  }
-  else
-  {
-    $tok=trim(file_get_contents("../pwd/gh_tok"));
-    $headers=array();
-    $headers["Authorization"]="token $tok";
-    $headers["Accept"]="application/vnd.github.v3+json";
-  }
+  $tok=trim(file_get_contents("../pwd/gh_tok"));
+  $headers=array();
+  $headers["Authorization"]="token $tok";
+  $headers["Accept"]="application/vnd.github.v3+json";
   $response=wget($host,$uri,$port,ICEWEASEL_UA,$headers,60);
   $content=strip_headers($response);
   return json_decode($content,True);
