@@ -19,6 +19,11 @@ exec:~wiki|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%des
 
 # instead of "~wiki login" & "~wiki get page|section" you just type [[page#section]] to get the page/section
 
+
+# POTENTIAL THREAT
+# ================
+# MAY BE ABLE TO INJECT SCRIPT INTO THE WIKI - USE STRIP_TAGS ON INPUT
+
 #####################################################################################################
 
 require_once("lib.php");

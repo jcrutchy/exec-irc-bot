@@ -94,7 +94,7 @@ if (is_array($lines)==True)
   $text=implode("\n* ",$nlines);
   $text="* ".$text;
 }
-$text=$text."\n* $trailing ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
+$text=$text."\n* ".strip_tags($trailing)." ~ [[User:$nick|$nick]] @ $utc_str (UTC)";
 
 $msg_success="*** suggestion successfully added to wiki - $wiki_url";
 $msg_error="*** error adding suggestion to wiki";
