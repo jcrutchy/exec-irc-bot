@@ -121,14 +121,14 @@ if ($alias=="~github-list")
   return;
 }
 
-if ($alias=="~bitbucket")
+/*if ($alias=="~bitbucket")
 {
   for ($i=0;$i<count($list_bitbucket);$i++)
   {
     check_push_events_bitbucket($list_bitbucket[$i]);
   }
   return;
-}
+}*/
 
 # github events
 for ($i=0;$i<count($list);$i++)
@@ -146,7 +146,7 @@ for ($i=0;$i<count($list);$i++)
 
 #####################################################################################################
 
-function check_push_events_bitbucket($repo)
+/*function check_push_events_bitbucket($repo)
 {
   $data=get_api_data("/api/1.0/repositories/$repo/events","bitbucket");
   file_put_contents("/nas/server/git/pretty_json",json_encode($data,JSON_PRETTY_PRINT));
@@ -202,7 +202,7 @@ function bitbucket_get_changeset(&$changesets,$hash)
     }
   }
   return False;
-}
+}*/
 
 #####################################################################################################
 
