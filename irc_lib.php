@@ -384,21 +384,8 @@ function handle_stdout($handle)
           {
             if ($exec_list[$alias]["saved"]==True)
             {
-              /*
-              TODO: DELETE EXEC LINE FROM FILE (WITHOUT AFFECTING REMAINING FILE STRUCTURE)
-              if (file_exists(EXEC_FILE)==False)
-              {
-              }
-              $data=file_get_contents(EXEC_FILE);
-              if ($data===False)
-              {
-              }
-              $data=explode("\n",$data);
-              for ($i=0;$i<count($data);$i++)
-              {
-              }*/
               unset($exec_list[$alias]);
-              privmsg($handle["destination"],$handle["nick"],"alias \"$alias\" deleted from memory (todo: delete from exec file)");
+              privmsg($handle["destination"],$handle["nick"],"alias \"$alias\" deleted from memory (not from file though)");
             }
             else
             {
@@ -1566,6 +1553,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         if (count($args)==1)
         {
           # TODO
+          # $admin_aliases $reserved_aliases
         }
         break;
       case ALIAS_ADMIN_EXEC_LIST:
