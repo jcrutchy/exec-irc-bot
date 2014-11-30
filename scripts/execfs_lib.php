@@ -62,7 +62,7 @@ function get_path(&$fs,$path)
     }
     if (isset($result["children"][$child])==True)
     {
-
+      $result=$result["children"][$child];
     }
     else
     {
@@ -70,6 +70,7 @@ function get_path(&$fs,$path)
       return False;
     }
   }
+  return $result;
 }
 
 #####################################################################################################

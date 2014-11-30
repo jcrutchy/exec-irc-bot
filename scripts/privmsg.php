@@ -32,6 +32,13 @@ if ($trailing=="!stats")
   return;
 }
 
+define("PREFIX_POKE",".poke ");
+if (substr(strtolower($trailing),0,strlen(PREFIX_POKE))==PREFIX_POKE)
+{
+  $target=substr($trailing,strlen(PREFIX_POKE));
+  privmsg("pokes $target");
+}
+
 $keywords=array(
   "crutchy",
   "exec",
