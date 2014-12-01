@@ -61,6 +61,7 @@ while (True)
     if (socket_getpeername($client,$addr)==True)
     {
       echo "connected to remote address $addr\n";
+      on_connect($client,$addr);
     }
     $n=count($clients)-1;
     socket_write($client,"successfully connected to server\nthere are $n clients connected\n");
@@ -77,6 +78,7 @@ while (True)
       if (socket_getpeername($read_client,$addr)==True)
       {
         echo "disconnecting from remote address $addr\n";
+        on_disconnect($read_client,$addr);
       }
       socket_close($read_client);
       $key=array_search($read_client,$clients);
@@ -111,9 +113,31 @@ while (True)
         socket_write($send_client,"broadcast from $addr: $data"."\n");
       }
     }
+    on_msg($read_client,$addr,$data);
   }
 }
 socket_close($server);
+
+#####################################################################################################
+
+function on_connect($client,$addr)
+{
+  echo "*** CLIENT CONNECTED: $addr\n";
+}
+
+#####################################################################################################
+
+function on_disconnect($client,$addr)
+{
+  echo "*** CLIENT DISCONNECTED: $addr\n";
+}
+
+#####################################################################################################
+
+function on_msg($client,$addr,$data)
+{
+  echo "*** MESSAGE RECEIVED FROM CLIENT $addr: $data\n";
+}
 
 #####################################################################################################
 
