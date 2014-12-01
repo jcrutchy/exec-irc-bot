@@ -3,11 +3,22 @@
 # gpl2
 # by crutchy
 
+# halfassircd / kissircd
+
+/*
+message received: CAP LS
+message received: NICK crutchy
+message received: USER crutchy crutchy 192.168.0.21 :crutchy
+*/
+
 #####################################################################################################
 
 define("LISTEN_ADDRESS","192.168.0.21");
 define("LISTEN_PORT",6667);
 define("CLIENT_TIMEOUT",60); # seconds
+
+$nicks=array();
+$channels=array();
 
 error_reporting(E_ALL);
 set_time_limit(0);
@@ -30,7 +41,7 @@ if (socket_listen($server,5)===False)
   echo "socket_listen() failed: reason: ".socket_strerror(socket_last_error($server))."\n";
 }
 $clients=array($server);
-echo "waiting for client...\n";
+echo "listening...\n";
 while (True)
 {
   # do other stuff here if need be
@@ -62,6 +73,11 @@ while (True)
     $data=@socket_read($read_client,1024,PHP_NORMAL_READ);
     if ($data===False)
     {
+      $addr="";
+      if (socket_getpeername($read_client,$addr)==True)
+      {
+        echo "disconnecting from remote address $addr\n";
+      }
       socket_close($read_client);
       $key=array_search($read_client,$clients);
       unset($clients[$key]);
