@@ -23,6 +23,9 @@ $channels=array();
 error_reporting(E_ALL);
 set_time_limit(0);
 ob_implicit_flush();
+
+require_once("../irc_lib.php");
+
 $server=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
 if ($server===False)
 {
@@ -137,6 +140,8 @@ function on_disconnect($client,$addr)
 function on_msg($client,$addr,$data)
 {
   echo "*** MESSAGE RECEIVED FROM CLIENT $addr: $data\n";
+  $items=parse_data($data);
+  var_dump($items);
 }
 
 #####################################################################################################
