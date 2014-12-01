@@ -23,6 +23,7 @@ $channels=array();
 error_reporting(E_ALL);
 set_time_limit(0);
 ob_implicit_flush();
+date_default_timezone_set("UTC");
 
 $server=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
 if ($server===False)
@@ -140,6 +141,21 @@ function on_msg($client,$addr,$data)
   echo "*** MESSAGE RECEIVED FROM CLIENT $addr: $data\n";
   $items=parse_data_basic($data);
   var_dump($items);
+  if ($items===False)
+  {
+    return;
+  }
+  switch ($items["cmd"])
+  {
+    case "CAP":
+      break;
+    case "NICK":
+      break;
+    case "USER":
+      break;
+    case "JOIN":
+      break;
+  }
 }
 
 #####################################################################################################
@@ -147,7 +163,7 @@ function on_msg($client,$addr,$data)
 function parse_data_basic($data)
 {
   # :<prefix> <command> <params> :<trailing>
-  # the only required part of the message is the command name
+  # the only required part of the message is command
   if ($data=="")
   {
     return False;
@@ -156,13 +172,12 @@ function parse_data_basic($data)
   $result["microtime"]=microtime(True);
   $result["time"]=date("Y-m-d H:i:s",$result["microtime"]);
   $result["data"]=$sub;
-  $result["prefix"]=""; # if there is no prefix, then the source of the message is the server for the current connection (such as for PING)
+  $result["prefix"]=""; # prefix is optional
   $result["params"]="";
   $result["trailing"]="";
   $result["nick"]="";
   $result["user"]="";
   $result["hostname"]="";
-  $result["destination"]=""; # for privmsg = <params>
   if (substr($sub,0,1)==":") # prefix found
   {
     $i=strpos($sub," ");
@@ -181,7 +196,7 @@ function parse_data_basic($data)
     $result["params"]=substr($sub,$i+1);
     $sub=substr($sub,0,$i);
   }
-  $result["cmd"]=$sub;
+  $result["cmd"]=strtoupper($sub);
   if ($result["cmd"]=="")
   {
     return False;
@@ -204,22 +219,6 @@ function parse_data_basic($data)
       $prefix=substr($prefix,$i+1);
       $result["hostname"]=$prefix;
     }
-  }
-  $param_parts=explode(" ",$result["params"]);
-  if (count($param_parts)==2)
-  {
-    if ((substr($param_parts[0],0,1)=="#") or (substr($param_parts[0],0,1)=="&"))
-    {
-      $result["destination"]=$param_parts[0];
-    }
-  }
-  elseif (count($param_parts)==1)
-  {
-    $result["destination"]=$result["params"];
-  }
-  if ($cmd=="#")
-  {
-    return False;
   }
   return $result;
 }
