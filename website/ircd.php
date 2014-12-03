@@ -15,6 +15,7 @@ define("LISTEN_ADDRESS","192.168.0.21");
 define("LISTEN_PORT",6667);
 define("CLIENT_TIMEOUT",60); # seconds
 
+define("SERVER_HOSTNAME","sylnt.us.to");
 define("MAX_DATA_LEN",1024);
 
 $connections=array();
@@ -111,7 +112,7 @@ while (True)
     $addr="";
     socket_getpeername($read_client,$addr);
     send_to_all($server,$client_list,"$addr: $data");
-    on_msg($connections,$nicks,$read_client,$addr,$data);
+    on_msg($connections,$nicks,$channels,$read_client,$addr,$data);
   }
 }
 socket_close($server);
@@ -142,6 +143,26 @@ function connection_nick(&$nicks,&$connection)
     }
   }
   return False;
+}
+
+#####################################################################################################
+
+function client_nick(&$connections,&$nicks,&$client)
+{
+  $key=connection_key($connections,$client);
+  if ($key===False)
+  {
+    return False;
+  }
+  $nick=connection_nick($nicks,$connections[$key]);
+  if ($nick===False)
+  {
+    return False;
+  }
+  else
+  {
+    return $nick;
+  }
 }
 
 #####################################################################################################
@@ -215,7 +236,7 @@ function on_disconnect(&$nicks,&$connections,&$client)
 
 #####################################################################################################
 
-function on_msg(&$connections,&$nicks,&$client,$addr,$data)
+function on_msg(&$connections,&$nicks,&$channels,&$client,$addr,$data)
 {
   $items=parse_data_basic($data);
   if ($items===False)
@@ -230,7 +251,9 @@ function on_msg(&$connections,&$nicks,&$client,$addr,$data)
     case "CAP": # CAP LS
       echo "*** CAP MESSAGE RECEIVED FROM $addr\n";
       break;
-    case "NICK": # NICK crutchy
+    case "NICK":
+      # NICK crutchy
+      # ERR_NONICKNAMEGIVEN,ERR_ERRONEUSNICKNAME,ERR_NICKNAMEINUSE,ERR_NICKCOLLISION
       $nick=$items["params"];
       echo "*** NICK MESSAGE RECEIVED FROM $addr: $nick\n";
       if (isset($nicks[$nick])==False)
@@ -247,7 +270,6 @@ function on_msg(&$connections,&$nicks,&$client,$addr,$data)
         }
         $connection=$connections[$key];
         $nicks[$nick]["connection"]=$connection;
-        var_dump($nicks);
       }
       else
       {
@@ -259,10 +281,57 @@ function on_msg(&$connections,&$nicks,&$client,$addr,$data)
     case "USER":
       # USER crutchy crutchy 192.168.0.21 :crutchy
       # USER <username> <hostname> <servername> :<realname>
+      $nick=client_nick($connections,$nicks,$client);
+      if ($nick===False)
+      {
+        $err="ERROR: NICK DATA NOT FOUND";
+        do_reply($client,$err);
+        echo "*** $addr: $err\n";
+        break;
+      }
+      if (isset($nicks[$nick]["username"])==True)
+      {
+        $err="ERROR: USER ALREADY REGISTERED (NUMERIC 462)";
+        do_reply($client,$err);
+        echo "*** $addr: $err\n";
+        break;
+      }
+      $param_parts=explode(" ",$items["params"]);
+      if (count($param_parts)<>3)
+      {
+        $err="ERROR: INCORRECT NUMBER OF PARAMS (NUMERIC 461)";
+        do_reply($client,$err);
+        echo "*** $addr: $err\n";
+        break;
+      }
+      $nicks[$nick]["username"]=trim($param_parts[0]);
+      $nicks[$nick]["hostname"]=trim($param_parts[1]);
+      $nicks[$nick]["servername"]=trim($param_parts[2]);
+      $nicks[$nick]["realname"]=trim($items["trailing"]);
+      var_dump($nicks);
       echo "*** USER MESSAGE RECEIVED FROM $addr\n";
       break;
     case "JOIN":
       echo "*** JOIN MESSAGE RECEIVED FROM $addr\n";
+      $nick=client_nick($connections,$nicks,$client);
+      if ($nick===False)
+      {
+        $err="ERROR: NICK DATA NOT FOUND";
+        do_reply($client,$err);
+        echo "*** $addr: $err\n";
+        break;
+      }
+      $chan=$items["params"];
+      if (isset($channels[$chan])==False)
+      {
+        $channels[$chan]=array();
+        $channels[$chan]["nicks"]=array();
+      }
+      $channels[$chan]["nicks"][]=$nick;
+
+      break;
+    case "QUIT":
+      echo "*** QUIT MESSAGE RECEIVED FROM $addr\n";
       break;
     default:
       echo "*** UNKNOWN MESSAGE RECEIVED FROM $addr\n";
