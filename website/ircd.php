@@ -3,8 +3,6 @@
 # gpl2
 # by crutchy
 
-# halfassircd / kissircd
-
 /*
 message received: CAP LS
 message received: NICK crutchy
@@ -17,6 +15,9 @@ define("LISTEN_ADDRESS","192.168.0.21");
 define("LISTEN_PORT",6667);
 define("CLIENT_TIMEOUT",60); # seconds
 
+define("MAX_DATA_LEN",1024);
+
+$connections=array();
 $nicks=array();
 $channels=array();
 
@@ -42,12 +43,12 @@ if (socket_listen($server,5)===False)
 {
   echo "socket_listen() failed: reason: ".socket_strerror(socket_last_error($server))."\n";
 }
-$clients=array($server);
+$client_list=array($server);
 echo "listening...\n";
 while (True)
 {
-  # do other stuff here if need be
-  $read=$clients;
+  loop_process();
+  $read=$client_list;
   $write=NULL;
   $except=NULL;
   if (socket_select($read,$write,$except,0)<1)
@@ -58,14 +59,14 @@ while (True)
   if (in_array($server,$read)==True)
   {
     $client=socket_accept($server);
-    $clients[]=$client;
+    $client_list[]=$client;
     $addr="";
     if (socket_getpeername($client,$addr)==True)
     {
       echo "connected to remote address $addr\n";
-      on_connect($client,$addr);
+      on_connect($connections,$client,$addr);
     }
-    $n=count($clients)-1;
+    $n=count($client_list)-1;
     socket_write($client,"successfully connected to server\nthere are $n clients connected\n");
     $key=array_search($server,$read);
     unset($read[$key]);
@@ -73,19 +74,20 @@ while (True)
   foreach ($read as $read_client)
   {
     usleep(10000);
-    $data=@socket_read($read_client,1024,PHP_NORMAL_READ);
+    $data=@socket_read($read_client,MAX_DATA_LEN,PHP_NORMAL_READ);
     if ($data===False)
     {
       $addr="";
-      if (socket_getpeername($read_client,$addr)==True)
+      if (@socket_getpeername($read_client,$addr)==True)
       {
         echo "disconnecting from remote address $addr\n";
-        on_disconnect($read_client,$addr);
       }
+      on_disconnect($nicks,$connections,$read_client);
       socket_close($read_client);
-      $key=array_search($read_client,$clients);
-      unset($clients[$key]);
+      $key=array_search($read_client,$client_list);
+      unset($client_list[$key]);
       echo "client disconnected\n";
+      var_dump($nicks);
       continue;
     }
     $data=trim($data);
@@ -98,8 +100,8 @@ while (True)
     {
       echo "$data received\n";
       socket_close($read_client);
-      $key=array_search($read_client,$clients);
-      unset($clients[$key]);
+      $key=array_search($read_client,$client_list);
+      unset($client_list[$key]);
       if ($data=="quit")
       {
         break;
@@ -108,57 +110,162 @@ while (True)
     }
     $addr="";
     socket_getpeername($read_client,$addr);
-    foreach ($clients as $send_client)
-    {
-      if (($send_client<>$read_client) and ($send_client<>$server))
-      {
-        socket_write($send_client,"broadcast from $addr: $data"."\n");
-      }
-    }
-    on_msg($read_client,$addr,$data);
+    send_to_all($server,$client_list,"$addr: $data");
+    on_msg($connections,$nicks,$read_client,$addr,$data);
   }
 }
 socket_close($server);
 
 #####################################################################################################
 
-function on_connect($client,$addr)
+function connection_key(&$connections,&$client)
+{
+  foreach ($connections as $key => $data)
+  {
+    if ($connections[$key]["client"]===$client)
+    {
+      return $key;
+    }
+  }
+  return False;
+}
+
+#####################################################################################################
+
+function connection_nick(&$nicks,&$connection)
+{
+  foreach ($nicks as $nick => $data)
+  {
+    if ($nicks[$nick]["connection"]===$connection)
+    {
+      return $nick;
+    }
+  }
+  return False;
+}
+
+#####################################################################################################
+
+function loop_process()
+{
+  # do other stuff here if need be
+}
+
+#####################################################################################################
+
+function send_to_all(&$server,&$client_list,$data)
+{
+  foreach ($client_list as $send_client)
+  {
+    if ($send_client<>$server)
+    {
+      socket_write($send_client,"$data\n");
+    }
+  }
+}
+
+#####################################################################################################
+
+function do_reply(&$client,$data)
+{
+  socket_write($client,"$data\n");
+}
+
+#####################################################################################################
+
+function on_connect(&$connections,&$client,$addr)
 {
   echo "*** CLIENT CONNECTED: $addr\n";
+  $key=connection_key($connections,$client);
+  if ($key===False)
+  {
+    $connection=array();
+    $connection["client"]=$client;
+    $connection["addr"]=$addr;
+    $connection["connect_timestamp"]=microtime(True);
+    $connections[]=&$connection;
+  }
+  else
+  {
+    echo "*** CLIENT CONNECT ERROR: CONNECTION EXISTS ALREADY\n";
+  }
 }
 
 #####################################################################################################
 
-function on_disconnect($client,$addr)
+function on_disconnect(&$nicks,&$connections,&$client)
 {
-  echo "*** CLIENT DISCONNECTED: $addr\n";
+  $key=connection_key($connections,$client);
+  if ($key===False)
+  {
+    echo "*** CLIENT DISCONNECT ERROR: CONNECTION NOT FOUND\n";
+  }
+  else
+  {
+    $addr=$connections[$key]["addr"];
+    $nick=connection_nick($nicks,$connections[$key]);
+    if ($nick!==False)
+    {
+      unset($nicks[$nick]);
+    }
+    unset($connections[$key]);
+    echo "*** CLIENT DISCONNECTED: $addr\n";
+  }
 }
 
 #####################################################################################################
 
-function on_msg($client,$addr,$data)
+function on_msg(&$connections,&$nicks,&$client,$addr,$data)
 {
-  echo "*** MESSAGE RECEIVED FROM CLIENT $addr: $data\n";
   $items=parse_data_basic($data);
-  var_dump($items);
   if ($items===False)
   {
+    $err="ERROR: UNABLE TO PARSE DATA (NUMERIC 421)";
+    do_reply($client,$err);
+    echo "*** $addr: $err\n";
     return;
   }
   switch ($items["cmd"])
   {
-    case "CAP":
+    case "CAP": # CAP LS
       echo "*** CAP MESSAGE RECEIVED FROM $addr\n";
       break;
-    case "NICK":
-      echo "*** NICK MESSAGE RECEIVED FROM $addr\n";
+    case "NICK": # NICK crutchy
+      $nick=$items["params"];
+      echo "*** NICK MESSAGE RECEIVED FROM $addr: $nick\n";
+      if (isset($nicks[$nick])==False)
+      {
+        # TODO: CHANGE NICK
+        $nicks[$nick]=array();
+        $key=connection_key($connections,$client);
+        if ($key===False)
+        {
+          $err="ERROR: CONNECTION NOT FOUND (INTERNAL)";
+          do_reply($client,$err);
+          echo "*** $addr: $err\n";
+          break;
+        }
+        $connection=$connections[$key];
+        $nicks[$nick]["connection"]=$connection;
+        var_dump($nicks);
+      }
+      else
+      {
+        $err="ERROR: NICK ALREADY EXISTS (NUMERIC 433)";
+        do_reply($client,$msg);
+        echo "*** $addr: $err\n";
+      }
       break;
     case "USER":
+      # USER crutchy crutchy 192.168.0.21 :crutchy
+      # USER <username> <hostname> <servername> :<realname>
       echo "*** USER MESSAGE RECEIVED FROM $addr\n";
       break;
     case "JOIN":
       echo "*** JOIN MESSAGE RECEIVED FROM $addr\n";
       break;
+    default:
+      echo "*** UNKNOWN MESSAGE RECEIVED FROM $addr\n";
   }
 }
 
