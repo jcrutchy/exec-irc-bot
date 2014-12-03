@@ -148,12 +148,16 @@ function on_msg($client,$addr,$data)
   switch ($items["cmd"])
   {
     case "CAP":
+      echo "*** CAP MESSAGE RECEIVED FROM $addr\n";
       break;
     case "NICK":
+      echo "*** NICK MESSAGE RECEIVED FROM $addr\n";
       break;
     case "USER":
+      echo "*** USER MESSAGE RECEIVED FROM $addr\n";
       break;
     case "JOIN":
+      echo "*** JOIN MESSAGE RECEIVED FROM $addr\n";
       break;
   }
 }

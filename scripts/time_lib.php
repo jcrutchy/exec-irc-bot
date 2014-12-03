@@ -13,7 +13,8 @@ require_once("lib.php");
 function get_time($location)
 {
   $location=trim($location);
-  $html=wget_ssl("www.google.com","/search?gbv=1&q=time+".urlencode($location),ICEWEASEL_UA,"",300);
+  term_echo("*** TIME: http://www.google.com/search?gbv=1&q=time+".urlencode($location));
+  $html=wget_ssl("www.google.com.au","/search?gbv=1&q=time+".urlencode($location),ICEWEASEL_UA,"",60);
   $html=strip_headers($html);
   $result="";
   $delim1="<div id=\"ires\">";
@@ -35,6 +36,10 @@ function get_time($location)
       {
         $result=substr($html,0,300);
       }
+    }
+    else
+    {
+      term_echo("*** TIME: delim2 not found");
     }
   }
   else
