@@ -1,8 +1,6 @@
-/cs role # add exec +acl-view +autovoice +invite +autoop +remove +topic +op +voice
 /cs role #comments add exec +acl-view +autovoice +invite +autoop +remove +topic +op +voice
 /cs role #github add exec +acl-view +autovoice +invite +autoop +remove +topic +op +voice
 
-/cs access # set exec exec
 /cs access #comments set exec exec
 /cs access #github set exec exec
 
