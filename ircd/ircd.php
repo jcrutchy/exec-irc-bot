@@ -5,18 +5,6 @@
 
 #####################################################################################################
 
-/*
-message received: CAP LS
-message received: NICK crutchy
-message received: USER crutchy crutchy 192.168.0.21 :crutchy
-*/
-
-# TODO: make standard command handling function templates for handling various commands like JOIN, USER, etc
-# TODO: put each command handler in a separate php file (in cmd subdirectory)
-# TODO: create an includes.php file that just contains require_once statements for all the command handling php files
-
-#####################################################################################################
-
 define("LISTEN_ADDRESS","192.168.0.21");
 define("LISTEN_PORT",6667);
 define("CLIENT_TIMEOUT",60); # seconds

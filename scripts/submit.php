@@ -44,6 +44,18 @@ if ($i!==False)
   $source_title=trim(substr($source_title,0,$i));
 }
 
+$i=strpos($source_title,"|");
+if ($i!==False)
+{
+  $source_title=trim(substr($source_title,0,$i));
+}
+
+$i=strpos($source_title," - ");
+if ($i!==False)
+{
+  $source_title=trim(substr($source_title,0,$i));
+}
+
 if (($source_title===False) or ($source_title==""))
 {
   privmsg("error: title not found or empty");
@@ -104,6 +116,15 @@ $html=strip_tags($html);
 $html=clean_text($html);
 
 var_dump($html); # TODO: extract success/error message and output to IRC
+
+if (strpos($html,"Perhaps you would like to enter an email address or a URL next time. Thanks for the submission.")!==False)
+{
+  privmsg("submission successful - https://$host/submit.pl?op=list");
+}
+else
+{
+  privmsg("error: something went wrong with your submission");
+}
 
 # TODO: testing... much more testing
 
