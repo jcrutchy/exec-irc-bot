@@ -80,6 +80,26 @@ function register_event_handler($cmd,$data)
 
 #####################################################################################################
 
+function delete_event_handler($cmd,$data)
+{
+  $cmd=strtoupper(trim($cmd));
+  $index="<<EXEC_EVENT_HANDLERS>>";
+  $bucket=get_array_bucket($index);
+  for ($i=0;$i<count($bucket);$i++)
+  {
+    $handler=unserialize($bucket[$i]);
+    if ((count($handler)==1) and (isset($handler[$cmd])==$data))
+    {
+      unset($bucket[$i]);
+      $bucket=array_values($bucket);
+      term_echo("*** DELETED EVENT-HANDLER: $cmd => $data");
+    }
+  }
+  set_array_bucket($bucket,$index);
+}
+
+#####################################################################################################
+
 function get_array_bucket($bucket)
 {
   $array=array();

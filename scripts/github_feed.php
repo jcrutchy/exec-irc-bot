@@ -79,6 +79,7 @@ $list=array(
   "SoylentNews/slashcode",
   "SoylentNews/slashcode_vm",
   "cosurgi/trunk",
+  "dimkr/LoginKit",
   "paulej72/slashcode",
   "eapache/starscope",
   "NCommander/slashcode",

@@ -7,6 +7,8 @@
 
 /*
 exec:~wiki|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~wiki-privmsg|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+init:~wiki register-events
 */
 
 #####################################################################################################
@@ -34,7 +36,7 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 
-if ($alias=="~wiki-internal")
+if ($alias=="~wiki-internal") # currently unused
 {
   $parts=explode("||",$trailing);
   if (count($parts)<>5)
@@ -53,6 +55,36 @@ if ($alias=="~wiki-internal")
   else
   {
     privmsg($msg_error);
+  }
+  return;
+}
+
+if ($trailing=="register-events")
+{
+  delete_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~wiki %%trailing%%");
+  register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~wiki-privmsg %%trailing%%");
+  return;
+}
+
+return;
+
+if ($alias=="~wiki-privmsg")
+{
+  if (substr($trailing,0,2)=="[[")
+  {
+    $parts=explode("]]",$trailing);
+    if (count($parts)<>2)
+    {
+      return;
+    }
+    $section="";
+    $params=explode("|",$parts[0]);
+    $title=$params[0];
+    if (count($params)==2)
+    {
+      $section=$params[1];
+    }
+    get_text($title,$section);
   }
   return;
 }

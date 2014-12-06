@@ -5,16 +5,18 @@
 
 #####################################################################################################
 
-function cmd_cap(&$connections,&$client,$items)
+function cmd_cap(&$connections,&$nicks,&$client,$items)
 {
-  $key=connection_key($connections,$client);
+  $key=connection_key($connec,tions,$client);
   if ($key===False)
   {
     return;
   }
-  $connection=$connections[$key];
+  $connection=&$connections[$key];
   $addr=$connection["addr"];
   echo "*** CAP MESSAGE RECEIVED FROM $addr\n";
+  $cap=$items["params"];
+  $connection["cap"]=$cap;
 }
 
 #####################################################################################################

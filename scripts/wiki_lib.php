@@ -173,7 +173,7 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
 {
   if ($title=="")
   {
-    wiki_privmsg($return,"wiki: edit=invalid title");
+    wiki_privmsg($return,"wiki: get_text=invalid title");
     return False;
   }
   $index=-1;
@@ -184,7 +184,7 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
     $data=unserialize(strip_headers($response));
     if (isset($data["parse"]["sections"])==False)
     {
-      wiki_privmsg($return,"wiki: edit=error getting sections for page \"".$title."\"");
+      wiki_privmsg($return,"wiki: get_text=error getting sections for page \"".$title."\"");
       return False;
     }
     $sections=$data["parse"]["sections"];
@@ -211,21 +211,20 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
     if ($section<>"")
     {
       $id=str_replace(" ","_",$section);
-      if ($section[0]=="~")
-      {
-        $id=".7E".substr($section,1);
-      }
+      $id=str_replace("~",".7E",$id);
+      $id=str_replace("(",".28",$id);
+      $id=str_replace(")",".29",$id);
       $head="<span class=\"mw-headline\" id=\"$id\">$section</span>";
       if (strpos($text,$head)===False)
       {
-        wiki_privmsg($return,"wiki: edit=section span not found");
+        wiki_privmsg($return,"wiki: get_text=section span not found");
         return False;
       }
     }
   }
   else
   {
-    wiki_privmsg($return,"wiki: edit=section not found");
+    wiki_privmsg($return,"wiki: get_text=section not found");
     return False;
   }
   strip_comments($text);
@@ -237,9 +236,11 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
   $text=str_replace("\n",$br,$text);
   $text=replace_ctrl_chars($text," ");
   $text=html_decode($text);
+  $text=clean_text($text);
   if ($return_lines_array==False)
   {
     $text=str_replace($br," ",$text);
+    $text=clean_text($text);
     if (strlen($text)>400)
     {
       $text=trim(substr($text,0,400))."...";

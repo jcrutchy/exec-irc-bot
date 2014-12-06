@@ -18,11 +18,18 @@ function initialize_buckets()
 
 function init()
 {
-  global $init;
   $items=parse_data(CMD_INIT);
   buckets_load($items);
   initialize_buckets();
   process_scripts($items,ALIAS_INIT);
+  process_exec_inits();
+}
+
+#####################################################################################################
+
+function process_exec_inits()
+{
+  global $init;
   $file_lines=array();
   for ($i=0;$i<count($init);$i++)
   {
@@ -43,11 +50,18 @@ function init()
 
 function startup()
 {
-  global $startup;
   global $buckets;
   $buckets[BUCKET_CONNECTION_ESTABLISHED]="1";
   $items=parse_data(CMD_STARTUP);
   process_scripts($items,ALIAS_STARTUP);
+  process_exec_startups();
+}
+
+#####################################################################################################
+
+function process_exec_startups()
+{
+  global $startup;
   $file_lines=array();
   for ($i=0;$i<count($startup);$i++)
   {
@@ -1501,6 +1515,8 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
           }
           else
           {
+            process_exec_inits();
+            process_exec_startups();
             privmsg($items["destination"],$items["nick"],"successfully reloaded exec file (".count($exec_list)." aliases)");
           }
         }
@@ -1632,6 +1648,7 @@ function exec_load()
   global $exec_list;
   global $init;
   global $startup;
+  global $buckets;
   $startup=array();
   $init=array();
   $exec_errors=array();
@@ -1645,6 +1662,8 @@ function exec_load()
   {
     return False;
   }
+  $empty=array();
+  $buckets[BUCKET_EVENT_HANDLERS]=serialize($empty);
   $data=explode("\n",$data);
   for ($i=0;$i<count($data);$i++)
   {
