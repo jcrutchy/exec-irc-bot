@@ -92,10 +92,12 @@ function delete_event_handler($cmd,$data)
     {
       unset($bucket[$i]);
       $bucket=array_values($bucket);
-      term_echo("*** DELETED EVENT-HANDLER: $cmd => $data");
+      term_echo("*** DELETE EVENT-HANDLER: $cmd => $data (SUCCESS)");
+      set_array_bucket($bucket,$index);
+      return;
     }
   }
-  set_array_bucket($bucket,$index);
+  term_echo("*** DELETE EVENT-HANDLER: $cmd => $data (FAILED)");
 }
 
 #####################################################################################################

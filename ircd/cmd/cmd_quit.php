@@ -5,15 +5,15 @@
 
 #####################################################################################################
 
-function cmd_quit(&$connections,&$nicks,&$channels,&$client,$items)
+function cmd_quit($client_index,$items)
 {
-  $key=connection_key($connections,$client);
-  if ($key===False)
+  global $connections;
+  $connection_index=connection_index($client_index);
+  if ($connection_index===False)
   {
     return;
   }
-  $connection=$connections[$key];
-  $addr=$connection["addr"];
+  $addr=$connections[$connection_index]["addr"];
   echo "*** QUIT MESSAGE RECEIVED FROM $addr\n";
 }
 

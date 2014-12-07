@@ -5,28 +5,30 @@
 
 #####################################################################################################
 
-function connection_key(&$connections,&$client,$suppress_error=False)
+function connection_index($client_index,$suppress_error=False)
 {
-  foreach ($connections as $key => $data)
+  global $clients;
+  global $connections;
+  foreach ($connections as $index => $data)
   {
-    if ($connections[$key]["client"]===$client)
+    if ($connections[$index]["client"]===$clients[$client_index])
     {
-      return $key;
+      return $index;
     }
   }
   if ($suppress_error==False)
   {
-    $err="ERROR: CONNECTION KEY NOT FOUND";
-    do_reply($client,$err);
-    echo "*** $addr: $err\n";
+    do_reply($client_index,"ERROR: CONNECTION KEY NOT FOUND");
   }
   return False;
 }
 
 #####################################################################################################
 
-function connection_nick(&$nicks,&$connection,$suppress_error=False)
+function connection_nick($client_index,&$connection,$suppress_error=False)
 {
+  global $connections;
+  global $nicks;
   foreach ($nicks as $nick => $data)
   {
     if ($nicks[$nick]["connection"]===$connection)
@@ -36,23 +38,23 @@ function connection_nick(&$nicks,&$connection,$suppress_error=False)
   }
   if ($suppress_error==False)
   {
-    $err="ERROR: NICK DATA NOT FOUND";
-    do_reply($client,$err);
-    echo "*** $addr: $err\n";
+    do_reply($client_index,"ERROR: NICK DATA NOT FOUND");
   }
   return False;
 }
 
 #####################################################################################################
 
-function client_nick(&$connections,&$nicks,&$client,$suppress_error=False)
+function client_nick($client_index,$suppress_error=False)
 {
-  $key=connection_key($connections,$client,$suppress_error);
+  global $connections;
+  global $nicks;
+  $connection_index=connection_index($client_index,$suppress_error);
   if ($key===False)
   {
     return False;
   }
-  $nick=connection_nick($nicks,$connections[$key],$suppress_error);
+  $nick=connection_nick($client_index,$connections[$connection_index],$suppress_error);
   if ($nick===False)
   {
     return False;
@@ -72,99 +74,116 @@ function loop_process()
 
 #####################################################################################################
 
-function send_to_all(&$server,&$client_list,$data)
+function broadcast($msg)
 {
-  foreach ($client_list as $send_client)
+  global $server;
+  global $clients;
+  echo "BROADCAST: $msg\n";
+  foreach ($clients as $send_client)
   {
     if ($send_client<>$server)
     {
-      socket_write($send_client,"$data\n");
+      socket_write($send_client,"$msg\n");
     }
   }
 }
 
 #####################################################################################################
 
-function do_reply(&$client,$data)
+function do_reply($client_index,$msg)
 {
-  socket_write($client,"$data\n");
+  global $clients;
+  $addr="";
+  socket_getpeername($clients[$client_index],$addr);
+  echo "REPLY TO $addr: $msg\n";
+  socket_write($clients[$client_index],"$msg\n");
 }
 
 #####################################################################################################
 
-function on_connect(&$connections,&$client,$addr)
+function on_connect($client_index)
 {
-  echo "*** CLIENT CONNECTED: $addr\n";
-  $key=connection_key($connections,$client,True);
-  if ($key===False)
+  global $clients;
+  global $connections;
+  $connection_index=connection_index($client_index,True);
+  if ($connection_index===False)
   {
+    $addr="";
+    socket_getpeername($clients[$client_index],$addr);
     $connection=array();
-    $connection["client"]=$client;
+    $connection["client_index"]=$client_index;
     $connection["addr"]=$addr;
     $connection["connect_timestamp"]=microtime(True);
-    $connections[]=&$connection;
+    $connections[]=$connection;
+    send_to_all("*** CLIENT CONNECTED: $addr");
   }
   else
   {
-    echo "*** CLIENT CONNECT ERROR: CONNECTION EXISTS ALREADY\n";
+    do_reply($client_index,"*** CLIENT CONNECT ERROR: CONNECTION EXISTS ALREADY");
   }
 }
 
 #####################################################################################################
 
-function on_disconnect(&$nicks,&$connections,&$client)
+function on_disconnect($client_index)
 {
-  $key=connection_key($connections,$client);
-  if ($key===False)
+  global $nicks;
+  global $connections;
+  $connection_index=connection_index($client_index);
+  if ($connection_index===False)
   {
     echo "*** CLIENT DISCONNECT ERROR: CONNECTION NOT FOUND\n";
   }
   else
   {
     $addr=$connections[$key]["addr"];
-    $nick=connection_nick($nicks,$connections[$key]);
+    $nick=connection_nick($client_index,$connections[$connection_index]);
+    unset($connections[$key]);
     if ($nick!==False)
     {
       unset($nicks[$nick]);
+      echo "*** CLIENT DISCONNECTED: $addr <$nick>\n";
     }
-    unset($connections[$key]);
-    echo "*** CLIENT DISCONNECTED: $addr\n";
+    else
+    {
+      echo "*** CLIENT DISCONNECTED: $addr\n";
+    }
   }
 }
 
 #####################################################################################################
 
-function on_msg(&$connections,&$nicks,&$channels,&$client,$addr,$data)
+function on_msg($client_index,$data)
 {
+  global $clients;
+  global $connections;
+  global $nicks;
+  global $channels;
   $items=parse_data_basic($data);
   if ($items===False)
   {
-    $err="ERROR: UNABLE TO PARSE DATA (NUMERIC 421)";
-    do_reply($client,$err);
-    echo "*** $addr: $err\n";
+    do_reply($client_index,"ERROR: UNABLE TO PARSE DATA (NUMERIC 421)");
     return;
   }
   switch ($items["cmd"])
   {
     case "CAP":
-      cmd_cap($connections,$client,$items);
+      cmd_cap($client_index,$items);
       break;
     case "NICK":
-      cmd_nick($connections,$nicks,$channels,$client,$items);
+      cmd_nick($client_index,$items);
       break;
     case "USER":
-      cmd_user($connections,$nicks,$channels,$client,$items);
+      cmd_user($client_index,$items);
       break;
     case "JOIN":
-      cmd_join($connections,$nicks,$channels,$client,$items);
+      cmd_join($client_index,$items);
       break;
     case "QUIT":
-      cmd_quit($connections,$nicks,$channels,$client,$items);
+      cmd_quit($client_index,$items);
       break;
     default:
-      $err="UNKNOWN COMMAND";
-      do_reply($client,$err);
-      echo "*** $addr: $err\n";
+      do_reply($client_index,"UNKNOWN COMMAND");
   }
 }
 

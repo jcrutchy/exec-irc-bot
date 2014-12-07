@@ -3,23 +3,10 @@
 # gpl2
 # by crutchy
 
-/***************************************************************************************************/
-/*                                                                                                 */
-/*                                     SECURITY VULNERABILITY                                      */
-/*                                     ======================                                      */
-/*                                                                                                 */
-/*  THE BOT CAN BE TRICKED INTO EXECUTING RESTRICTED COMMANDS BY PUTTING THEM IN A PAGE TITLE.     */
-/*                                                                                                 */
-/*  EXAMPLE: <title>~say test</title>                                                              */
-/*                                                                                                 */
-/*  THIS CAN BE OVERCOME BY SIMPLY PREFIXING OUTPUT WITH SOMETHING (LIKE "^ " FOR EXAMPLE).        */
-/*                                                                                                 */
-/***************************************************************************************************/
-
 #####################################################################################################
 
 /*
-#exec:~title|30|0|0|0||||0|php scripts/title.php %%trailing%%
+exec:~title|30|0|0|0||||0|php scripts/title.php %%trailing%%
 */
 
 #####################################################################################################
@@ -76,7 +63,7 @@ if (strpos($filtered_url,$filtered_title)===False)
       return;
     }
   }
-  privmsg($title);
+  privmsg(chr(3)."13".$title);
 }
 else
 {

@@ -6,7 +6,7 @@
 #####################################################################################################
 
 /*
-exec:~wiki|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~wiki|40|0|0|0|*|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~wiki-privmsg|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 init:~wiki register-events
 */
@@ -61,18 +61,16 @@ if ($alias=="~wiki-internal") # currently unused
 
 if ($trailing=="register-events")
 {
-  delete_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~wiki %%trailing%%");
+  delete_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~wiki %%trailing%%"); # TODO: DIDN'T DELETE COS THIS NEEDS FURTHER TESTING
   register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~wiki-privmsg %%trailing%%");
   return;
 }
-
-return;
 
 if ($alias=="~wiki-privmsg")
 {
   if (substr($trailing,0,2)=="[[")
   {
-    $parts=explode("]]",$trailing);
+    $parts=explode("]]",substr($trailing,2));
     if (count($parts)<>2)
     {
       return;

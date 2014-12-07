@@ -177,6 +177,7 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
     return False;
   }
   $index=-1;
+  $title=str_replace(" ","_",$title);
   if ($section<>"")
   {
     $uri="/w/api.php?action=parse&format=php&page=".urlencode($title)."&prop=sections";
@@ -203,6 +204,13 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
   {
     $uri=$uri."&section=$index";
   }
+  /*$url="http://".WIKI_HOST.$uri;
+  $url=get_redirected_url($url);
+  if (get_host_and_uri($url,&$host,&$uri,&$port)==False)
+  {
+    wiki_privmsg($return,"wiki: get_text=url parse failed");
+    return False;
+  }*/
   $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT);
   $data=unserialize(strip_headers($response));
   if (isset($data["parse"]["text"]["*"])==True)
@@ -247,6 +255,12 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
     }
     bot_ignore_next();
     wiki_privmsg($return,$text);
+    $url="http://wiki.soylentnews.org/wiki/".urlencode($title);
+    if ($section<>"")
+    {
+      $url=$url."#$id";
+    }
+    wiki_privmsg($return,$url);
     $result=$text;
   }
   else
@@ -271,11 +285,11 @@ function wiki_privmsg($return,$msg)
 {
   if ($return==False)
   {
-    privmsg($msg);
+    privmsg(chr(3)."13".$msg);
   }
   else
   {
-    term_echo($msg);
+    term_echo(chr(3)."13".$msg);
   }
 }
 

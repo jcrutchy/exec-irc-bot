@@ -13,7 +13,7 @@ define("SERVER_HOSTNAME","sylnt.us.to");
 define("MAX_DATA_LEN",1024);
 
 require_once("include.php");
-require_once("lib.php");
+require_once("ircd_lib.php");
 
 $connections=array();
 $nicks=array();
@@ -28,25 +28,29 @@ $server=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
 if ($server===False)
 {
   echo "socket_create() failed: reason: ".socket_strerror(socket_last_error())."\n";
+  return;
 }
 if (socket_get_option($server,SOL_SOCKET,SO_REUSEADDR)===False)
 {
   echo "socket_get_option() failed: reason: ".socket_strerror(socket_last_error($server))."\n";
+  return;
 }
 if (socket_bind($server,LISTEN_ADDRESS,LISTEN_PORT)===False)
 {
   echo "socket_bind() failed: reason: ".socket_strerror(socket_last_error($server))."\n";
+  return;
 }
 if (socket_listen($server,5)===False)
 {
   echo "socket_listen() failed: reason: ".socket_strerror(socket_last_error($server))."\n";
+  return;
 }
-$client_list=array($server);
+$clients=array($server);
 echo "listening...\n";
 while (True)
 {
   loop_process();
-  $read=$client_list;
+  $read=$clients;
   $write=NULL;
   $except=NULL;
   if (socket_select($read,$write,$except,0)<1)
@@ -57,14 +61,14 @@ while (True)
   if (in_array($server,$read)==True)
   {
     $client=socket_accept($server);
-    $client_list[]=$client;
+    $clients[]=$client;
     $addr="";
     if (socket_getpeername($client,$addr)==True)
     {
       echo "connected to remote address $addr\n";
       on_connect($connections,$client,$addr);
     }
-    $n=count($client_list)-1;
+    $n=count($clients)-1;
     socket_write($client,"successfully connected to server\nthere are $n clients connected\n");
     $key=array_search($server,$read);
     unset($read[$key]);
@@ -72,6 +76,7 @@ while (True)
   foreach ($read as $read_client)
   {
     usleep(10000);
+    $client_index=array_search($read_client,$clients);
     $data=@socket_read($read_client,MAX_DATA_LEN,PHP_NORMAL_READ);
     if ($data===False)
     {
@@ -80,10 +85,9 @@ while (True)
       {
         echo "disconnecting from remote address $addr\n";
       }
-      on_disconnect($nicks,$connections,$read_client);
+      on_disconnect($client_index);
       socket_close($read_client);
-      $key=array_search($read_client,$client_list);
-      unset($client_list[$key]);
+      unset($clients[$client_index]);
       echo "client disconnected\n";
       var_dump($nicks);
       continue;
@@ -97,19 +101,23 @@ while (True)
     if (($data=="quit") or ($data=="shutdown"))
     {
       echo "$data received\n";
-      socket_close($read_client);
-      $key=array_search($read_client,$client_list);
-      unset($client_list[$key]);
       if ($data=="quit")
       {
+        socket_close($read_client);
+        unset($clients[$client_index]);
         break;
+      }
+      foreach ($clients as $client_index => $client_socket)
+      {
+        socket_close($clients[$client_index]);
+        unset($clients[$client_index]);
       }
       break 2;
     }
     $addr="";
     socket_getpeername($read_client,$addr);
-    send_to_all($server,$client_list,"$addr: $data");
-    on_msg($connections,$nicks,$channels,$read_client,$addr,$data);
+    broadcast("$addr: $data");
+    on_msg($client_index,$data);
   }
 }
 socket_close($server);

@@ -19,9 +19,11 @@
 
 #####################################################################################################
 
-function cmd_join(&$connections,&$nicks,&$channels,&$client,$items)
+function cmd_join($client_index,$items)
 {
-  $nick=client_nick($connections,$nicks,$client);
+  global $nicks;
+  global $channels;
+  $nick=client_nick($client_index)
   if ($nick===False)
   {
     return;
@@ -34,7 +36,12 @@ function cmd_join(&$connections,&$nicks,&$channels,&$client,$items)
     $channels[$chan]["nicks"]=array();
   }
   $channels[$chan]["nicks"][]=$nick;
-  echo "*** JOIN MESSAGE RECEIVED FROM $addr\n";
+  $username=$nicks[strtolower($nick)]["username"];
+  $hostname=$nicks[strtolower($nick)]["hostname"];
+  $ident_prefix=$nicks[strtolower($nick)]["connection"]["ident_prefix"];
+  $msg=":".$nick."!".$ident_prefix.$username."@".$hostname." JOIN ".$chan;
+  $msg="*** JOIN MESSAGE RECEIVED FROM $addr";
+  do_reply($client,$msg);
 }
 
 #####################################################################################################

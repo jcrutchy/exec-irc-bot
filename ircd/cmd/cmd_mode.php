@@ -5,7 +5,7 @@
 
 #####################################################################################################
 
-function cmd_who(&$connections,&$nicks,&$client,$items)
+function cmd_mode($client_index,$items)
 {
 
 }
