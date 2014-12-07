@@ -23,7 +23,7 @@ function cmd_join($client_index,$items)
 {
   global $nicks;
   global $channels;
-  $nick=client_nick($client_index)
+  $nick=client_nick($client_index);
   if ($nick===False)
   {
     return;
@@ -41,7 +41,7 @@ function cmd_join($client_index,$items)
   $ident_prefix=$nicks[strtolower($nick)]["connection"]["ident_prefix"];
   $msg=":".$nick."!".$ident_prefix.$username."@".$hostname." JOIN ".$chan;
   $msg="*** JOIN MESSAGE RECEIVED FROM $addr";
-  do_reply($client,$msg);
+  do_reply($client_index,$msg);
 }
 
 #####################################################################################################

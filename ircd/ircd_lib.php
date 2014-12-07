@@ -7,11 +7,10 @@
 
 function connection_index($client_index,$suppress_error=False)
 {
-  global $clients;
   global $connections;
   foreach ($connections as $index => $data)
   {
-    if ($connections[$index]["client"]===$clients[$client_index])
+    if ($connections[$index]["client_index"]==$client_index)
     {
       return $index;
     }
@@ -50,7 +49,7 @@ function client_nick($client_index,$suppress_error=False)
   global $connections;
   global $nicks;
   $connection_index=connection_index($client_index,$suppress_error);
-  if ($key===False)
+  if ($connection_index===False)
   {
     return False;
   }
@@ -115,7 +114,7 @@ function on_connect($client_index)
     $connection["addr"]=$addr;
     $connection["connect_timestamp"]=microtime(True);
     $connections[]=$connection;
-    send_to_all("*** CLIENT CONNECTED: $addr");
+    broadcast("*** CLIENT CONNECTED: $addr");
   }
   else
   {

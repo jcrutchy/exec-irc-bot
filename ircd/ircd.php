@@ -46,6 +46,7 @@ if (socket_listen($server,5)===False)
   return;
 }
 $clients=array($server);
+echo "CRUTCHY IRCD\n";
 echo "listening...\n";
 while (True)
 {
@@ -62,12 +63,11 @@ while (True)
   {
     $client=socket_accept($server);
     $clients[]=$client;
+    $client_index=array_search($client,$clients);
     $addr="";
-    if (socket_getpeername($client,$addr)==True)
-    {
-      echo "connected to remote address $addr\n";
-      on_connect($connections,$client,$addr);
-    }
+    socket_getpeername($client,$addr);
+    echo "connected to remote address $addr\n";
+    on_connect($client_index);
     $n=count($clients)-1;
     socket_write($client,"successfully connected to server\nthere are $n clients connected\n");
     $key=array_search($server,$read);
@@ -107,10 +107,13 @@ while (True)
         unset($clients[$client_index]);
         break;
       }
-      foreach ($clients as $client_index => $client_socket)
+      foreach ($clients as $client_index => $socket)
       {
-        socket_close($clients[$client_index]);
-        unset($clients[$client_index]);
+        if ($clients[$client_index]<>$server)
+        {
+          socket_close($clients[$client_index]);
+          unset($clients[$client_index]);
+        }
       }
       break 2;
     }
