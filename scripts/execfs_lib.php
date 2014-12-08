@@ -47,7 +47,7 @@ function get_path($path)
   global $fs;
   $parts=explode(PATH_DELIM,$path);
   array_shift($parts);
-  $result=&$fs["filesystem"][PATH_DELIM];
+  $result=$fs["filesystem"][PATH_DELIM];
   for ($i=0;$i<count($parts);$i++)
   {
     $child=$parts[$i];
@@ -89,10 +89,21 @@ function set_path($path)
   global $fs;
   $parts=explode(PATH_DELIM,$path);
   array_shift($parts);
-  $current=&$fs["filesystem"][PATH_DELIM];
+  $filesystem_current=&$fs["filesystem"][PATH_DELIM]["children"];
+  $permissions_current=&$fs["permissions"][PATH_DELIM]["children"];
   for ($i=0;$i<count($parts);$i++)
   {
-    $current=$current;
+    $child=$parts[$i];
+    if (isset($filesystem_current[$child]["children"])==False)
+    {
+      $new=array();
+      $new["children"]=array();
+      $new["vars"]=array();
+      $filesystem_current[$child]=$new;
+      $permissions_current[$child]=$new;
+    }
+    $filesystem_current=&$filesystem_current[$child]["children"];
+    $permissions_current=&$permissions_current[$child]["children"];
   }
 }
 
@@ -113,6 +124,9 @@ function execfs_set($nick,$name,$value)
 {
   global $fs;
   # create path as required
+  $path=get_current_path($nick);
+  set_path($name);
+  
 }
 
 #####################################################################################################
