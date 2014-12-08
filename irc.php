@@ -69,6 +69,7 @@ define("CMD_PAUSE","BOT_IRC_PAUSE");
 define("CMD_UNPAUSE","BOT_IRC_UNPAUSE");
 define("CMD_INIT","INIT");
 define("CMD_STARTUP","STARTUP");
+define("CMD_DELETE_HANDLER","DELETE_HANDLER");
 
 define("PREFIX_DELIM","/");
 define("PREFIX_IRC",PREFIX_DELIM."IRC");
@@ -84,6 +85,7 @@ define("PREFIX_BUCKET_LIST",PREFIX_DELIM.CMD_BUCKET_LIST);
 define("PREFIX_INTERNAL",PREFIX_DELIM.CMD_INTERNAL);
 define("PREFIX_PAUSE",PREFIX_DELIM.CMD_PAUSE);
 define("PREFIX_UNPAUSE",PREFIX_DELIM.CMD_UNPAUSE);
+define("PREFIX_DELETE_HANDLER",PREFIX_DELIM.CMD_DELETE_HANDLER);
 
 # internal aliases (can also use in exec file with alias locking, but that would be just weird)
 define("ALIAS_INTERNAL_RESTART","~restart-internal");

@@ -21,8 +21,8 @@ function init()
   $items=parse_data(CMD_INIT);
   buckets_load($items);
   initialize_buckets();
-  process_scripts($items,ALIAS_INIT);
   process_exec_inits();
+  process_scripts($items,ALIAS_INIT);
 }
 
 #####################################################################################################
@@ -30,6 +30,7 @@ function init()
 function process_exec_inits()
 {
   global $init;
+  term_echo("init:");
   $file_lines=array();
   for ($i=0;$i<count($init);$i++)
   {
@@ -39,7 +40,7 @@ function process_exec_inits()
   {
     for ($i=0;$i<count($commands);$i++)
     {
-      term_echo("FILE INIT: ".$commands[$i]);
+      term_echo("FILE INIT: $filename =>".$commands[$i]);
       handle_data(":".NICK." ".CMD_INTERNAL." :".$commands[$i]."\n",False,False,True);
     }
   }
@@ -52,9 +53,9 @@ function startup()
 {
   global $buckets;
   $buckets[BUCKET_CONNECTION_ESTABLISHED]="1";
+  process_exec_startups();
   $items=parse_data(CMD_STARTUP);
   process_scripts($items,ALIAS_STARTUP);
-  process_exec_startups();
 }
 
 #####################################################################################################
@@ -62,6 +63,7 @@ function startup()
 function process_exec_startups()
 {
   global $startup;
+  term_echo("startup:");
   $file_lines=array();
   for ($i=0;$i<count($startup);$i++)
   {
@@ -333,6 +335,7 @@ function handle_stdout($handle)
 {
   global $exec_list;
   global $irc_pause;
+  global $buckets;
   if (is_resource($handle["pipe_stdout"])==False)
   {
     return;
@@ -475,6 +478,38 @@ function handle_stdout($handle)
           return;
         case PREFIX_UNPAUSE:
           $irc_pause=False;
+          return;
+        case PREFIX_DELETE_HANDLER:
+          $parts=explode("=>",$prefix_msg);
+          if (count($parts)<2)
+          {
+            term_echo("*** ERROR: INVALID DELETE_HANDLER COMMAND");
+            return;
+          }
+          $cmd=strtoupper(trim($parts[0]));
+          array_shift($parts);
+          $data=trim(implode("=>",$parts));
+          $handlers=unserialize($buckets[BUCKET_EVENT_HANDLERS]);
+          for ($i=0;$i<count($handlers);$i++)
+          {
+            $handler=unserialize($handlers[$i]);
+            if (isset($handler[$cmd])==True)
+            {
+              if ($handler[$cmd]==$data)
+              {
+                unset($handler[$cmd]);
+                if (count($handler)==0)
+                {
+                  unset($handlers[$i]);
+                  $handlers=array_values($handlers);
+                }
+                $buckets[BUCKET_EVENT_HANDLERS]=serialize($handlers);
+                term_echo("*** DELETE EVENT-HANDLER: $cmd => $data (SUCCESS)");
+                return;
+              }
+            }
+          }
+          term_echo("*** DELETE EVENT-HANDLER: $cmd => $data (FAILED)");
           return;
       }
     }
@@ -735,8 +770,10 @@ function buckets_load($items)
 function buckets_flush($items)
 {
   global $buckets;
+  $connected=$buckets[BUCKET_CONNECTION_ESTABLISHED];
   $buckets=array();
   initialize_buckets();
+  $buckets[BUCKET_CONNECTION_ESTABLISHED]=$connected;
   privmsg($items["destination"],$items["nick"],"buckets flushed");
 }
 

@@ -82,22 +82,7 @@ function register_event_handler($cmd,$data)
 
 function delete_event_handler($cmd,$data)
 {
-  $cmd=strtoupper(trim($cmd));
-  $index="<<EXEC_EVENT_HANDLERS>>";
-  $bucket=get_array_bucket($index);
-  for ($i=0;$i<count($bucket);$i++)
-  {
-    $handler=unserialize($bucket[$i]);
-    if ((count($handler)==1) and (isset($handler[$cmd])==$data))
-    {
-      unset($bucket[$i]);
-      $bucket=array_values($bucket);
-      term_echo("*** DELETE EVENT-HANDLER: $cmd => $data (SUCCESS)");
-      set_array_bucket($bucket,$index);
-      return;
-    }
-  }
-  term_echo("*** DELETE EVENT-HANDLER: $cmd => $data (FAILED)");
+  echo "/DELETE_HANDLER $cmd=>$data\n";
 }
 
 #####################################################################################################

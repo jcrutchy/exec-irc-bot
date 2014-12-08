@@ -111,4 +111,54 @@ function run_array_bucket_element_file_test()
 
 #####################################################################################################
 
+function run_event_registration_test()
+{
+  global $passed;
+  $index="<<EXEC_EVENT_HANDLERS>>";
+  $test_cmd="PRIVMSG";
+  $test_data=":%%nick%% INTERNAL %%dest%% :~test %%trailing%%";
+  $data1=get_bucket($index);
+  $test_handler_found=False;
+  for ($i=0;$i<count($handlers);$i++)
+  {
+    $handler=unserialize($handlers[$i]);
+    if ((count($handler)==1) and (isset($handler[$test_cmd])==$test_data))
+    {
+      $test_handler_found=True;
+      break;
+    }
+  }
+  if ($test_handler_found==True)
+  {
+    term_echo("run_event_registration_test failed! (1)");
+    $passed=False;
+  }
+  register_event_handler($test_cmd,$test_data);
+  $handlers=get_array_bucket($index);
+  $test_handler_found=False;
+  for ($i=0;$i<count($handlers);$i++)
+  {
+    $handler=unserialize($handlers[$i]);
+    if ((count($handler)==1) and (isset($handler[$test_cmd])==$test_data))
+    {
+      $test_handler_found=True;
+      break;
+    }
+  }
+  if ($test_handler_found==False)
+  {
+    term_echo("run_event_registration_test failed! (2)");
+    $passed=False;
+  }
+  delete_event_handler($test_cmd,$test_data);
+  $data2=get_bucket($index);
+  if ($data1<>$data2)
+  {
+    term_echo("run_event_registration_test failed! (3)");
+    $passed=False;
+  }
+}
+
+#####################################################################################################
+
 ?>

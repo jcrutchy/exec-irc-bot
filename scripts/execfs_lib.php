@@ -29,8 +29,9 @@ function get_fs()
 
 #####################################################################################################
 
-function set_fs(&$fs)
+function set_fs()
 {
+  global $fs;
   if ($fs["modified"]==False)
   {
     return;
@@ -41,16 +42,10 @@ function set_fs(&$fs)
 
 #####################################################################################################
 
-function get_path(&$fs,$path)
+function get_path($path)
 {
-  # /path/to/my/var
-  if (isset($fs["paths"][$nick])==False)
-  {
-    $fs["paths"][$nick]=PATH_DELIM;
-    $fs["modified"]=True;
-    return PATH_DELIM;
-  }
-  $parts=explode(PATH_DELIM,$fs["paths"][$nick]);
+  global $fs;
+  $parts=explode(PATH_DELIM,$path);
   array_shift($parts);
   $result=&$fs["filesystem"][PATH_DELIM];
   for ($i=0;$i<count($parts);$i++)
@@ -75,8 +70,9 @@ function get_path(&$fs,$path)
 
 #####################################################################################################
 
-function get_current_path(&$fs,$nick)
+function get_current_path($nick)
 {
+  global $fs;
   if (isset($fs["paths"][$nick])==False)
   {
     $fs["paths"][$nick]=PATH_DELIM;
@@ -88,8 +84,23 @@ function get_current_path(&$fs,$nick)
 
 #####################################################################################################
 
-function execfs_get(&$fs,$nick,$name)
+function set_path($path)
 {
+  global $fs;
+  $parts=explode(PATH_DELIM,$path);
+  array_shift($parts);
+  $current=&$fs["filesystem"][PATH_DELIM];
+  for ($i=0;$i<count($parts);$i++)
+  {
+    $current=$current;
+  }
+}
+
+#####################################################################################################
+
+function execfs_get($nick,$name)
+{
+  global $fs;
   # ~get [%path%]%name%
   
   $path=get_current_path($fs,$nick);
@@ -98,44 +109,45 @@ function execfs_get(&$fs,$nick,$name)
 
 #####################################################################################################
 
-function execfs_set(&$fs,$nick,$name,$value)
+function execfs_set($nick,$name,$value)
 {
+  global $fs;
   # create path as required
 }
 
 #####################################################################################################
 
-function execfs_cp(&$fs)
+function execfs_cp()
 {
-
+  global $fs;
 }
 
 #####################################################################################################
 
-function execfs_mv(&$fs)
+function execfs_mv()
 {
-
+  global $fs;
 }
 
 #####################################################################################################
 
-function execfs_rm(&$fs)
+function execfs_rm()
 {
-
+  global $fs;
 }
 
 #####################################################################################################
 
-function execfs_ls(&$fs)
+function execfs_ls()
 {
-
+  global $fs;
 }
 
 #####################################################################################################
 
-function execfs_cd(&$fs)
+function execfs_cd()
 {
-
+  global $fs;
 }
 
 #####################################################################################################

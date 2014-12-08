@@ -61,7 +61,6 @@ if ($alias=="~wiki-internal") # currently unused
 
 if ($trailing=="register-events")
 {
-  delete_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~wiki %%trailing%%"); # TODO: DIDN'T DELETE COS THIS NEEDS FURTHER TESTING
   register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~wiki-privmsg %%trailing%%");
   return;
 }
