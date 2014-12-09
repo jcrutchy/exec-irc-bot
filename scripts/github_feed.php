@@ -25,6 +25,7 @@ $alias=strtolower(trim($argv[4]));
 
 if ($alias=="~slashcode-issue")
 {
+  return;
   $parts=explode(",",$trailing);
   $title=trim($parts[0]);
   array_shift($parts);
@@ -36,10 +37,10 @@ if ($alias=="~slashcode-issue")
   }
   $host="api.github.com";
   $port=443;
-  #$username="SoylentNews";
-  #$repo="slashcode";
-  $username="crutchy-";
-  $repo="exec-irc-bot";
+  $username="SoylentNews";
+  $repo="slashcode";
+  #$username="crutchy-";
+  #$repo="exec-irc-bot";
   $uri="/repos/$username/$repo/issues";
   $tok=trim(file_get_contents("../pwd/gh_tok"));
   $headers=array();
@@ -48,7 +49,7 @@ if ($alias=="~slashcode-issue")
   $headers["Accept"]="application/vnd.github.v3+json";
   $params=array();
   $params["title"]=$title;
-  $params["body"]=$body."\n\nsubmitted by exec from $dest @ irc.sylnt.us";
+  $params["body"]=$body."\n\nsubmitted by exec on behalf of $nick from $dest @ irc.sylnt.us";
   $json=json_encode($params,JSON_PRETTY_PRINT);
   $response=wpost($host,$uri,$port,ICEWEASEL_UA,$json,$headers,60,True,False);
   $content=strip_headers($response);

@@ -1251,7 +1251,14 @@ function script_event_handlers($cmd,&$items)
   global $buckets;
   if (($cmd=="PRIVMSG") and ($items["nick"]==NICK))
   {
-    return;
+    if (isset($buckets[BUCKET_SELF_TRIGGER_EVENTS_FLAG])==True)
+    {
+      term_echo("*** PRIVMSG EVENT TRIGGERED BY BOT WITH FLAG SET TO HANDLE EVENT");
+    }
+    else
+    {
+      return;
+    }
   }
   $event_handlers=array();
   if (isset($buckets[BUCKET_EVENT_HANDLERS])==True)
