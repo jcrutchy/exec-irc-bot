@@ -34,6 +34,7 @@ switch ($alias)
     break;
   case "~set":
     # ~set [%path%]%name% = %value%
+    execfs_set($nick,$trailing,"");
     break;
   case "~cp":
     # ~cp [%from_path%]%from_name% > %to_path%[%to_name%]

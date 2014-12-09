@@ -16,11 +16,10 @@ function get_fs()
   if (isset($fs["modified"])==False)
   {
     $fs["filesystem"][PATH_DELIM]=array();
-    $fs["filesystem"][PATH_DELIM]["children"]=array();
     $fs["filesystem"][PATH_DELIM]["vars"]=array();
-    $fs["permissions"][PATH_DELIM]=array();
-    $fs["permissions"][PATH_DELIM]["children"]=array();
-    $fs["permissions"][PATH_DELIM]["vars"]=array();
+    $fs["filesystem"][PATH_DELIM]["permissions"]=array();
+    $fs["filesystem"][PATH_DELIM]["parent"]=False;
+    $fs["filesystem"][PATH_DELIM]["children"]=array();
     $fs["paths"]=array();
     $fs["modified"]=True;
   }
@@ -89,22 +88,27 @@ function set_path($path)
   global $fs;
   $parts=explode(PATH_DELIM,$path);
   array_shift($parts);
-  $filesystem_current=&$fs["filesystem"][PATH_DELIM]["children"];
-  $permissions_current=&$fs["permissions"][PATH_DELIM]["children"];
-  for ($i=0;$i<count($parts);$i++)
+  return create_child($fs["filesystem"][PATH_DELIM],$parts);
+}
+
+#####################################################################################################
+
+function create_child(&$parent,$parts)
+{
+  global $fs;
+  $name=$parts[0];
+  array_shift($parts);
+  $child=array();
+  $child["vars"]=array();
+  $child["permissions"]=array();
+  $child["parent"]=&$parent;
+  $child["children"]=array();
+  $parent["children"][$name]=&$child;
+  if (count($parts)>0)
   {
-    $child=$parts[$i];
-    if (isset($filesystem_current[$child]["children"])==False)
-    {
-      $new=array();
-      $new["children"]=array();
-      $new["vars"]=array();
-      $filesystem_current[$child]=$new;
-      $permissions_current[$child]=$new;
-    }
-    $filesystem_current=&$filesystem_current[$child]["children"];
-    $permissions_current=&$permissions_current[$child]["children"];
+    return create_child($child,$parts);
   }
+  return $child;
 }
 
 #####################################################################################################
@@ -124,9 +128,9 @@ function execfs_set($nick,$name,$value)
 {
   global $fs;
   # create path as required
-  $path=get_current_path($nick);
-  set_path($name);
-  
+  #$path=get_current_path($nick);
+  $directory=set_path($name);
+  var_dump($fs);
 }
 
 #####################################################################################################
