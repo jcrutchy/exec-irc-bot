@@ -4,13 +4,13 @@
 # by crutchy
 
 /*
-exec:~get|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~set|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~cp|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~mv|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~rm|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~ls|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~cd|5|0|0|1|*|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~get|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~set|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~cp|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~mv|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~rm|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~ls|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~cd|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################
@@ -34,7 +34,19 @@ switch ($alias)
     break;
   case "~set":
     # ~set [%path%]%name% = %value%
-    execfs_set($nick,$trailing,"");
+    $parts=explode("=",$trailing);
+    if (count($parts)>=2)
+    {
+      $name=trim($parts[0]);
+      array_shift($parts);
+      $value=trim(implode("=",$parts));
+      if ($name<>"")
+      {
+        execfs_set($nick,$name,$value);
+        break;
+      }
+    }
+    privmsg("syntax: ~set [%path%]%name% = %value%");
     break;
   case "~cp":
     # ~cp [%from_path%]%from_name% > %to_path%[%to_name%]

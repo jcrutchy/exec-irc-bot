@@ -8,6 +8,8 @@
 define("BUCKET_FS","<<EXECFS>>");
 define("PATH_DELIM","/");
 
+$false=False;
+
 #####################################################################################################
 
 function get_fs()
@@ -16,9 +18,9 @@ function get_fs()
   if (isset($fs["modified"])==False)
   {
     $fs["filesystem"][PATH_DELIM]=array();
+    $fs["filesystem"][PATH_DELIM]["name"]=PATH_DELIM;
     $fs["filesystem"][PATH_DELIM]["vars"]=array();
     $fs["filesystem"][PATH_DELIM]["permissions"]=array();
-    $fs["filesystem"][PATH_DELIM]["parent"]=False;
     $fs["filesystem"][PATH_DELIM]["children"]=array();
     $fs["paths"]=array();
     $fs["modified"]=True;
@@ -44,27 +46,24 @@ function set_fs()
 function get_path($path)
 {
   global $fs;
+  global $false;
   $parts=explode(PATH_DELIM,$path);
   array_shift($parts);
-  $result=$fs["filesystem"][PATH_DELIM];
+  $parent=&$fs["filesystem"][PATH_DELIM];
   for ($i=0;$i<count($parts);$i++)
   {
-    $child=$parts[$i];
-    if ($child=="")
+    $name=trim($parts[$i]);
+    if ($name=="")
     {
-      return False;
+      return $false;
     }
-    if (isset($result["children"][$child])==True)
+    if (isset($parent["children"][$name])==False)
     {
-      $result=$result["children"][$child];
+      return $false;
     }
-    else
-    {
-      privmsg("error: path not found");
-      return False;
-    }
+    $parent=&$parent["children"][$name];
   }
-  return $result;
+  return $parent;
 }
 
 #####################################################################################################
@@ -83,32 +82,32 @@ function get_current_path($nick)
 
 #####################################################################################################
 
-function set_path($path)
+function &set_path($path)
 {
   global $fs;
+  global $false;
   $parts=explode(PATH_DELIM,$path);
   array_shift($parts);
-  return create_child($fs["filesystem"][PATH_DELIM],$parts);
-}
-
-#####################################################################################################
-
-function create_child(&$parent,$parts)
-{
-  global $fs;
-  $name=$parts[0];
-  array_shift($parts);
-  $child=array();
-  $child["vars"]=array();
-  $child["permissions"]=array();
-  $child["parent"]=&$parent;
-  $child["children"]=array();
-  $parent["children"][$name]=&$child;
-  if (count($parts)>0)
+  $parent=&$fs["filesystem"][PATH_DELIM];
+  for ($i=0;$i<count($parts);$i++)
   {
-    return create_child($child,$parts);
+    $name=trim($parts[$i]);
+    if ($name=="")
+    {
+      return $false;
+    }
+    if (isset($parent["children"][$name])==False)
+    {
+      $child=array();
+      $child["name"]=$name;
+      $child["vars"]=array();
+      $child["permissions"]=array();
+      $child["children"]=array();
+      $parent["children"][$name]=$child;
+    }
+    $parent=&$parent["children"][$name];
   }
-  return $child;
+  return $parent;
 }
 
 #####################################################################################################
@@ -127,9 +126,20 @@ function execfs_get($nick,$name)
 function execfs_set($nick,$name,$value)
 {
   global $fs;
+  global $false;
   # create path as required
   #$path=get_current_path($nick);
-  $directory=set_path($name);
+  $directory=&set_path("/Level1//Level3");
+  if ($directory==$false)
+  {
+    term_echo("AN ERROR OCCURRED PARSING PATH");
+  }
+  $directory["vars"][$name]=$value;
+  unset($directory);
+  #$directory=&set_path("/Level1/Level2/Level3/Level4");
+  #$directory["vars"][$name]=$value;
+  #unset($directory);
+  $fs["filesystem"][PATH_DELIM]["children"]["Level1"]["vars"]="level 1 var";
   var_dump($fs);
 }
 
