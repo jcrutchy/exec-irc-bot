@@ -31,6 +31,7 @@ switch ($alias)
 {
   case "~get":
     # ~get [%path%]%name%
+    execfs_get($nick,$trailing);
     break;
   case "~set":
     # ~set [%path%]%name% = %value%
@@ -64,6 +65,8 @@ switch ($alias)
     # ~cd %path%
     break;
 }
+
+set_fs();
 
 #####################################################################################################
 

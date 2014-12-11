@@ -14,6 +14,7 @@ $false=False;
 
 function get_fs()
 {
+  global $false;
   $fs=get_array_bucket(BUCKET_FS);
   if (isset($fs["modified"])==False)
   {
@@ -22,6 +23,7 @@ function get_fs()
     $fs["filesystem"][PATH_DELIM]["vars"]=array();
     $fs["filesystem"][PATH_DELIM]["permissions"]=array();
     $fs["filesystem"][PATH_DELIM]["children"]=array();
+    $fs["filesystem"][PATH_DELIM]["parent"]=&$false;
     $fs["paths"]=array();
     $fs["modified"]=True;
   }
@@ -43,7 +45,14 @@ function set_fs()
 
 #####################################################################################################
 
-function get_path($path)
+function get_path(&$directory)
+{
+
+}
+
+#####################################################################################################
+
+function &get_directory($path)
 {
   global $fs;
   global $false;
@@ -68,21 +77,27 @@ function get_path($path)
 
 #####################################################################################################
 
-function get_current_path($nick)
+function &get_current_directory($nick)
 {
   global $fs;
+  global $false;
   if (isset($fs["paths"][$nick])==False)
   {
     $fs["paths"][$nick]=PATH_DELIM;
     $fs["modified"]=True;
-    return PATH_DELIM;
+    return $fs["filesystem"][PATH_DELIM];
   }
-  return get_path($fs,$fs["paths"][$nick]);
+  $directory=&get_directory($fs,$fs["paths"][$nick]);
+  if ($directory==$false)
+  {
+    return $false;
+  }
+  return $directory;
 }
 
 #####################################################################################################
 
-function &set_path($path)
+function &set_directory($path)
 {
   global $fs;
   global $false;
@@ -104,6 +119,7 @@ function &set_path($path)
       $child["permissions"]=array();
       $child["children"]=array();
       $parent["children"][$name]=$child;
+      $parent["children"][$name]["parent"]=&$parent;
     }
     $parent=&$parent["children"][$name];
   }
@@ -115,10 +131,16 @@ function &set_path($path)
 function execfs_get($nick,$name)
 {
   global $fs;
+  global $false;
   # ~get [%path%]%name%
-  
-  $path=get_current_path($fs,$nick);
-
+  #$directory=&get_current_directory($fs,$nick);
+  $directory=&get_directory("/Level1");
+  if ($directory==$false)
+  {
+    term_echo("AN ERROR OCCURRED PARSING PATH");
+  }
+  #var_dump($directory);
+  privmsg($directory["parent"]["name"]);
 }
 
 #####################################################################################################
@@ -129,18 +151,19 @@ function execfs_set($nick,$name,$value)
   global $false;
   # create path as required
   #$path=get_current_path($nick);
-  $directory=&set_path("/Level1//Level3");
+  $directory=&set_directory("/Level1/Level2/Level3");
   if ($directory==$false)
   {
     term_echo("AN ERROR OCCURRED PARSING PATH");
   }
   $directory["vars"][$name]=$value;
   unset($directory);
-  #$directory=&set_path("/Level1/Level2/Level3/Level4");
-  #$directory["vars"][$name]=$value;
-  #unset($directory);
+  $directory=&set_directory("/Level1/Level2/Level3/Level4");
+  $directory["vars"][$name]=$value;
+  unset($directory);
   $fs["filesystem"][PATH_DELIM]["children"]["Level1"]["vars"]="level 1 var";
   var_dump($fs);
+  $fs["modified"]=True;
 }
 
 #####################################################################################################
