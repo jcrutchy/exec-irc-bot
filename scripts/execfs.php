@@ -60,6 +60,7 @@ switch ($alias)
     break;
   case "~ls":
     # ~ls %path%
+    execfs_ls();
     break;
   case "~cd":
     # ~cd %path%

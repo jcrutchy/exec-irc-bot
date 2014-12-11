@@ -47,7 +47,19 @@ function set_fs()
 
 function get_path(&$directory)
 {
-
+  global $false;
+  $result=$directory["name"];
+  $parent=$directory["parent"];
+  while ($parent<>$false)
+  {
+    if ($parent["name"]<>PATH_DELIM)
+    {
+      $result=PATH_DELIM.$result;
+    }
+    $result=$parent["name"].$result;
+    $parent=$parent["parent"];
+  }
+  return $result;
 }
 
 #####################################################################################################
@@ -150,7 +162,7 @@ function execfs_set($nick,$name,$value)
   global $fs;
   global $false;
   # create path as required
-  #$path=get_current_path($nick);
+  #$path=get_current_directory($nick);
   $directory=&set_directory("/Level1/Level2/Level3");
   if ($directory==$false)
   {
@@ -192,6 +204,9 @@ function execfs_rm()
 function execfs_ls()
 {
   global $fs;
+  $directory=&get_directory("/Level1/Level2/Level3/Level4");
+  $path=get_path($directory);
+  privmsg($path);
 }
 
 #####################################################################################################
