@@ -6,7 +6,7 @@
 #####################################################################################################
 
 /*
-exec:~submit|120|0|0|1|crutchy|||0|php scripts/submit.php %%trailing%% %%dest%% %%nick%%
+exec:~submit|120|0|0|1|@|||0|php scripts/submit.php %%trailing%% %%dest%% %%nick%%
 */
 
 #####################################################################################################
@@ -56,6 +56,12 @@ if ($i!==False)
   $source_title=trim(substr($source_title,0,$i));
 }
 
+$i=strpos($source_title," : ");
+if ($i!==False)
+{
+  $source_title=trim(substr($source_title,0,$i));
+}
+
 if (($source_title===False) or ($source_title==""))
 {
   privmsg("error: title not found or empty");
@@ -80,7 +86,7 @@ if (($source_body===False) or ($source_body==""))
 $source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
 $source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
 
-$host="dev.soylentnews.org";
+$host="soylentnews.org";
 $port=80;
 $uri="/submit.pl";
 $response=wget($host,$uri,$port,ICEWEASEL_UA);
