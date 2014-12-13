@@ -38,6 +38,8 @@ $response=wget($host,$uri,$port);
 $source_html=strip_headers($response);
 $source_title=extract_raw_tag($source_html,"title");
 
+term_echo($source_title);
+
 $i=strpos($source_title,"--");
 if ($i!==False)
 {
@@ -57,6 +59,12 @@ if ($i!==False)
 }
 
 $i=strpos($source_title," : ");
+if ($i!==False)
+{
+  $source_title=trim(substr($source_title,0,$i));
+}
+
+$i=strpos($source_title," — ");
 if ($i!==False)
 {
   $source_title=trim(substr($source_title,0,$i));

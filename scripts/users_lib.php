@@ -15,13 +15,17 @@ function users_get_nicks($channel)
   $users=get_array_bucket(BUCKET_USERS);
   foreach ($users as $nick => $data)
   {
-    if ((isset($data["connected"])==True) and (isset($data["channels"][$channel])==True))
+    if (isset($data["channels"][$channel])==True)
+    {
+      $nicks[]=$nick;
+    }
+    /*if ((isset($data["connected"])==True) and (isset($data["channels"][$channel])==True))
     {
       if ($data["connected"]==True)
       {
         $nicks[]=$nick;
       }
-    }
+    }*/
   }
   sort($nicks);
   return $nicks;

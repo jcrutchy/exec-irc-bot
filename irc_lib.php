@@ -1191,6 +1191,7 @@ function handle_353(&$items)
       }
     }
     $t=microtime(True);
+    term_echo("** USERS: handle_353: nick=$nick, channel=$channel");
     $users[$nick]["channels"][$channel]=$t;
     if (isset($users[$nick]["nicks"][$nick])==False)
     {

@@ -11,6 +11,7 @@ exec:~mv|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%
 exec:~rm|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~ls|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~cd|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~md|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################
@@ -60,10 +61,16 @@ switch ($alias)
     break;
   case "~ls":
     # ~ls %path%
-    execfs_ls();
+    execfs_ls($nick);
+    #var_dump($fs);
     break;
   case "~cd":
     # ~cd %path%
+    execfs_cd($nick,$trailing);
+    break;
+  case "~md":
+    # ~md %path%
+    execfs_md($nick,$trailing);
     break;
 }
 

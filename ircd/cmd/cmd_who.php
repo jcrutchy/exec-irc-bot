@@ -7,7 +7,7 @@
 
 function cmd_who($client_index,$items)
 {
-
+  # http://www.mircscripts.org/downloads/who.%5B07-08%5Dhtml
 }
 
 #####################################################################################################
