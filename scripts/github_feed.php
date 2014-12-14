@@ -77,6 +77,7 @@ $list=array(
   "Subsentient/epoch",
   "Subsentient/bricktick",
   "Subsentient/wzblue",
+  "Subsentient/nexus",
   "SoylentNews/slashcode",
   "SoylentNews/slashcode_vm",
   "cosurgi/trunk",
