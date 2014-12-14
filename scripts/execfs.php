@@ -4,14 +4,15 @@
 # by crutchy
 
 /*
-exec:~get|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~set|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~cp|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~mv|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~rm|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~ls|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~cd|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~md|20|0|0|1|@|||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~get|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~set|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~unset|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~cp|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~mv|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~rm|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~ls|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~cd|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~md|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################
@@ -27,6 +28,7 @@ $dest=strtolower(trim($argv[3]));
 $alias=strtolower(trim($argv[4]));
 
 $fs=get_fs();
+$privmsg=True;
 
 switch ($alias)
 {
@@ -49,6 +51,10 @@ switch ($alias)
       }
     }
     privmsg("syntax: ~set [%path%]%name% = %value%");
+    break;
+  case "~unset":
+    # ~unset [%path%]%name%
+    execfs_unset($nick,$trailing);
     break;
   case "~cp":
     # ~cp [%from_path%]%from_name% > %to_path%[%to_name%]

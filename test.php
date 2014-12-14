@@ -56,6 +56,8 @@ function run_all_tests()
   run_append_array_bucket_test();
   sleep(3);
   run_array_bucket_element_file_test();
+  sleep(3);
+  run_user_tracking_test();
 }
 
 #####################################################################################################
@@ -192,6 +194,13 @@ function check_handler($bucket_index,$cmd,$data)
     }
   }
   return False;
+}
+
+#####################################################################################################
+
+function run_user_tracking_test()
+{
+  # TODO
 }
 
 #####################################################################################################

@@ -1,13 +1,13 @@
 EXEC IDEAS
 ==========
 
+delphi program that reads processed loggie logs and draws a live relationship chart and stats
+
+
+
 ~admin ignore on|off # completely ignores a channel (including logging)
 
 ~karma on|off
-
-github repository change monitoring (kinda like feeds)
-
-github/slashcode issue submission/listing
 
 SN crawler/mapper
 

@@ -12,6 +12,15 @@ $false=False;
 
 #####################################################################################################
 
+function execfs_tests()
+{
+  global $privmsg;
+  $privmsg="";
+
+}
+
+#####################################################################################################
+
 function get_fs()
 {
   global $false;
@@ -161,7 +170,15 @@ function &set_directory($path)
 
 function execfs_privmsg($msg)
 {
-  privmsg(chr(3)."13".$msg);
+  global $privmsg;
+  if ($privmsg===True)
+  {
+    privmsg(chr(3)."13".$msg);
+  }
+  else
+  {
+    $privmsg=$msg;
+  }
 }
 
 #####################################################################################################
@@ -218,18 +235,14 @@ function execfs_set($nick,$name,$value)
   if (count($parts)>1)
   {
     # /%path%/%name%
-    unset($directory);
     $name=array_pop($parts);
     $path=implode(PATH_DELIM,$parts);
     $dirpath=get_path($directory);
-    if ($dirpath<>PATH_DELIM)
+    if (substr($dirpath,0,strlen(PATH_DELIM))<>PATH_DELIM)
     {
       $path=$dirpath.PATH_DELIM.$path;
     }
-    else
-    {
-      $path=$dirpath.$path;
-    }
+    unset($directory);
     $directory=&set_directory($path);
     if ($directory==$false)
     {
@@ -238,29 +251,38 @@ function execfs_set($nick,$name,$value)
     }
   }
   $directory["vars"][$name]=$value;
+  $dirpath=get_path($directory);
+  execfs_privmsg("var \"$name\" set to \"$value\" in path \"$dirpath\"");
   unset($directory);
   $fs["modified"]=True;
 }
 
 #####################################################################################################
 
+function execfs_unset($nick,$name)
+{
+  # TODO
+}
+
+#####################################################################################################
+
 function execfs_cp()
 {
-  global $fs;
+  # TODO
 }
 
 #####################################################################################################
 
 function execfs_mv()
 {
-  global $fs;
+  # TODO
 }
 
 #####################################################################################################
 
 function execfs_rm()
 {
-  global $fs;
+  # TODO
 }
 
 #####################################################################################################
@@ -311,7 +333,7 @@ function execfs_cd($nick,$path)
     }
     else
     {
-      $path=$dirpath.$path;
+      $path=PATH_DELIM.$path;
     }
     term_echo("*** execfs_cd: path=$path");
   }
@@ -335,7 +357,7 @@ function execfs_cd($nick,$path)
 
 function execfs_md($nick,$path)
 {
-
+  # TODO
 }
 
 #####################################################################################################
