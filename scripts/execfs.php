@@ -19,6 +19,8 @@ exec:~mkdir|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% 
 
 #####################################################################################################
 
+# TODO: WEB PAGE VIEWER FOR FILESYSTEM STRUCTURE
+
 ini_set("display_errors","on");
 
 require_once("lib.php");

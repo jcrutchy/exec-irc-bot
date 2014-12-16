@@ -112,6 +112,18 @@ function &get_directory($path)
 
 #####################################################################################################
 
+function directory_fix(&$directory) # use this function to update existing directory structures
+{
+  global $fs;
+  if (isset($directory["data"])==False)
+  {
+    $directory["data"]=array();
+    $fs["modified"]=True;
+  }
+}
+
+#####################################################################################################
+
 function &get_current_directory($nick)
 {
   global $fs;
@@ -130,6 +142,7 @@ function &get_current_directory($nick)
     term_echo("*** get_current_directory: directory == false");
     return $false;
   }
+  directory_fix($directory);
   return $directory;
 }
 
@@ -143,24 +156,28 @@ function &set_directory($path)
   $parts=explode(PATH_DELIM,$path);
   array_shift($parts);
   $parent=&$fs["filesystem"][PATH_DELIM];
-  for ($i=0;$i<count($parts);$i++)
+  if (count($parts)>1)
   {
-    $name=trim($parts[$i]);
-    if ($name=="")
+    for ($i=0;$i<count($parts);$i++)
     {
-      return $false;
+      $name=trim($parts[$i]);
+      if ($name=="")
+      {
+        return $false;
+      }
+      if (isset($parent["children"][$name])==False)
+      {
+        $child=array();
+        $child["name"]=$name;
+        $child["vars"]=array();
+        $child["permissions"]=array();
+        $child["data"]=array();
+        $child["children"]=array();
+        $parent["children"][$name]=$child;
+        $parent["children"][$name]["parent"]=&$parent;
+      }
+      $parent=&$parent["children"][$name];
     }
-    if (isset($parent["children"][$name])==False)
-    {
-      $child=array();
-      $child["name"]=$name;
-      $child["vars"]=array();
-      $child["permissions"]=array();
-      $child["children"]=array();
-      $parent["children"][$name]=$child;
-      $parent["children"][$name]["parent"]=&$parent;
-    }
-    $parent=&$parent["children"][$name];
   }
   $fs["modified"]=True;
   return $parent;
@@ -199,8 +216,14 @@ function execfs_get($nick,$name)
   {
     # /%path%/%name%
     $name=array_pop($parts);
-    $path=implode(PATH_DELIM,$parts);
+    term_echo("*** execfs_get: name=$name");
+    $path=trim(implode(PATH_DELIM,$parts));
+    if ($path=="")
+    {
+      $path=PATH_DELIM;
+    }
     $dirpath=get_path($directory);
+    term_echo("*** execfs_get: path=$path");
     if (substr($path,0,1)<>PATH_DELIM)
     {
       if ($dirpath<>PATH_DELIM)
@@ -212,6 +235,7 @@ function execfs_get($nick,$name)
         $path=PATH_DELIM.$path;
       }
     }
+    term_echo("*** execfs_get: path=$path");
     unset($directory);
     $directory=&get_directory($path);
     if ($directory==$false)
@@ -248,7 +272,12 @@ function execfs_set($nick,$name,$value)
   {
     # /%path%/%name%
     $name=array_pop($parts);
-    $path=implode(PATH_DELIM,$parts);
+    $path=trim(implode(PATH_DELIM,$parts));
+    if ($path=="")
+    {
+      $path=PATH_DELIM;
+    }
+    term_echo("*** execfs_set: path=$path");
     $dirpath=get_path($directory);
     if (substr($path,0,1)<>PATH_DELIM)
     {
@@ -261,6 +290,7 @@ function execfs_set($nick,$name,$value)
         $path=PATH_DELIM.$path;
       }
     }
+    term_echo("*** execfs_set: path=$path");
     unset($directory);
     $directory=&set_directory($path);
     if ($directory==$false)
