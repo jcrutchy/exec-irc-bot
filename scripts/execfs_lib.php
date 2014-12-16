@@ -198,9 +198,21 @@ function execfs_get($nick,$name)
   if (count($parts)>1)
   {
     # /%path%/%name%
-    unset($directory);
     $name=array_pop($parts);
     $path=implode(PATH_DELIM,$parts);
+    $dirpath=get_path($directory);
+    if (substr($path,0,1)<>PATH_DELIM)
+    {
+      if ($dirpath<>PATH_DELIM)
+      {
+        $path=$dirpath.PATH_DELIM.$path;
+      }
+      else
+      {
+        $path=PATH_DELIM.$path;
+      }
+    }
+    unset($directory);
     $directory=&get_directory($path);
     if ($directory==$false)
     {
@@ -238,9 +250,16 @@ function execfs_set($nick,$name,$value)
     $name=array_pop($parts);
     $path=implode(PATH_DELIM,$parts);
     $dirpath=get_path($directory);
-    if (substr($dirpath,0,strlen(PATH_DELIM))<>PATH_DELIM)
+    if (substr($path,0,1)<>PATH_DELIM)
     {
-      $path=$dirpath.PATH_DELIM.$path;
+      if ($dirpath<>PATH_DELIM)
+      {
+        $path=$dirpath.PATH_DELIM.$path;
+      }
+      else
+      {
+        $path=PATH_DELIM.$path;
+      }
     }
     unset($directory);
     $directory=&set_directory($path);

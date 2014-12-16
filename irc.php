@@ -23,7 +23,7 @@ define("DEBUG_CHAN","#debug");
 
 # TODO: ADD FLAG TO HAVE EXEC IGNORE ITSELF
 
-$admin_accounts=array("chromas","juggs");
+$admin_accounts=array("chromas","juggs","Konomi","ar","TheMightyBuzzard");
 
 #####################################################################################################
 

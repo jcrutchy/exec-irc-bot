@@ -1,0 +1,10 @@
+connect ircd as a normal client to irc.sylnt.us irc network
+
+allow any number of clients to connect to ircd
+
+ircd to work as a relay between irc.sylnt.us and local
+
+if a local client (xchat or bot) says something, it appears as "<exec> localnick: msg" at irc.sylnt.us,
+and likewise if someone says something on irc.sylnt.us
+
+

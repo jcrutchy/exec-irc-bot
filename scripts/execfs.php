@@ -4,6 +4,7 @@
 # by crutchy
 
 /*
+exec:~cat|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~get|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~set|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~unset|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
@@ -13,6 +14,7 @@ exec:~rm|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%a
 exec:~ls|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~cd|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~md|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~mkdir|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################
@@ -32,6 +34,7 @@ $privmsg=True;
 
 switch ($alias)
 {
+  case "~cat":
   case "~get":
     # ~get [%path%]%name%
     execfs_get($nick,$trailing);
@@ -74,6 +77,7 @@ switch ($alias)
     # ~cd %path%
     execfs_cd($nick,$trailing);
     break;
+  case "~mkdir":
   case "~md":
     # ~md %path%
     execfs_md($nick,$trailing);
