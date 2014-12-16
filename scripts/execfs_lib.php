@@ -16,7 +16,6 @@ function execfs_tests()
 {
   global $privmsg;
   $privmsg="";
-
 }
 
 #####################################################################################################
@@ -406,7 +405,38 @@ function execfs_cd($nick,$path)
 
 function execfs_md($nick,$path)
 {
-  # TODO
+  global $fs;
+  global $false;
+  $directory=&get_current_directory($nick);
+  if ($directory==$false)
+  {
+    privmsg("error: invalid current path for $nick");
+    return;
+  }
+  $parts=explode(PATH_DELIM,$path);
+  $dirpath=get_path($directory);
+  if (substr($path,0,1)<>PATH_DELIM)
+  {
+    if ($dirpath<>PATH_DELIM)
+    {
+      $path=$dirpath.PATH_DELIM.$path;
+    }
+    else
+    {
+      $path=PATH_DELIM.$path;
+    }
+  }
+  unset($directory);
+  $directory=&set_directory($path);
+  if ($directory==$false)
+  {
+    privmsg("error: invalid path");
+    return;
+  }
+  $dirpath=get_path($directory);
+  execfs_privmsg("path \"$dirpath\" created");
+  unset($directory);
+  $fs["modified"]=True;
 }
 
 #####################################################################################################
