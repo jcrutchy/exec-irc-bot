@@ -283,7 +283,7 @@ function wget_ssl($host,$uri,$agent=ICEWEASEL_UA,$extra_headers="")
 
 #####################################################################################################
 
-function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout=20)
+function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout=20,$breakcode="",$chunksize=1024)
 {
   if (check_url($host.$uri)==False) # check url against blacklist
   {
@@ -324,7 +324,14 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
   $response="";
   while (!feof($fp))
   {
-    $response=$response.fgets($fp,1024);
+    $response=$response.fgets($fp,$chunksize);
+    if ($breakcode<>"")
+    {
+      if (eval($breakcode)===True)
+      {
+        break;
+      }
+    }
   }
   fclose($fp);
   return $response;

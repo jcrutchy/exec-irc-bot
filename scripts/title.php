@@ -22,12 +22,19 @@ if ($url===False)
 $host="";
 $uri="";
 $port=80;
+
 if (get_host_and_uri($url,$host,$uri,$port)==False)
 {
   term_echo("get_host_and_uri=false");
   return;
 }
-$response=wget($host,$uri,$port);
+
+$breakcode="return ((strpos(strtolower(\$response),\"</title>\")!==False) or (strlen(\$response)>=2048));";
+$response=wget($host,$uri,$port,ICEWEASEL_UA,"",20,$breakcode,256);
+
+#var_dump($response);
+term_echo("*** TITLE => response bytes: ".strlen($response));
+
 $html=strip_headers($response);
 
 $title=extract_raw_tag($html,"title");
@@ -37,6 +44,11 @@ $title=html_entity_decode($title,ENT_QUOTES,"UTF-8");
 
 $filtered_url=strtolower(filter_non_alpha_num($url));
 $filtered_title=strtolower(filter_non_alpha_num($title));
+
+if ($filtered_title=="")
+{
+  return;
+}
 
 term_echo("  filtered_url = $filtered_url");
 term_echo("filtered_title = $filtered_title");
