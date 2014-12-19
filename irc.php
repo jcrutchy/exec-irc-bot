@@ -16,7 +16,7 @@ define("EXEC_LOG_PATH","/var/www/irciv.us.to/exec_logs/");
 define("IRC_LOG_URL","http://irciv.us.to/irc_logs/");
 define("IRC_HOST_CONNECT","irc.sylnt.us");
 define("IRC_HOST","irc.sylnt.us");
-define("IRC_PORT","6697");
+define("IRC_PORT","6667");
 define("MEMORY_LIMIT","128M");
 define("OPERATOR_ACCOUNT","crutchy");
 define("DEBUG_CHAN","#debug");
