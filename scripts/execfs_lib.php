@@ -155,7 +155,7 @@ function &set_directory($path)
   $parts=explode(PATH_DELIM,$path);
   array_shift($parts);
   $parent=&$fs["filesystem"][PATH_DELIM];
-  if (count($parts)>1)
+  if (count($parts)>0)
   {
     for ($i=0;$i<count($parts);$i++)
     {
@@ -199,49 +199,59 @@ function execfs_privmsg($msg)
 
 #####################################################################################################
 
+function get_absolute_path($nick,$path)
+{
+  global $fs;
+  global $false;
+  $directory=&get_current_directory($nick);
+  if ($directory==$false)
+  {
+    term_echo("*** get_relative_directory: get_current_directory returned false");
+    return $false;
+  }
+  if (substr($path,strlen($path)-1)==PATH_DELIM)
+  {
+    $path=substr($path,0,strlen($path)-1);
+  }
+  if ($path=="")
+  {
+    $path=PATH_DELIM;
+  }
+  $dirpath=get_path($directory);
+  if (substr($path,0,1)<>PATH_DELIM)
+  {
+    if ($dirpath<>PATH_DELIM)
+    {
+      $path=$dirpath.PATH_DELIM.$path;
+    }
+    else
+    {
+      $path=PATH_DELIM.$path;
+    }
+  }
+  unset($directory);
+  return $path;
+}
+
+#####################################################################################################
+
 function execfs_get($nick,$name)
 {
   global $fs;
   global $false;
-  # ~get [%path%]%name%
-  $directory=&get_current_directory($nick);
-  if ($directory==$false)
-  {
-    privmsg("error: invalid current path for $nick");
-    return;
-  }
+  $path="";
   $parts=explode(PATH_DELIM,$name);
   if (count($parts)>1)
   {
-    # /%path%/%name%
     $name=array_pop($parts);
-    term_echo("*** execfs_get: name=$name");
     $path=trim(implode(PATH_DELIM,$parts));
-    if ($path=="")
-    {
-      $path=PATH_DELIM;
-    }
-    $dirpath=get_path($directory);
-    term_echo("*** execfs_get: path=$path");
-    if (substr($path,0,1)<>PATH_DELIM)
-    {
-      if ($dirpath<>PATH_DELIM)
-      {
-        $path=$dirpath.PATH_DELIM.$path;
-      }
-      else
-      {
-        $path=PATH_DELIM.$path;
-      }
-    }
-    term_echo("*** execfs_get: path=$path");
-    unset($directory);
-    $directory=&get_directory($path);
-    if ($directory==$false)
-    {
-      privmsg("error: path not found");
-      return;
-    }
+  }
+  $path=get_absolute_path($nick,$path);
+  $directory=&get_directory($path);
+  if ($directory==$false)
+  {
+    execfs_privmsg("error: invalid path");
+    return;
   }
   if (isset($directory["vars"][$name])==True)
   {
@@ -260,43 +270,19 @@ function execfs_set($nick,$name,$value)
 {
   global $fs;
   global $false;
-  $directory=&get_current_directory($nick);
-  if ($directory==$false)
-  {
-    privmsg("error: invalid current path for $nick");
-    return;
-  }
+  $path="";
   $parts=explode(PATH_DELIM,$name);
   if (count($parts)>1)
   {
-    # /%path%/%name%
     $name=array_pop($parts);
     $path=trim(implode(PATH_DELIM,$parts));
-    if ($path=="")
-    {
-      $path=PATH_DELIM;
-    }
-    term_echo("*** execfs_set: path=$path");
-    $dirpath=get_path($directory);
-    if (substr($path,0,1)<>PATH_DELIM)
-    {
-      if ($dirpath<>PATH_DELIM)
-      {
-        $path=$dirpath.PATH_DELIM.$path;
-      }
-      else
-      {
-        $path=PATH_DELIM.$path;
-      }
-    }
-    term_echo("*** execfs_set: path=$path");
-    unset($directory);
-    $directory=&set_directory($path);
-    if ($directory==$false)
-    {
-      privmsg("error: invalid path");
-      return;
-    }
+  }
+  $path=get_absolute_path($nick,$path);
+  $directory=&set_directory($path);
+  if ($directory==$false)
+  {
+    execfs_privmsg("error: invalid path");
+    return;
   }
   $directory["vars"][$name]=$value;
   $dirpath=get_path($directory);
@@ -309,40 +295,54 @@ function execfs_set($nick,$name,$value)
 
 function execfs_unset($nick,$name)
 {
-  # TODO
+  global $fs;
+  global $false;
+  $path="";
+  $parts=explode(PATH_DELIM,$name);
+  if (count($parts)>1)
+  {
+    $name=array_pop($parts);
+    $path=trim(implode(PATH_DELIM,$parts));
+  }
+  $path=get_absolute_path($nick,$path);
+  $directory=&get_directory($path);
+  if ($directory==$false)
+  {
+    execfs_privmsg("error: invalid path");
+    return;
+  }
+  $dirpath=get_path($directory);
+  if (isset($directory["vars"][$name])==True)
+  {
+    unset($directory["vars"][$name]);
+    $fs["modified"]=True;
+    execfs_privmsg("var \"$name\" successfully deleted from \"$dirpath\"");
+  }
+  else
+  {
+    execfs_privmsg("error: var \"$name\" not found in \"$dirpath\"");
+  }
+  unset($directory);
 }
 
 #####################################################################################################
 
-function execfs_cp()
+function execfs_rd($nick,$name)
 {
   # TODO
 }
 
 #####################################################################################################
 
-function execfs_mv()
-{
-  # TODO
-}
-
-#####################################################################################################
-
-function execfs_rm()
-{
-  # TODO
-}
-
-#####################################################################################################
-
-function execfs_ls($nick)
+function execfs_ls($nick,$path)
 {
   global $fs;
   global $false;
-  $directory=&get_current_directory($nick);
+  $path=get_absolute_path($nick,$path);
+  $directory=&get_directory($path);
   if ($directory==$false)
   {
-    privmsg("error: invalid current path for $nick");
+    execfs_privmsg("error: invalid path");
     return;
   }
   $children=array_keys($directory["children"]);
@@ -371,7 +371,7 @@ function execfs_cd($nick,$path)
     $directory=&get_current_directory($nick);
     if ($directory==$false)
     {
-      privmsg("error: invalid current path for $nick");
+      execfs_privmsg("error: invalid current path for $nick");
       return;
     }
     $dirpath=get_path($directory);
@@ -392,7 +392,7 @@ function execfs_cd($nick,$path)
   $directory=&get_directory($path);
   if ($directory==$false)
   {
-    privmsg("error: path not found");
+    execfs_privmsg("error: path not found");
     return;
   }
   $fs["paths"][$nick]=get_path($directory);
@@ -410,7 +410,7 @@ function execfs_md($nick,$path)
   $directory=&get_current_directory($nick);
   if ($directory==$false)
   {
-    privmsg("error: invalid current path for $nick");
+    execfs_privmsg("error: invalid current path for $nick");
     return;
   }
   $parts=explode(PATH_DELIM,$path);
@@ -430,7 +430,7 @@ function execfs_md($nick,$path)
   $directory=&set_directory($path);
   if ($directory==$false)
   {
-    privmsg("error: invalid path");
+    execfs_privmsg("error: invalid path");
     return;
   }
   $dirpath=get_path($directory);

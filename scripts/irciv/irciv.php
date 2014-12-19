@@ -91,7 +91,7 @@ switch ($action)
       output_help();
     }
     break;
-  case "player-unset":
+  /*case "player-unset":
     if (is_gm()==True)
     {
       if (isset($irciv_player_data[$trailing])==True)
@@ -402,7 +402,7 @@ switch ($action)
     {
       irciv_privmsg("syntax: [~civ] unflag name");
     }
-    break;
+    break;*/
 }
 
 if (($dest<>"") and ($irciv_data_changed==True))

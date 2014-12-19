@@ -8,13 +8,12 @@ exec:~cat|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%
 exec:~get|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~set|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~unset|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~cp|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~mv|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~rm|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~rd|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~ls|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~cd|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~md|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~mkdir|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~rmdir|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################
@@ -61,18 +60,14 @@ switch ($alias)
     # ~unset [%path%]%name%
     execfs_unset($nick,$trailing);
     break;
-  case "~cp":
-    # ~cp [%from_path%]%from_name% > %to_path%[%to_name%]
-    break;
-  case "~mv":
-    # ~mv [%from_path%]%from_name% > %to_path%[%to_name%]
-    break;
-  case "~rm":
-    # ~rm [%path%]%name%
+  case "~rmdir":
+  case "~rd":
+    # ~rd %child%
+    execfs_rd($nick,$trailing);
     break;
   case "~ls":
     # ~ls %path%
-    execfs_ls($nick);
+    execfs_ls($nick,$trailing);
     #var_dump($fs);
     break;
   case "~cd":

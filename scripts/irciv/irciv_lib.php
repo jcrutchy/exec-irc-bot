@@ -163,6 +163,221 @@ function map_coord($cols,$x,$y)
 
 #####################################################################################################
 
+function irciv_save_data()
+{
+  global $dest;
+  $games=get_game_list();
+  $n=count($games);
+  if ($n==0)
+  {
+    if ($dest<>"")
+    {
+      irciv_privmsg("no games registered");
+    }
+    else
+    {
+      irciv_term_echo("no games registered");
+    }
+    return;
+  }
+  $chanlist=array();
+  foreach ($games as $channel => $bucket)
+  {
+    $game_bucket=get_array_bucket($bucket);
+    $game_bucket=json_encode($game_bucket,JSON_PRETTY_PRINT);
+    $filename=DATA_FILE_PATH.$channel;
+    if (file_put_contents($filename,$game_bucket)===False)
+    {
+      if ($dest<>"")
+      {
+        irciv_privmsg("error saving channel data file \"$filename\"");
+      }
+      else
+      {
+        irciv_term_echo("error saving channel data file \"$filename\"");
+      }
+    }
+    else
+    {
+      $chanlist[]=$channel;
+      if ($dest<>"")
+      {
+        irciv_privmsg("channel data file \"$filename\" saved successfully");
+      }
+      else
+      {
+        irciv_term_echo("channel data file \"$filename\" saved successfully");
+      }
+    }
+  }
+  $data=implode("\n",$chanlist);
+  $filename=DATA_FILE_PATH."irciv_chan_list";
+  if (file_put_contents($filename,$data)===False)
+  {
+    if ($dest<>"")
+    {
+      irciv_privmsg("error saving irciv channel list file \"$filename\"");
+    }
+    else
+    {
+      irciv_term_echo("error saving irciv channel list file \"$filename\"");
+    }
+  }
+  else
+  {
+    if ($dest<>"")
+    {
+      irciv_privmsg("irciv channel list file \"$filename\" saved successfully");
+    }
+    else
+    {
+      irciv_term_echo("irciv channel list file \"$filename\" saved successfully");
+    }
+  }
+}
+
+#####################################################################################################
+
+function irciv_load_data()
+{
+  $filename=DATA_FILE_PATH."irciv_chan_list";
+  if (file_exists($filename)==False)
+  {
+    irciv_term_echo("error: channel list file not found");
+    return;
+  }
+  $game_chans=file_get_contents($filename);
+  $game_chans=explode("\n",$game_chans);
+  for ($i=0;$i<count($game_chans);$i++)
+  {
+    $chan=trim($game_chans[$i]);
+    if ($chan=="")
+    {
+      continue;
+    }
+    if (users_chan_exists($chan)==False)
+    {
+      irciv_privmsg("error: channel \"$chan\" not found");
+      continue;
+    }
+    $filename=DATA_FILE_PATH.$chan;
+    if (file_exists($filename)==False)
+    {
+      irciv_privmsg("error: file \"$filename\" not found");
+      continue;
+    }
+    $game_bucket=file_get_contents($filename);
+    $game_bucket=json_decode($game_bucket,True);
+    if ($game_bucket===NULL)
+    {
+      irciv_privmsg("error: json_decode returned null when processing \"$filename\"");
+      continue;
+    }
+    set_array_bucket($game_bucket,GAME_BUCKET_PREFIX.$chan,True);
+    irciv_privmsg("game data for channel \"$chan\" loaded successfully");
+  }
+}
+
+#####################################################################################################
+
+function irciv_init()
+{
+  irciv_load_data();
+}
+
+#####################################################################################################
+
+function map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,$ocean_char,$land_char)
+{
+  $dir_x=array(0,1,0,-1);
+  $dir_y=array(-1,0,1,0);
+  /* 0 = up
+     1 = right
+     2 = down
+     3 = left */
+  $count=$rows*$cols;
+  $coords=str_repeat($ocean_char,$count);
+  $prev=microtime(True);
+  for ($i=0;$i<$landmass_count;$i++)
+  {
+    $n=0;
+    $x=mt_rand(0,$cols-1);
+    $y=mt_rand(0,$rows-1);
+    $coords[map_coord($cols,$x,$y)]=$land_char;
+    $n++;
+    $x1=$x;
+    $y1=$y;
+    $d=mt_rand(0,3);
+    while ($n<$landmass_size)
+    {
+      do
+      {
+        do
+        {
+          $d1=mt_rand(0,3);
+        }
+        while ($d1==$d);
+        $d=$d1;
+        $x2=$x1+$dir_x[$d];
+        $y2=$y1+$dir_y[$d];
+      }
+      while (($x2<0) or ($y2<0) or ($x2>=$cols) or ($y2>=$rows));
+      $x1=$x2;
+      $y1=$y2;
+      if ($coords[map_coord($cols,$x1,$y1)]<>$land_char)
+      {
+        $coords[map_coord($cols,$x1,$y1)]=$land_char;
+        $n++;
+      }
+      if (mt_rand(0,$land_spread)==0) # higher upper limit makes landmass more spread out
+      {
+        $x1=$x;
+        $y1=$y;
+      }
+    }
+    $delta=microtime(True)-$prev;
+    #irciv_term_echo("processed landmass $i: ".round($delta,3)." sec / $landmass_count landmasses");
+    $prev=microtime(True);
+  }
+  irciv_term_echo("processed all landmasses");
+  # fill in any isolated inland 1x1 lakes
+  for ($y=0;$y<$rows;$y++)
+  {
+    #irciv_term_echo("1x1 lake fixer: processing row $y / $rows");
+    for ($x=0;$x<$cols;$x++)
+    {
+      $i=map_coord($cols,$x,$y);
+      if ($coords[$i]==$ocean_char)
+      {
+        $n=0;
+        for ($j=0;$j<=3;$j++)
+        {
+          $x1=$x+$dir_x[$j];
+          $y1=$y+$dir_y[$j];
+          if (($x1>=0) and ($y1>=0) and ($x1<$cols) and ($y1<$rows))
+          {
+            if ($coords[map_coord($cols,$x1,$y1)]==$land_char)
+            {
+              $n++;
+            }
+          }
+        }
+        if ($n==4)
+        {
+          $coords[$i]=$land_char;
+        }
+      }
+    }
+  }
+  return $coords;
+}
+
+#####################################################################################################
+#####################################################################################################
+#####################################################################################################
+#####################################################################################################
+#####################################################################################################
+
 function map_paint_unit(&$buffer,&$unit_buffers,&$buffer_shield,$tile_w,$tile_h,$unit_w,$unit_h,$unit,$color_str)
 {
   $shield_w=imagesx($buffer_shield);
@@ -512,217 +727,6 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
   }
   fclose($fp);
   return $response;
-}
-
-#####################################################################################################
-
-function irciv_save_data()
-{
-  global $dest;
-  $games=get_game_list();
-  $n=count($games);
-  if ($n==0)
-  {
-    if ($dest<>"")
-    {
-      irciv_privmsg("no games registered");
-    }
-    else
-    {
-      irciv_term_echo("no games registered");
-    }
-    return;
-  }
-  $chanlist=array();
-  foreach ($games as $channel => $bucket)
-  {
-    $game_bucket=get_array_bucket($bucket);
-    $game_bucket=json_encode($game_bucket,JSON_PRETTY_PRINT);
-    $filename=DATA_FILE_PATH.$channel;
-    if (file_put_contents($filename,$game_bucket)===False)
-    {
-      if ($dest<>"")
-      {
-        irciv_privmsg("error saving channel data file \"$filename\"");
-      }
-      else
-      {
-        irciv_term_echo("error saving channel data file \"$filename\"");
-      }
-    }
-    else
-    {
-      $chanlist[]=$channel;
-      if ($dest<>"")
-      {
-        irciv_privmsg("channel data file \"$filename\" saved successfully");
-      }
-      else
-      {
-        irciv_term_echo("channel data file \"$filename\" saved successfully");
-      }
-    }
-  }
-  $data=implode("\n",$chanlist);
-  $filename=DATA_FILE_PATH."irciv_chan_list";
-  if (file_put_contents($filename,$data)===False)
-  {
-    if ($dest<>"")
-    {
-      irciv_privmsg("error saving irciv channel list file \"$filename\"");
-    }
-    else
-    {
-      irciv_term_echo("error saving irciv channel list file \"$filename\"");
-    }
-  }
-  else
-  {
-    if ($dest<>"")
-    {
-      irciv_privmsg("irciv channel list file \"$filename\" saved successfully");
-    }
-    else
-    {
-      irciv_term_echo("irciv channel list file \"$filename\" saved successfully");
-    }
-  }
-}
-
-#####################################################################################################
-
-function irciv_load_data()
-{
-  $filename=DATA_FILE_PATH."irciv_chan_list";
-  if (file_exists($filename)==False)
-  {
-    irciv_term_echo("error: channel list file not found");
-    return;
-  }
-  $game_chans=file_get_contents($filename);
-  $game_chans=explode("\n",$game_chans);
-  for ($i=0;$i<count($game_chans);$i++)
-  {
-    $chan=trim($game_chans[$i]);
-    if ($chan=="")
-    {
-      continue;
-    }
-    if (users_chan_exists($chan)==False)
-    {
-      irciv_privmsg("error: channel \"$chan\" not found");
-      continue;
-    }
-    $filename=DATA_FILE_PATH.$chan;
-    if (file_exists($filename)==False)
-    {
-      irciv_privmsg("error: file \"$filename\" not found");
-      continue;
-    }
-    $game_bucket=file_get_contents($filename);
-    $game_bucket=json_decode($game_bucket,True);
-    if ($game_bucket===NULL)
-    {
-      irciv_privmsg("error: json_decode returned null when processing \"$filename\"");
-      continue;
-    }
-    set_array_bucket($game_bucket,GAME_BUCKET_PREFIX.$chan,True);
-    irciv_privmsg("game data for channel \"$chan\" loaded successfully");
-  }
-}
-
-#####################################################################################################
-
-function irciv_init()
-{
-  irciv_load_data();
-}
-
-#####################################################################################################
-
-function map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,$ocean_char,$land_char)
-{
-  $dir_x=array(0,1,0,-1);
-  $dir_y=array(-1,0,1,0);
-  /* 0 = up
-     1 = right
-     2 = down
-     3 = left */
-  $count=$rows*$cols;
-  $coords=str_repeat($ocean_char,$count);
-  $prev=microtime(True);
-  for ($i=0;$i<$landmass_count;$i++)
-  {
-    $n=0;
-    $x=mt_rand(0,$cols-1);
-    $y=mt_rand(0,$rows-1);
-    $coords[map_coord($cols,$x,$y)]=$land_char;
-    $n++;
-    $x1=$x;
-    $y1=$y;
-    $d=mt_rand(0,3);
-    while ($n<$landmass_size)
-    {
-      do
-      {
-        do
-        {
-          $d1=mt_rand(0,3);
-        }
-        while ($d1==$d);
-        $d=$d1;
-        $x2=$x1+$dir_x[$d];
-        $y2=$y1+$dir_y[$d];
-      }
-      while (($x2<0) or ($y2<0) or ($x2>=$cols) or ($y2>=$rows));
-      $x1=$x2;
-      $y1=$y2;
-      if ($coords[map_coord($cols,$x1,$y1)]<>$land_char)
-      {
-        $coords[map_coord($cols,$x1,$y1)]=$land_char;
-        $n++;
-      }
-      if (mt_rand(0,$land_spread)==0) # higher upper limit makes landmass more spread out
-      {
-        $x1=$x;
-        $y1=$y;
-      }
-    }
-    $delta=microtime(True)-$prev;
-    #irciv_term_echo("processed landmass $i: ".round($delta,3)." sec / $landmass_count landmasses");
-    $prev=microtime(True);
-  }
-  irciv_term_echo("processed all landmasses");
-  # fill in any isolated inland 1x1 lakes
-  for ($y=0;$y<$rows;$y++)
-  {
-    #irciv_term_echo("1x1 lake fixer: processing row $y / $rows");
-    for ($x=0;$x<$cols;$x++)
-    {
-      $i=map_coord($cols,$x,$y);
-      if ($coords[$i]==$ocean_char)
-      {
-        $n=0;
-        for ($j=0;$j<=3;$j++)
-        {
-          $x1=$x+$dir_x[$j];
-          $y1=$y+$dir_y[$j];
-          if (($x1>=0) and ($y1>=0) and ($x1<$cols) and ($y1<$rows))
-          {
-            if ($coords[map_coord($cols,$x1,$y1)]==$land_char)
-            {
-              $n++;
-            }
-          }
-        }
-        if ($n==4)
-        {
-          $coords[$i]=$land_char;
-        }
-      }
-    }
-  }
-  return $coords;
 }
 
 #####################################################################################################
