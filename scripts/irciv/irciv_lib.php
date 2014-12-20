@@ -454,7 +454,7 @@ function map_paint_city(&$buffer,&$city_buffers,&$buffer_city_flag,$tile_w,$tile
 
 #####################################################################################################
 
-function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$filetype="png")
+function map_img($map_data,$filename="",$player_data="",$account="",$filetype="png")
 {
   $cols=$map_data["cols"];
   $rows=$map_data["rows"];
@@ -511,21 +511,21 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
     for ($x=0;$x<$cols;$x++)
     {
       $i=map_coord($cols,$x,$y);
-      if (($player_data<>"") and ($nick<>""))
+      if (($player_data<>"") and ($account<>""))
       {
-        if ($player_data[$nick]["fog"][$i]=="0")
+        if ($player_data[$account]["fog"][$i]=="0")
         {
           continue;
         }
       }
-      if ($map_coords[$i]==TERRAIN_LAND)
+      if ($map_data["coords"][$i]==TERRAIN_LAND)
       {
         if (imagecopy($buffer,$buffer_terrain_land,$x*$tile_w,$y*$tile_h,0,0,$tile_w,$tile_h)==False)
         {
           return False;
         }
       }
-      if ($map_coords[$i]==TERRAIN_OCEAN)
+      if ($map_data["coords"][$i]==TERRAIN_OCEAN)
       {
         if (imagecopy($buffer,$buffer_terrain_ocean,$x*$tile_w,$y*$tile_h,0,0,$tile_w,$tile_h)==False)
         {
@@ -536,9 +536,9 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
   }
   imagedestroy($buffer_terrain_ocean);
   imagedestroy($buffer_terrain_land);
-  if (($player_data<>"") and ($nick<>""))
+  if (($player_data<>"") and ($account<>""))
   {
-    if (isset($player_data[$nick]["flags"]["grid"])==True)
+    if (isset($player_data[$account]["flags"]["grid"])==True)
     {
       $color_grid=imagecolorallocate($buffer,0,0,0);
       for ($x=0;$x<$cols;$x++)
@@ -550,7 +550,7 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
         imageline($buffer,0,$y*$tile_h,$w,$y*$tile_h,$color_grid);
       }
     }
-    if (isset($player_data[$nick]["flags"]["coords"])==True)
+    if (isset($player_data[$account]["flags"]["coords"])==True)
     {
       $color_text=imagecolorallocate($buffer,0,0,0);
       $color_text_shadow=imagecolorallocate($buffer,255,255,255);
@@ -559,7 +559,7 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
         for ($x=0;$x<$cols;$x++)
         {
           $i=map_coord($cols,$x,$y);
-          if ($player_data[$nick]["fog"][$i]=="0")
+          if ($player_data[$account]["fog"][$i]=="0")
           {
             continue;
           }
@@ -581,20 +581,20 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
     imagecolortransparent($buffer_city_flag,$color_transparent);
     imagealphablending($buffer,True);
     imagesavealpha($buffer,True);
-    $color_str_nick=$player_data[$nick]["color"];
+    $color_str_account=$player_data[$account]["color"];
     $show_city_names=False;
-    if (isset($player_data[$nick]["flags"]["city_names"])==True)
+    if (isset($player_data[$account]["flags"]["city_names"])==True)
     {
       $show_city_names=True;
     }
-    for ($i=0;$i<count($player_data[$nick]["cities"]);$i++)
+    for ($i=0;$i<count($player_data[$account]["cities"]);$i++)
     {
-      $city=$player_data[$nick]["cities"][$i];
-      map_paint_city($buffer,$city_buffers,$buffer_city_flag,$tile_w,$tile_h,$city_w,$city_h,$city,$color_str_nick,$show_city_names);
+      $city=$player_data[$account]["cities"][$i];
+      map_paint_city($buffer,$city_buffers,$buffer_city_flag,$tile_w,$tile_h,$city_w,$city_h,$city,$color_str_account,$show_city_names);
     }
     foreach ($player_data as $player => $data)
     {
-      if ($player==$nick)
+      if ($player==$account)
       {
         continue;
       }
@@ -605,7 +605,7 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
         $city=$player_data[$player]["cities"][$i];
         $x=$city["x"];
         $y=$city["y"];
-        if (is_fogged($nick,$x,$y)==False)
+        if (is_fogged($account,$x,$y)==False)
         {
           map_paint_city($buffer,$city_buffers,$buffer_city_flag,$tile_w,$tile_h,$city_w,$city_h,$city,$color_str,$show_city_names);
         }
@@ -616,16 +616,16 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
         $unit=$player_data[$player]["units"][$i];
         $x=$unit["x"];
         $y=$unit["y"];
-        if (is_fogged($nick,$x,$y)==False)
+        if (is_fogged($account,$x,$y)==False)
         {
           map_paint_unit($buffer,$unit_buffers,$buffer_shield,$tile_w,$tile_h,$unit_w,$unit_h,$unit,$color_str);
         }
       }
     }
-    for ($i=0;$i<count($player_data[$nick]["units"]);$i++)
+    for ($i=0;$i<count($player_data[$account]["units"]);$i++)
     {
-      $unit=$player_data[$nick]["units"][$i];
-      map_paint_unit($buffer,$unit_buffers,$buffer_shield,$tile_w,$tile_h,$unit_w,$unit_h,$unit,$color_str_nick);
+      $unit=$player_data[$account]["units"][$i];
+      map_paint_unit($buffer,$unit_buffers,$buffer_shield,$tile_w,$tile_h,$unit_w,$unit_h,$unit,$color_str_account);
     }
   }
   imagedestroy($buffer_shield);
@@ -696,7 +696,7 @@ function map_img($map_coords,$map_data,$filename="",$player_data="",$nick="",$fi
 
 #####################################################################################################
 
-function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
+function upload_map_image($filename,$map_data,$player_data,$account)
 {
   $headers=file_get_contents(__DIR__."/irciv_map_request_headers");
   $content=file_get_contents(__DIR__."/irciv_map_request_content");
@@ -707,7 +707,7 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
   }
   $uri="/";
   $host="irciv.us.to";
-  $img_data=map_img($map_coords,$map_data,"",$players,$nick,"png");
+  $img_data=map_img($map_data,"",$player_data,$account,"png");
   if (($img_data===False) or ($img_data==""))
   {
     return "upload_map_image: map_img error";
@@ -746,9 +746,10 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
 
 #####################################################################################################
 
-function privmsg_player_game_chans($nick,$msg)
+function privmsg_player_game_chans($msg)
 {
   global $game_chans;
+  global $nick;
   $nick_chans=users_get_channels($nick);
   if (count($nick_chans)==0)
   {
@@ -774,7 +775,7 @@ function player_ready($account)
     irciv_privmsg("error: map not ready");
     return False;
   }
-  if (isset($players[$account])==False)
+  if (isset($player_data[$account])==False)
   {
     irciv_privmsg("player \"$account\" not found");
     return False;
@@ -808,9 +809,11 @@ function player_init($account)
     irciv_privmsg("error: map not ready");
     return;
   }
+  unset($player_data[$account]);
+  $id=get_unique_player_id();
   $player_data[$account]=array();
   $player_data[$account]["init_time"]=time();
-  $player_data[$account]["player_id"]=get_unique_player_id();
+  $player_data[$account]["player_id"]=$id;
   set_player_color($account);
   $player_data[$account]["units"]=array();
   $player_data[$account]["cities"]=array();
@@ -1051,18 +1054,18 @@ function move_active_unit($account,$dir)
     {
       $player_data[$account]["status_messages"][]="move $caption failed for active unit (already @ edge of map)";
     }
-    elseif ($map_coords[map_coord($map_data["cols"],$x,$y)]<>TERRAIN_LAND)
+    elseif ($map_data["coords"][map_coord($map_data["cols"],$x,$y)]<>TERRAIN_LAND)
     {
       $player_data[$account]["status_messages"][]="move $caption failed for active unit (already @ edge of landmass)";
     }
     else
     {
-      $player=is_foreign_unit($nick,$x,$y);
+      $player=is_foreign_unit($account,$x,$y);
       if ($player===False)
       {
         $player_data[$account]["units"][$active]["x"]=$x;
         $player_data[$account]["units"][$active]["y"]=$y;
-        unfog($nick,$x,$y,$player_data[$account]["units"][$active]["sight_range"]);
+        unfog($account,$x,$y,$player_data[$account]["units"][$active]["sight_range"]);
         $type=$player_data[$account]["units"][$active]["type"];
         $player_data[$account]["status_messages"][]="successfully moved $type $caption from ($old_x,$old_y) to ($x,$y)";
         update_other_players($account,$active);
@@ -1216,7 +1219,7 @@ function build_city($account,$city_name)
     if (($city_exists==False) and ($city_adjacent==False))
     {
       add_city($account,$x,$y,$city_name);
-      #delete_unit($account,$player_data[$nick]["active"]); # WORKS BUT LEAVE OUT FOR TESTING
+      #delete_unit($account,$player_data[$account]["active"]); # WORKS BUT LEAVE OUT FOR TESTING
       $player_data[$account]["status_messages"][]="successfully established the new city of \"$city_name\" at coordinates ($x,$y)";
       cycle_active($account);
     }
@@ -1235,24 +1238,24 @@ function output_map($account)
     return False;
   }
   $game_id=sprintf("%02d",0);
-  $player_id=sprintf("%02d",$players[$account]["player_id"]);
+  $player_id=sprintf("%02d",$player_data[$account]["player_id"]);
   $timestamp=date("YmdHis",time());
   $key=random_string(16);
   $filename=$game_id.$player_id.$timestamp.$key;
-  $response=upload_map_image($filename,$map_coords,$map_data,$players,$nick);
+  $response=upload_map_image($filename,$map_data,$player_data,$account);
   $response_lines=explode("\n",$response);
   $msg=trim($response_lines[count($response_lines)-1]);
   if (trim($response_lines[0])=="HTTP/1.1 200 OK")
   { 
     if ($msg=="SUCCESS")
     {
-      $players[$account]["status_messages"][]="http://irciv.us.to/?pid=".$players[$account]["player_id"];
-      #$players[$account]["status_messages"][]="http://irciv.us.to/?map=$filename";
+      $player_data[$account]["status_messages"][]="http://irciv.us.to/?pid=".$player_data[$account]["player_id"];
+      #$player_data[$account]["status_messages"][]="http://irciv.us.to/?map=$filename";
     }
   }
   else
   {
-    $players[$account]["status_messages"][]=$msg;
+    $player_data[$account]["status_messages"][]=$msg;
   }
 }
 

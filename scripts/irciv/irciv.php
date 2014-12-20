@@ -56,7 +56,7 @@ $trailing=trim(implode(" ",$parts));
 switch ($action)
 {
   case "dev-op":
-
+    var_dump($player_data);
     break;
   case "register-channel":
     if (is_gm()==True)
