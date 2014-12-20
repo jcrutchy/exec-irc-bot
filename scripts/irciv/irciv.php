@@ -7,6 +7,7 @@
 
 /*
 exec:~civ|300|0|0|1||||0|php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
+init:~civ load-data
 startup:~join #civ
 */
 
@@ -25,6 +26,8 @@ $start=trim($argv[4]);
 $alias=strtolower(trim($argv[5]));
 $cmd=strtoupper(trim($argv[6]));
 
+$account=users_get_account($nick);
+
 $gm_accounts=array("crutchy");
 
 if ($trailing=="")
@@ -40,7 +43,7 @@ $game_data=array();
 if ($dest<>"")
 {
   $game_data=get_array_bucket(GAME_BUCKET_PREFIX.$dest);
-  $players=&$game_data["players"];
+  $player_data=&$game_data["players"];
   $map_data=&$game_data["map"];
 }
 $irciv_data_changed=False;
@@ -105,7 +108,7 @@ switch ($action)
       output_help();
     }
     break;
-  /*case "player-unset":
+  case "player-unset":
     if (is_gm()==True)
     {
       if (isset($irciv_player_data[$trailing])==True)
@@ -416,7 +419,7 @@ switch ($action)
     {
       irciv_privmsg("syntax: [~civ] unflag name");
     }
-    break;*/
+    break;
 }
 
 if (($dest<>"") and ($irciv_data_changed==True))
