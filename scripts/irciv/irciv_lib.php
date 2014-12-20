@@ -38,6 +38,18 @@ $unit_strengths["warrior"]="1,0,0,1,0,0";
 
 #####################################################################################################
 
+function output_help()
+{
+  irciv_privmsg("QUICK START GUIDE");
+  irciv_privmsg("unit movement: (left|l),(right|r),(up|u),(down|d)");
+  irciv_privmsg("settler actions: (build|b)");
+  irciv_privmsg("player functions: (help|?),status,init,flag/unflag,set/unset");
+  irciv_privmsg("flags: public_status,grid,coords,city_names");
+  irciv_privmsg("http://sylnt.us/irciv");
+}
+
+#####################################################################################################
+
 function get_game_list()
 {
   $prefix="IRCIV_GAME_";
@@ -106,6 +118,7 @@ function register_channel()
   }
   $map_data=generate_map_data();
   $game_data["map"]=$map_data;
+  $game_data["players"]=array();
   $irciv_data_changed=True;
   $msg="map generated for channel $channel";
   if ($trailing<>"")
@@ -372,10 +385,6 @@ function map_generate($cols,$rows,$landmass_count,$landmass_size,$land_spread,$o
   return $coords;
 }
 
-#####################################################################################################
-#####################################################################################################
-#####################################################################################################
-#####################################################################################################
 #####################################################################################################
 
 function map_paint_unit(&$buffer,&$unit_buffers,&$buffer_shield,$tile_w,$tile_h,$unit_w,$unit_h,$unit,$color_str)
@@ -691,7 +700,7 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
     return "upload_map_image: file load error";
   }
   $uri="/";
-  $host="irciv.port119.net";
+  $host="irciv.us.to";
   $img_data=map_img($map_coords,$map_data,"",$players,$nick,"png");
   if (($img_data===False) or ($img_data==""))
   {
@@ -704,11 +713,11 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
   while ((strpos($img_data,$boundary)!==False) or (strpos($exec_key,$boundary)!==False));
   $headers=str_replace("%%uri%%",$uri,$headers);
   $headers=str_replace("%%host%%",$host,$headers);
-  $content=str_replace("%%filename%%",$filename,$content);
   $headers=str_replace("%%boundary%%",$boundary,$headers);
-  $content=str_replace("%%boundary%%",$boundary,$content);
   $headers=str_replace("%%game_name%%","IRCiv",$headers);
   $headers=str_replace("%%game_version%%",GAME_VERSION,$headers);
+  $content=str_replace("%%filename%%",$filename,$content);
+  $content=str_replace("%%boundary%%",$boundary,$content);
   $content=str_replace("%%exec_key%%",$exec_key,$content);
   $content=str_replace("%%img_data%%",$img_data,$content);
   $content_length=strlen($content);
@@ -730,16 +739,20 @@ function upload_map_image($filename,$map_coords,$map_data,$players,$nick)
 }
 
 #####################################################################################################
+#####################################################################################################
+#####################################################################################################
+#####################################################################################################
+#####################################################################################################
+#####################################################################################################
 
 function privmsg_player_game_chans($nick,$msg)
 {
   global $game_chans;
-  $nick_chans=get_bucket($nick."_channel_list");
-  if ($nick_chans=="")
+  $nick_chans=users_get_channels($nick);
+  if (count($nick_chans)==0)
   {
     irciv_term_echo("priv_msg_all_player_game_chans: nick \"$nick\" channels not set");
   }
-  $nick_chans=explode(" ",$nick_chans);
   for ($i=0;$i<count($game_chans);$i++)
   {
     if (in_array($game_chans[$i],$nick_chans)==True)
@@ -840,17 +853,6 @@ function is_logged_in($nick)
   {
     return True;
   }
-}
-
-#####################################################################################################
-
-function output_help()
-{
-  irciv_privmsg("QUICK START GUIDE");
-  irciv_privmsg("unit movement: (left|l),(right|r),(up|u),(down|d)");
-  irciv_privmsg("settler actions: (build|b)");
-  irciv_privmsg("player functions: (help|?),status,init,flag/unflag,set/unset");
-  irciv_privmsg("flags: public_status,grid,coords,city_names");
 }
 
 #####################################################################################################

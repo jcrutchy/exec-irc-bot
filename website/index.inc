@@ -23,6 +23,8 @@ if (isset($_GET["karma"])==True)
   return;
 }
 
+# IRCiv
+
 define("MAPS_PATH","../maps");
 
 if ((isset($_POST["exec_key"])==True) and (isset($_FILES["image"])==True))

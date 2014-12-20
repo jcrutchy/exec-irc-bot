@@ -33,10 +33,15 @@ if ($trailing=="")
   return;
 }
 
+$game_chans=get_game_list();
+$player_data=array();
+$map_data=array();
 $game_data=array();
 if ($dest<>"")
 {
   $game_data=get_array_bucket(GAME_BUCKET_PREFIX.$dest);
+  $players=&$game_data["players"];
+  $map_data=&$game_data["map"];
 }
 $irciv_data_changed=False;
 
@@ -47,6 +52,9 @@ $trailing=trim(implode(" ",$parts));
 
 switch ($action)
 {
+  case "dev-op":
+
+    break;
   case "register-channel":
     if (is_gm()==True)
     {
@@ -54,14 +62,20 @@ switch ($action)
     }
     break;
   case "save-data":
-    irciv_save_data();
+    if (is_gm()==True)
+    {
+      irciv_save_data();
+    }
     return;
   case "load-data":
-    irciv_load_data();
+    if (is_gm()==True)
+    {
+      irciv_load_data();
+    }
     return;
   case "game-list":
-    $games=get_game_list();
-    $n=count($games);
+    $game_chans=get_game_list();
+    $n=count($game_chans);
     if ($n==0)
     {
       irciv_privmsg("no irciv games registered");
@@ -70,7 +84,7 @@ switch ($action)
     {
       irciv_privmsg("registered games:");
       $i=0;
-      foreach ($games as $channel => $bucket)
+      foreach ($game_chans as $channel => $bucket)
       {
         if ($i==($n-1))
         {
