@@ -108,7 +108,7 @@ switch ($action)
       output_help();
     }
     break;
-  case "player-unset":
+  /*case "player-unset":
     if (is_gm()==True)
     {
       if (isset($irciv_player_data[$trailing])==True)
@@ -126,7 +126,7 @@ switch ($action)
   case "player-list":
     if ((count($parts)==1) and ($alias==$admin_alias))
     {
-      foreach ($players as $player => $data)
+      foreach ($player_data as $player => $data)
       {
         irciv_privmsg("[".$data["player_id"]."] ".$player);
       }
@@ -138,9 +138,9 @@ switch ($action)
       if (count($parts)==2)
       {
         $player=$parts[1];
-        if (isset($players[$player])==True)
+        if (isset($player_data[$player])==True)
         {
-          var_dump($players[$player]);
+          var_dump($player_data[$player]);
         }
         else
         {
@@ -149,7 +149,7 @@ switch ($action)
       }
       else
       {
-        var_dump($players);
+        var_dump($player_data);
       }
     }
     break;
@@ -162,11 +162,11 @@ switch ($action)
         $index=$parts[2];
         $x=$parts[3];
         $y=$parts[4];
-        if (isset($players[$player]["units"][$index])==True)
+        if (isset($player_data[$player]["units"][$index])==True)
         {
-          $players[$player]["units"][$index]["x"]=$x;
-          $players[$player]["units"][$index]["y"]=$y;
-          unfog($player,$x,$y,$players[$player]["units"][$index]["sight_range"]);
+          $player_data[$player]["units"][$index]["x"]=$x;
+          $player_data[$player]["units"][$index]["y"]=$y;
+          unfog($player,$x,$y,$player_data[$player]["units"][$index]["sight_range"]);
           $irciv_data_changed=True;
           update_other_players($player,$index);
         }
@@ -197,16 +197,16 @@ switch ($action)
         $value=implode(" ",$parts);
         if ($key<>"")
         {
-          if (isset($players[$player][$array][$index])==True)
+          if (isset($player_data[$player][$array][$index])==True)
           {
             if ($value=="<unset>")
             {
-              unset($players[$player][$array][$index][$key]);
+              unset($player_data[$player][$array][$index][$key]);
               irciv_privmsg("players[$player][$array][$index][$key] unset");
             }
             else
             {
-              $players[$player][$array][$index][$key]=$value;
+              $player_data[$player][$array][$index][$key]=$value;
               irciv_privmsg("players[$player][$array][$index][$key]=$value");
             }
             $irciv_data_changed=True;
@@ -241,16 +241,16 @@ switch ($action)
         $value=implode(" ",$parts);
         if ($key<>"")
         {
-          if (isset($players[$player])==True)
+          if (isset($player_data[$player])==True)
           {
             if ($value=="<unset>")
             {
-              unset($players[$player][$key]);
+              unset($player_data[$player][$key]);
               irciv_privmsg("key \"$key\" unset for player \"$player\"");
             }
             else
             {
-              $players[$player][$key]=$value;
+              $player_data[$player][$key]=$value;
               irciv_privmsg("key \"$key\" set with value \"$value\" for player \"$player\"");
             }
             $irciv_data_changed=True;
@@ -270,9 +270,9 @@ switch ($action)
         irciv_privmsg("syntax: [~civ] player-edit <nick> <key> [<value>|\"<unset>\"]");
       }
     }
-    break;
+    break;*/
   case "init":
-    if (count($parts)==0)
+    if ($trailing=="")
     {
       if (player_init($account)==True)
       {
@@ -291,9 +291,10 @@ switch ($action)
     break;
   case "u":
   case "up":
-    if (count($parts)==1)
+    if ($trailing=="")
     {
-      move_active_unit($nick,0);
+      move_active_unit($account,0);
+      $irciv_data_changed=True;
     }
     else
     {
@@ -302,9 +303,10 @@ switch ($action)
     break;
   case "r":
   case "right":
-    if (count($parts)==1)
+    if ($trailing=="")
     {
-      move_active_unit($nick,1);
+      move_active_unit($account,1);
+      $irciv_data_changed=True;
     }
     else
     {
@@ -313,9 +315,10 @@ switch ($action)
     break;
   case "d":
   case "down":
-    if (count($parts)==1)
+    if ($trailing=="")
     {
-      move_active_unit($nick,2);
+      move_active_unit($account,2);
+      $irciv_data_changed=True;
     }
     else
     {
@@ -324,9 +327,10 @@ switch ($action)
     break;
   case "l":
   case "left":
-    if (count($parts)==1)
+    if ($trailing=="")
     {
-      move_active_unit($nick,3);
+      move_active_unit($account,3);
+      $irciv_data_changed=True;
     }
     else
     {
@@ -335,11 +339,9 @@ switch ($action)
     break;
   case "b":
   case "build":
-    if (count($parts)>1)
+    if ($trailing<>"")
     {
-      unset($parts[0]);
-      $city_name=implode(" ",$parts);
-      build_city($nick,$city_name);
+      build_city($account,$trailing);
       $irciv_data_changed=True;
     }
     else
@@ -348,20 +350,20 @@ switch ($action)
     }
     break;
   case "status":
-    output_map($nick);
-    status($nick);
+    output_map($account);
+    status($account);
     break;
   case "set":
-    if (count($parts)==2)
+    if ($trailing<>"")
     {
-      $pair=explode("=",$parts[1]);
+      $pair=explode("=",$trailing);
       if (count($pair)==2)
       {
         $key=$pair[0];
         $value=$pair[1];
-        $players[$nick]["settings"][$key]=$value;
+        $player_data[$account]["settings"][$key]=$value;
         $irciv_data_changed=True;
-        irciv_privmsg("key \"$key\" set to value \"$value\" for player \"$nick\"");
+        irciv_privmsg("key \"$key\" set to value \"$value\" for player \"$account\"");
       }
       else
       {
@@ -374,18 +376,18 @@ switch ($action)
     }
     break;
   case "unset":
-    if (count($parts)==2)
+    if ($trailing<>"")
     {
-      $key=$parts[1];
-      if (isset($players[$nick]["settings"][$key])==True)
+      $key=$trailing;
+      if (isset($player_data[$account]["settings"][$key])==True)
       {
-        unset($players[$nick]["settings"][$key]);
+        unset($player_data[$account]["settings"][$key]);
         $irciv_data_changed=True;
-        irciv_privmsg("key \"$key\" unset for player \"$nick\"");
+        irciv_privmsg("key \"$key\" unset for player \"$account\"");
       }
       else
       {
-        irciv_privmsg("setting \"$key\" not found for player \"$nick\"");
+        irciv_privmsg("setting \"$key\" not found for player \"$account\"");
       }
     }
     else
@@ -394,12 +396,12 @@ switch ($action)
     }
     break;
   case "flag":
-    if (count($parts)==2)
+    if ($trailing<>"")
     {
-      $flag=$parts[1];
-      $players[$nick]["flags"][$flag]="";
+      $name=$trailing;
+      $player_data[$account]["flags"][$name]="";
       $irciv_data_changed=True;
-      irciv_privmsg("flag \"$flag\" set for player \"$nick\"");
+      irciv_privmsg("flag \"$name\" set for player \"$account\"");
     }
     else
     {
@@ -407,18 +409,18 @@ switch ($action)
     }
     break;
   case "unflag":
-    if (count($parts)==2)
+    if ($trailing<>"")
     {
-      $flag=$parts[1];
-      if (isset($players[$nick]["flags"][$flag])==True)
+      $name=$trailing;
+      if (isset($player_data[$account]["flags"][$name])==True)
       {
-        unset($players[$nick]["flags"][$flag]);
+        unset($player_data[$account]["flags"][$name]);
         $irciv_data_changed=True;
-        irciv_privmsg("flag \"$flag\" unset for player \"$nick\"");
+        irciv_privmsg("flag \"$name\" unset for player \"$account\"");
       }
       else
       {
-        irciv_privmsg("flag \"$flag\" not set for player \"$nick\"");
+        irciv_privmsg("flag \"$name\" not set for player \"$account\"");
       }
     }
     else

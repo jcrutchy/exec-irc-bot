@@ -11,6 +11,7 @@ exec:~deop|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nic
 exec:~voice|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~devoice|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~kick|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~topic|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################
@@ -18,7 +19,7 @@ exec:~kick|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nic
 ini_set("display_errors","on");
 require_once("lib.php");
 
-$trailing=strtolower(trim($argv[1]));
+$trailing=trim($argv[1]);
 $dest=strtolower(trim($argv[2]));
 $nick=strtolower(trim($argv[3]));
 $alias=strtolower(trim($argv[4]));
@@ -53,6 +54,12 @@ switch ($alias)
     if (($target<>$nick) and ($target<>NICK_EXEC))
     {
       rawmsg("KICK $dest $target :commanded by $nick");
+    }
+    break;
+  case "~topic":
+    if ($trailing<>"")
+    {
+      rawmsg("TOPIC $dest :$trailing");
     }
     break;
 }
