@@ -274,9 +274,15 @@ switch ($action)
   case "init":
     if (count($parts)==0)
     {
-      player_init($nick);
-      $irciv_data_changed=True;
-      irciv_privmsg("player \"$nick\" has been initialized");
+      if (player_init($account)==True)
+      {
+        $irciv_data_changed=True;
+        irciv_privmsg("player \"$account\" has been initialized");
+      }
+      else
+      {
+        irciv_privmsg("error initializing player \"$account\"");
+      }
     }
     else
     {

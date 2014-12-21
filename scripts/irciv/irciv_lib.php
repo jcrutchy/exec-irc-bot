@@ -807,7 +807,7 @@ function player_init($account)
   if (isset($map_data["cols"])==False)
   {
     irciv_privmsg("error: map not ready");
-    return;
+    return False;
   }
   unset($player_data[$account]);
   $id=get_unique_player_id();
@@ -822,7 +822,7 @@ function player_init($account)
   $start_y=-1;
   if (random_coord(TERRAIN_LAND,$start_x,$start_y)==False)
   {
-    return;
+    return False;
   }
   add_unit($account,"settler",$start_x,$start_y);
   add_unit($account,"warrior",$start_x,$start_y);
@@ -831,6 +831,7 @@ function player_init($account)
   $player_data[$account]["start_x"]=$start_x;
   $player_data[$account]["start_y"]=$start_y;
   status($account);
+  return True;
 }
 
 #####################################################################################################
@@ -1246,11 +1247,15 @@ function output_map($account)
   $response_lines=explode("\n",$response);
   $msg=trim($response_lines[count($response_lines)-1]);
   if (trim($response_lines[0])=="HTTP/1.1 200 OK")
-  { 
+  {
     if ($msg=="SUCCESS")
     {
       $player_data[$account]["status_messages"][]="http://irciv.us.to/?pid=".$player_data[$account]["player_id"];
       #$player_data[$account]["status_messages"][]="http://irciv.us.to/?map=$filename";
+    }
+    else
+    {
+      $player_data[$account]["status_messages"][]=$msg;
     }
   }
   else

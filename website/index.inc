@@ -25,7 +25,7 @@ if (isset($_GET["karma"])==True)
 
 # IRCiv
 
-define("MAPS_PATH","../maps");
+define("MAPS_PATH","/var/include/vhosts/irciv.us.to/inc/maps");
 
 if ((isset($_POST["exec_key"])==True) and (isset($_FILES["image"])==True))
 {
