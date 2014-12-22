@@ -36,6 +36,8 @@ if ($trailing=="")
   return;
 }
 
+irc_pause();
+
 $game_chans=get_game_list();
 $player_data=array();
 $map_data=array();
@@ -69,13 +71,13 @@ switch ($action)
     {
       irciv_save_data();
     }
-    return;
+    break;
   case "load-data":
     if (is_gm()==True)
     {
       irciv_load_data();
     }
-    return;
+    break;
   case "game-list":
     $game_chans=get_game_list();
     $n=count($game_chans);
@@ -100,7 +102,7 @@ switch ($action)
         $i++;
       }
     }
-    return;
+    break;
   case "help":
   case "?":
     if (count($parts)==0)
@@ -451,6 +453,8 @@ if (($dest<>"") and ($irciv_data_changed==True))
 {
   set_array_bucket($game_data,GAME_BUCKET_PREFIX.$dest);
 }
+
+irc_unpause();
 
 #####################################################################################################
 

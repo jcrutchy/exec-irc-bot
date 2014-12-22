@@ -663,8 +663,8 @@ function map_img($map_data,$filename="",$player_data="",$account="",$filetype="p
   unset($buffer_resized);
   if (isset($player_data[$account]["flags"]["crop_map"])==True)
   {
-    $fog_boundary_l=$cols-1;
-    $fog_boundary_t=$rows-1;
+    $fog_boundary_l=$cols;
+    $fog_boundary_t=$rows;
     $fog_boundary_r=0;
     $fog_boundary_b=0;
     for ($y=0;$y<$rows;$y++)
@@ -693,6 +693,10 @@ function map_img($map_data,$filename="",$player_data="",$account="",$filetype="p
         }
       }
     }
+    $fog_boundary_l=max(0,$fog_boundary_l-1);
+    $fog_boundary_t=max(0,$fog_boundary_t-1);
+    $fog_boundary_r=min($cols,$fog_boundary_r+2);
+    $fog_boundary_b=min($rows,$fog_boundary_b+2);
     irciv_term_echo("IRCiv >> map_img: fog_boundary_l = $fog_boundary_l");
     irciv_term_echo("IRCiv >> map_img: fog_boundary_t = $fog_boundary_t");
     irciv_term_echo("IRCiv >> map_img: fog_boundary_r = $fog_boundary_r");
@@ -701,6 +705,8 @@ function map_img($map_data,$filename="",$player_data="",$account="",$filetype="p
     {
       $range_x=$fog_boundary_r-$fog_boundary_l;
       $range_y=$fog_boundary_b-$fog_boundary_t;
+      irciv_term_echo("IRCiv >> map_img: range_x = $range_x");
+      irciv_term_echo("IRCiv >> map_img: range_y = $range_y");
       $w=$range_x*$tile_w;
       $h=$range_y*$tile_h;
       $buffer_resized=imagecreatetruecolor($w,$h);

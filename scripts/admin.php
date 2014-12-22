@@ -12,6 +12,7 @@ exec:~voice|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%ni
 exec:~devoice|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~kick|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~topic|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:.kick|5|0|0|1||||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################
@@ -48,6 +49,12 @@ switch ($alias)
     if ($target<>NICK_EXEC)
     {
       rawmsg("MODE $dest -v $target");
+    }
+    break;
+  case ".kick":
+    if (($target==$nick) and ($target<>NICK_EXEC))
+    {
+      rawmsg("KICK $dest $target :$nick kicked self");
     }
     break;
   case "~kick":
