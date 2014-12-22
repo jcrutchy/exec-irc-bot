@@ -44,7 +44,7 @@ function output_help()
   irciv_privmsg("unit movement: (left|l),(right|r),(up|u),(down|d)");
   irciv_privmsg("settler actions: (build|b)");
   irciv_privmsg("player functions: (help|?),status,init,flag/unflag,set/unset");
-  irciv_privmsg("flags: public_status,grid,coords,city_names");
+  irciv_privmsg("flags: public_status,grid,coords,city_names,crop_map");
   irciv_privmsg("http://sylnt.us/irciv");
 }
 
@@ -1115,7 +1115,7 @@ function status_msg($msg,$public)
   global $nick;
   if ($public==False)
   {
-    pm($nick,$msg);
+    notice($nick,$msg);
   }
   else
   {
@@ -1249,8 +1249,6 @@ function update_other_players($account,$active)
     {
       $player_data[$player]["status_messages"][]="player \"$account\" moved a unit within your field of vision";
       $player_data[$account]["status_messages"][]="you moved a unit within the field of vision of player \"$player\"";
-      output_map($player);
-      status($player);
     }
   }
 }
