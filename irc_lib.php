@@ -12,6 +12,7 @@ function initialize_buckets()
   $buckets[BUCKET_LOGGED_CHANS]=serialize($empty);
   $buckets[BUCKET_EVENT_HANDLERS]=serialize($empty);
   $buckets[BUCKET_CONNECTION_ESTABLISHED]="0";
+  $buckets[BUCKET_USERS]=serialize($empty);
 }
 
 #####################################################################################################
@@ -21,6 +22,7 @@ function init()
   $items=parse_data(CMD_INIT);
   buckets_load($items);
   initialize_buckets();
+  handle_data(CMD_INIT,False,False,True);
   process_exec_inits();
   process_scripts($items,ALIAS_INIT);
 }
