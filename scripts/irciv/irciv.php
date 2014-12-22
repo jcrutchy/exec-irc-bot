@@ -73,7 +73,7 @@ switch ($action)
     }
     break;
   case "load-data":
-    if (is_gm()==True)
+    if ((is_gm()==True) or ($cmd=="INTERNAL"))
     {
       irciv_load_data();
     }

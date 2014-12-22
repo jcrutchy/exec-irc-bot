@@ -7,7 +7,7 @@
 <script type="text/javascript"></script>
 </head>
 <body>
-<p><img src="%%domain%%?logo" alt=""></p>
+<p><img src="%%domain%%?logo" alt=""><a href="http://sylnt.us/irciv" target="_blank">http://sylnt.us/irciv</a></p>
 <p><img src="%%domain%%?img=%%map%%" alt=""></p>
 </body>
 </html>
