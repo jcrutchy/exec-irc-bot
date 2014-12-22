@@ -108,12 +108,37 @@ switch ($action)
       output_help();
     }
     break;
-  /*case "player-unset":
-    if (is_gm()==True)
+  case "player-list":
+    if ($trailing=="")
     {
-      if (isset($irciv_player_data[$trailing])==True)
+      $n=count($player_data);
+      if ($n==0)
       {
-        unset($irciv_player_data[$trailing]);
+        irciv_privmsg("no players registered");
+        break;
+      }
+      $i=0;
+      foreach ($player_data as $player => $data)
+      {
+        $msg="[".$data["player_id"]."] ".$player;
+        if ($i==($n-1))
+        {
+          irciv_privmsg("  └─ $msg");
+        }
+        else
+        {
+          irciv_privmsg("  ├─ $msg");
+        }
+        $i++;
+      }
+    }
+    break;
+  case "player-unset":
+    if ((is_gm()==True) and ($trailing<>""))
+    {
+      if (isset($player_data[$trailing])==True)
+      {
+        unset($player_data[$trailing]);
         irciv_privmsg("admin: unset \"$trailing\"");
         $irciv_data_changed=True;
       }
@@ -123,28 +148,18 @@ switch ($action)
       }
     }
     break;
-  case "player-list":
-    if ((count($parts)==1) and ($alias==$admin_alias))
-    {
-      foreach ($player_data as $player => $data)
-      {
-        irciv_privmsg("[".$data["player_id"]."] ".$player);
-      }
-    }
-    break;
   case "player-data":
     if (is_gm()==True)
     {
-      if (count($parts)==2)
+      if ($trailing<>"")
       {
-        $player=$parts[1];
-        if (isset($player_data[$player])==True)
+        if (isset($player_data[$trailing])==True)
         {
-          var_dump($player_data[$player]);
+          var_dump($player_data[$trailing]);
         }
         else
         {
-          irciv_privmsg("player \"$player\" not found");
+          irciv_privmsg("player \"$trailing\" not found");
         }
       }
       else
@@ -156,12 +171,12 @@ switch ($action)
   case "move-unit":
     if (is_gm()==True)
     {
-      if (count($parts)==5)
+      if (count($parts)==4)
       {
-        $player=$parts[1];
-        $index=$parts[2];
-        $x=$parts[3];
-        $y=$parts[4];
+        $player=$parts[0];
+        $index=$parts[1];
+        $x=$parts[2];
+        $y=$parts[3];
         if (isset($player_data[$player]["units"][$index])==True)
         {
           $player_data[$player]["units"][$index]["x"]=$x;
@@ -169,6 +184,8 @@ switch ($action)
           unfog($player,$x,$y,$player_data[$player]["units"][$index]["sight_range"]);
           $irciv_data_changed=True;
           update_other_players($player,$index);
+          output_map($player);
+          status($player);
         }
         else
         {
@@ -177,20 +194,20 @@ switch ($action)
       }
       else
       {
-        irciv_privmsg("syntax: [~civ] move-unit nick index x y");
+        irciv_privmsg("syntax: [~civ] move-unit <account> <index> <x> <y>");
       }
     }
     break;
   case "object-edit":
     if (is_gm()==True)
     {
-      if (count($parts)>=5)
+      if (count($parts)>=4)
       {
-        $player=$parts[1];
-        $array=$parts[2];
-        $index=$parts[3];
-        $key=$parts[4];
-        for ($i=1;$i<=5;$i++)
+        $player=$parts[0];
+        $array=$parts[1];
+        $index=$parts[2];
+        $key=$parts[3];
+        for ($i=1;$i<=4;$i++)
         {
           array_shift($parts);
         }
@@ -223,18 +240,18 @@ switch ($action)
       }
       else
       {
-        irciv_privmsg("syntax: [~civ] object-edit <nick> <array> <index> <key> [<value>|\"<unset>\"]");
+        irciv_privmsg("syntax: [~civ] object-edit <account> <array> <index> <key> [<value>|\"<unset>\"]");
       }
     }
     break;
   case "player-edit":
     if (is_gm()==True)
     {
-      if (count($parts)>=3)
+      if (count($parts)>=2)
       {
-        $player=$parts[1];
-        $key=$parts[2];
-        for ($i=1;$i<=3;$i++)
+        $player=$parts[0];
+        $key=$parts[1];
+        for ($i=1;$i<=2;$i++)
         {
           array_shift($parts);
         }
@@ -270,7 +287,7 @@ switch ($action)
         irciv_privmsg("syntax: [~civ] player-edit <nick> <key> [<value>|\"<unset>\"]");
       }
     }
-    break;*/
+    break;
   case "init":
     if ($trailing=="")
     {

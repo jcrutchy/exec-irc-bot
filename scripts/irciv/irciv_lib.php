@@ -456,6 +456,10 @@ function map_paint_city(&$buffer,&$city_buffers,&$buffer_city_flag,$tile_w,$tile
 
 function map_img($map_data,$filename="",$player_data="",$account="",$filetype="png")
 {
+  if ($account=="")
+  {
+    return False;
+  }
   $cols=$map_data["cols"];
   $rows=$map_data["rows"];
   # make some kind of image library structure (maybe a class might be useful here)
@@ -656,6 +660,66 @@ function map_img($map_data,$filename="",$player_data="",$account="",$filetype="p
     return False;
   }
   imagedestroy($buffer_resized);
+  unset($buffer_resized);
+  if (isset($player_data[$account]["flags"]["crop_map"])==True)
+  {
+    $fog_boundary_l=$cols-1;
+    $fog_boundary_t=$rows-1;
+    $fog_boundary_r=0;
+    $fog_boundary_b=0;
+    for ($y=0;$y<$rows;$y++)
+    {
+      for ($x=0;$x<$cols;$x++)
+      {
+        $coord=map_coord($cols,$x,$y);
+        if ($player_data[$account]["fog"][$coord]=="1")
+        {
+          if ($x<$fog_boundary_l)
+          {
+            $fog_boundary_l=$x;
+          }
+          if ($x>$fog_boundary_r)
+          {
+            $fog_boundary_r=$x;
+          }
+          if ($y<$fog_boundary_t)
+          {
+            $fog_boundary_t=$y;
+          }
+          if ($y>$fog_boundary_b)
+          {
+            $fog_boundary_b=$y;
+          }
+        }
+      }
+    }
+    irciv_term_echo("IRCiv >> map_img: fog_boundary_l = $fog_boundary_l");
+    irciv_term_echo("IRCiv >> map_img: fog_boundary_t = $fog_boundary_t");
+    irciv_term_echo("IRCiv >> map_img: fog_boundary_r = $fog_boundary_r");
+    irciv_term_echo("IRCiv >> map_img: fog_boundary_b = $fog_boundary_b");
+    if (($fog_boundary_l<$fog_boundary_r) and ($fog_boundary_t<$fog_boundary_b))
+    {
+      $range_x=$fog_boundary_r-$fog_boundary_l;
+      $range_y=$fog_boundary_b-$fog_boundary_t;
+      $w=$range_x*$tile_w;
+      $h=$range_y*$tile_h;
+      $buffer_resized=imagecreatetruecolor($w,$h);
+      if (imagecopy($buffer_resized,$buffer,0,0,$fog_boundary_l*$tile_w,$fog_boundary_t*$tile_h,$w,$h)==False)
+      {
+        irciv_term_echo("imagecopy error");
+        return False;
+      }
+      imagedestroy($buffer);
+      $buffer=imagecreate($w,$h);
+      if (imagecopy($buffer,$buffer_resized,0,0,0,0,$w,$h)==False)
+      {
+        irciv_term_echo("imagecopy error");
+        return False;
+      }
+      imagedestroy($buffer_resized);
+      unset($buffer_resized);
+    }
+  }
   if ($filename<>"")
   {
     switch ($filetype)
@@ -698,6 +762,10 @@ function map_img($map_data,$filename="",$player_data="",$account="",$filetype="p
 
 function upload_map_image($filename,$map_data,$player_data,$account)
 {
+  if ($account=="")
+  {
+    return "upload_map_image: no account";
+  }
   $headers=file_get_contents(__DIR__."/irciv_map_request_headers");
   $content=file_get_contents(__DIR__."/irciv_map_request_content");
   $exec_key=file_get_contents("../pwd/exec_key");
@@ -770,6 +838,11 @@ function player_ready($account)
 {
   global $player_data;
   global $map_data;
+  if ($account=="")
+  {
+    irciv_privmsg("error: no account");
+    return False;
+  }
   if (isset($map_data["cols"])==False)
   {
     irciv_privmsg("error: map not ready");
@@ -805,6 +878,11 @@ function player_init($account)
 {
   global $player_data;
   global $map_data;
+  if ($account=="")
+  {
+    irciv_privmsg("error: no account");
+    return False;
+  }
   if (isset($map_data["cols"])==False)
   {
     irciv_privmsg("error: map not ready");
@@ -818,6 +896,11 @@ function player_init($account)
   set_player_color($account);
   $player_data[$account]["units"]=array();
   $player_data[$account]["cities"]=array();
+  $player_data[$account]["flags"]["public_status"]="";
+  $player_data[$account]["flags"]["grid"]="";
+  $player_data[$account]["flags"]["coords"]="";
+  $player_data[$account]["flags"]["city_names"]="";
+  $player_data[$account]["flags"]["crop_map"]="";
   $player_data[$account]["fog"]=str_repeat("0",strlen($map_data["coords"]));
   $start_x=-1;
   $start_y=-1;
@@ -840,6 +923,10 @@ function player_init($account)
 function set_player_color($account,$color="")
 {
   global $player_data;
+  if ($account=="")
+  {
+    return False;
+  }
   $reserved_colors=array("255,0,255","0,0,0","255,255,255");
   if ($color=="")
   {
@@ -987,16 +1074,15 @@ function status($account)
   global $player_data;
   global $map_data;
   global $dest;
-  if (isset($player_data[$account])==False)
+  if (player_ready($account)==False)
   {
     return;
   }
-  /*$public=False;
+  $public=False;
   if (isset($player_data[$account]["flags"]["public_status"])==True)
   {
     $public=True;
-  }*/
-  $public=True; # TODO: DELETE & RESTORE CODE ABOVE
+  }
   $i=$player_data[$account]["active"];
   $unit=$player_data[$account]["units"][$i];
   $index=$unit["index"];
@@ -1088,6 +1174,10 @@ function move_active_unit($account,$dir)
 function is_foreign_unit($account,$x,$y)
 {
   global $player_data;
+  if (player_ready($account)==False)
+  {
+    return False;
+  }
   foreach ($player_data as $player => $data)
   {
     if ($player<>$account)
@@ -1111,6 +1201,10 @@ function is_fogged($account,$x,$y)
 {
   global $player_data;
   global $map_data;
+  if (player_ready($account)==False)
+  {
+    return False;
+  }
   $cols=$map_data["cols"];
   $coord=map_coord($cols,$x,$y);
   if ($player_data[$account]["fog"][$coord]=="0")
@@ -1129,6 +1223,10 @@ function update_other_players($account,$active)
 {
   global $player_data;
   global $map_data;
+  if (player_ready($account)==False)
+  {
+    return;
+  }
   $x=$player_data[$account]["units"][$active]["x"];
   $y=$player_data[$account]["units"][$active]["y"];
   foreach ($player_data as $player => $data)
