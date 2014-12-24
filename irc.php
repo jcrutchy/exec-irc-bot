@@ -60,6 +60,7 @@ define("ALIAS_STARTUP","<startup>");
 define("ALIAS_QUIT","<quit>");
 
 # commands intercepted from stdout
+# TODO: ADD COMMANDS TO DYNAMICALLY ADD/REMOVE BUCKET LOCKS TO AN ALIAS DEFINITION
 define("CMD_BUCKET_GET","BUCKET_GET");
 define("CMD_BUCKET_SET","BUCKET_SET");
 define("CMD_BUCKET_UNSET","BUCKET_UNSET");
@@ -151,6 +152,7 @@ $handles=array(); # stores executed process information
 $time_deltas=array(); # keeps track of how often nicks call an alias (used for alias abuse control)
 $buckets=array(); # common place for scripts to store stuff (index cannot contain spaces, bucket content must be a string)
 $dest_overrides=array(); # optionally stores a destination for each nick, which treats every privmsg by that nick as having the set destination
+$bucket_locks=array(); # any bucket index put here by execution of an alias with bucket locks in its definition line cannot be read or written by other scripts: index=>array(pid1,pid2,etc)
 
 $admin_data="";
 $admin_is_sock="";

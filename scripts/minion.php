@@ -6,7 +6,7 @@
 #####################################################################################################
 
 /*
-exec:~minion|0|0|0|1|crutchy|||0|php scripts/minion.php %%trailing%% %%dest%% %%nick%%
+exec:~minion|0|0|0|1|crutchy|||<<MINIONS>>|php scripts/minion.php %%trailing%% %%dest%% %%nick%%
 */
 
 #####################################################################################################
@@ -53,7 +53,8 @@ switch ($cmd)
       privmsg("$bot_nick is already here");
       return;
     }
-    $socket=fsockopen("ssl://irc.sylnt.us","6697");
+    #$socket=fsockopen("ssl://irc.sylnt.us","6697");
+    $socket=fsockopen("irc.sylnt.us","6667");
     if ($socket===False)
     {
       term_echo("ERROR CREATING IRC SOCKET");

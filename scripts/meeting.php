@@ -6,7 +6,7 @@
 #####################################################################################################
 
 /*
-exec:~meeting|60|0|0|1||||0|php scripts/meeting.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
+exec:~meeting|60|0|0|1|||||php scripts/meeting.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
 init:~meeting register-events
 */
 

@@ -6,8 +6,8 @@
 #####################################################################################################
 
 /*
-exec:~header|20|0|0|0||||0|php scripts/header.php %%trailing%% %%alias%%
-exec:~header-login|20|0|0|0||||0|php scripts/header.php %%trailing%% %%alias%%
+exec:~header|20|0|0|0|||||php scripts/header.php %%trailing%% %%alias%%
+exec:~header-login|20|0|0|0|||||php scripts/header.php %%trailing%% %%alias%%
 */
 
 #####################################################################################################

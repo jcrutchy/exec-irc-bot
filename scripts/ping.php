@@ -5,8 +5,8 @@
 
 #####################################################################################################
 
-#exec:~pong|10|0|0|0||INTERNAL||0|php scripts/ping.php %%trailing%% %%alias%%
-#exec:~ping|10|300|0|0||INTERNAL||0|php scripts/ping.php %%trailing%% %%alias%%
+#exec:~pong|10|0|0|0||INTERNAL|||php scripts/ping.php %%trailing%% %%alias%%
+#exec:~ping|10|300|0|0||INTERNAL|||php scripts/ping.php %%trailing%% %%alias%%
 
 #####################################################################################################
 

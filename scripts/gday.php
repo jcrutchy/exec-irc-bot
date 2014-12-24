@@ -6,10 +6,10 @@
 #####################################################################################################
 
 /*
-exec:~g'day|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
-exec:~gday|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
-exec:~g'night|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
-exec:~gnight|5|0|0|1||||0|php scripts/gday.php %%trailing%% %%nick%%
+exec:~g'day|5|0|0|1|||||php scripts/gday.php %%trailing%% %%nick%%
+exec:~gday|5|0|0|1|||||php scripts/gday.php %%trailing%% %%nick%%
+exec:~g'night|5|0|0|1|||||php scripts/gday.php %%trailing%% %%nick%%
+exec:~gnight|5|0|0|1|||||php scripts/gday.php %%trailing%% %%nick%%
 */
 
 #####################################################################################################

@@ -8,13 +8,13 @@
 #####################################################################################################
 
 /*
-exec:~feeds|500|0|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#exec:~feed-wiki|600|1800|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#exec:~feeds-internal|500|1800|0|1||INTERNAL||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#exec:~feed|120|0|0|1|crutchy|||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#exec:~feed-sources|5|0|0|1||||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#exec:~feed-add|5|0|0|1||||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#exec:~feed-del|5|0|0|1||||0|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~feeds|500|0|0|1|crutchy||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~feed-wiki|600|1800|0|1|crutchy||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~feeds-internal|500|1800|0|1||INTERNAL|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~feed|120|0|0|1|crutchy||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~feed-sources|5|0|0|1|||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~feed-add|5|0|0|1|||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~feed-del|5|0|0|1|||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################

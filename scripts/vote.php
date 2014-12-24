@@ -6,8 +6,8 @@
 #####################################################################################################
 
 /*
-exec:~vote|10|0|0|1|*|||0|php scripts/vote.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~kickpoll|10|0|0|1|*|||0|php scripts/vote.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~vote|10|0|0|1|*||||php scripts/vote.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~kickpoll|10|0|0|1|*||||php scripts/vote.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################

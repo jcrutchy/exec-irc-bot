@@ -6,11 +6,11 @@
 #####################################################################################################
 
 /*
-exec:~weather|60|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
-exec:~weather-old|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
-exec:~weather-add|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
-exec:~weather-del|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
-exec:~weather-prefs|10|0|0|1||||0|php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+exec:~weather|60|0|0|1|||||php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+exec:~weather-old|10|0|0|1|||||php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+exec:~weather-add|10|0|0|1|||||php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+exec:~weather-del|10|0|0|1|||||php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+exec:~weather-prefs|10|0|0|1|||||php scripts/weather.php %%alias%% %%trailing%% %%nick%%
 */
 
 #####################################################################################################

@@ -4,7 +4,7 @@
 # by crutchy
 
 /*
-exec:~bucket|5|0|0|1|@|||0|php scripts/bucket.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~bucket|5|0|0|1|@||||php scripts/bucket.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################

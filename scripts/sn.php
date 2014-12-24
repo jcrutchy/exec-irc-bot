@@ -6,13 +6,13 @@
 #####################################################################################################
 
 /*
-exec:~comment|30|0|0|1|crutchy|||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~verifier-nick-change|30|0|0|1||INTERNAL||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~verifier-nick|30|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~funding|30|900|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~queue|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~uid|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~sn-internal|15|0|0|1||||0|php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~comment|30|0|0|1|crutchy||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~verifier-nick-change|30|0|0|1||INTERNAL|||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~verifier-nick|30|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~funding|30|900|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~queue|15|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~uid|15|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~sn-internal|15|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 init:~bucket <<verifier_nick>> NetCraft
 init:~sn-internal register-events
 */

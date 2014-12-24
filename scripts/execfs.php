@@ -4,16 +4,16 @@
 # by crutchy
 
 /*
-exec:~cat|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~get|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~set|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~unset|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~rd|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~ls|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~cd|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~md|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~mkdir|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~rmdir|20|0|0|1||||0|php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~cat|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~get|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~set|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~unset|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~rd|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~ls|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~cd|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~md|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~mkdir|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~rmdir|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################

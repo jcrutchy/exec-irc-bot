@@ -6,8 +6,8 @@
 #####################################################################################################
 
 /*
-exec:~welcome|10|0|0|0||||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
-exec:~welcome-internal|30|0|0|1||INTERNAL||0|php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
+exec:~welcome|10|0|0|0|||||php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
+exec:~welcome-internal|30|0|0|1||INTERNAL|||php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
 */
 
 #####################################################################################################

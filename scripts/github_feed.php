@@ -6,9 +6,9 @@
 #####################################################################################################
 
 /*
-exec:~github-list|60|0|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~github-feed|280|300|0|1||||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~slashcode-issue|60|0|0|1|crutchy,TheMightyBuzzard|||0|php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~github-list|60|0|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~github-feed|280|300|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~slashcode-issue|60|0|0|1|crutchy,TheMightyBuzzard||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 startup:~join #github
 */
 

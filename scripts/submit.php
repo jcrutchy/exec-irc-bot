@@ -6,7 +6,7 @@
 #####################################################################################################
 
 /*
-exec:~submit|120|0|0|1|@|||0|php scripts/submit.php %%trailing%% %%dest%% %%nick%%
+exec:~submit|120|0|0|1|*||||php scripts/submit.php %%trailing%% %%dest%% %%nick%%
 */
 
 #####################################################################################################
@@ -19,6 +19,12 @@ require_once("lib.php");
 $trailing=$argv[1];
 $dest=$argv[2];
 $nick=$argv[3];
+
+if ($trailing=="")
+{
+  privmsg("usage: ~submit <url>");
+  return;
+}
 
 $url=get_redirected_url($trailing);
 if ($url===False)

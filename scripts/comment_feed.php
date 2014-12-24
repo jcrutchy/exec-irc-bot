@@ -6,8 +6,8 @@
 #####################################################################################################
 
 /*
-exec:~comments|1700|0|0|1|crutchy|||0|php scripts/comment_feed.php
-exec:~comments-internal|1700|3600|0|1||INTERNAL||0|php scripts/comment_feed.php
+exec:~comments|1700|0|0|1|crutchy||||php scripts/comment_feed.php
+exec:~comments-internal|1700|3600|0|1||INTERNAL|||php scripts/comment_feed.php
 startup:~join #comments
 */
 

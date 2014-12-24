@@ -6,8 +6,8 @@
 #####################################################################################################
 
 /*
-exec:~wiki|40|0|0|0|*|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~wiki-privmsg|40|0|0|0|crutchy,mrcoolbp|||0|php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~wiki|40|0|0|0|*||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~wiki-privmsg|40|0|0|0|crutchy,mrcoolbp||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 init:~wiki register-events
 */
 

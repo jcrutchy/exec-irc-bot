@@ -6,13 +6,13 @@
 #####################################################################################################
 
 /*
-exec:~op|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~deop|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~voice|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~devoice|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~kick|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~topic|5|0|0|1|crutchy|||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-#exec:.kick|5|0|0|1||||0|php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~op|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~deop|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~voice|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~devoice|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~kick|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~topic|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#exec:.kick|5|0|0|1|||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################

@@ -6,10 +6,10 @@
 #####################################################################################################
 
 /*
-exec:~suggest|30|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~suggest-api|30|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~suggest-exec|30|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~suggest-rss|30|0|0|1|*|||0|php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~suggest|30|0|0|1|*||||php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~suggest-api|30|0|0|1|*||||php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~suggest-exec|30|0|0|1|*||||php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~suggest-rss|30|0|0|1|*||||php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################

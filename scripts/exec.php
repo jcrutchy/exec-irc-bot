@@ -6,9 +6,9 @@
 #####################################################################################################
 
 /*
-exec:~exec-add|5|0|0|0|@|||0|php scripts/exec.php %%trailing%% %%alias%%
-exec:~exec-del|5|0|0|0|@|||0|php scripts/exec.php %%trailing%% %%alias%%
-exec:~exec-save|5|0|0|0|@|||0|php scripts/exec.php %%trailing%% %%alias%%
+exec:~exec-add|5|0|0|0|@||||php scripts/exec.php %%trailing%% %%alias%%
+exec:~exec-del|5|0|0|0|@||||php scripts/exec.php %%trailing%% %%alias%%
+exec:~exec-save|5|0|0|0|@||||php scripts/exec.php %%trailing%% %%alias%%
 */
 
 #####################################################################################################

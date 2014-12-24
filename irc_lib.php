@@ -303,6 +303,7 @@ function handle_process($handle)
   }
   if ($flag==True)
   {
+    free_bucket_locks($handle["pid"]);
     fclose($handle["pipe_stdin"]);
     fclose($handle["pipe_stdout"]);
     fclose($handle["pipe_stderr"]);
@@ -317,6 +318,7 @@ function handle_process($handle)
   {
     if ((microtime(True)-$handle["start"])>$handle["timeout"])
     {
+      free_bucket_locks($handle["pid"]);
       kill_process($handle);
       term_echo("process timed out: ".$handle["command"]);
       $msg="process timed out: ".$handle["alias"]." ".$handle["trailing"];
@@ -329,6 +331,30 @@ function handle_process($handle)
     }
   }
   return True;
+}
+
+#####################################################################################################
+
+function free_bucket_locks($pid)
+{
+  global $bucket_locks;
+  foreach ($bucket_locks as $bucket_index => $pid_array)
+  {
+    $key=array_search($pid,$pid_array);
+    if ($key!==False)
+    {
+      unset($pid_array[$key]);
+      if (count($pid_array)==0)
+      {
+        unset($bucket_locks[$bucket_index]);
+        term_echo("BUCKET UNLOCKED: $bucket_index BY $pid [STILL LOCKED BY OTHER PROCESS]");
+      }
+      else
+      {
+        term_echo("BUCKET UNLOCKED: $bucket_index BY $pid [NO LONGER LOCKED BY ANY PROCESSES]");
+      }
+    }
+  }
 }
 
 #####################################################################################################
@@ -591,6 +617,7 @@ function handle_stdin($handle,$data)
 function handle_buckets($data,$handle)
 {
   global $buckets;
+  global $bucket_locks;
   $items=parse_data($data);
   if ($items===False)
   {
@@ -603,6 +630,11 @@ function handle_buckets($data,$handle)
       $index=$trailing;
       if (isset($buckets[$index])==True)
       {
+        if (isset($bucket_locks[$index])==True)
+        {
+          term_echo("BUCKET_GET [$index]: BUCKET INDEX LOCKED BY FOLLOWING PID LIST: ".implode(",",$bucket_locks[$index]));
+          return True;
+        }
         $size=round(strlen($buckets[$index])/1024,1)."kb";
         $result=handle_stdin($handle,$buckets[$index]);
         if ($result===False)
@@ -629,6 +661,11 @@ function handle_buckets($data,$handle)
       else
       {
         $index=$parts[0];
+        if (isset($bucket_locks[$index])==True)
+        {
+          term_echo("BUCKET_SET [$index]: BUCKET INDEX LOCKED BY FOLLOWING PID LIST: ".implode(",",$bucket_locks[$index]));
+          return True;
+        }
         unset($parts[0]);
         $trailing=implode(" ",$parts);
         $buckets[$index]=$trailing;
@@ -639,6 +676,11 @@ function handle_buckets($data,$handle)
       $index=$trailing;
       if (isset($buckets[$index])==True)
       {
+        if (isset($bucket_locks[$index])==True)
+        {
+          term_echo("BUCKET_UNSET [$index]: BUCKET INDEX LOCKED BY FOLLOWING PID LIST: ".implode(",",$bucket_locks[$index]));
+          return True;
+        }
         unset($buckets[$index]);
         #term_echo("BUCKET_UNSET [$index]: SUCCESS");
       }
@@ -656,6 +698,11 @@ function handle_buckets($data,$handle)
       else
       {
         $index=$parts[0];
+        if (isset($bucket_locks[$index])==True)
+        {
+          term_echo("BUCKET_APPEND [$index]: BUCKET INDEX LOCKED BY FOLLOWING PID LIST: ".implode(",",$bucket_locks[$index]));
+          return True;
+        }
         unset($parts[0]);
         $trailing=implode(" ",$parts);
         $bucket_array=array();
@@ -1553,6 +1600,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         }
         break;
       case ALIAS_ADMIN_REHASH:
+        # TODO: REHASH IS CORRUPTING USERS BUCKET. DON'T TOUCH USERS BUCKET ON REHASH
         if (count($args)==1)
         {
           if (exec_load()===False)
@@ -1843,13 +1891,18 @@ function load_exec_line($line,$filename,$saved=True)
   {
     $dests=explode(",",$dests_str);
   }
-  $reserved=trim($parts[8]); # reserved for later use (0 = no, 1 = yes)
+  $locks=array();
+  $locks_str=strtoupper(trim($parts[8]));
+  if ($locks_str<>"")
+  {
+    $locks=explode(" ",$locks_str);
+  }
   for ($j=0;$j<=8;$j++)
   {
     array_shift($parts);
   }
   $cmd=trim(implode("|",$parts)); # shell command
-  if (($alias=="") or (is_numeric($timeout)==False) or (is_numeric($repeat)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or (($reserved<>"0") and ($reserved<>"1")) or ($cmd==""))
+  if (($alias=="") or (is_numeric($timeout)==False) or (is_numeric($repeat)==False) or (($auto<>"0") and ($auto<>"1")) or (($empty<>"0") and ($empty<>"1")) or ($cmd==""))
   {
     $msg="invalid parameter: $line";
     term_echo($msg);
@@ -1884,7 +1937,7 @@ function load_exec_line($line,$filename,$saved=True)
   $result["accounts_wildcard"]=$accounts_wildcard;
   $result["cmds"]=$cmds;
   $result["dests"]=$dests;
-  $result["reserved"]=$reserved;
+  $result["bucket_locks"]=$locks;
   $result["cmd"]=$cmd;
   $result["saved"]=$saved;
   $result["line"]=$line;
@@ -2072,6 +2125,7 @@ function process_scripts($items,$reserved="")
   global $exec_list;
   global $alias_locks;
   global $reserved_aliases;
+  global $bucket_locks;
   if ($items===False)
   {
     return;
@@ -2158,6 +2212,17 @@ function process_scripts($items,$reserved="")
   }
   $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
   $status=proc_get_status($process);
+  $locks=$exec_list[$alias]["bucket_locks"];
+  for ($i=0;$i<count($locks);$i++)
+  {
+    $index=$locks[$i];
+    if (isset($bucket_locks[$index])==False)
+    {
+      $bucket_locks[$index]=array();
+    }
+    $bucket_locks[$index][]=$status["pid"];
+    term_echo("BUCKET LOCK ADDED: $index BY PID ".$status["pid"]);
+  }
   $handles[]=array(
     "process"=>$process,
     "command"=>$command,
@@ -2166,6 +2231,7 @@ function process_scripts($items,$reserved="")
     "pipe_stdout"=>$pipes[1],
     "pipe_stderr"=>$pipes[2],
     "alias"=>$alias,
+    "bucket_locks"=>$locks,
     "template"=>$exec_list[$alias]["cmd"],
     "allow_empty"=>$exec_list[$alias]["empty"],
     "timeout"=>$exec_list[$alias]["timeout"],
@@ -2440,9 +2506,6 @@ function kill($items,$pid)
 
 function kill_process($handle)
 {
-  #fclose($handle["pipe_stdin"]);
-  #fclose($handle["pipe_stdout"]);
-  #fclose($handle["pipe_stderr"]);
   $lines=explode("\n",shell_exec("ps -aF"));
   kill_recurse($handle["pid"],$lines);
   proc_close($handle["process"]);

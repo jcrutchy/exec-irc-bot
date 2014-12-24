@@ -6,8 +6,8 @@
 #####################################################################################################
 
 /*
-exec:~invite|5|0|0|0||||0|php scripts/join.php %%trailing%%
-exec:~join|5|0|0|0||||0|php scripts/join.php %%trailing%%
+exec:~invite|5|0|0|0|||||php scripts/join.php %%trailing%%
+exec:~join|5|0|0|0|||||php scripts/join.php %%trailing%%
 */
 
 #####################################################################################################
