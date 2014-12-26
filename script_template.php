@@ -6,7 +6,7 @@
 #####################################################################################################
 
 /*
-exec:~alias|timeout|repeat|0|1|account-list|cmd-list|dest-list|0|php scripts/blah.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%params%% %%timestamp%%
+exec:~alias|timeout|repeat|0|1|account-list|cmd-list|dest-list|bucket-lock-list|php scripts/blah.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%params%% %%timestamp%%
 startup:
 init:
 */

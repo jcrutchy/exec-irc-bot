@@ -58,7 +58,9 @@ $trailing=trim(implode(" ",$parts));
 switch ($action)
 {
   case "dev-op":
-    var_dump($player_data);
+    if (is_gm()==True)
+    {
+    }
     break;
   case "register-channel":
     if (is_gm()==True)
@@ -298,10 +300,6 @@ switch ($action)
         $irciv_data_changed=True;
         irciv_privmsg("player \"$account\" has been initialized");
       }
-      else
-      {
-        irciv_privmsg("error initializing player \"$account\"");
-      }
     }
     else
     {
@@ -369,10 +367,16 @@ switch ($action)
     }
     break;
   case "status":
-    output_map($account);
-    status($account);
+    if (output_map($account)==True)
+    {
+      status($account);
+    }
     break;
   case "set":
+    if (player_ready($account)==False)
+    {
+      break;
+    }
     if ($trailing<>"")
     {
       $pair=explode("=",$trailing);
@@ -395,6 +399,10 @@ switch ($action)
     }
     break;
   case "unset":
+    if (player_ready($account)==False)
+    {
+      break;
+    }
     if ($trailing<>"")
     {
       $key=$trailing;
@@ -415,6 +423,10 @@ switch ($action)
     }
     break;
   case "flag":
+    if (player_ready($account)==False)
+    {
+      break;
+    }
     if ($trailing<>"")
     {
       $name=$trailing;
@@ -428,6 +440,10 @@ switch ($action)
     }
     break;
   case "unflag":
+    if (player_ready($account)==False)
+    {
+      break;
+    }
     if ($trailing<>"")
     {
       $name=$trailing;

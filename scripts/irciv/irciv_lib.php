@@ -929,7 +929,7 @@ function player_init($account)
 function set_player_color($account,$color="")
 {
   global $player_data;
-  if ($account=="")
+  if (player_ready($account)==False)
   {
     return False;
   }
@@ -1154,8 +1154,19 @@ function move_active_unit($account,$dir)
     }
     else
     {
-      $player=is_foreign_unit($account,$x,$y);
-      if ($player===False)
+      $player_unit=is_foreign_unit($account,$x,$y);
+      $player_city=is_foreign_city($account,$x,$y);
+      if ($player_unit!==False)
+      {
+        $player_data[$account]["status_messages"][]="move $caption failed for active unit (player \"$player_unit\" has occupying unit)";
+        # if player is enemy, attack!
+      }
+      elseif ($player_city!==False)
+      {
+        $player_data[$account]["status_messages"][]="move $caption failed for active unit (player \"$player_city\" has occupying city)";
+        # if player is enemy, attack!
+      }
+      else
       {
         $player_data[$account]["units"][$active]["x"]=$x;
         $player_data[$account]["units"][$active]["y"]=$y;
@@ -1164,11 +1175,6 @@ function move_active_unit($account,$dir)
         $player_data[$account]["status_messages"][]="successfully moved $type $caption from ($old_x,$old_y) to ($x,$y)";
         update_other_players($account,$active);
         cycle_active($account);
-      }
-      else
-      {
-        $player_data[$account]["status_messages"][]="move $caption failed for active unit (player \"$player\" is occupying)";
-        # if player is enemy, attack!
       }
     }
     status($account);
@@ -1192,6 +1198,32 @@ function is_foreign_unit($account,$x,$y)
       {
         $unit=$player_data[$player]["units"][$i];
         if (($unit["x"]==$x) and ($unit["y"]==$y))
+        {
+          return $player;
+        }
+      }
+    }
+  }
+  return False;
+}
+
+#####################################################################################################
+
+function is_foreign_city($account,$x,$y)
+{
+  global $player_data;
+  if (player_ready($account)==False)
+  {
+    return False;
+  }
+  foreach ($player_data as $player => $data)
+  {
+    if ($player<>$account)
+    {
+      for ($i=0;$i<count($player_data[$player]["cities"]);$i++)
+      {
+        $city=$player_data[$player]["cities"][$i];
+        if (($city["x"]==$x) and ($city["y"]==$y))
         {
           return $player;
         }
@@ -1365,6 +1397,7 @@ function output_map($account)
   {
     $player_data[$account]["status_messages"][]=$msg;
   }
+  return True;
 }
 
 #####################################################################################################
