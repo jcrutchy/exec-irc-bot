@@ -45,6 +45,8 @@ $bot_nick=$parts[0];
 array_shift($parts);
 $trailing=trim(implode(" ",$parts));
 
+$forward=False;
+
 switch ($cmd)
 {
   case "new":
@@ -54,7 +56,14 @@ switch ($cmd)
       return;
     }
     #$socket=fsockopen("ssl://irc.sylnt.us","6697");
-    $socket=fsockopen("irc.sylnt.us","6667");
+    if (count($parts)==2)
+    {
+      $socket=fsockopen($parts[0],$parts[1]);
+    }
+    else
+    {
+      $socket=fsockopen("irc.sylnt.us","6667");
+    }
     if ($socket===False)
     {
       term_echo("ERROR CREATING IRC SOCKET");
@@ -76,7 +85,14 @@ switch ($cmd)
           $items=parse_data($data);
           if ($items!==False)
           {
-            rawmsg($data);
+            if ($items["cmd"]=="FORWARD")
+            {
+              $forward=$items["params"];
+            }
+            else
+            {
+              rawmsg($data);
+            }
           }
         }
       }
@@ -91,6 +107,10 @@ switch ($cmd)
         continue;
       }
       term_echo($bot_nick." >> ".$data);
+      if ($forward!==False)
+      {
+        echo "/IRC $data\n";
+      }
       $items=parse_data($data);
       if ($items===False)
       {
@@ -98,10 +118,18 @@ switch ($cmd)
       }
       if ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
       {
-        term_echo("joining \"$dest\"...");
-        dojoin($dest);
-        term_echo("joining \"#\"...");
-        dojoin("#");
+        if (isset($parts[2])==True)
+        {
+          term_echo("joining \"".$parts[2]."\"...");
+          dojoin($parts[2]);
+        }
+        else
+        {
+          term_echo("joining \"$dest\"...");
+          dojoin($dest);
+          term_echo("joining \"#\"...");
+          dojoin("#");
+        }
       }
       if ($items["nick"]<>$bot_nick)
       {
@@ -135,6 +163,10 @@ switch ($cmd)
     break;
   case "raw":
     handle_bot_data($trailing,$bot_nick);
+    break;
+  case "forward":
+    $data="FORWARD $trailing";
+    handle_bot_data($data,$bot_nick);
     break;
 }
 

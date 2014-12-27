@@ -40,8 +40,9 @@ function cmd_join($client_index,$items)
   $hostname=$nicks[strtolower($nick)]["hostname"];
   $ident_prefix=$nicks[strtolower($nick)]["connection"]["ident_prefix"];
   $msg=":".$nick."!".$ident_prefix.$username."@".$hostname." JOIN ".$chan;
-  $msg="*** JOIN MESSAGE RECEIVED FROM $addr";
-  do_reply($client_index,$msg);
+  #$msg="*** JOIN MESSAGE RECEIVED FROM $addr";
+  #do_reply($client_index,$msg);
+  broadcast($msg);
 }
 
 #####################################################################################################

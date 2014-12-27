@@ -60,6 +60,15 @@ switch ($action)
   case "dev-op":
     if (is_gm()==True)
     {
+      /*foreach ($player_data as $account => $data)
+      {
+        $n=count($player_data[$account]["units"]);
+        for ($i=0;$i<$n;$i++)
+        {
+          $player_data[$account]["units"][$i]["movement"]=$unit_movement[$player_data[$account]["units"][$i]["type"]];
+        }
+      }*/
+      $irciv_data_changed=True;
     }
     break;
   case "register-channel":

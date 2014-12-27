@@ -31,10 +31,17 @@ define("GAME_BUCKET_PREFIX","IRCIV_GAME_");
 
 #####################################################################################################
 
+$unit_strengths=array();
 # d=defense,a=attack,l=land,s=sea,a=air
 # dl,ds,da,al,as,aa
 $unit_strengths["settler"]="2,0,0,0,0,0";
 $unit_strengths["warrior"]="1,0,0,1,0,0";
+
+$unit_movement=array();
+# land,sea,air
+# 0=no,1=yes
+$unit_movement["settler"]="1,0,0";
+$unit_movement["warrior"]="1,0,0";
 
 #####################################################################################################
 
@@ -1154,8 +1161,10 @@ function move_active_unit($account,$dir)
     }
     else
     {
-      $player_unit=is_foreign_unit($account,$x,$y);
-      $player_city=is_foreign_city($account,$x,$y);
+      $forein_unit=False;
+      $forein_city=False;
+      $player_unit=is_foreign_unit($account,$x,$y,$forein_unit);
+      $player_city=is_foreign_city($account,$x,$y,$forein_city);
       if ($player_unit!==False)
       {
         $player_data[$account]["status_messages"][]="move $caption failed for active unit (player \"$player_unit\" has occupying unit)";
@@ -1183,7 +1192,7 @@ function move_active_unit($account,$dir)
 
 #####################################################################################################
 
-function is_foreign_unit($account,$x,$y)
+function is_foreign_unit($account,$x,$y,&$forein_unit)
 {
   global $player_data;
   if (player_ready($account)==False)
@@ -1199,6 +1208,7 @@ function is_foreign_unit($account,$x,$y)
         $unit=$player_data[$player]["units"][$i];
         if (($unit["x"]==$x) and ($unit["y"]==$y))
         {
+          $forein_unit=$unit;
           return $player;
         }
       }
@@ -1209,7 +1219,7 @@ function is_foreign_unit($account,$x,$y)
 
 #####################################################################################################
 
-function is_foreign_city($account,$x,$y)
+function is_foreign_city($account,$x,$y,&$forein_city)
 {
   global $player_data;
   if (player_ready($account)==False)
@@ -1225,6 +1235,7 @@ function is_foreign_city($account,$x,$y)
         $city=$player_data[$player]["cities"][$i];
         if (($city["x"]==$x) and ($city["y"]==$y))
         {
+          $forein_city=$city;
           return $player;
         }
       }
