@@ -135,9 +135,9 @@ function on_disconnect($client_index)
   }
   else
   {
-    $addr=$connections[$key]["addr"];
+    $addr=$connections[$connection_index]["addr"];
     $nick=connection_nick($client_index,$connections[$connection_index]);
-    unset($connections[$key]);
+    unset($connections[$connection_index]);
     if ($nick!==False)
     {
       unset($nicks[$nick]);
