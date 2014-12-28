@@ -181,6 +181,12 @@ function on_msg($client_index,$data)
     case "QUIT":
       cmd_quit($client_index,$items);
       break;
+    case "MODE":
+      cmd_mode($client_index,$items);
+      break;
+    case "WHO":
+      cmd_who($client_index,$items);
+      break;
     default:
       do_reply($client_index,"UNKNOWN COMMAND");
   }
