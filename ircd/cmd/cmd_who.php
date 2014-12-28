@@ -17,7 +17,7 @@ function cmd_who($client_index,$items)
   {
     return;
   }
-  $params=$items["params"];
+  $chan=$items["params"];
   if (isset($channels[$chan]["nicks"])==True)
   {
     $n=count($channels[$chan]["nicks"]);
@@ -28,12 +28,12 @@ function cmd_who($client_index,$items)
       $hostname=$nicks[strtolower($nick)]["hostname"];
       $ident_prefix=$nicks[strtolower($nick)]["connection"]["ident_prefix"];
       $realname=$nicks[strtolower($nick)]["realname"];
-      $msg=":".SERVER_HOSTNAME." 352 $nick $params $ident_prefix.$username $hostname ".SERVER_HOSTNAME." $nick H@ :0 $realname";
+      $msg=":".SERVER_HOSTNAME." 352 $nick $chan $ident_prefix.$username $hostname ".SERVER_HOSTNAME." $nick H@ :0 $realname";
       do_reply($client_index,$msg);
     }
   }
   # :irc.sylnt.us 315 crutchy #stuff :End of /WHO list.
-  $msg=":".SERVER_HOSTNAME." 315 $nick $params :End of /WHO list.";
+  $msg=":".SERVER_HOSTNAME." 315 $nick $chan :End of /WHO list.";
   do_reply($client_index,$msg);
 }
 
