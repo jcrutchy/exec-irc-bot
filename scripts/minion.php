@@ -56,7 +56,7 @@ switch ($cmd)
       return;
     }
     #$socket=fsockopen("ssl://irc.sylnt.us","6697");
-    if (count($parts)==2)
+    if (count($parts)==3)
     {
       $socket=fsockopen($parts[0],$parts[1]);
     }
