@@ -26,12 +26,12 @@ function cmd_user($client_index,$items)
     do_reply($client,"ERROR: INCORRECT NUMBER OF PARAMS (NUMERIC 461)");
     return;
   }
-  $nicks[$nick]["username"]=trim($param_parts[0]);
-  $nicks[$nick]["hostname"]=trim($param_parts[1]);
-  $nicks[$nick]["servername"]=trim($param_parts[2]);
-  $nicks[$nick]["realname"]=trim($items["trailing"]);
+  $nicks[strtolower($nick)]["username"]=trim($param_parts[0]);
+  $nicks[strtolower($nick)]["hostname"]=trim($param_parts[1]);
+  $nicks[strtolower($nick)]["servername"]=trim($param_parts[2]);
+  $nicks[strtolower($nick)]["realname"]=trim($items["trailing"]);
   var_dump($nicks);
-  $addr=$nicks[$nick]["connection"]["addr"];
+  $addr=$nicks[strtolower($nick)]["connection"]["addr"];
   broadcast("*** USER MESSAGE RECEIVED FROM $addr");
 }
 

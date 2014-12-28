@@ -43,6 +43,14 @@ function cmd_join($client_index,$items)
   #$msg="*** JOIN MESSAGE RECEIVED FROM $addr";
   #do_reply($client_index,$msg);
   broadcast($msg);
+  $msg=":".SERVER_HOSTNAME." 353 $nick = $chan :".implode(" ",$channels[$chan]["nicks"]);
+  do_reply($client_index,$msg);
+  $msg=":".SERVER_HOSTNAME." 366 $nick $chan :End of /NAMES list.";
+  do_reply($client_index,$msg);
+  $msg=":".SERVER_HOSTNAME." 324 $nick $chan +nt";
+  do_reply($client_index,$msg);
+  $msg=":".SERVER_HOSTNAME." 329 $nick $chan ".time();
+  do_reply($client_index,$msg);
 }
 
 #####################################################################################################
