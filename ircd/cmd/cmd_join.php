@@ -36,10 +36,8 @@ function cmd_join($client_index,$items)
     $channels[$chan]["nicks"]=array();
   }
   $channels[$chan]["nicks"][]=$nick;
-  $username=$nicks[strtolower($nick)]["username"];
-  $hostname=$nicks[strtolower($nick)]["hostname"];
-  $ident_prefix=$nicks[strtolower($nick)]["connection"]["ident_prefix"];
-  $msg=":".$nick."!".$ident_prefix.$username."@".$hostname." JOIN ".$chan;
+  $prefix=$nicks[strtolower($nick)]["prefix"];
+  $msg=":".$prefix." JOIN ".$chan;
   #$msg="*** JOIN MESSAGE RECEIVED FROM $addr";
   #do_reply($client_index,$msg);
   broadcast($msg);

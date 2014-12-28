@@ -30,6 +30,7 @@ function cmd_user($client_index,$items)
   $nicks[strtolower($nick)]["hostname"]=trim($param_parts[1]);
   $nicks[strtolower($nick)]["servername"]=trim($param_parts[2]);
   $nicks[strtolower($nick)]["realname"]=trim($items["trailing"]);
+  $nicks[strtolower($nick)]["prefix"]=$nick."!".$nicks[strtolower($nick)]["connection"]["ident_prefix"].$nicks[strtolower($nick)]["username"]."@".$nicks[strtolower($nick)]["hostname"];
   var_dump($nicks);
   $addr=$nicks[strtolower($nick)]["connection"]["addr"];
   broadcast("*** USER MESSAGE RECEIVED FROM $addr");

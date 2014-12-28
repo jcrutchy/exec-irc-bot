@@ -24,11 +24,12 @@ function cmd_who($client_index,$items)
     for ($i=0;$i<$n;$i++)
     {
       # :irc.sylnt.us 352 crutchy #stuff ~crutchy 709-27-2-01.cust.aussiebb.net irc.sylnt.us crutchy H@ :0 crutchy
-      $username=$nicks[strtolower($nick)]["username"];
-      $hostname=$nicks[strtolower($nick)]["hostname"];
-      $ident_prefix=$nicks[strtolower($nick)]["connection"]["ident_prefix"];
-      $realname=$nicks[strtolower($nick)]["realname"];
-      $msg=":".SERVER_HOSTNAME." 352 $nick $chan $ident_prefix.$username $hostname ".SERVER_HOSTNAME." $nick H@ :0 $realname";
+      $chan_nick=$channels[$chan]["nicks"][$i];
+      $username=$nicks[strtolower($chan_nick)]["username"];
+      $hostname=$nicks[strtolower($chan_nick)]["hostname"];
+      $ident_prefix=$nicks[strtolower($chan_nick)]["connection"]["ident_prefix"];
+      $realname=$nicks[strtolower($chan_nick)]["realname"];
+      $msg=":".SERVER_HOSTNAME." 352 $nick $chan $ident_prefix"."$username $hostname ".SERVER_HOSTNAME." $chan_nick H@ :0 $realname";
       do_reply($client_index,$msg);
     }
   }

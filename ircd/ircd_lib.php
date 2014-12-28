@@ -113,6 +113,7 @@ function on_connect($client_index)
     $connection["client_index"]=$client_index;
     $connection["addr"]=$addr;
     $connection["connect_timestamp"]=microtime(True);
+    $connection["ident_prefix"]="";
     $connections[]=$connection;
     broadcast("*** CLIENT CONNECTED: $addr");
   }
@@ -186,6 +187,9 @@ function on_msg($client_index,$data)
       break;
     case "WHO":
       cmd_who($client_index,$items);
+      break;
+    case "PRIVMSG":
+      cmd_privmsg($client_index,$items);
       break;
     default:
       do_reply($client_index,"UNKNOWN COMMAND");
