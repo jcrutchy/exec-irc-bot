@@ -4,7 +4,7 @@
 404,ERR_CANNOTSENDTOCHAN,<channel name> :Cannot send to channel
 405,ERR_TOOMANYCHANNELS,<channel name> :You have joined too many channels
 406,ERR_WASNOSUCHNICK,<nickname> :There was no such nickname
-407,ERR_TOOMANYTARGETS,"<target> :Duplicate recipients. No message delivered
+407,ERR_TOOMANYTARGETS,<target> :Duplicate recipients. No message delivered
 409,ERR_NOORIGIN,:No origin specified
 411,ERR_NORECIPIENT,:No recipient given (<command>)
 412,ERR_NOTEXTTOSEND,:No text to send
@@ -13,148 +13,32 @@
 421,ERR_UNKNOWNCOMMAND,<command> :Unknown command
 422,ERR_NOMOTD,:MOTD File is missing
 423,ERR_NOADMININFO,<server> :No administrative info available
-424     ERR_FILEERROR
-                ":File error doing <file op> on <file>"
-431     ERR_NONICKNAMEGIVEN
-                        ":No nickname given"
-432     ERR_ERRONEUSNICKNAME
-                        "<nick> :Erroneus nickname"
-433     ERR_NICKNAMEINUSE
-                        "<nick> :Nickname is already in use"
-436     ERR_NICKCOLLISION
-                        "<nick> :Nickname collision KILL"
-441     ERR_USERNOTINCHANNEL
-                        "<nick> <channel> :They aren't on that channel"
-442     ERR_NOTONCHANNEL
-                        "<channel> :You're not on that channel"
-443     ERR_USERONCHANNEL
-                        "<user> <channel> :is already on channel"
-444     ERR_NOLOGIN
-                        "<user> :User not logged in"
-445     ERR_SUMMONDISABLED
-                        ":SUMMON has been disabled"
-
-                - Returned as a response to the SUMMON command.  Must be
-                  returned by any server which does not implement it.
-
-        446     ERR_USERSDISABLED
-                        ":USERS has been disabled"
-
-                - Returned as a response to the USERS command.  Must be
-                  returned by any server which does not implement it.
-
-        451     ERR_NOTREGISTERED
-                        ":You have not registered"
-
-                - Returned by the server to indicate that the client
-                  must be registered before the server will allow it
-                  to be parsed in detail.
-
-        461     ERR_NEEDMOREPARAMS
-                        "<command> :Not enough parameters"
-
-                - Returned by the server by numerous commands to
-                  indicate to the client that it didn't supply enough
-                  parameters.
-
-        462     ERR_ALREADYREGISTRED
-                        ":You may not reregister"
-
-                - Returned by the server to any link which tries to
-                  change part of the registered details (such as
-                  password or user details from second USER message).
-
-
-        463     ERR_NOPERMFORHOST
-                        ":Your host isn't among the privileged"
-
-                - Returned to a client which attempts to register with
-                  a server which does not been setup to allow
-                  connections from the host the attempted connection
-                  is tried.
-
-
-
-Oikarinen & Reed                                               [Page 46]
-
- 
-RFC 1459              Internet Relay Chat Protocol              May 1993
-
-
-        464     ERR_PASSWDMISMATCH
-                        ":Password incorrect"
-
-                - Returned to indicate a failed attempt at registering
-                  a connection for which a password was required and
-                  was either not given or incorrect.
-
-        465     ERR_YOUREBANNEDCREEP
-                        ":You are banned from this server"
-
-                - Returned after an attempt to connect and register
-                  yourself with a server which has been setup to
-                  explicitly deny connections to you.
-
-        467     ERR_KEYSET
-                        "<channel> :Channel key already set"
-        471     ERR_CHANNELISFULL
-                        "<channel> :Cannot join channel (+l)"
-        472     ERR_UNKNOWNMODE
-                        "<char> :is unknown mode char to me"
-        473     ERR_INVITEONLYCHAN
-                        "<channel> :Cannot join channel (+i)"
-        474     ERR_BANNEDFROMCHAN
-                        "<channel> :Cannot join channel (+b)"
-        475     ERR_BADCHANNELKEY
-                        "<channel> :Cannot join channel (+k)"
-        481     ERR_NOPRIVILEGES
-                        ":Permission Denied- You're not an IRC operator"
-
-                - Any command requiring operator privileges to operate
-                  must return this error to indicate the attempt was
-                  unsuccessful.
-
-        482     ERR_CHANOPRIVSNEEDED
-                        "<channel> :You're not channel operator"
-
-                - Any command requiring 'chanop' privileges (such as
-                  MODE messages) must return this error if the client
-                  making the attempt is not a chanop on the specified
-                  channel.
-
-        483     ERR_CANTKILLSERVER
-                        ":You cant kill a server!"
-
-                - Any attempts to use the KILL command on a server
-                  are to be refused and this error returned directly
-                  to the client.
-
-
-
-
-Oikarinen & Reed                                               [Page 47]
-
- 
-RFC 1459              Internet Relay Chat Protocol              May 1993
-
-
-        491     ERR_NOOPERHOST
-                        ":No O-lines for your host"
-
-                - If a client sends an OPER message and the server has
-                  not been configured to allow connections from the
-                  client's host as an operator, this error must be
-                  returned.
-
-        501     ERR_UMODEUNKNOWNFLAG
-                        ":Unknown MODE flag"
-
-                - Returned by the server to indicate that a MODE
-                  message was sent with a nickname parameter and that
-                  the a mode flag sent was not recognized.
-
-        502     ERR_USERSDONTMATCH
-                        ":Cant change mode for other users"
-
-                - Error sent to any user trying to view or change the
-                  user mode for a user other than themselves.
+424,ERR_FILEERROR,:File error doing <file op> on <file>
+431,ERR_NONICKNAMEGIVEN,:No nickname given
+432,ERR_ERRONEUSNICKNAME,<nick> :Erroneus nickname
+433,ERR_NICKNAMEINUSE,<nick> :Nickname is already in use
+436,ERR_NICKCOLLISION,<nick> :Nickname collision KILL
+441,ERR_USERNOTINCHANNEL,<nick> <channel> :They aren't on that channel
+442,ERR_NOTONCHANNEL,<channel> :You're not on that channel
+443,ERR_USERONCHANNEL,<user> <channel> :is already on channel
+444,ERR_NOLOGIN,<user> :User not logged in
+445,ERR_SUMMONDISABLED,:SUMMON has been disabled
+446,ERR_USERSDISABLED,:USERS has been disabled
+451,ERR_NOTREGISTERED,:You have not registered
+461,ERR_NEEDMOREPARAMS,<command> :Not enough parameters
+462,ERR_ALREADYREGISTRED,:You may not reregister
+463,ERR_NOPERMFORHOST,:Your host isn't among the privileged
+464,ERR_PASSWDMISMATCH,:Password incorrect
+465,ERR_YOUREBANNEDCREEP,:You are banned from this server
+467,ERR_KEYSET,<channel> :Channel key already set
+471,ERR_CHANNELISFULL,<channel> :Cannot join channel (+l)
+472,ERR_UNKNOWNMODE,<char> :is unknown mode char to me
+473,ERR_INVITEONLYCHAN,<channel> :Cannot join channel (+i)
+474,ERR_BANNEDFROMCHAN,<channel> :Cannot join channel (+b)
+475,ERR_BADCHANNELKEY,<channel> :Cannot join channel (+k)
+481,ERR_NOPRIVILEGES,:Permission Denied- You're not an IRC operator
+482,ERR_CHANOPRIVSNEEDED,<channel> :You're not channel operator
+483,ERR_CANTKILLSERVER,:You cant kill a server!
+491,ERR_NOOPERHOST,:No O-lines for your host
+501,ERR_UMODEUNKNOWNFLAG,:Unknown MODE flag
+502,ERR_USERSDONTMATCH,:Cant change mode for other users

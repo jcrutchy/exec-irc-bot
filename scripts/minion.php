@@ -58,12 +58,15 @@ switch ($cmd)
     #$socket=fsockopen("ssl://irc.sylnt.us","6697");
     if (count($parts)==3)
     {
-      $socket=fsockopen($parts[0],$parts[1]);
+      $server=$parts[0];
+      $port=$parts[1];
     }
     else
     {
-      $socket=fsockopen("irc.sylnt.us","6667");
+      $server="irc.sylnt.us";
+      $port="6667";
     }
+    $socket=fsockopen($server,$port);
     if ($socket===False)
     {
       term_echo("ERROR CREATING IRC SOCKET");
@@ -71,7 +74,7 @@ switch ($cmd)
     }
     stream_set_blocking($socket,0);
     rawmsg("NICK $bot_nick");
-    rawmsg("USER $bot_nick hostname servername :$bot_nick.bot");
+    rawmsg("USER $bot_nick 0host 0server :$bot_nick.bot");
     #add_minion($bot_nick);
     while (True)
     {
@@ -85,14 +88,17 @@ switch ($cmd)
           $items=parse_data($data);
           if ($items!==False)
           {
-            if ($items["cmd"]=="FORWARD")
+            rawmsg($data);
+          }
+          else
+          {
+            $tokens=explode(" ",$data);
+            if ((count($tokens)==2) and (strtoupper($tokens[0])=="FORWARD"))
             {
-              $forward=$items["params"];
+              $forward=$tokens[1];
+              term_echo("*** FORWARD SET: ALL DATA WILL BE FORWARDED TO $forward ON EXEC BOT HOST NETWORK");
             }
-            else
-            {
-              rawmsg($data);
-            }
+            unset($tokens);
           }
         }
       }
@@ -107,10 +113,6 @@ switch ($cmd)
         continue;
       }
       term_echo($bot_nick." >> ".$data);
-      if ($forward!==False)
-      {
-        echo "/IRC $data\n";
-      }
       $items=parse_data($data);
       if ($items===False)
       {
@@ -131,13 +133,15 @@ switch ($cmd)
           dojoin("#");
         }
       }
-      if ($items["nick"]<>$bot_nick)
+      if (($items["cmd"]=="QUIT") and ($items["nick"]==$bot_nick))
       {
-        continue;
-      }
-      if ($items["cmd"]=="QUIT")
-      {
+        term_echo("*** QUITTING $bot_nick CLIENT SCRIPT");
         return;
+      }
+      if ($forward!==False)
+      {
+        $msg="PRIVMSG $forward :*** $bot_nick@$server >> ".$items["data"];
+        echo "/IRC $msg\n";
       }
     }
     return;
@@ -158,15 +162,21 @@ switch ($cmd)
     handle_bot_data($data,$bot_nick);
     break;
   case "privmsg":
-    $data=":$bot_nick ".strtoupper($cmd)." $dest :$trailing";
-    handle_bot_data($data,$bot_nick);
+    if (count($parts)>1)
+    {
+      $dest=$parts[0];
+      array_shift($parts);
+      $trailing=trim(implode(" ",$parts));
+      $data=":$bot_nick ".strtoupper($cmd)." $dest :$trailing";
+      handle_bot_data($data,$bot_nick);
+    }
     break;
   case "raw":
     handle_bot_data($trailing,$bot_nick);
     break;
   case "forward":
     $data="FORWARD $trailing";
-    handle_bot_data($data,$bot_nick);
+    set_bucket("MINION_CMD_$bot_nick","FORWARD $trailing");
     break;
 }
 
