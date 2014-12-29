@@ -140,7 +140,11 @@ switch ($cmd)
       }
       if ($forward!==False)
       {
-        $msg="PRIVMSG $forward :*** $bot_nick@$server >> ".$items["data"];
+        $msg="PRIVMSG $forward :*** $bot_nick@$server >> ".chr(3)."02".$items["nick"]." ".chr(3)."03".$items["cmd"]." ".chr(3)."04".$items["params"];
+        if ($items["trailing"]<>"")
+        {
+          $msg=$msg.chr(3)." :".chr(3)."05".$items["trailing"];
+        }
         echo "/IRC $msg\n";
       }
     }
