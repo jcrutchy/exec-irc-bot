@@ -140,12 +140,29 @@ switch ($cmd)
       }
       if ($forward!==False)
       {
-        $msg="PRIVMSG $forward :*** $bot_nick@$server >> ".chr(3)."02".$items["nick"]." ".chr(3)."03".$items["cmd"]." ".chr(3)."04".$items["params"];
-        if ($items["trailing"]<>"")
+        switch ($items["cmd"])
         {
-          $msg=$msg.chr(3)." :".chr(3)."05".$items["trailing"];
+          case "JOIN":
+          case "PART":
+          case "QUIT":
+          case "NICK":
+          case "KICK":
+          case "TOPIC":
+          case "PRIVMSG":
+          case "MODE":
+          case "NOTICE":
+            $msg="PRIVMSG $forward :*** $bot_nick@$server >> ".chr(3)."02".$items["nick"]." ".chr(3)."03".$items["cmd"];
+            if ($items["params"]<>"")
+            {
+              $msg=$msg." ".chr(3)."04".$items["params"];
+            }
+            if ($items["trailing"]<>"")
+            {
+              $msg=$msg.chr(3)." :".chr(3)."05".$items["trailing"];
+            }
+            echo "/IRC $msg\n";
+            break;
         }
-        echo "/IRC $msg\n";
       }
     }
     return;
