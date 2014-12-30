@@ -6,25 +6,25 @@
 #####################################################################################################
 
 # installation-specific settings
-define("NICK","exec");
+define("NICK","_exec");
 define("PASSWORD_FILE","../pwd/".NICK);
-define("BUCKETS_FILE","../data/buckets");
-define("IGNORE_FILE","../data/ignore");
-define("EXEC_FILE","exec.txt");
-define("INIT_CHAN_LIST","#,#debug"); # comma delimited
-define("EXEC_LOG_PATH","/var/www/irciv.us.to/exec_logs/");
+define("BUCKETS_FILE","../data/buckets_freenode");
+define("IGNORE_FILE","../data/ignore_freenode");
+define("EXEC_FILE","exec_freenode.txt");
+define("INIT_CHAN_LIST","#sylnt"); # comma delimited
+define("EXEC_LOG_PATH","/var/www/irciv.us.to/exec_logs_freenode/");
 define("IRC_LOG_URL","http://irciv.us.to/irc_logs/");
-define("IRC_HOST_CONNECT","irc.sylnt.us");
-define("IRC_HOST","irc.sylnt.us");
+define("IRC_HOST_CONNECT","irc.freenode.net");
+define("IRC_HOST","irc.freenode.net");
 define("IRC_PORT","6667");
 define("MEMORY_LIMIT","128M");
 define("OPERATOR_ACCOUNT","crutchy");
-define("DEBUG_CHAN","#debug");
-define("NICKSERV_IDENTIFY_PROMPT","You have 60 seconds to identify to your nickname before it is changed.");
+define("DEBUG_CHAN","##exec");
+define("NICKSERV_IDENTIFY_PROMPT","This nickname is registered. Please choose a different nickname, or identify via /msg NickServ identify <password>.");
 
 # TODO: ADD FLAG TO HAVE EXEC IGNORE ITSELF
 
-$admin_accounts=array("chromas","juggs","Konomi","ar","TheMightyBuzzard");
+$admin_accounts=array("chromas");
 
 #####################################################################################################
 
@@ -249,7 +249,7 @@ else
 {
   stream_set_blocking($socket,0);
   rawmsg("NICK ".NICK);
-  rawmsg("USER ".NICK." hostname servername :".NICK.".bot");
+  rawmsg("USER exec hostname servername :exec.bot");
 }
 
 $antiflog=True;

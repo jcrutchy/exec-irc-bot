@@ -1408,7 +1408,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
     {
       dojoin(INIT_CHAN_LIST);
     }
-    if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]=="You have 60 seconds to identify to your nickname before it is changed."))
+    if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]==NICKSERV_IDENTIFY_PROMPT))
     {
       rawmsg("NickServ IDENTIFY ".trim(file_get_contents(PASSWORD_FILE)),True);
       startup();
