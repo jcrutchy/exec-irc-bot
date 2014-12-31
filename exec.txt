@@ -43,5 +43,8 @@ include test.php
 ~fortune|5|0|1|1|||||fortune -s
 ~openthepodbaydoors|5|0|1|1|||||fortune -s -o
 
+# FOLLOWING ALIAS PERMITS GENERIC SHELL COMMANDS IN IRC (ENABLE AT OWN RISK)
+~eval|5|0|1|0|@||||eval %%trailing%%
+
 #####################################################################################################
 

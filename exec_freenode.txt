@@ -12,7 +12,7 @@
 #####################################################################################################
 
 # RESERVED ALIAS TRIGGERED ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
-#*|10|0|0|1|||||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
+*|10|0|0|1|||||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
 
 # RESERVED ALIAS TRIGGERED BEFORE IRC CONNECTION - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 #<init>|10|0|0|1|||||php scripts/init.php
@@ -42,6 +42,23 @@
 ~moo|10|0|1|1|||||apt-get moo
 ~fortune|5|0|1|1|||||fortune -s
 #~openthepodbaydoors|5|0|1|1|||||fortune -s -o
+
+~php|5|0|0|0|||||php scripts/php.php %%trailing%%
+
+~sed-internal|10|0|0|1||INTERNAL|||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
+~sed|10|0|0|0|||||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
+
+~part|5|0|0|1|||||php scripts/part.php %%dest%% %%trailing%%
+~join|5|0|0|0|||||php scripts/join.php %%trailing%%
+
+~|5|0|1|1|||||php scripts/about.php %%trailing%%
+
+~op|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~deop|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~voice|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~devoice|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~kick|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~topic|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 #####################################################################################################
 

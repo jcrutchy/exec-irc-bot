@@ -11,11 +11,12 @@ exec:~minion|0|0|0|1|crutchy|||<<MINIONS>>|php scripts/minion.php %%trailing%% %
 
 #####################################################################################################
 
-# ~bot privmsg dogfart test
-
 /*
-<crutchy> dogfartopoly join #soylent
-<crutchy> dogfartopoly slap chromas
+~minion quit sylnt
+~minion new sylnt irc.freenode.net 6667 #sylnt
+~minion forward sylnt #freenode
+~minion join sylnt #devuan,#devuan-dev,#IRCiv,#epoch
+~minion raw sylnt :sylnt PART #debian
 */
 
 ini_set("display_errors","on");
@@ -142,15 +143,15 @@ switch ($cmd)
       {
         switch ($items["cmd"])
         {
-          case "JOIN":
-          case "PART":
-          case "QUIT":
-          case "NICK":
-          case "KICK":
-          case "TOPIC":
+          #case "JOIN":
+          #case "PART":
+          #case "QUIT":
+          #case "NICK":
+          #case "KICK":
+          #case "TOPIC":
           case "PRIVMSG":
-          case "MODE":
-          case "NOTICE":
+          #case "MODE":
+          #case "NOTICE":
             $msg="PRIVMSG $forward :*** $bot_nick@$server >> ".chr(3)."02".$items["nick"]." ".chr(3)."03".$items["cmd"];
             if ($items["params"]<>"")
             {
