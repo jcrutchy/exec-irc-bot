@@ -5,26 +5,53 @@
 
 #####################################################################################################
 
-# installation-specific settings
-define("NICK","exec");
-define("PASSWORD_FILE","../pwd/".NICK);
-define("BUCKETS_FILE","../data/buckets");
-define("IGNORE_FILE","../data/ignore");
-define("EXEC_FILE","exec.txt");
-define("INIT_CHAN_LIST","#,#debug"); # comma delimited
-define("EXEC_LOG_PATH","/var/www/irciv.us.to/exec_logs/");
-define("IRC_LOG_URL","http://irciv.us.to/irc_logs/");
-define("IRC_HOST_CONNECT","irc.sylnt.us");
-define("IRC_HOST","irc.sylnt.us");
-define("IRC_PORT","6667");
-define("MEMORY_LIMIT","128M");
-define("OPERATOR_ACCOUNT","crutchy");
-define("DEBUG_CHAN","#debug");
-define("NICKSERV_IDENTIFY_PROMPT","You have 60 seconds to identify to your nickname before it is changed.");
+if (isset($argv[1])==False)
+{
+  # default installation-specific settings
+  define("NICK","exec");
+  define("USER_NAME","exec");
+  define("FULL_NAME","exec.bot");
+  define("PASSWORD_FILE","../pwd/".NICK);
+  define("BUCKETS_FILE","../data/buckets");
+  define("IGNORE_FILE","../data/ignore");
+  define("EXEC_FILE","exec.txt");
+  define("INIT_CHAN_LIST","#,#debug"); # comma delimited
+  define("EXEC_LOG_PATH","/var/www/irciv.us.to/exec_logs/");
+  define("IRC_LOG_URL","http://irciv.us.to/irc_logs/");
+  define("IRC_HOST_CONNECT","irc.sylnt.us");
+  define("IRC_HOST","irc.sylnt.us");
+  define("IRC_PORT","6667");
+  define("MEMORY_LIMIT","128M");
+  define("OPERATOR_ACCOUNT","crutchy");
+  define("DEBUG_CHAN","#debug");
+  define("NICKSERV_IDENTIFY_PROMPT","You have 60 seconds to identify to your nickname before it is changed.");
+  define("ADMIN_ACCOUNTS","chromas,juggs,Konomi,TheMightyBuzzard");
+}
+elseif (file_exists($argv[1])==True)
+{
+  $settings=file_get_contents($argv[1]);
+  $settings=explode("\n",$settings);
+  for ($i=0;$i<count($settings);$i++)
+  {
+    $line=trim($settings[$i]);
+    if ($line=="")
+    {
+      continue;
+    }
+    $keyval=explode("=",$line);
+    if (count($keyval)<>2)
+    {
+      continue;
+    }
+    define($keyval[0],$keyval[1]);
+  }
+}
+else
+{
+  die("INVALID COMMAND LINE ARGUMENT");
+}
 
 # TODO: ADD FLAG TO HAVE EXEC IGNORE ITSELF
-
-$admin_accounts=array("chromas","juggs","Konomi","ar","TheMightyBuzzard");
 
 #####################################################################################################
 
@@ -148,6 +175,8 @@ if (file_exists(PASSWORD_FILE)==False)
   return;
 }
 
+$admin_accounts=explode(",",ADMIN_ACCOUNTS);
+
 $alias_locks=array(); # optionally stores an alias for each nick, which then treats every privmsg by that nick as being prefixed by the set alias
 $handles=array(); # stores executed process information
 $time_deltas=array(); # keeps track of how often nicks call an alias (used for alias abuse control)
@@ -249,7 +278,7 @@ else
 {
   stream_set_blocking($socket,0);
   rawmsg("NICK ".NICK);
-  rawmsg("USER ".NICK." hostname servername :".NICK.".bot");
+  rawmsg("USER ".USER_NAME." hostname servername :".FULL_NAME);
 }
 
 $antiflog=True;

@@ -22,7 +22,7 @@ function init()
   $items=parse_data(CMD_INIT);
   buckets_load($items);
   initialize_buckets();
-  handle_data(CMD_INIT,False,False,True);
+  #handle_data(CMD_INIT."\n",False,False,True);
   process_exec_inits();
   process_scripts($items,ALIAS_INIT);
 }
@@ -210,6 +210,7 @@ function log_data($data)
   $lmsg=strtolower($msg);
   if ((DEBUG_CHAN<>"") and (strpos($lmsg,DEBUG_CHAN)===False))
   {
+    # TODO: only output if occurs at the start of line
     if ((strpos($lmsg,"php parse error:")!==False) or (strpos($lmsg,"php warning:")!==False) or (strpos($lmsg,"php fatal error:")!==False) or (strpos($lmsg,"php notice:")!==False))
     {
       rawmsg(":".NICK." PRIVMSG ".DEBUG_CHAN." :$msg");
@@ -587,8 +588,8 @@ function handle_stderr($handle)
   {
     $msg=substr($msg,0,strlen($msg)-1);
   }
-  log_data($msg);
-  term_echo($msg);
+  log_data("STDERR IN [".$handle["command"]."]: ".$msg);
+  term_echo("STDERR IN [".$handle["command"]."]: ".$msg);
 }
 
 #####################################################################################################

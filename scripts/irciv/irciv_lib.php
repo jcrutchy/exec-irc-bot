@@ -875,11 +875,14 @@ function get_unique_player_id()
 {
   global $player_data;
   $result=1;
-  foreach ($player_data as $account => $data)
+  if (count($player_data)>0)
   {
-    if ($data["player_id"]>=$result)
+    foreach ($player_data as $account => $data)
     {
-      $result=$data["player_id"]+1;
+      if ($data["player_id"]>=$result)
+      {
+        $result=$data["player_id"]+1;
+      }
     }
   }
   return $result;
@@ -1034,7 +1037,8 @@ function add_city($account,$x,$y,$city_name)
   $data["name"]=$city_name;
   $data["population"]=1;
   $data["size"]=1;
-  $data["sight_range"]=7;
+  #$data["sight_range"]=7;
+  $data["sight_range"]=100;
   $data["x"]=$x;
   $data["y"]=$y;
   $cities[]=$data;
@@ -1106,9 +1110,14 @@ function status($account)
   $n=count($player_data[$account]["units"]);
   if (isset($player_data[$account]["status_messages"])==True)
   {
-    for ($i=0;$i<count($player_data[$account]["status_messages"]);$i++)
+    $unique_messages=array_count_values($player_data[$account]["status_messages"]);
+    foreach ($unique_messages as $msg => $count)
     {
-      status_msg($dest." $account => ".$player_data[$account]["status_messages"][$i],$public);
+      if ($count>1)
+      {
+        $msg=$msg." (x$count)";
+      }
+      status_msg($dest." $account => $msg",$public);
     }
     unset($player_data[$account]["status_messages"]);
   }
@@ -1188,6 +1197,23 @@ function move_active_unit($account,$dir)
     }
     status($account);
   }
+}
+
+#####################################################################################################
+
+function attacker_health($attacker,$defender)
+{
+  for ($i=1;$i<=3;$i++)
+  {
+
+  }
+}
+
+#####################################################################################################
+
+function defender_health($defender,$attacker)
+{
+
 }
 
 #####################################################################################################
