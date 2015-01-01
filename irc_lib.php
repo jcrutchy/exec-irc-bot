@@ -1601,7 +1601,6 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         }
         break;
       case ALIAS_ADMIN_REHASH:
-        # TODO: REHASH IS CORRUPTING USERS BUCKET. DON'T TOUCH USERS BUCKET ON REHASH
         if (count($args)==1)
         {
           if (exec_load()===False)
@@ -1613,6 +1612,11 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
           {
             process_exec_inits();
             process_exec_startups();
+            $users=get_users();
+            foreach ($users[NICK]["channels"] as $channel => $timestamp)
+            {
+              rawmsg("NAMES $channel");
+            }
             privmsg($items["destination"],$items["nick"],"successfully reloaded exec file (".count($exec_list)." aliases)");
           }
         }
