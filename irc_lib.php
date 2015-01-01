@@ -108,7 +108,8 @@ function get_valid_data_cmd($allow_customs=True)
     "NICK"=>array("101"),
     "NOTICE"=>array("111"),
     "PART"=>array("110","111"),
-    "PRIVMSG"=>array("111"),
+    "WHOIS"=>array("010","110"),
+    "PRIVMSG"=>array("011","111"),
     "QUIT"=>array("100","101"),
     "PONG"=>array("110","111"));
   if ($allow_customs==True)

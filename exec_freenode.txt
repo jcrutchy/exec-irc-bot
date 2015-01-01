@@ -53,12 +53,37 @@
 
 ~|5|0|1|1|||||php scripts/about.php %%trailing%%
 
+~help|20|0|0|1|||||php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
+
 ~op|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~deop|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~voice|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~devoice|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~kick|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 ~topic|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+
+~users|10|0|0|0|crutchy||||php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
+
+~say|10|0|0|1|crutchy,chromas||||php scripts/say.php %%trailing%% %%nick%%
+
+~suggest-exec|30|0|0|1|*||||php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+
+~time|60|0|0|1|||||php scripts/time.php %%alias%% %%trailing%% %%nick%%
+~time-add|10|0|0|1|||||php scripts/time.php %%alias%% %%trailing%% %%nick%%
+~time-del|10|0|0|1|||||php scripts/time.php %%alias%% %%trailing%% %%nick%%
+
+~weather|60|0|0|1|||||php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+~weather-add|10|0|0|1|||||php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+~weather-del|10|0|0|1|||||php scripts/weather.php %%alias%% %%trailing%% %%nick%%
+
+~title|30|0|0|0|||||php scripts/title.php %%trailing%%
+
+~isup|30|0|0|0|||||php scripts/isup.php %%trailing%%
+
+~translate|10|0|0|0|||||php scripts/translate.php %%trailing%% %%alias%%
+~translate-sl|10|0|0|0|||||php scripts/translate.php %%trailing%% %%alias%%
+
+~rainbow|5|0|0|0|||||php scripts/rainbow.php %%trailing%%
 
 #####################################################################################################
 

@@ -20,6 +20,8 @@ define("DATA_FILE_PATH","../data/irciv/");
 define("TERRAIN_OCEAN","O");
 define("TERRAIN_LAND","L");
 
+define("MAX_HEALTH",100);
+
 define("IMAGE_TERRAIN_OCEAN","ocean.png");
 define("IMAGE_TERRAIN_LAND","grassland.png");
 define("IMAGE_SHIELD","shield.png");
@@ -1012,7 +1014,7 @@ function add_unit($account,$type,$x,$y)
   }
   $units=&$player_data[$account]["units"];
   $data["type"]=$type;
-  $data["health"]=100;
+  $data["health"]=MAX_HEALTH;
   $data["sight_range"]=4;
   $data["x"]=$x;
   $data["y"]=$y;
@@ -1178,6 +1180,7 @@ function move_active_unit($account,$dir)
       {
         $player_data[$account]["status_messages"][]="move $caption failed for active unit (player \"$player_unit\" has occupying unit)";
         # if player is enemy, attack!
+        unit_attack($account,$player_unit,$player_data[$account]["units"][$active],$forein_unit);
       }
       elseif ($player_city!==False)
       {
@@ -1201,19 +1204,57 @@ function move_active_unit($account,$dir)
 
 #####################################################################################################
 
+function unit_attack($attack_account,$defend_account,&$attack_unit,&$defend_unit)
+{
+  global $player_data;
+  $attack_unit["health"]=attacker_health($attack_unit,$defend_unit);
+  $defend_unit["health"]=defender_health($defend_unit,$attack_unit);
+  if ($attack_unit["health"]==0)
+  {
+    # attacker died
+    $player_data[$attack_account]["status_messages"][]="$defend_account's ".$defend_unit["type"]." has killed your attacking ".$attack_unit["type"]."!";
+    $player_data[$defend_account]["status_messages"][]="your defending ".$defend_unit["type"]." has killed $attack_account's ".$attack_unit["type"]."!";
+  }
+  elseif ($defend_unit["health"]==0)
+  {
+    # defender died
+    $player_data[$attack_account]["status_messages"][]="your attacking ".$attack_unit["type"]." has killed $defend_account's ".$defend_unit["type"]."!";
+    $player_data[$defend_account]["status_messages"][]="$attack_account's ".$attack_unit["type"]." has attacked and killed your ".$defend_unit["type"]."!";
+  }
+  else
+  {
+    $player_data[$attack_account]["status_messages"][]="your ".$attack_unit["type"]." (health: ".$attack_unit["health"].") attacked $defend_account's ".$defend_unit["type"]." (health: ".$defend_unit["health"].")";
+    $player_data[$defend_account]["status_messages"][]="$attack_account's ".$attack_unit["type"]." (health: ".$attack_unit["health"].") attacked your ".$defend_unit["type"]." (health: ".$defend_unit["health"].")";
+  }
+}
+
+#####################################################################################################
+
 function attacker_health($attacker,$defender)
 {
+  $health=$attacker["health"];
+  $attacker_strength=explode(",",$attacker["strength"]);
+  $defender_strength=explode(",",$attacker["strength"]);
   for ($i=1;$i<=3;$i++)
   {
-
+    $attacker_defend=$attacker["strength"][$i-1]*10;
+    $attacker_attack=$attacker["strength"][$i+2]*10;
+    $defender_defend=$defender["strength"][$i-1]*10;
+    $defender_attack=$defender["strength"][$i+2]*10;
+    $attack_rand=mt_rand(round($defender_attack/2),$defender_attack);
+    $defend_rand=mt_rand(round($attacker_defend/2),$attacker_defend);
+    $delta=min($attack_rand,$defend_rand)-$attack_rand;
+    $health=min(MAX_HEALTH,max(0,$health-round($delta/10)));
+    irciv_term_echo("*** irciv: attacker health: $health");
   }
+  return $health;
 }
 
 #####################################################################################################
 
 function defender_health($defender,$attacker)
 {
-
+  return attacker_health($defender,$attacker);
 }
 
 #####################################################################################################
