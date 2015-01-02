@@ -110,7 +110,11 @@ function get_host_and_uri($url,&$host,&$uri,&$port)
       $port=443;
     }
   }
-  $uri=$comp["path"];
+  $uri="/";
+  if (isset($comp["path"])==True)
+  {
+    $uri=$comp["path"];
+  }
   if (isset($comp["query"])==True)
   {
     if ($comp["query"]<>"")
@@ -167,7 +171,11 @@ function get_redirected_url($from_url,$url_list="")
     term_echo("redirect without host: ".$url);
     return False;
   }
-  $uri=$comp["path"];
+  $uri="/";
+  if (isset($comp["path"])==True)
+  {
+    $uri=$comp["path"];
+  }
   if (isset($comp["query"])==True)
   {
     if ($comp["query"]<>"")
