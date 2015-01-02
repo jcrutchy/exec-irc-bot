@@ -26,13 +26,15 @@ if (get_host_and_uri($url,$host,$uri,$port)==False)
   return;
 }
 
-$breakcode="return ((strpos(strtolower(\$response),\"</title>\")!==False) or (strlen(\$response)>=2048));";
+$breakcode="return ((strpos(strtolower(\$response),\"</title>\")!==False) or (strlen(\$response)>=10000));";
 $response=wget($host,$uri,$port,ICEWEASEL_UA,"",20,$breakcode,256);
 
 #var_dump($response);
 term_echo("*** TITLE => response bytes: ".strlen($response));
 
 $html=strip_headers($response);
+
+#var_dump($html);
 
 $title=extract_raw_tag($html,"title");
 
@@ -44,6 +46,7 @@ $filtered_title=strtolower(filter_non_alpha_num($title));
 
 if ($filtered_title=="")
 {
+  term_echo("filtered_title is empty");
   return;
 }
 
@@ -72,7 +75,14 @@ if (strpos($filtered_url,$filtered_title)===False)
       return;
     }
   }
-  privmsg(chr(3)."13".$title);
+  if (strpos($title,"119.18.0.66")===False)
+  {
+    privmsg(chr(3)."13".$title);
+  }
+  else
+  {
+    term_echo("bot host ip address exists in url");
+  }
 }
 else
 {
