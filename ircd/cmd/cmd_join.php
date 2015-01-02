@@ -1,8 +1,5 @@
 <?php
 
-# gpl2
-# by crutchy
-
 /*
 << JOIN #stuff
 >> :crutchy!~crutchy@709-27-2-01.cust.aussiebb.net JOIN #stuff

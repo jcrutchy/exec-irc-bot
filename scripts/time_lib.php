@@ -1,9 +1,5 @@
 <?php
 
-# gpl2
-# by crutchy
-# 2-sep-2014
-
 require_once("lib.php");
 
 # google "time arizona, usa" gives 2 times (due to crossing timezones)

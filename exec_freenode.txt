@@ -1,89 +1,23 @@
-# gpl2
-# by crutchy
-
-#####################################################################################################
-
-# alias|timeout|repeat|auto-privmsg|empty-trailing-allowed|account-list|cmd-list|dest-list|bucket-lock|shell-cmd
-# available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%params%%, %%timestamp%%
-# %%trailing%% excludes alias
-# aliases here must be all lower case letters
-# account, cmd and dest lists are all comma-separated
-
-#####################################################################################################
-
-# RESERVED ALIAS TRIGGERED ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
 *|10|0|0|1|||||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
 
-# RESERVED ALIAS TRIGGERED BEFORE IRC CONNECTION - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
-#<init>|10|0|0|1|||||php scripts/init.php
-
-# RESERVED ALIAS TRIGGERED ON QUIT - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
-#<quit>|10|0|0|1|||||php scripts/quit.php
-
-# RESERVED ALIAS TRIGGERED ON NICKSERV IDENTIFY - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
-#<startup>|0|0|0|1|||||php scripts/startup.php
-
-# RESERVED ALIAS FOR LOGGING ITEMS
-#<log>|10|0|0|1|||||php scripts/log.php %%trailing%% %%dest%% %%nick%% %%timestamp%%
-
-#####################################################################################################
-
-#init ./scripts
-#startup ./scripts
-
-#####################################################################################################
-
-#include ./scripts
-#include test.php
-
-#####################################################################################################
+include ./scripts/php.php
+include ./scripts/sed.php
+include ./scripts/part.php
+include ./scripts/join.php
+include ./scripts/admin.php
+include ./scripts/about.php
+include ./scripts/help.php
+include ./scripts/users.php
+include ./scripts/say.php
+include ./scripts/time.php
+include ./scripts/weather.php
+include ./scripts/title.php
+include ./scripts/isup.php
+include ./scripts/translate.php
+include ./scripts/rainbow.php
 
 ~cowsay|10|0|1|0|||||cowsay %%trailing%%
 ~moo|10|0|1|1|||||apt-get moo
 ~fortune|5|0|1|1|||||fortune -s
-#~openthepodbaydoors|5|0|1|1|||||fortune -s -o
-
-~php|5|0|0|0|||||php scripts/php.php %%trailing%%
-
-~sed-internal|10|0|0|1||INTERNAL|||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
-~sed|10|0|0|0|||||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
-
-~part|5|0|0|1|||||php scripts/part.php %%dest%% %%trailing%%
-~join|5|0|0|0|||||php scripts/join.php %%trailing%%
-
-~|5|0|1|1|||||php scripts/about.php %%trailing%%
-
-~help|20|0|0|1|||||php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
-
-~op|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-~deop|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-~voice|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-~devoice|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-~kick|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-~topic|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-
-~users|10|0|0|0|crutchy||||php scripts/users.php %%trailing%% %%nick%% %%dest%% %%alias%%
-
-~say|10|0|0|1|crutchy,chromas||||php scripts/say.php %%trailing%% %%nick%%
 
 ~suggest-exec|30|0|0|1|*||||php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
-
-~time|60|0|0|1|||||php scripts/time.php %%alias%% %%trailing%% %%nick%%
-~time-add|10|0|0|1|||||php scripts/time.php %%alias%% %%trailing%% %%nick%%
-~time-del|10|0|0|1|||||php scripts/time.php %%alias%% %%trailing%% %%nick%%
-
-~weather|60|0|0|1|||||php scripts/weather.php %%alias%% %%trailing%% %%nick%%
-~weather-add|10|0|0|1|||||php scripts/weather.php %%alias%% %%trailing%% %%nick%%
-~weather-del|10|0|0|1|||||php scripts/weather.php %%alias%% %%trailing%% %%nick%%
-
-~title|30|0|0|0|||||php scripts/title.php %%trailing%%
-
-~isup|30|0|0|0|||||php scripts/isup.php %%trailing%%
-
-~translate|10|0|0|0|||||php scripts/translate.php %%trailing%% %%alias%%
-~translate-sl|10|0|0|0|||||php scripts/translate.php %%trailing%% %%alias%%
-
-~rainbow|5|0|0|0|||||php scripts/rainbow.php %%trailing%%
-
-#####################################################################################################
-

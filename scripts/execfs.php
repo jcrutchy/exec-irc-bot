@@ -1,8 +1,5 @@
 <?php
 
-# gpl2
-# by crutchy
-
 /*
 exec:~cat|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~get|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%

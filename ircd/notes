@@ -6,5 +6,3 @@ ircd to work as a relay between irc.sylnt.us and local
 
 if a local client (xchat or bot) says something, it appears as "<exec> localnick: msg" at irc.sylnt.us,
 and likewise if someone says something on irc.sylnt.us
-
-

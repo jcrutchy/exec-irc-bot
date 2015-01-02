@@ -1,8 +1,5 @@
 <?php
 
-# gpl2
-# by crutchy
-
 #####################################################################################################
 
 function connection_index($client_index,$suppress_error=False)

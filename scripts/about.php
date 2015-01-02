@@ -1,8 +1,5 @@
 <?php
 
-# gpl2
-# by crutchy
-
 /*
 exec:~|5|0|1|1|||||php scripts/about.php %%trailing%%
 */

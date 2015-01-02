@@ -3,8 +3,6 @@ EXEC IDEAS
 
 delphi program that reads processed loggie logs and draws a live relationship chart and stats
 
-
-
 ~admin ignore on|off # completely ignores a channel (including logging)
 
 ~karma on|off
@@ -16,49 +14,4 @@ set bucket with start time
 if exec restarts, check all remind buckets to see if any haven't expired yet
 and reset them with new sleep time to trigger at correct intended time
 
-~define -f term
-uses cprivmsg to output more (avoids flood control if exec is channel operator)
-or something like !more to output some more content
-
-SoylentNews comment feed
-- nicks can use ~mod to moderate last comment
-(if a trial run is positive, maybe ask staff for moderation priveliges for the exec user)
-- poll to see if exec has mod points before output feed
-
-EXEC MODULARISATION:
-- bot.php
-  executes irc.php in separate process
-  executes bucket_manager.php in separate process
-  passes data between processes
-- bot_lib.php
-  contains common bot functions and constant declarations
-- irc.php
-  contains irc program loop. passes all unprocessed data string to line.php as separate process
-- line.php
-  takes raw irc line, parses it, and executes aliases as required (uses same process management functions as irc.php)
-- bucket_manager.php
-  stores bucket data in process memory. handles bucket requests
-
-watchdog process - prospectacle
-
-
 freepascal-ize SN log parsing and searching
-
-FEATURE REQUESTS:
-<bytram> re weather crutchy: maybe, instead, try it with the given case, and if it comes back with nothing, then (and only then) try it case insensitive?
-
-
-
-
-<crutchy> ~submit <insert_hyperlink_here>
-<TheMightyBuzzard> editors don't do the whole writeup for you off a link as a general rule.
-<crutchy> nah the submission wouldn't be just a link
-<crutchy> the script would do a bit of scrapage
-<crutchy> kinda like monopoly/netcraft type thing... just get the first couple of paragraphs maybe.
-<crutchy> might not make for an awesome submit still, but most of my submits aren't much better than thatg anyway
-<TheMightyBuzzard> likely be the wrong paragraphs for quoting
-<TheMightyBuzzard> seems like the good ones come about paragraph 3-4
-<crutchy> maybe, but i generally just post the first paragraph, which (for a good article anyway has some sort of summary)
-<crutchy> could maybe have an intermediate step, where the script pm's you the submission content and you reply 'yes' or 'submit' to confirm
-
-

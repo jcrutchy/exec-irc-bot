@@ -1,8 +1,5 @@
 <?php
 
-# gpl2
-# by crutchy
-
 #####################################################################################################
 
 /*
@@ -21,17 +18,12 @@ init:~wiki register-events
 
 # instead of "~wiki login" & "~wiki get page|section" you just type [[page#section]] to get the page/section
 
-
-# POTENTIAL THREAT
-# ================
-# MAY BE ABLE TO INJECT SCRIPT INTO THE WIKI - USE STRIP_TAGS ON INPUT
-
 #####################################################################################################
 
 require_once("lib.php");
 require_once("wiki_lib.php");
 
-$trailing=trim($argv[1]);
+$trailing=trim(strip_tags($argv[1]));
 $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
