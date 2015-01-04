@@ -6,24 +6,12 @@ function get_new_items($feed_list)
 {
   $results=array();
   $past_feeds=array();
-  $past_feeds_bucket=get_bucket("<<PAST_FEEDS>>");
-  if ($past_feeds_bucket<>"")
+  if (file_exists(PAST_FEED_FILE)==True)
   {
-    $past_feeds_bucket=unserialize($past_feeds_bucket);
-    if ($past_feeds_bucket!==False)
+    $data=file_get_contents(PAST_FEED_FILE);
+    if ($data!==False)
     {
-      $past_feeds=$past_feeds_bucket;
-    }
-  }
-  else
-  {
-    if (file_exists(PAST_FEED_FILE)==True)
-    {
-      $data=file_get_contents(PAST_FEED_FILE);
-      if ($data!==False)
-      {
-        $past_feeds=explode("\n",$data);
-      }
+      $past_feeds=explode("\n",$data);
     }
   }
   $current_feeds=array();
@@ -84,7 +72,6 @@ function get_new_items($feed_list)
     $data=$data.$current_feeds[$i];
   }
   file_put_contents(PAST_FEED_FILE,$data);
-  set_bucket("<<PAST_FEEDS>>",serialize($current_feeds));
   return $results;
 }
 
@@ -106,7 +93,11 @@ function parse_atom($html)
     $entry["title"]=replace_ctrl_chars($entry["title"]," ");
     $entry["title"]=str_replace("  "," ",$entry["title"]);
     # <updated>2014-07-20T21:07:00+00:00</updated>
-    $url=str_replace("&amp;","&",trim(strip_ctrl_chars(extract_void_tag($parts[$i],"link href=")),"\""));
+    $url=extract_void_tag($parts[$i],"link href=");
+    $url_parts=explode(" ",$url);
+    $url=$url_parts[0];
+    $url=trim(strip_ctrl_chars($url),"\"");
+    $url=str_replace("&amp;","&",$url);
     $entry["url"]=get_redirected_url($url);
     $entry["timestamp"]=time();
     if (($entry["title"]===False) or ($entry["url"]===False))
@@ -192,14 +183,6 @@ function load_feeds_from_file($filename)
     return False;
   }
   $data=explode("\n",$data);
-  return load_feeds($data);
-}
-
-#####################################################################################################
-
-function load_feeds_from_wiki($title)
-{
-  $data="";
   return load_feeds($data);
 }
 

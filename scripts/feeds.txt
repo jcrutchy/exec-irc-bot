@@ -1,3 +1,6 @@
+atom|xkcd what-if|https://what-if.xkcd.com/feed.atom
+
+
 #rss|Ars Technica|http://feeds.arstechnica.com/arstechnica/index?format=xml (Regurgitator)
 #rss|NASA|http://www.nasa.gov/rss/dyn/breaking_news.rss
 #rss|SpaceFuture|http://www.spacefuture.com/channel/rss/journal.rss
@@ -5,9 +8,6 @@
 #rss|TechCrunch|http://feeds.feedburner.com/TechCrunch/
 #rss|ZDNet|http://www.zdnet.com/news/rss.xml
 #rss|ComputerWeekly|http://www.computerweekly.com/rss/All-Computer-Weekly-content.xml
-
-rss|AU-BoM-Warn-Vic|http://www.bom.gov.au/fwo/IDZ00066.warnings_land_vic.xml
-
 #futurity.org
 #theregister.co.uk
 #BBC
