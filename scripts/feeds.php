@@ -58,7 +58,7 @@ $c=min(4,count($items));
 for ($i=0;$i<$c;$i++)
 {
   $item=$items[$i];
-  $msg=chr(2)."[".$item["feed_name"]."]".chr(2)." - ".chr(3)."3".$item["title"].chr(3)." - ".$item["url"];
+  $msg=chr(2)."[".$item["feed_name"]."]".chr(2)." - ".chr(3)."03".$item["title"].chr(3)." - ".$item["url"];
   echo "/IRC :".NICK_EXEC." PRIVMSG ".$feed_chan." :$msg\n";
 }
 

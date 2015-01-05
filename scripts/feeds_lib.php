@@ -55,7 +55,7 @@ function get_new_items($feed_list)
         $item["title"]=str_replace("&apos;","'",$item["title"]);
         $item["feed_name"]=$feed["name"];
         $results[]=$item;
-        if (count($results)>=3)
+        if (count($results)>=4)
         {
           break;
         }
@@ -71,7 +71,7 @@ function get_new_items($feed_list)
     }
     $data=$data.$current_feeds[$i];
   }
-  file_put_contents(PAST_FEED_FILE,$data);
+  file_put_contents(PAST_FEED_FILE,$data,FILE_APPEND); # TODO: THE FEED FILE WRITE NEEDS TO BE MOVED OUT OF HERE TO feeds.php COS THIS IS RETARDED
   return $results;
 }
 
