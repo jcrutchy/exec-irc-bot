@@ -4,7 +4,7 @@
 
 /*
 exec:~feeds|500|0|0|1|crutchy||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~feeds-internal|500|1800|0|1||INTERNAL|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~feeds-internal|500|900|0|1||INTERNAL|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~feeds-sources|5|0|0|1|||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
@@ -54,8 +54,7 @@ if ($alias=="~feeds-sources")
 }
 
 $items=get_new_items($feed_list);
-#var_dump($items);
-$c=min(3,count($items));
+$c=min(4,count($items));
 for ($i=0;$i<$c;$i++)
 {
   $item=$items[$i];

@@ -1,6 +1,8 @@
-atom|xkcd what-if|https://what-if.xkcd.com/feed.atom
+atom|Schneier|https://www.schneier.com/blog/atom.xml
+rss|NSA|https://www.nsa.gov/rss.shtml
+rss|ycombinator|https://news.ycombinator.com/rss
 
-
+#atom|xkcd what-if|https://what-if.xkcd.com/feed.atom
 #rss|Ars Technica|http://feeds.arstechnica.com/arstechnica/index?format=xml (Regurgitator)
 #rss|NASA|http://www.nasa.gov/rss/dyn/breaking_news.rss
 #rss|SpaceFuture|http://www.spacefuture.com/channel/rss/journal.rss
