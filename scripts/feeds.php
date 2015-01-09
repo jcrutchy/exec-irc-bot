@@ -4,7 +4,7 @@
 
 /*
 exec:~feeds|500|0|0|1|crutchy||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~feeds-internal|500|900|0|1||INTERNAL|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~feeds-internal|500|900|0|1||INTERNAL|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~feeds-sources|5|0|0|1|||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
