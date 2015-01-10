@@ -10,7 +10,7 @@ exec:~antispam|30|0|0|1|||||php scripts/antispam.php %%trailing%%
 
 ini_set("display_errors","on");
 require_once("lib.php");
-define("PREVIOUS_MSG_TRACK",7);
+define("PREVIOUS_MSG_TRACK",5);
 if (get_bucket("<<IRC_CONNECTION_ESTABLISHED>>")<>"1")
 {
   return;
@@ -31,14 +31,22 @@ if (isset($exec["channels"][$dest])==True)
     return;
   }
 }
+$user=users_get_data($nick);
+if (isset($user["channels"][$dest])==False)
+{
+  return;
+}
 $timestamp=$items["time"];
 $index="ANTISPAM_DATA_".$dest."_".$nick;
 $bucket=get_array_bucket($index);
-$data=array();
-$data["timestamp"]=$timestamp;
-$data["trailing"]=$trailing;
-$bucket[]=$data;
-$n=count($bucket);
+if (isset($bucket["timestamps"])==False)
+{
+  $bucket["timestamps"]=array();
+  $bucket["trailings"]=array();
+}
+$bucket["timestamps"][]=$timestamp;
+$bucket["trailings"][]=$trailing;
+$n=count($bucket["timestamps"]);
 if ($n>PREVIOUS_MSG_TRACK)
 {
   array_shift($bucket);
@@ -48,10 +56,11 @@ if ($n<PREVIOUS_MSG_TRACK)
 {
   return;
 }
-$delta=$timestamp-$bucket[0]["timestamp"];
-if ($delta<5)
+$delta=$timestamp-$bucket["timestamps"][0];
+$trailings=array_count_values($bucket["trailings"]);
+if (($delta<5) and (count($trailings)==1))
 {
-  rawmsg("KICK $dest $target :suspected flood");
+  rawmsg("KICK $dest $nick :suspected flood");
 }
 
 #####################################################################################################
