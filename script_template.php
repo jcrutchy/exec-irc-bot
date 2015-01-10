@@ -3,7 +3,7 @@
 #####################################################################################################
 
 /*
-exec:~alias|timeout|repeat|0|1|account-list|cmd-list|dest-list|bucket-lock-list|php scripts/blah.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%params%% %%timestamp%%
+exec:~alias|timeout|repeat|0|1|account-list|cmd-list|dest-list|bucket-lock-list|php scripts/blah.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%params%% %%timestamp%% %%items%%
 startup:
 init:
 */
@@ -21,6 +21,7 @@ $cmd=$argv[6];
 $data=$argv[7];
 $params=$argv[8];
 $timestamp=$argv[9];
+$items=unserialize($argv[10]);
 
 #####################################################################################################
 

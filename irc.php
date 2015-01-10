@@ -2,6 +2,14 @@
 
 #####################################################################################################
 
+require_once("irc_lib.php");
+
+set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)
+ini_set("display_errors","on"); # output errors to stdout
+date_default_timezone_set("UTC");
+
+define("START_TIME",microtime(True)); # used for %%start%% template
+
 if (isset($argv[1])==False)
 {
   # default installation-specific settings
@@ -50,7 +58,13 @@ else
 
 # TODO: ADD FLAG TO HAVE EXEC IGNORE ITSELF
 
-#####################################################################################################
+ini_set("memory_limit",MEMORY_LIMIT);
+
+if (file_exists(PASSWORD_FILE)==False)
+{
+  term_echo("bot NickServ password file not found. quitting");
+  return;
+}
 
 define("EXEC_DELIM","|");
 define("EXEC_DIRECTIVE_DELIM"," ");
@@ -149,6 +163,7 @@ define("TEMPLATE_DESTINATION","dest");
 define("TEMPLATE_START","start");
 define("TEMPLATE_ALIAS","alias");
 define("TEMPLATE_DATA","data");
+define("TEMPLATE_ITEMS","items");
 define("TEMPLATE_CMD","cmd");
 define("TEMPLATE_PARAMS","params");
 define("TEMPLATE_TIMESTAMP","timestamp");
@@ -156,21 +171,6 @@ define("TEMPLATE_TIMESTAMP","timestamp");
 define("THROTTLE_LOCKOUT_TIME",10); # sec
 define("ANTI_FLOOD_DELAY",0.6); # sec
 define("RAWMSG_TIME_COUNT",6); # messages to send without any delays
-
-require_once("irc_lib.php");
-
-set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)
-ini_set("memory_limit",MEMORY_LIMIT);
-ini_set("display_errors","on"); # output errors to stdout
-date_default_timezone_set("UTC");
-
-define("START_TIME",microtime(True)); # used for %%start%% template
-
-if (file_exists(PASSWORD_FILE)==False)
-{
-  term_echo("bot NickServ password file not found. quitting");
-  return;
-}
 
 $admin_accounts=explode(",",ADMIN_ACCOUNTS);
 

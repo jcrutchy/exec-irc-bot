@@ -13,12 +13,14 @@
 #                                                                                                   #
 #####################################################################################################
 
-$cmd=$argv[1];
-$trailing=$argv[2];
-$data=$argv[3];
-$dest=$argv[4];
-$params=$argv[5];
-$nick=$argv[6];
+$items=unserialize($argv[1]);
+
+$cmd=$items["cmd"];
+$data=$items["data"];
+$trailing=$items["trailing"];
+$dest=$items["destination"];
+$params=$items["params"];
+$nick=$items["nick"];
 
 switch (strtoupper($cmd))
 {
@@ -65,6 +67,7 @@ switch (strtoupper($cmd))
     break;
   case "PRIVMSG":
     echo "/INTERNAL ~sed-internal PRIVMSG $trailing\n";
+    echo "/INTERNAL ~antispam ".$argv[1]."\n";
     break;
   case "QUIT":
     break;

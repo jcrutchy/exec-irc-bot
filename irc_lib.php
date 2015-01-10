@@ -2193,6 +2193,7 @@ function process_scripts($items,$reserved="")
     privmsg($destination,$nick,"alias \"$alias\" requires additional trailing argument");
     return;
   }
+  $items_serialized=serialize($items);
   $template=$exec_list[$alias]["cmd"];
   $start=microtime(True);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_TRAILING.TEMPLATE_DELIM,escapeshellarg($trailing),$template);
@@ -2201,6 +2202,7 @@ function process_scripts($items,$reserved="")
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_START.TEMPLATE_DELIM,escapeshellarg(START_TIME),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_ALIAS.TEMPLATE_DELIM,escapeshellarg($alias),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_DATA.TEMPLATE_DELIM,escapeshellarg($data),$template);
+  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_ITEMS.TEMPLATE_DELIM,escapeshellarg($items_serialized),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_CMD.TEMPLATE_DELIM,escapeshellarg($cmd),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_PARAMS.TEMPLATE_DELIM,escapeshellarg($items["params"]),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_TIMESTAMP.TEMPLATE_DELIM,escapeshellarg($start),$template);
@@ -2244,7 +2246,8 @@ function process_scripts($items,$reserved="")
     "nick"=>$items["nick"],
     "cmd"=>$items["cmd"],
     "destination"=>$items["destination"],
-    "trailing"=>$trailing);
+    "trailing"=>$trailing,
+    "items"=>$items_serialized);
   stream_set_blocking($pipes[1],0);
   stream_set_blocking($pipes[2],0);
 }
