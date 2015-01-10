@@ -941,9 +941,8 @@ function handle_join(&$items)
   }
   term_echo("*** USERS: handle_join: nick=$nick, channel=$channel");
   $users=get_users($nick);
-  $t=microtime(True);
-  $users[$nick]["nicks"][$nick]=$t;
-  $users[$nick]["channels"][$channel]=$t;
+  $users[$nick]["nicks"][$nick]=microtime(True);
+  $users[$nick]["channels"][$channel]="";
   $users[$nick]["prefix"]=trim($items["prefix"]);
   $users[$nick]["user"]=trim($items["user"]);
   $users[$nick]["hostname"]=trim($items["hostname"]);
@@ -1141,9 +1140,11 @@ function handle_319(&$items)
       term_echo("*** USERS: handle_319: empty channel");
       continue;
     }
+    $user_auth="";
     $auth=$channel[0];
     if (($auth=="+") or ($auth=="@"))
     {
+      $user_auth=$auth;
       $channel=substr($channel,1);
       if ($channel=="")
       {
@@ -1153,6 +1154,7 @@ function handle_319(&$items)
       $auth=$channel[0];
       if (($auth=="+") or ($auth=="@"))
       {
+        $user_auth=$user_auth.$auth;
         $channel=substr($channel,1);
         if ($channel=="")
         {
@@ -1162,11 +1164,10 @@ function handle_319(&$items)
       }
     }
     term_echo("*** USERS: handle_319: subject_nick=$subject_nick, channel=$channel");
-    $t=microtime(True);
-    $users[$subject_nick]["channels"][$channel]=$t;
+    $users[$subject_nick]["channels"][$channel]=$user_auth;
     if (isset($users[$subject_nick]["nicks"][$subject_nick])==False)
     {
-      $users[$subject_nick]["nicks"][$subject_nick]=$t;
+      $users[$subject_nick]["nicks"][$subject_nick]=microtime(True);
     }
   }
   set_users($users);
@@ -1228,22 +1229,34 @@ function handle_353(&$items)
       term_echo("*** USERS: handle_353: empty nick");
       continue;
     }
+    $user_auth="";
     $auth=$nick[0];
     if (($auth=="+") or ($auth=="@"))
     {
+      $user_auth=$auth;
       $nick=substr($nick,1);
       if ($nick=="")
       {
-        term_echo("*** USERS: handle_353: empty auth nick");
+        term_echo("*** USERS: handle_353: empty auth nick (1)");
         continue;
       }
+      $auth=$nick[0];
+      if (($auth=="+") or ($auth=="@"))
+      {
+        $user_auth=$user_auth.$auth;
+        $nick=substr($nick,1);
+        if ($nick=="")
+        {
+          term_echo("*** USERS: handle_353: empty auth nick (2)");
+          continue;
+        }
+      }
     }
-    $t=microtime(True);
     term_echo("** USERS: handle_353: nick=$nick, channel=$channel");
-    $users[$nick]["channels"][$channel]=$t;
+    $users[$nick]["channels"][$channel]=$user_auth;
     if (isset($users[$nick]["nicks"][$nick])==False)
     {
-      $users[$nick]["nicks"][$nick]=$t;
+      $users[$nick]["nicks"][$nick]=microtime(True);
     }
   }
   set_users($users);

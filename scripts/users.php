@@ -50,7 +50,12 @@ switch ($cmd)
     $user=users_get_data($subject_nick);
     if (isset($user["channels"])==True)
     {
-      privmsg("channels: ".implode(" ",array_keys($user["channels"])));
+      $channels=array_keys($user["channels"]);
+      for ($i=0;$i<count($channels);$i++)
+      {
+        $channels[$i]=$user["channels"][$channels[$i]].$channels[$i];
+      }
+      privmsg("channels: ".implode(" ",$channels));
     }
     if (isset($user["nicks"])==True)
     {
