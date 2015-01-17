@@ -22,7 +22,7 @@ $alias=strtolower(trim($argv[4]));
 
 if ($alias=="~slashcode-issue")
 {
-  return;
+  return; # <<<< disables alias
   $parts=explode(",",$trailing);
   $title=trim($parts[0]);
   array_shift($parts);

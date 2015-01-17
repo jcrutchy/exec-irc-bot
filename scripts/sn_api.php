@@ -16,6 +16,12 @@ $nick=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];
 
+if ($trailing=="")
+{
+  privmsg("  http://wiki.soylentnews.org/wiki/ApiDocs");
+  return;
+}
+
 $parts=explode(" ",$trailing);
 delete_empty_elements($parts);
 $op=$parts[0];
