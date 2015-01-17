@@ -2209,6 +2209,7 @@ function process_scripts($items,$reserved="")
   $items_serialized=serialize($items);
   $template=$exec_list[$alias]["cmd"];
   $start=microtime(True);
+  # TODO: %%trailing|$index[|$delimiter(space default)]%%
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_TRAILING.TEMPLATE_DELIM,escapeshellarg($trailing),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_NICK.TEMPLATE_DELIM,escapeshellarg($nick),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_DESTINATION.TEMPLATE_DELIM,escapeshellarg($destination),$template);
