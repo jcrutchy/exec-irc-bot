@@ -28,13 +28,10 @@ $port=80;
 switch ($op)
 {
   case "uid":
-    $uri="/api.pl?m=user&op=get_uid&nick=".urlencode($trailing);
-    $response=wget($host,$uri,$port);
-    $content=strip_headers($response);
-    $data=json_decode($content,True);
-    if (isset($data["uid"])==True)
+    $uid=get_uid($trailing);
+    if ($uid!==False)
     {
-      privmsg("  SN uid for user \"$trailing\" is ".$data["uid"]);
+      privmsg("  SN uid for user \"$trailing\" is $uid");
     }
     else
     {
@@ -42,13 +39,10 @@ switch ($op)
     }
     break;
   case "name":
-    $uri="/api.pl?m=user&op=get_nick&uid=$trailing";
-    $response=wget($host,$uri,$port);
-    $content=strip_headers($response);
-    $data=json_decode($content,True);
-    if (isset($data["nick"])==True)
+    $name=get_name($trailing);
+    if ($name!==False)
     {
-      privmsg("  SN username for uid $trailing is \"".$data["nick"]."\"");
+      privmsg("  SN username for uid $trailing is \"$name\"");
     }
     else
     {
@@ -59,14 +53,11 @@ switch ($op)
     $uname="";
     if (exec_is_integer($trailing)==False)
     {
-      $uri="/api.pl?m=user&op=get_uid&nick=".urlencode($trailing);
-      $response=wget($host,$uri,$port);
-      $content=strip_headers($response);
-      $data=json_decode($content,True);
-      if (isset($data["uid"])==True)
+      $uid=get_uid($trailing);
+      if ($uid!==False)
       {
         $uname=$trailing;
-        $trailing=$data["uid"];
+        $trailing=$uid;
       }
       else
       {
@@ -76,13 +67,10 @@ switch ($op)
     }
     else
     {
-      $uri="/api.pl?m=user&op=get_nick&uid=$trailing";
-      $response=wget($host,$uri,$port);
-      $content=strip_headers($response);
-      $data=json_decode($content,True);
-      if (isset($data["nick"])==True)
+      $name=get_name($trailing);
+      if ($name!==False)
       {
-        $uname=$data["nick"];
+        $uname=$name;
       }
       else
       {
@@ -103,6 +91,46 @@ switch ($op)
       privmsg("  error: unable to retrive SN karma for uid $trailing");
     }
     break;
+}
+
+#####################################################################################################
+
+function get_uid($name)
+{
+  global $host;
+  global $port;
+  $uri="/api.pl?m=user&op=get_uid&nick=".urlencode($name);
+  $response=wget($host,$uri,$port);
+  $content=strip_headers($response);
+  $data=json_decode($content,True);
+  if (isset($data["uid"])==True)
+  {
+    return $data["uid"];
+  }
+  else
+  {
+    return False;
+  }
+}
+
+#####################################################################################################
+
+function get_name($uid)
+{
+  global $host;
+  global $port;
+  $uri="/api.pl?m=user&op=get_nick&uid=$uid";
+  $response=wget($host,$uri,$port);
+  $content=strip_headers($response);
+  $data=json_decode($content,True);
+  if (isset($data["nick"])==True)
+  {
+    return $data["nick"];
+  }
+  else
+  {
+    return False;
+  }
 }
 
 #####################################################################################################
