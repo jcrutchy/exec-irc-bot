@@ -14,7 +14,12 @@ $trailing=trim($argv[1]);
 $dest=$argv[2];
 $nick=$argv[3];
 
-$list=get_array_bucket("~links/list");
+if ($trailing=="")
+{
+  return;
+}
+
+$list=get_array_bucket("~link/list");
 $parts=explode(" ",$trailing);
 if (count($parts)==2)
 {
@@ -35,43 +40,60 @@ if (count($parts)==2)
     $list[$parts[0]]=$parts[1];
     privmsg("  link set");
   }
-  set_array_bucket($list,"~links/list");
+  set_array_bucket($list,"~link/list");
 }
 else
 {
   if (isset($list[$trailing])==True)
   {
-    privmsg("  ".$list[$trailing]);
+    $value=$list[$trailing];
+    privmsg("  └─ $trailing => $value");
+    return;
+  }
+  # TODO: ALLOW USE OF PCRE DELIMITERS & MODIFIERS
+  # http://php.net/manual/en/reference.pcre.pattern.syntax.php
+  # http://php.net/manual/en/reference.pcre.pattern.modifiers.php
+  if ((substr($trailing,0,1)<>substr($trailing,strlen($trailing)-1,1)) or (strlen($trailing)==1))
+  {
+    $trailing="~".$trailing."~";
+  }
+  $results=preg_match_keys($trailing,$list);
+  $n=count($results);
+  if ($n>0)
+  {
+    $i=0;
+    foreach ($results as $key => $value)
+    {
+      if ($i==($n-1))
+      {
+        privmsg("  └─ $key => $value");
+      }
+      else
+      {
+        privmsg("  ├─ $key => $value");
+      }
+      $i++;
+    }
   }
   else
   {
-    privmsg("  error: link not found");
+    privmsg("  error: no links match");
   }
 }
 
 #####################################################################################################
 
-function wild_search_keys($array,$query)
+function preg_match_keys($pattern,$subject)
 {
   $result=array();
-  foreach ($array as $key => $value)
+  foreach ($subject as $key => $value)
   {
-    if (wild_compare($key,$query)==True)
+    if (preg_match($pattern,$key)==1)
     {
       $result[$key]=$value;
     }
   }
   return $result;
-}
-
-#####################################################################################################
-
-# subject = "my dog has fleas"
-# query = "*d*g*"
-
-function wild_compare($subject,$query)
-{
-  
 }
 
 #####################################################################################################
