@@ -22,6 +22,21 @@ define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 
 #####################################################################################################
 
+function internal_macro($commands,$sleep=0)
+{
+  $n=count($commands);
+  for ($i=0;$i<$n;$i++)
+  {
+    echo "/IRC :".NICK_EXEC." INTERNAL :".$commands[$i]."\n";
+    if (($sleep>0) and ($i<($n-1)))
+    {
+      sleep($sleep);
+    }
+  }
+}
+
+#####################################################################################################
+
 function exec_file_delete($filename)
 {
   if (file_exists(DATA_PATH.$filename)==True)
