@@ -29,6 +29,17 @@ define("BOT_BUCKET","<<MINIONS>>");
 $trailing=trim($argv[1]);
 $dest=trim($argv[2]);
 $nick=trim($argv[3]);
+
+if ($trailing=="freenode-autostart")
+{
+  echo "/IRC :exec INTERNAL :~join #freenode\n";
+  echo "/IRC :exec INTERNAL :~minion new sylnt irc.freenode.net 6667 #sylnt\n";
+  sleep(30);
+  echo "/IRC :exec INTERNAL :~minion join sylnt #sylnt,##exec,#devuan,#devuan-dev\n";
+  sleep(5);
+  echo "/IRC :exec INTERNAL :~minion forward sylnt #freenode\n";
+}
+
 $parts=explode(" ",$trailing);
 if (count($parts)<2)
 {
