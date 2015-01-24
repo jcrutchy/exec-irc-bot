@@ -16,6 +16,28 @@ $url_blacklist=array("kidd","porn","goat","xxx","sex","fuc");
 $body=home();
 if (isset($_GET["url"])==True)
 {
+/*
+
+RewriteRule ^([^/]*)$ /?i=$1 [L]
+
+You can add more than one flag to a RewriteRule statement by separating them with commas
+
+RewriteCond %{REQUEST_URI} !^/view.php
+RewriteCond %{REQUEST_URI} !.html$
+RewriteCond %{REQUEST_URI} !/$
+RewriteRule ^/(.*)$ http://example.com/view.php?id=$1 [QSA]
+
+RewriteRule ^([^\.\/]*)$ view.php?id=$1 [L]
+The magic part is the [^\.\/]* which says: 1 or more (*) instances of a charactor ([]) which is not ([^ ]) a period or a slash (\ escapes these charactors).
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.php [L]
+</IfModule>
+*/
   # move this to a lib.php function, and add a bot alias script (only accessible from irc)
   $urls=load_urls();
   $long=$_GET["url"];

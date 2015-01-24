@@ -1201,6 +1201,8 @@ function move_active_unit($account,$dir)
 
 #####################################################################################################
 
+# refer to: http://www.gamasutra.com/view/feature/1535/designing_ai_algorithms_for_.php?print=1
+
 function unit_attack($attack_account,$defend_account,&$attack_unit,&$defend_unit)
 {
   global $player_data;

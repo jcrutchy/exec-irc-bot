@@ -2,7 +2,14 @@
 
 #####################################################################################################
 
-define("LISTEN_ADDRESS","192.168.0.21");
+/*
+sudo lsof -i
+sudo netstat -lptu
+sudo netstat -tulpn
+*/
+
+#define("LISTEN_ADDRESS","192.168.0.21");
+define("LISTEN_ADDRESS","192.168.1.57");
 define("LISTEN_PORT",6667);
 define("CLIENT_TIMEOUT",60); # seconds
 
@@ -32,7 +39,7 @@ if (socket_get_option($server,SOL_SOCKET,SO_REUSEADDR)===False)
   echo "socket_get_option() failed: reason: ".socket_strerror(socket_last_error($server))."\n";
   return;
 }
-if (socket_bind($server,LISTEN_ADDRESS,LISTEN_PORT)===False)
+if (@socket_bind($server,LISTEN_ADDRESS,LISTEN_PORT)===False)
 {
   echo "socket_bind() failed: reason: ".socket_strerror(socket_last_error($server))."\n";
   return;
