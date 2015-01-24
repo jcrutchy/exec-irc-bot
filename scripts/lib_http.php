@@ -100,6 +100,10 @@ function get_host_and_uri($url,&$host,&$uri,&$port)
       $host=$comp["host"];
     }
   }
+  if ($host=="")
+  {
+    return False;
+  }
   $port=80;
   if (isset($comp["scheme"])==True)
   {
@@ -127,14 +131,7 @@ function get_host_and_uri($url,&$host,&$uri,&$port)
       $uri=$uri."#".$comp["fragment"];
     }
   }
-  if (($host=="") or ($uri==""))
-  {
-    return False;
-  }
-  else
-  {
-    return True;
-  }
+  return True;
 }
 
 #####################################################################################################
