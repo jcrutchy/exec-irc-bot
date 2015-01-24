@@ -10,7 +10,13 @@
   RewriteRule . /index.php [L]
 */
 
-echo "<html><head><title>z.cr.rs</title></head><body><p>Welcome to <b>z.cr.rs</b>.</p><p>-- crutchy</p>";
+$title="z.cr.rs";
+if (isset($_GET["i"])==True)
+{
+  $title=$title." - ".$_GET["i"];
+}
+
+echo "<html><head><title>$title</title></head><body><p>Welcome to <b>z.cr.rs</b>.</p><p>-- crutchy</p>";
 
 if (isset($_GET["i"])==True)
 {
