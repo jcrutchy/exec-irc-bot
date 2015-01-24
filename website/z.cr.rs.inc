@@ -53,6 +53,7 @@ function redirect($id)
 
 function load_urls()
 {
+  echo URL_FILE."\n";
   if (file_exists(URL_FILE)==False)
   {
     return array();
