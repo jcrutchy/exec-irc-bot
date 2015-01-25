@@ -50,7 +50,6 @@ else
 function redirect($id)
 {
   $urls=load_urls();
-  var_dump($urls);
   if (isset($urls[$id])==True)
   {
     $long=$urls[$id];
