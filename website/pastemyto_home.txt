@@ -9,7 +9,7 @@
 <body>
 <p>paste.my.to</p>
 <form action="/" method="POST">
-<textarea name="content" style="position: fixed; right: 0; left: 0; height: 50%; overflow: auto;" wrap="off"></textarea>
+<textarea name="content" style="position: fixed; width: 93%; height: 50%; overflow: auto;" wrap="off"></textarea>
 <input type="submit" value="paste">
 </form>
 <p>paste will have a url of the form http://paste.my.to/%id%</p>
