@@ -51,8 +51,6 @@ echo file_get_contents(HOME_FILE);
 function redirect($id)
 {
   $urls=load_urls();
-  var_dump($urls);
-  die();
   if (isset($urls[$id])==True)
   {
     $long=$urls[$id];
