@@ -23,7 +23,7 @@ function shorten_url($url)
   }
   $params=array();
   $params["url"]=$url;
-  $response=wpost("z.cr.rs","/","80",ICEWEASEL_UA,$params,"",30);
+  $response=wpost("o.my.to","/","80",ICEWEASEL_UA,$params,"",30);
   $short_url=trim(strip_headers($response));
   if ($short_url<>"")
   {

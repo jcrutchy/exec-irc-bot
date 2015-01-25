@@ -1,23 +1,23 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-<title>z.cr.rs</title>
+<title>o.my.to</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <style type="text/css"></style>
 <script type="text/javascript"></script>
 </head>
 <body>
-<p>z.cr.rs url shortener</p>
+<p>o.my.to url shortener</p>
 <div>
 <form action="/" method="POST">
 enter url to shorten: <input type="text" name="url" value="">
 <input type="submit" value="shorten">
 </form>
 </div>
-<p>shortener will output a url of the form http://z.cr.rs/%id%</p>
+<p>shortener will output a url of the form http://o.my.to/%id%</p>
 <p>%id% is combination of two lowercase letters that increments from aa to zz (ie: aa, ab) and rolls over from zz back to aa</p>
 <p>because of the rollover, lifetime of shortened urls varies according to usage</p>
 <p>crutchy, 25-jan-2015</p>
-<p><a href="https://github.com/crutchy-/exec-irc-bot/blob/master/website/z.cr.rs.inc">https://github.com/crutchy-/exec-irc-bot/blob/master/website/z.cr.rs.inc</a></p>
+<p><a href="https://github.com/crutchy-/exec-irc-bot/blob/master/website/o.my.to.inc">https://github.com/crutchy-/exec-irc-bot/blob/master/website/o.my.to.inc</a></p>
 </body>
 </html>

@@ -12,8 +12,8 @@
 
 #####################################################################################################
 
-define("URL_FILE",__DIR__."/../../data/zcrrs_urls.txt");
-define("HOME_FILE",__DIR__."/zcrrs_home.txt");
+define("URL_FILE",__DIR__."/../../data/omyto_urls.txt");
+define("HOME_FILE",__DIR__."/omyto_home.txt");
 
 #####################################################################################################
 
@@ -101,7 +101,7 @@ function shorten($url)
     $data=$data."$id|$long\n";
   }
   file_put_contents(URL_FILE,$data);
-  return "http://z.cr.rs/$next";
+  return "http://o.my.to/$next";
 }
 
 #####################################################################################################
