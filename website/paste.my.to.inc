@@ -12,14 +12,14 @@
 
 #####################################################################################################
 
-define("URL_FILE",__DIR__."/../../data/omyto_urls.txt");
-define("HOME_FILE",__DIR__."/omyto_home.txt");
+define("PASTES_FILE",__DIR__."/../../data/pastemyto_pastes.txt");
+define("HOME_FILE",__DIR__."/pastemyto_home.txt");
 
 #####################################################################################################
 
-if (file_exists(URL_FILE)==False)
+if (file_exists(PASTES_FILE)==False)
 {
-  die("url file not found");
+  die("pastes file not found");
 }
 if (file_exists(HOME_FILE)==False)
 {
@@ -33,75 +33,66 @@ if (isset($_GET["i"])==True)
 }
 if ($query<>"")
 {
-  redirect($query);
+  $pastes=load_pastes();
+  if (isset($pastes[$query])==True)
+  {
+    die($pastes[$query]);
+  }
   die("unknown query: $query");
 }
-elseif (isset($_POST["url"])==True)
+elseif (isset($_POST["content"])==True)
 {
-  $url=trim($_POST["url"]);
-  if ($url<>"")
+  $content=trim($_POST["content"]);
+  if ($content<>"")
   {
-    die(shorten($url));
+    save_paste($content);
   }
 }
 echo file_get_contents(HOME_FILE);
 
 #####################################################################################################
 
-function redirect($id)
+function load_pastes()
 {
-  $urls=load_urls();
-  if (isset($urls[$id])==True)
-  {
-    $long=$urls[$id];
-    header("Location: $long");
-    die();
-  }
-}
-
-#####################################################################################################
-
-function load_urls()
-{
-  $data=file_get_contents(URL_FILE);
+  $data=file_get_contents(PASTES_FILE);
   $lines=explode("\n",$data);
-  $urls=array();
+  $pastes=array();
   for ($i=0;$i<count($lines);$i++)
   {
     $parts=explode("|",$lines[$i]);
     $id=$parts[0];
-    array_shift($parts);
-    $long=trim(implode("|",$parts));
-    if (($id=="") or ($long==""))
+    $content=unserialize(base64_decode($parts[1]));
+    if (($id=="") or ($content==""))
     {
       continue;
     }
-    $urls[$id]=$long;
+    $pastes[$id]=$content;
   }
-  return $urls;
+  return $pastes;
 }
 
 #####################################################################################################
 
-function shorten($url)
+function save_paste($content)
 {
-  $urls=load_urls();
+  $pastes=load_pastes();
   $last="zz";
-  $n=count($urls);
+  $n=count($pastes);
   if ($n>0)
   {
-    $keys=array_keys($urls);
+    $keys=array_keys($pastes);
     $last=$keys[$n-1];
   }
   $next=get_next($last);
-  $urls[$next]=$url;
+  $pastes[$next]=$content;
   $data="";
-  foreach ($urls as $id => $long)
+  foreach ($pastes as $id => $content)
   {
-    $data=$data."$id|$long\n";
+    $data=$data."$id|".base64_encode(serialize($content))."\n";
   }
-  file_put_contents(URL_FILE,$data);
-  return "http://o.my.to/$next";
+  file_put_contents(PASTES_FILE,$data);
+  header("Location: http://paste.my.to/$next");
+  die();
 }
 
 #####################################################################################################
