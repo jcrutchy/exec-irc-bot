@@ -42,7 +42,7 @@ if ($query<>"")
 }
 elseif (isset($_POST["content"])==True)
 {
-  $content=trim($_POST["content"]);
+  $content=trim(substr($_POST["content"],0,2048));
   if ($content<>"")
   {
     save_paste($content);
