@@ -22,6 +22,35 @@ if ($trailing=="")
   return;
 }
 
+$uid_tests=array(
+  "crutchy"=>"179",
+  ""=>False,
+  "chromas"=>"34",
+  "ChRoMaS"=>"34",
+  "Anonymous Coward"=>"1",
+  "The Mighty Buzzard"=>"18",
+  "@chromas"=>False,
+  " chromas "=>False,
+  " chromas"=>False,
+  "%20chromas"=>False,
+  "chromas "=>"34",
+  "&"=>False);
+$name_tests=array(
+  "179"=>"crutchy",
+  ""=>False,
+  "x"=>False,
+  "0"=>False,
+  "1e12"=>"Anonymous Coward",
+  "-1"=>False,
+  "@"=>False,
+  "1"=>"Anonymous Coward",
+  "2"=>"NCommander",
+  "18"=>"The Mighty Buzzard",
+  "34"=>"chromas",
+  "x34"=>False,
+  "34abcdefg"=>"chromas",
+  "34-"=>"chromas");
+
 $parts=explode(" ",$trailing);
 delete_empty_elements($parts);
 $op=$parts[0];
@@ -96,6 +125,29 @@ switch ($op)
     {
       privmsg("  error: unable to retrive SN karma for uid $trailing");
     }
+    break;
+  case "test":
+    $success=True;
+    foreach ($uid_tests as $name => $uid)
+    {
+      if (get_uid($name)!==$uid)
+      {
+        privmsg("  test failed: get_uid($name)!==$uid");
+        return;
+      }
+    }
+    if ($success==True)
+    {
+      foreach ($name_tests as $uid => $name)
+      {
+        if (get_name($uid)!==$name)
+        {
+          privmsg("  test failed: get_name($uid)!==$name");
+          return;
+        }
+      }
+    }
+    privmsg("  tests successful!");
     break;
 }
 
