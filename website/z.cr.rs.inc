@@ -38,12 +38,13 @@ if ($query<>"")
 }
 elseif (isset($_POST["url"])==True)
 {
-  echo shorten($_POST["url"]);
+  $url=trim($_POST["url"]);
+  if ($url<>"")
+  {
+    die(shorten($url));
+  }
 }
-else
-{
-  echo file_get_contents(HOME_FILE);
-}
+echo file_get_contents(HOME_FILE);
 
 #####################################################################################################
 
