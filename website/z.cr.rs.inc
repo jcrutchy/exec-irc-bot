@@ -108,8 +108,15 @@ function shorten($url)
 
 function get_next($last)
 {
-  $next=chr(ord($last[0])+1);
-  if ($last[0]=="z")
+  if ($last[1]=="z")
+  {
+    $next=chr(ord($last[0])+1);
+  }
+  else
+  {
+    $next=$last[0];
+  }
+  if (ord($next)>ord("z"))
   {
     $next="a";
   }
