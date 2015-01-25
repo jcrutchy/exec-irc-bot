@@ -15,25 +15,23 @@ function authorization_header_value($uname,$passwd,$prefix)
 
 #####################################################################################################
 
-function shorten_url($url,$keyword="",$title="")
+function shorten_url($url)
 {
   if ($url=="")
   {
-    return "";
+    return False;
   }
   $params=array();
   $params["url"]=$url;
-  $params["keyword"]=$keyword;
-  $params["title"]=$title;
-  $response=wpost("sylnt.us","/","80",ICEWEASEL_UA,$params,"",30);
-  $short_url=extract_text($response,"<input id=\"copylink\" class=\"text\" size=\"32\" value=\"","\" /></p>");
-  if (strlen($short_url)<strlen($url))
+  $response=wpost("z.cr.rs","/","80",ICEWEASEL_UA,$params,"",30);
+  $short_url=trim(strip_headers($response));
+  if ($short_url<>"")
   {
     return $short_url;
   }
   else
   {
-    return $url;
+    return False;
   }
 }
 

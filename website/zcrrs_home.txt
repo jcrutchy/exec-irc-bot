@@ -14,5 +14,9 @@
 <input type="submit" value="shorten">
 </form>
 </div>
+<p>id is combination of two lowercase letters that increments from aa to zz (ie: aa, ab) and rolls over from zz back to aa</p>
+<p>because of the rollover, lifetime of shortened urls varies according to usage</p>
+<p>crutchy, 25-jan-2015</p>
+<p><a href="https://github.com/crutchy-/exec-irc-bot/blob/master/website/z.cr.rs.inc">https://github.com/crutchy-/exec-irc-bot/blob/master/website/z.cr.rs.inc</a></p>
 </body>
 </html>
