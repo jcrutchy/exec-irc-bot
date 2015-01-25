@@ -127,7 +127,6 @@ switch ($op)
     }
     break;
   case "test":
-    $success=True;
     foreach ($uid_tests as $name => $uid)
     {
       if (get_uid($name)!==$uid)
@@ -136,15 +135,12 @@ switch ($op)
         return;
       }
     }
-    if ($success==True)
+    foreach ($name_tests as $uid => $name)
     {
-      foreach ($name_tests as $uid => $name)
+      if (get_name($uid)!==$name)
       {
-        if (get_name($uid)!==$name)
-        {
-          privmsg("  test failed: get_name($uid)!==$name");
-          return;
-        }
+        privmsg("  test failed: get_name($uid)!==$name");
+        return;
       }
     }
     privmsg("  tests successful!");
