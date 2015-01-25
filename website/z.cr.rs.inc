@@ -17,9 +17,6 @@ define("HOME_FILE",__DIR__."/../../data/zcrrs_home.txt");
 
 #####################################################################################################
 
-echo URL_FILE."\n";
-echo HOME_FILE."\n";
-
 if (file_exists(URL_FILE)==False)
 {
   die("url file not found");
