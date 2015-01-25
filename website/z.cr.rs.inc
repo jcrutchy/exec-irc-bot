@@ -12,9 +12,22 @@
 
 #####################################################################################################
 
-define("URL_FILE",__DIR__."../data/z.cr.rs.txt");
+define("URL_FILE",__DIR__."../data/zcrrs_urls.txt");
+define("HOME_FILE",__DIR__."../data/zcrrs_home.txt");
 
 #####################################################################################################
+
+echo URL_FILE."\n";
+echo HOME_FILE."\n";
+
+if (file_exists(URL_FILE)==False)
+{
+  die("url file not found");
+}
+if (file_exists(HOME_FILE)==False)
+{
+  die("home file not found");
+}
 
 $query="";
 if (isset($_GET["i"])==True)
@@ -23,15 +36,16 @@ if (isset($_GET["i"])==True)
 }
 if ($query<>"")
 {
-  if (redirect($query)==True)
-  {
-    die();
-  }
-  echo "<!DOCTYPE html><html><head><title>z.cr.rs - $query</title><meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\"></head><body><p>Welcome to <b>z.cr.rs</b>.</p><p>-- crutchy</p><p>query: $query</p></body></html>";
+  redirect($query);
+  echo $query;
+}
+elseif (isset($_POST["url"])==True)
+{
+  echo shorten($url);
 }
 else
 {
-  echo "<!DOCTYPE html><html><head><title>z.cr.rs</title><meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\"></head><body><p>Welcome to <b>z.cr.rs</b>.</p><p>-- crutchy</p></body></html>";
+  echo file_get_contents(HOME_FILE);
 }
 
 #####################################################################################################
@@ -44,25 +58,15 @@ function redirect($id)
   {
     $long=$urls[$id];
     header("Location: $long");
-    return True;
+    die();
   }
-  return False;
 }
 
 #####################################################################################################
 
 function load_urls()
 {
-  echo URL_FILE."\n";
-  if (file_exists(URL_FILE)==False)
-  {
-    return array();
-  }
   $data=file_get_contents(URL_FILE);
-  if ($data===False)
-  {
-    return array();
-  }
   $lines=explode("\n",$data);
   $urls=array();
   for ($i=0;$i<count($lines);$i++)
