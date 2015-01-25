@@ -2206,7 +2206,7 @@ function process_scripts($items,$reserved="")
     privmsg($destination,$nick,"alias \"$alias\" requires additional trailing argument");
     return;
   }
-  $items_serialized=serialize($items);
+  $items_serialized=base64_encode(serialize($items));
   $template=$exec_list[$alias]["cmd"];
   $start=microtime(True);
   # TODO: %%trailing|$index[|$delimiter(space default)]%%

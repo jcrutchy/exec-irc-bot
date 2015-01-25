@@ -36,6 +36,7 @@ if ($query<>"")
   $pastes=load_pastes();
   if (isset($pastes[$query])==True)
   {
+    header("Content-Type: text/plain");
     die($pastes[$query]);
   }
   die("unknown query: $query");

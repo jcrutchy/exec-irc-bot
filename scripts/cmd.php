@@ -13,7 +13,7 @@
 #                                                                                                   #
 #####################################################################################################
 
-$items=unserialize($argv[1]);
+$items=unserialize(base64_decode($argv[1]));
 
 $cmd=$items["cmd"];
 $data=$items["data"];
