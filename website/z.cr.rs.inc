@@ -86,7 +86,7 @@ function load_urls()
 function shorten($url)
 {
   $urls=load_urls();
-  $last="aa";
+  $last="zz";
   $n=count($urls);
   if ($n>0)
   {
@@ -101,7 +101,7 @@ function shorten($url)
     $data=$data."$id|$long\n";
   }
   file_put_contents(URL_FILE,$data);
-  return "http://sylnt.us.to/$next";
+  return "http://z.cr.rs/$next";
 }
 
 #####################################################################################################
