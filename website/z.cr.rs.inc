@@ -34,7 +34,7 @@ if (isset($_GET["i"])==True)
 if ($query<>"")
 {
   redirect($query);
-  echo $query;
+  die("unknown query: $query");
 }
 elseif (isset($_POST["url"])==True)
 {
