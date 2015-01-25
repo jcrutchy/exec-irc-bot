@@ -49,6 +49,7 @@ else
 
 function redirect($id)
 {
+  die("redirect  $id");
   $urls=load_urls();
   if (isset($urls[$id])==True)
   {
