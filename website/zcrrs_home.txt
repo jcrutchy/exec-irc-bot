@@ -1,0 +1,18 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>z.cr.rs</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<style type="text/css"></style>
+<script type="text/javascript"></script>
+</head>
+<body>
+<p>z.cr.rs url shortener</p>
+<div>
+<form action="/" method="POST">
+<input type="text" name="url" value="">
+<input type="submit" value="shorten">
+</form>
+</div>
+</body>
+</html>
