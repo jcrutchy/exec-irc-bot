@@ -38,7 +38,7 @@ if ($query<>"")
 }
 elseif (isset($_POST["url"])==True)
 {
-  $url=trim($_POST["url"]);
+  $url=trim(substr($_POST["url"],0,1024));
   if ($url<>"")
   {
     die(shorten($url));
