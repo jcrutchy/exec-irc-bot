@@ -68,7 +68,12 @@ function load_urls()
   $urls=array();
   for ($i=0;$i<count($lines);$i++)
   {
-    $parts=explode("|",$lines[$i]);
+    $line=trim($lines[$i]);
+    if ($line=="")
+    {
+      continue;
+    }
+    $parts=explode("|",$line);
     $id=$parts[0];
     array_shift($parts);
     $long=trim(implode("|",$parts));

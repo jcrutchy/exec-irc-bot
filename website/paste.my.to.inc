@@ -59,7 +59,12 @@ function load_pastes()
   $pastes=array();
   for ($i=0;$i<count($lines);$i++)
   {
-    $parts=explode("|",$lines[$i]);
+    $line=trim($lines[$i]);
+    if ($line=="")
+    {
+      continue;
+    }
+    $parts=explode("|",$line);
     $id=$parts[0];
     $content=unserialize(base64_decode($parts[1]));
     if (($id=="") or ($content==""))
