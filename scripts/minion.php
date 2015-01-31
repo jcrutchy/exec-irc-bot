@@ -3,7 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~minion|0|0|0|1|crutchy|||<<MINIONS>>|php scripts/minion.php %%trailing%% %%dest%% %%nick%%
+exec:~minion|0|0|0|1|crutchy|||<<MINIONS>>|php scripts/minion.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~freenode|0|0|0|1|crutchy||||php scripts/minion.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################
@@ -29,8 +30,9 @@ define("BOT_BUCKET","<<MINIONS>>");
 $trailing=trim($argv[1]);
 $dest=trim($argv[2]);
 $nick=trim($argv[3]);
+$alias=trim($argv[4]);
 
-if ($trailing=="freenode-autostart")
+if ($alias=="~freenode")
 {
   echo "/IRC :exec INTERNAL :~join #freenode\n";
   echo "/IRC :exec INTERNAL :~minion new sylnt irc.freenode.net 6667 #sylnt\n";

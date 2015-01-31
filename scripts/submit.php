@@ -3,7 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~submit|120|0|0|1|*||||php scripts/submit.php %%trailing%% %%dest%% %%nick%%
+exec:~submit|120|0|0|1|*||||php scripts/submit.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~filter|120|0|0|1|*||||php scripts/submit.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################
@@ -16,16 +17,11 @@ require_once("lib.php");
 $trailing=$argv[1];
 $dest=$argv[2];
 $nick=$argv[3];
+$alias=$argv[4];
 
 if ($trailing=="")
 {
   privmsg("usage: ~submit <url>");
-  return;
-}
-
-if ($nick<>"crutchy")
-{
-  privmsg("exec's submit script is borken. blame crutchy");
   return;
 }
 
@@ -142,9 +138,16 @@ for ($i=0;$i<count($html);$i++)
       }
     }
   }
-  if (filter($html[$i],"0123456789")<>"")
+  /*if (filter($html[$i],"0123456789")<>"")
   {
     continue;
+  }*/
+  if (strlen($html[$i])>1)
+  {
+    if ($html[$i][strlen($html[$i])-1]<>".")
+    {
+      continue;
+    }
   }
   if (strlen($html[$i])>100)
   {
@@ -152,32 +155,40 @@ for ($i=0;$i<count($html);$i++)
   }
 }
 
+var_dump($source_body);
+return;
+
 $source_body=implode("\n\n",$source_body);
 
 $source_body=$source_title."\n\n".$source_body."\n\n".$url;
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-$host="paste.my.to";
-$port=80;
-$uri="/";
+if ($alias=="~filter")
+{
+  $host="paste.my.to";
+  $port=80;
+  $uri="/";
+  $params=array();
+  $params["content"]=$source_body;
+  $response=wpost($host,$uri,$port,ICEWEASEL_UA,$params);
+  privmsg("  ".exec_get_header($response,"location"));
+  return;
+}
 
-$params=array();
-$params["content"]=$source_body;
-
-$response=wpost($host,$uri,$port,ICEWEASEL_UA,$params);
-
-var_dump($response);
-
-privmsg("  ".exec_get_header($response,"location"));
-
-return;
-
-$source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
-$source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
+#$source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
+#$source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # the following code posts a submission to SoylentNews
+
+return;
+
+if ($nick<>"crutchy")
+{
+  privmsg("exec's submit script is borken. blame crutchy");
+  return;
+}
 
 $host="dev.soylentnews.org";
 $port=80;

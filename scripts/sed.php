@@ -102,15 +102,20 @@ set_bucket("last_".strtolower($nick)."_".strtolower($dest),$msg);
 
 #####################################################################################################
 
-function shell_sed($trailing,$nick,$dest,$delim="/")
+/*function shell_sed($trailing,$nick,$dest,$delim="/")
 {
-  return False;
+  $parts=explode("s".$delim,$trailing);
+  if (count($parts)<2)
+  {
+    return False;
+  }
+  $sed_nick=
   # sed -f expression.txt message.txt
   # nick: s
   # nick, s
   # delims can be / or # (cannot be alphanumeric or \)
   # return true on successful sed replacement (after privmsg), otherwise false
-}
+}*/
 
 #####################################################################################################
 
