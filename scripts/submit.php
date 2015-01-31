@@ -111,7 +111,8 @@ $html=$source_html;
 strip_all_tag($html,"head");
 strip_all_tag($html,"script");
 strip_all_tag($html,"style");
-strip_all_tag($html,"a");
+#strip_all_tag($html,"a");
+strip_all_tag($html,"strong");
 $html=strip_tags($html,"<p>");
 
 $html=lowercase_tags($html);
@@ -133,10 +134,17 @@ for ($i=0;$i<count($html);$i++)
   $host_parts=explode(".",$host);
   for ($j=0;$j<count($host_parts);$j++)
   {
-    if (strpos(strtolower($html[$i]),strtolower($host_parts[$j]))!==False)
+    if (strlen($host_parts[$j])>3)
     {
-      continue 2;
+      if (strpos(strtolower($html[$i]),strtolower($host_parts[$j]))!==False)
+      {
+        continue 2;
+      }
     }
+  }
+  if (filter($html[$i],"0123456789")<>"")
+  {
+    continue;
   }
   if (strlen($html[$i])>100)
   {
@@ -144,13 +152,32 @@ for ($i=0;$i<count($html);$i++)
   }
 }
 
-$source_body=implode(" ",$source_body);
+$source_body=implode("\n\n",$source_body);
 
-var_dump($source_body);
+$source_body=$source_title."\n\n".$source_body."\n\n".$url;
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+$host="paste.my.to";
+$port=80;
+$uri="/";
+
+$params=array();
+$params["content"]=$source_body;
+
+$response=wpost($host,$uri,$port,ICEWEASEL_UA,$params);
+
+var_dump($response);
+
+privmsg("  ".exec_get_header($response,"location"));
+
 return;
 
 $source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
 $source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# the following code posts a submission to SoylentNews
 
 $host="dev.soylentnews.org";
 $port=80;

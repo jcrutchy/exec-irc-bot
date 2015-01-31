@@ -36,7 +36,10 @@ if ($query<>"")
   $pastes=load_pastes();
   if (isset($pastes[$query])==True)
   {
-    header("Content-Type: text/plain");
+    header("Cache-Control: no-cache");
+    header("Expires: -1");
+    header("Pragma: no-cache");
+    header("Content-Type: text/plain; charset=utf-8");
     die($pastes[$query]);
   }
   die("unknown query: $query");
