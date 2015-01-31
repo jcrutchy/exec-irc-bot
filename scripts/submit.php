@@ -23,6 +23,12 @@ if ($trailing=="")
   return;
 }
 
+if ($nick<>"crutchy")
+{
+  privmsg("exec's submit script is borken. blame crutchy");
+  return;
+}
+
 $url=get_redirected_url($trailing);
 if ($url===False)
 {
@@ -88,7 +94,7 @@ if (($source_title===False) or ($source_title==""))
 $source_title=html_entity_decode($source_title,ENT_QUOTES,"UTF-8");
 $source_title=html_entity_decode($source_title,ENT_QUOTES,"UTF-8");
 
-$source_body=extract_meta_content($source_html,"description");
+/*$source_body=extract_meta_content($source_html,"description");
 
 if (($source_body===False) or ($source_body==""))
 {
@@ -98,12 +104,55 @@ if (($source_body===False) or ($source_body==""))
     privmsg("error: description meta content not found or empty");
     return;
   }
+}*/
+
+$html=$source_html;
+
+strip_all_tag($html,"head");
+strip_all_tag($html,"script");
+strip_all_tag($html,"style");
+strip_all_tag($html,"a");
+$html=strip_tags($html,"<p>");
+
+$html=lowercase_tags($html);
+
+$html=explode("<p",$html);
+
+$source_body=array();
+
+for ($i=0;$i<count($html);$i++)
+{
+  $parts=explode(">",$html[$i]);
+  if (count($parts)>=2)
+  {
+    array_shift($parts);
+    $html[$i]=implode(">",$parts);
+  }
+  $html[$i]=strip_tags($html[$i]);
+  $html[$i]=clean_text($html[$i]);
+  $host_parts=explode(".",$host);
+  for ($j=0;$j<count($host_parts);$j++)
+  {
+    if (strpos(strtolower($html[$i]),strtolower($host_parts[$j]))!==False)
+    {
+      continue 2;
+    }
+  }
+  if (strlen($html[$i])>100)
+  {
+    $source_body[]=$html[$i];
+  }
 }
 
+$source_body=implode(" ",$source_body);
+
+var_dump($source_body);
+return;
+
 $source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
 $source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
 
-$host="soylentnews.org";
+$host="dev.soylentnews.org";
 $port=80;
 $uri="/submit.pl";
 $response=wget($host,$uri,$port,ICEWEASEL_UA);
@@ -119,7 +168,8 @@ sleep(25);
 
 $params=array();
 $params["reskey"]=$reskey;
-$params["name"]=trim(substr($nick,0,50));
+#$params["name"]=trim(substr($nick,0,50));
+$params["name"]=NICK_EXEC;
 $params["email"]="";
 $params["subj"]=trim(substr($source_title,0,100));
 $params["primaryskid"]="1";

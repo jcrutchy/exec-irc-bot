@@ -46,16 +46,16 @@ else
 $response=wtouch($host,"/",$port,5);
 if ($response===False)
 {
-  privmsg($argv[1].": error connecting");
+  privmsg("  ".chr(3)."03".$argv[1].": error connecting");
   return;
 }
 if (($port==80) or ($port==443))
 {
-  privmsg($argv[1].": $response");
+  privmsg("  ".chr(3)."03".$argv[1].": $response");
 }
 else
 {
-  privmsg($argv[1].": connected");
+  privmsg("  ".chr(3)."03".$argv[1].": connected");
 }
 
 #####################################################################################################

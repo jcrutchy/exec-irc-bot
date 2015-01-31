@@ -37,6 +37,22 @@ function shorten_url($url)
 
 #####################################################################################################
 
+function lowercase_tags($html)
+{
+  $tags=explode("<",$html);
+  for ($i=0;$i<count($tags);$i++)
+  {
+    $parts=explode(">",$tags[$i]);
+    if (count($parts)==2)
+    {
+      $tags[$i]=strtolower($parts[0]).">".$parts[1];
+    }
+  }
+  return implode("<",$tags);
+}
+
+#####################################################################################################
+
 function check_url($url)
 {
   global $url_blacklist;
