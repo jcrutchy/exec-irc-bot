@@ -252,11 +252,11 @@ function whead($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeou
   $errstr="";
   if ($port==443)
   {
-    $fp=fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
+    $fp=@fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
   }
   else
   {
-    $fp=fsockopen($host,$port,$errno,$errstr,$timeout);
+    $fp=@fsockopen($host,$port,$errno,$errstr,$timeout);
   }
   if ($fp===False)
   {
@@ -307,11 +307,11 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
   $errstr="";
   if ($port==443)
   {
-    $fp=fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
+    $fp=@fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
   }
   else
   {
-    $fp=fsockopen($host,$port,$errno,$errstr,$timeout);
+    $fp=@fsockopen($host,$port,$errno,$errstr,$timeout);
   }
   if ($fp===False)
   {
@@ -363,11 +363,11 @@ function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$t
   $errstr="";
   if ($port==443)
   {
-    $fp=fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
+    $fp=@fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
   }
   else
   {
-    $fp=fsockopen($host,$port,$errno,$errstr,$timeout);
+    $fp=@fsockopen($host,$port,$errno,$errstr,$timeout);
   }
   if ($fp===False)
   {

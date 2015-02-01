@@ -144,10 +144,10 @@ for ($i=0;$i<count($html);$i++)
   }*/
   if (strlen($html[$i])>1)
   {
-    if ($html[$i][strlen($html[$i])-1]<>".")
+    /*if ($html[$i][strlen($html[$i])-1]<>".")
     {
       continue;
-    }
+    }*/
   }
   if (strlen($html[$i])>100)
   {
@@ -155,8 +155,8 @@ for ($i=0;$i<count($html);$i++)
   }
 }
 
-var_dump($source_body);
-return;
+#var_dump($source_body);
+#return;
 
 $source_body=implode("\n\n",$source_body);
 
