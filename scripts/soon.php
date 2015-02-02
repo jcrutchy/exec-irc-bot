@@ -14,7 +14,7 @@ init:~soon register-events
 #####################################################################################################
 
 require_once("lib.php");
-require_once("soon_lib.php");
+#require_once("soon_lib.php");
 
 $trailing=$argv[1];
 $dest=$argv[2];
@@ -34,12 +34,11 @@ if ($cmd=="INTERNAL")
 else
 {
   # manually triggered
-
-  $result=map_pseudo_code("loop 10 msg 'hello'","loop n code");
-  privmsg($result);
+  require_once("soon_lib.php");
+  map_pseudo_code("loop 10 msg \"hello\"","loop n code","for (\$i=1;\$i<=n;\$i++) { code }");
   return;
 
-  $parts=explode(" ",$trailing);
+  /*$parts=explode(" ",$trailing);
   $action=strtolower($parts[0]);
   array_shift($parts);
   $trailing=trim(implode(" ",$parts));
@@ -65,7 +64,7 @@ else
         privmsg("  ".exec_get_header($response,"location"));
       }
       break;
-  }
+  }*/
 }
 
 #####################################################################################################

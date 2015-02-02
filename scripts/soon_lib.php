@@ -25,69 +25,71 @@ function translate($pseudo_code,&$translations)
 
 #####################################################################################################
 
-function map_pseudo_code($pseudo_code,$key)
+function map_pseudo_code($pseudo_code,$key,$value)
 {
-  $subject_parts=explode(" ",$pseudo_code);
-  $test_map=array();
-  $parts=explode(" ",$key);
-  for ($i=0;$i<count($parts);$i++)
+  # loop 10 msg \"hello\" ==> loop n code >> for (\$i=1;\$i<=n;\$i++) { code }
+
+  # create a map for key >> value
+  # loop n code >> for (\$i=1;\$i<=n;\$i++) { code }
+
+  # "loop" => ""
+  # "n" => "%"
+  # "code" => "%"
+
+  $map=array();
+
+  $key_parts=explode(" ",$key);
+  for ($i=0;$i<count($key_parts);$i++)
   {
-    if (strpos($key,$parts[$i])===False)
+    if (strpos($value,$key_parts[$i])===False)
     {
-      $test_map[]=$parts[$i];
+      $map[$key_parts[$i]]="";
     }
     else
     {
-      $test_map[]="%";
+      $map[$key_parts[$i]]="%";
     }
   }
-  $subject_map=$subject_parts;
-  if (count($test_map)<count($subject_map))
+
+  var_dump($map);
+
+  $code_parts=explode(" ",$pseudo_code);
+
+  if (count($key_parts)>count($code_parts))
   {
-    # reduce size of $subject_map
+    # not enough parts in pseudo_code (incompatible with key)
+    return False;
+  }
+
+  if (count($key_parts)<count($code_parts))
+  {
+    # reduce size of $code_parts
     $tmp=array();
-    for ($j=0;$j<(count($test_map)-1);$j++)
+    for ($j=0;$j<(count($key_parts)-1);$j++)
     {
-      $tmp[]=array_shift($subject_map);
+      $tmp[]=array_shift($code_parts);
     }
-    $tmp[]=implode(" ",$subject_map);
-    $subject_map=$tmp;
+    $tmp[]=implode(" ",$code_parts);
+    $code_parts=$tmp;
   }
-  if (count($test_map)>count($subject_map))
+
+  $i=0;
+  foreach ($map as $key => $value)
   {
-    # reduce size of $test_map
-    $tmp=array();
-    for ($j=0;$j<(count($subject_map)-1);$j++)
+    if (($value=="") and ($key<>$code_parts[$i]))
     {
-      $tmp[]=array_shift($test_map);
+      # fixed syntax mismatch
+      return False;
     }
-    $tmp[]=implode(" ",$test_map);
-    $test_map=$tmp;
+    if ($value=="%")
+    {
+      $map[$key]=$code_parts[$i];
+    }
+    $i++;
   }
-  $match=True;
-  $mapped=array();
-  for ($i=0;$i<count($test_map);$i++)
-  {
-    if ($test_map[$i]=="%")
-    {
-      $mapped[]=$subject_map[$i];
-      continue;
-    }
-    if ($test_map[$i]<>$subject_map[$i])
-    {
-      $match=False;
-      break;
-    }
-    else
-    {
-      $mapped[]=$test_map[$i];
-    }
-  }
-  if ($match==True)
-  {
-    return implode(" ",$mapped);
-  }
-  return False;
+
+  var_dump($map);
+
 }
 
 #####################################################################################################
