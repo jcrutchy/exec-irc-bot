@@ -14,7 +14,7 @@ init:~soon register-events
 #####################################################################################################
 
 require_once("lib.php");
-#require_once("soon_lib.php");
+require_once("soon_lib.php");
 
 $trailing=$argv[1];
 $dest=$argv[2];
@@ -34,15 +34,16 @@ if ($cmd=="INTERNAL")
 else
 {
   # manually triggered
-  require_once("soon_lib.php");
-  map_pseudo_code("loop 10 msg \"hello\"","loop n code","for (\$i=1;\$i<=n;\$i++) { code }");
+  $translations=load_translations();
+  var_dump($translations);
+  $code=translate("hello x10",$translations);
+  privmsg($code);
   return;
 
   /*$parts=explode(" ",$trailing);
   $action=strtolower($parts[0]);
   array_shift($parts);
   $trailing=trim(implode(" ",$parts));
-  $translations=load_translations();
   if ($translations===False)
   {
     privmsg("  error loading translations file");
