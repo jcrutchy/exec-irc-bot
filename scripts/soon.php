@@ -34,6 +34,11 @@ if ($cmd=="INTERNAL")
 else
 {
   # manually triggered
+
+  $result=map_pseudo_code("loop 10 msg 'hello'","loop n code");
+  privmsg($result);
+  return;
+
   $parts=explode(" ",$trailing);
   $action=strtolower($parts[0]);
   array_shift($parts);

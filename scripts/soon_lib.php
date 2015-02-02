@@ -32,7 +32,7 @@ function map_pseudo_code($pseudo_code,$key)
   $parts=explode(" ",$key);
   for ($i=0;$i<count($parts);$i++)
   {
-    if (strpos($value,$parts[$i])===False)
+    if (strpos($key,$parts[$i])===False)
     {
       $test_map[]=$parts[$i];
     }
@@ -45,10 +45,24 @@ function map_pseudo_code($pseudo_code,$key)
   if (count($test_map)<count($subject_map))
   {
     # reduce size of $subject_map
+    $tmp=array();
+    for ($j=0;$j<(count($test_map)-1);$j++)
+    {
+      $tmp[]=array_shift($subject_map);
+    }
+    $tmp[]=implode(" ",$subject_map);
+    $subject_map=$tmp;
   }
   if (count($test_map)>count($subject_map))
   {
     # reduce size of $test_map
+    $tmp=array();
+    for ($j=0;$j<(count($subject_map)-1);$j++)
+    {
+      $tmp[]=array_shift($test_map);
+    }
+    $tmp[]=implode(" ",$test_map);
+    $test_map=$tmp;
   }
   $match=True;
   $mapped=array();
@@ -71,9 +85,9 @@ function map_pseudo_code($pseudo_code,$key)
   }
   if ($match==True)
   {
-    $pseudo_code=implode(" ",$mapped);
-    return translate($pseudo_code,$translations);
+    return implode(" ",$mapped);
   }
+  return False;
 }
 
 #####################################################################################################

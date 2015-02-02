@@ -1,4 +1,3 @@
-loop i array code >> for ($i=0;$i<count($array);$i++) { code }
+hello x10 >> loop 10 msg "hello"
 loop n code >> for ($i=1;$i<=n;$i++) { code }
 msg trailing >> privmsg(trailing);
-hello x10 >> loop 10 msg "hello"
