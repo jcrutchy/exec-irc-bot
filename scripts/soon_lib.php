@@ -6,34 +6,41 @@ define("TRANSLATIONS_FILE",__DIR__."/soon_translations");
 
 #####################################################################################################
 
-function translate($pseudo_code,&$translations)
+function translate(&$translations)
 {
-  # $pseudo_code = "hello x10"
+  #$build=build("hellox10",$translations);
+
+  $build=build("msg \"hello\"",$translations);
+
+  #var_dump($build);
+}
+
+#####################################################################################################
+
+function build($pseudo_code,&$translations)
+{
   if (isset($translations[$pseudo_code])==True)
   {
-    $map=map_pseudo_code($pseudo_code,$pseudo_code,$translations[$pseudo_code]);
-    var_dump($map);
-    if ($map!==False)
-    {
-      return assemble($map,$translations[$pseudo_code],$translations);
-    }
+    $pseudo_code=$translations[$pseudo_code];
   }
-  term_echo("*** TRANSLATE ERROR: CALLING PSEUDO CODE NOT FOUND");
+  foreach ($translations as $translation_key => $translation_value)
+  {
+    $map=map($pseudo_code,$translation_key,$translation_value);
+    if ($map===False)
+    {
+      continue;
+    }
+    var_dump($map);
+    assemble($map,$translation_value,$translations);
+    return $map;
+  }
   return False;
 }
 
 #####################################################################################################
 
-function assemble($map,$value,&$translations)
+function assemble(&$map,$value,&$translations)
 {
-  $result=$value;
-  foreach ($map as $map_key => $map_value)
-  {
-    if ($map_value<>"")
-    {
-      $result=str_replace($map_key,$map_value,$result);
-    }
-  }
   foreach ($map as $map_key => $map_value)
   {
     if ($map_value=="")
@@ -42,15 +49,15 @@ function assemble($map,$value,&$translations)
     }
     foreach ($translations as $translation_key => $translation_value)
     {
-      $sub_map=map_pseudo_code($map_value,$translation_key,$translation_value);
+      $sub_map=map($map_value,$translation_key,$translation_value);
       if ($sub_map===False)
       {
         continue;
       }
-      $result=assemble($sub_map,$translation_value,$translations);
+      assemble($sub_map,$translation_value,$translations);
+      $map[$map_key]=$sub_map;
     }
   }
-  return $result;
 }
 
 #####################################################################################################
@@ -69,7 +76,7 @@ array(3) {
 }
 */
 
-function map_pseudo_code($pseudo_code,$key,$value)
+function map($pseudo_code,$key,$value)
 {
   # example: map_pseudo_code("loop 10 msg \"hello\"","loop n code","for (\$i=1;\$i<=n;\$i++) { code }");
   # create a map for key >> value
@@ -126,7 +133,6 @@ array(3) {
     }
     $i++;
   }
-  var_dump($map);
 /*
 array(3) {
   ["loop"]=> string(0) ""

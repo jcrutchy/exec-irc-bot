@@ -2,7 +2,7 @@
 
 #####################################################################################################
 
-# "soon" translates pseudo-code to php (thanks to arti for the name idea)
+# "soon" is intended to be a sort of macro processor that can translate pseudo-code to php (thanks to arti for the name idea)
 
 #####################################################################################################
 
@@ -12,6 +12,8 @@ init:~soon register-events
 */
 
 #####################################################################################################
+
+ini_set("display_errors","on");
 
 require_once("lib.php");
 require_once("soon_lib.php");
@@ -35,9 +37,9 @@ else
 {
   # manually triggered
   $translations=load_translations();
-  var_dump($translations);
-  $code=translate("hello x10",$translations);
-  privmsg($code);
+  #var_dump($translations);
+  translate($translations);
+  #privmsg($code);
   return;
 
   /*$parts=explode(" ",$trailing);

@@ -160,12 +160,11 @@ for ($i=0;$i<count($html);$i++)
 
 $source_body=implode("\n\n",$source_body);
 
-$source_body=$source_title."\n\n".$source_body."\n\n".$url;
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if ($alias=="~filter")
 {
+  $source_body=$source_title."\n\n".$source_body."\n\n".$url;
   $host="paste.my.to";
   $port=80;
   $uri="/";
@@ -176,13 +175,13 @@ if ($alias=="~filter")
   return;
 }
 
-#$source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
-#$source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
+$source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
+$source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # the following code posts a submission to SoylentNews
 
-return;
+#return;
 
 if ($nick<>"crutchy")
 {
