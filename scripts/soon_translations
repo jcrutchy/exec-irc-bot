@@ -1,3 +1,5 @@
-hellox10 >> loop 10 msg "hello"
+hellox10 >> loop 10 sayhello sayhello
+sayhello >> msg "hello"
 loop n code >> for ($i=1;$i<=n;$i++) { code }
 msg trailing >> privmsg(trailing);
+

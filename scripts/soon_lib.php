@@ -6,18 +6,40 @@ define("TRANSLATIONS_FILE",__DIR__."/soon_translations");
 
 #####################################################################################################
 
-function translate(&$translations)
+function translate(&$translations,$pseudo_code)
 {
-  #$build=build("hellox10",$translations);
-
-  $build=build("msg \"hello\"",$translations);
-
-  #var_dump($build);
+  $map=array();
+  map_recurse($translations,$pseudo_code,$map);
+  var_dump($map);
+  #$code=code_assemble($map);
+  #var_dump($code);
 }
 
 #####################################################################################################
 
-function build($pseudo_code,&$translations)
+function code_assemble($map)
+{
+  $code=$map[1];
+  foreach ($map as $key => $value)
+  {
+    if (($key==0) or ($key==1))
+    {
+      continue;
+    }
+    if (is_array($value)==True)
+    {
+      $value=code_assemble($value);
+    }
+    else
+    {
+
+    }
+  }
+}
+
+#####################################################################################################
+
+function map_recurse(&$translations,$pseudo_code,&$map)
 {
   if (isset($translations[$pseudo_code])==True)
   {
@@ -25,66 +47,62 @@ function build($pseudo_code,&$translations)
   }
   foreach ($translations as $translation_key => $translation_value)
   {
-    $map=map($pseudo_code,$translation_key,$translation_value);
-    if ($map===False)
+    $sub_map=map_single($pseudo_code,$translation_key,$translation_value);
+    if ($sub_map===False)
     {
       continue;
     }
-    var_dump($map);
-    assemble($map,$translation_value,$translations);
-    return $map;
+    foreach ($sub_map as $map_key => $map_value)
+    {
+      if ($map_value=="")
+      {
+        continue;
+      }
+      map_recurse($translations,$map_value,$sub_map);
+    }
+    array_unshift($sub_map,$translation_key,$translation_value);
+    $map[$map_key]=$sub_map;
+  }
+}
+
+#####################################################################################################
+
+function ident_exists($str,$ident)
+{
+  $id="";
+  for ($i=0;$i<strlen($str);$i++)
+  {
+    $n=ord($str[$i]);
+    switch (True)
+    {
+      case in_array($n,range(48,57)): # 0-9
+      case in_array($n,range(65,90)): # A-Z
+      case in_array($n,range(97,122)): # a-z
+      case ($n==95): # _
+        $id=$id.$str[$i];
+        break;
+      default:
+        $id="";
+    }
+    if ($id==$ident)
+    {
+      return True;
+    }
   }
   return False;
 }
 
 #####################################################################################################
 
-function assemble(&$map,$value,&$translations)
+function map_single($pseudo_code,$key,$value)
 {
-  foreach ($map as $map_key => $map_value)
-  {
-    if ($map_value=="")
-    {
-      continue;
-    }
-    foreach ($translations as $translation_key => $translation_value)
-    {
-      $sub_map=map($map_value,$translation_key,$translation_value);
-      if ($sub_map===False)
-      {
-        continue;
-      }
-      assemble($sub_map,$translation_value,$translations);
-      $map[$map_key]=$sub_map;
-    }
-  }
-}
-
-#####################################################################################################
-
-/*
-map_pseudo_code("loop 10 msg \"hello\"","loop n code","for (\$i=1;\$i<=n;\$i++) { code }");
-array(3) {
-  ["loop"]=> string(0) ""
-  ["n"]=> string(1) "%"
-  ["code"]=> string(1) "%"
-}
-array(3) {
-  ["loop"]=> string(0) ""
-  ["n"]=> string(2) "10"
-  ["code"]=> string(11) "msg "hello""
-}
-*/
-
-function map($pseudo_code,$key,$value)
-{
-  # example: map_pseudo_code("loop 10 msg \"hello\"","loop n code","for (\$i=1;\$i<=n;\$i++) { code }");
   # create a map for key >> value
   $map=array();
   $key_parts=explode(" ",$key);
   for ($i=0;$i<count($key_parts);$i++)
   {
-    if (strpos($value,$key_parts[$i])===False)
+    if (ident_exists($value,$key_parts[$i])==False)
+    #if (strpos($value,$key_parts[$i])===False)
     {
       $map[$key_parts[$i]]="";
     }
@@ -93,14 +111,6 @@ function map($pseudo_code,$key,$value)
       $map[$key_parts[$i]]="%";
     }
   }
-  var_dump($map);
-/*
-array(3) {
-  ["loop"]=> string(0) ""
-  ["n"]=> string(1) "%"
-  ["code"]=> string(1) "%"
-}
-*/
   $code_parts=explode(" ",$pseudo_code);
   if (count($key_parts)>count($code_parts))
   {
@@ -133,13 +143,6 @@ array(3) {
     }
     $i++;
   }
-/*
-array(3) {
-  ["loop"]=> string(0) ""
-  ["n"]=> string(2) "10"
-  ["code"]=> string(11) "msg "hello""
-}
-*/
   return $map;
 }
 
