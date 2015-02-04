@@ -38,7 +38,7 @@ else
   # manually triggered
   $translations=load_translations();
   #var_dump($translations);
-  translate($translations,"hellox10");
+  translate($translations,"hellox3");
   #privmsg($code);
   return;
 
