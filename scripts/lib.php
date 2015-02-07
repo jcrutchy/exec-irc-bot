@@ -22,6 +22,54 @@ define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 
 #####################################################################################################
 
+function load_settings($filename)
+{
+  if (file_exists($filename)==False)
+  {
+    term_echo("*** FILE NOT FOUND: $filename");
+    return False;
+  }
+  $data=file_get_contents($filename);
+  if ($data===False)
+  {
+    term_echo("*** ERROR READING FILE: $filename");
+    return False;
+  }
+  $data=explode("\n",$data);
+  $locations=array();
+  for ($i=0;$i<count($data);$i++)
+  {
+    $parts=explode("=",$data[$i]);
+    if (count($parts)<>2)
+    {
+      continue;
+    }
+    $locations[trim($parts[0])]=trim($parts[1]);
+  }
+  return $locations;
+}
+
+#####################################################################################################
+
+function save_settings(&$data,$filename)
+{
+  $content="";
+  foreach ($data as $key => $value)
+  {
+    $content=$content.$key."=".$value."\n";
+  }
+  if (file_put_contents($filename,$content)===False)
+  {
+    return False;
+  }
+  else
+  {
+    return True;
+  }
+}
+
+#####################################################################################################
+
 function internal_macro($commands,$sleep=0)
 {
   $n=count($commands);

@@ -104,6 +104,12 @@ if (($source_body===False) or ($source_body==""))
 
 $html=$source_html;
 
+$article=extract_raw_tag($html,"article");
+if ($article!==False)
+{
+  $html=$article;
+}
+
 strip_all_tag($html,"head");
 strip_all_tag($html,"script");
 strip_all_tag($html,"style");
@@ -147,6 +153,20 @@ for ($i=0;$i<count($html);$i++)
     /*if ($html[$i][strlen($html[$i])-1]<>".")
     {
       continue;
+    }*/
+    /*while (True)
+    {
+      $j=strlen($html[$i])-1;
+      if ($j<0)
+      {
+        break;
+      }
+      $c=$html[$i][$j];
+      if ($c==".")
+      {
+        break;
+      }
+      $html[$i]=substr($html[$i],0,$j);
     }*/
   }
   if (strlen($html[$i])>100)

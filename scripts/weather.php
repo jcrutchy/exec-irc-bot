@@ -24,7 +24,26 @@ switch ($alias)
 {
   case "~weather-prefs":
     # TODO: registered nick personalised settings (units, default location, private msg, formatting, etc)
-    privmsg("tama lama ding dong");
+    $parts=explode(" ",$trailing);
+    delete_empty_elements($parts);
+    $pref=$parts[0];
+    array_shift($parts);
+    $trailing=trim(implode(" ",$parts));
+    $prefs=load_settings(WEATHER_PREFS_FILE);
+    if ($prefs===False)
+    {
+      $prefs=array();
+    }
+    if (isset($prefs[$nick])==True)
+    {
+      $nick_prefs=unserialize($prefs[$nick]);
+    }
+    $nick_prefs[$pref]=$trailing;
+    $prefs[$nick]=serialize($nick_prefs);
+    if (save_settings($prefs,WEATHER_PREFS_FILE)==True)
+    {
+      privmsg("  successfully saved prefs");
+    }
     break;
   case "~weather-del":
     if (del_location($trailing)==True)

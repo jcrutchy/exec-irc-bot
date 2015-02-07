@@ -5,6 +5,7 @@
 /*
 exec:~minion|0|0|0|1|crutchy|||<<MINIONS>>|php scripts/minion.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~freenode|0|0|0|1|crutchy||||php scripts/minion.php %%trailing%% %%dest%% %%nick%% %%alias%%
+startup:~join #freenode
 */
 
 #####################################################################################################

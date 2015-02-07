@@ -1,0 +1,74 @@
+<crutchy> i've rolled my own little website that had articles and ability to comment on them, but it was way off being ready for public use
+<crutchy> still got the source code floating around somewhere
+<crutchy> didn't have the ability to submit articles though
+* crutchy wonders if it might be worth having another go. making it similar to slash/pipedot but without some of the cruft
+<crutchy> maybe a bit of irc integration too :p
+<crutchy> wtf. just got * Disconnected (Invalid argument). on freenode
+<chromas> weird
+<crutchy> server must've farted
+<crutchy> back on now
+<chromas> server_farts--
+<Bender> karma - server_farts: -1
+<chromas> I did a thing in php once, it was more of a generic website thinger and you could wikilink between pages. Didn't get around to comments though
+* crutchy is setting up news.my.to
+<chromas> Did you find the code?
+* crutchy is such a cheapskate :p
+<chromas> crutchdot
+<crutchy> yeah. prolly won't use it though
+<crutchy> i've learned a shitload since then
+<crutchy> it was also pre-pdo
+<chromas> Yeah, now we can make a p2p comments thing in delphi
+<crutchy> i dunno what the best way to authenticate is
+<crutchy> i don't wanna store passwords
+<crutchy> in any form
+<chromas> for your php one?
+<crutchy> yeah
+<chromas> Set a cookie
+<chromas> The user can delete it anytime they want
+<crutchy> yeah that might be easiest
+<crutchy> if they delete the cookie and someone steals their nick, tough shit
+<chromas> instead of usernames, each person gets a randomized token, which they can change any time they want
+<chromas> l3r01g3dr says: "ef here, nigger nigger nigger! I'm out, bitches"
+<crutchy> lol
+<crutchy> could always have ability to load cookie from a file
+<crutchy> as a backup
+<chromas> yeah
+<chromas> 4chan has some sort of authentication thing that most people don't use
+<crutchy> and if i hash the nick would be harder to forge
+<crutchy> i rarely post comments as myself even on SN
+<crutchy> that's pretty much the whole user management system worked out then... a cookie with a nick hash :p
+<chromas> nice
+<crutchy> (and a cookie uploader and hidden post fields for those that don't like cookies)
+<chromas> cookies wouldn't be so bad if every website didn't store fifty thousand
+<crutchy> i surf with cookies disabled
+<chromas> makes it work to manage
+<crutchy> the old cms i made allowed either hidden post fields or cookies
+<crutchy> spent a lot of time on security, but that was cos it stored passwords
+<crutchy> in the end i got so paranoid about storing passwords that i just gave up on it
+<chromas> passwords are okay, just salt each one with a different porn video then sha1 it fifty million times
+<crutchy> (mainly cos people use the same password for everything even though they shouldn't, so if my site is hacked its worse)
+<chromas> that's where salting comes in handy
+<crutchy> i like the idea of a hashed nick though, cos people never gunna use a password for a nick :p
+<chromas> they could be generated like url shorteners :D
+<crutchy> hmm. actually hashing wouldn't really be useful maybe
+<crutchy> cos the unhashed nick is public :/
+<crutchy> so if someone wanna forge, they just hash it theirself
+<chromas> You could make the nick itself a hash
+<crutchy> hmm. actually i could make it a hash of ip and nick
+<chromas> Then it's more 'anonymous' but you can have an identity throughout a thread (until you don't want it anymore and press regen or check anon)
+<crutchy> makes it so people can't reuse nick on different ip's but meh. they can do similar to irc; crutchy_mobile or summin
+<crutchy> yeah i think anon will be default and most likely to be used
+<crutchy> although if i don't implement a karma system then people won't be afraid to post as themselves
+<crutchy> then i open the door to spam, but with a mod system that might be less of a problem
+<chromas> You could pass comments through spamassassin or something
+<chromas> A few mods can train it by manually marking spam/not spam, then adjust it when it's wrong
+<crutchy> yeah. or roll a simple checker; no identical comments in same thread, no identical comments by same ip on same day, etc
+<chromas> I wonder how that would work out if there was a separate dataset for that for each of the different mod types, so it could learn to mark things as "insightful"
+<crutchy> or if ip has been modded down too many times maybe set a cool off period
+<chromas> slash used to have duplicate comment checking
+<chromas> and yeah, more than three or four links or more than one instance of the same link
+<chromas> You linked to "MyCleanPC too many times. Feck off"
+<crutchy> nod. i would prolly not allow hyperlinking initially
+<crutchy> lol
+<crutchy> hyperlinking reminds me too much of reddit :p
+<chromas> it'd be nifty to have it insert page titles into the link title, but of course, that opens up some bad possibilities

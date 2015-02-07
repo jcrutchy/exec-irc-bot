@@ -6,33 +6,13 @@
 
 require_once("lib.php");
 define("LOCATIONS_FILE","../data/locations.txt");
+define("WEATHER_PREFS_FILE","../data/weather_prefs.txt");
 
 #####################################################################################################
 
 function load_locations()
 {
-  if (file_exists(LOCATIONS_FILE)==False)
-  {
-    term_echo("*** LOCATIONS FILE NOT FOUND ***");
-    return False;
-  }
-  $data=file_get_contents(LOCATIONS_FILE);
-  if ($data===False)
-  {
-    return False;
-  }
-  $data=explode("\n",$data);
-  $locations=array();
-  for ($i=0;$i<count($data);$i++)
-  {
-    $parts=explode(" = ",$data[$i]);
-    if (count($parts)<>2)
-    {
-      continue;
-    }
-    $locations[$parts[0]]=$parts[1];
-  }
-  return $locations;
+  return load_settings(LOCATIONS_FILE);
 }
 
 #####################################################################################################
@@ -100,19 +80,7 @@ function set_location($name,$location)
 
 function save_locations(&$locations)
 {
-  $data="";
-  foreach ($locations as $name => $location)
-  {
-    $data=$data.$name." = ".$location."\n";
-  }
-  if (file_put_contents(LOCATIONS_FILE,$data)===False)
-  {
-    return False;
-  }
-  else
-  {
-    return True;
-  }
+  return save_settings($locations,LOCATIONS_FILE);
 }
 
 #####################################################################################################
@@ -142,6 +110,21 @@ function set_location_alias($alias,$trailing)
 
 #####################################################################################################
 
+function get_prefs($nick)
+{
+  $prefs=load_settings(WEATHER_PREFS_FILE);
+  if (isset($prefs[$nick])==True)
+  {
+    return unserialize($prefs[$nick]);
+  }
+  else
+  {
+    return False;
+  }
+}
+
+#####################################################################################################
+
 function process_weather(&$location,$nick)
 {
   $loc=get_location($location,$nick);
@@ -155,10 +138,25 @@ function process_weather(&$location,$nick)
   }
   $location=$loc;
   $loc_query=filter($loc,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC." ");
+  $prefs=get_prefs($nick);
+  $fheit="1";
+  $use_unit_pref=False;
+  if (isset($prefs["unit"])==True)
+  {
+    if ($prefs["unit"]=="metric")
+    {
+      $use_unit_pref=True;
+      $fheit="0";
+    }
+    if ($prefs["unit"]=="imperial")
+    {
+      $use_unit_pref=True;
+    }
+  }
   # https://www.google.com/search?gbv=1&q=weather+traralgon
-  $url="http://www.google.com.au/search?gbv=1&fheit=1&q=weather+".urlencode($loc_query);
+  $url="http://www.google.com.au/search?gbv=1&fheit=$fheit&q=weather+".urlencode($loc_query);
   term_echo($url);
-  $response=wget("www.google.com.au","/search?gbv=1&fheit=1&q=weather+".urlencode($loc_query),80,ICEWEASEL_UA,"",60);
+  $response=wget("www.google.com.au","/search?gbv=1&fheit=$fheit&q=weather+".urlencode($loc_query),80,ICEWEASEL_UA,"",60);
   $html=strip_headers($response);
   $delim1="<div class=\"e\">";
   $delim2="Detailed forecast:";
@@ -172,6 +170,10 @@ function process_weather(&$location,$nick)
   $html=html_entity_decode($html,ENT_QUOTES,"UTF-8");
   $html=html_entity_decode($html,ENT_QUOTES,"UTF-8");
   $location=trim(strip_tags(extract_raw_tag($html,"h3")));
+  if (substr($location,0,12)=="Weather for ")
+  {
+    $location=substr($location,12);
+  }
   $wind=trim(strip_tags(extract_text_nofalse($html,"style=\"white-space:nowrap;padding-right:15px;color:#666\">Wind: ","</span>")));
   $humidity=extract_text($html,"style=\"white-space:nowrap;padding-right:0px;vertical-align:top;color:#666\">Humidity: ","</td>");
   $parts=explode("<td",$html);
@@ -209,19 +211,33 @@ function process_weather(&$location,$nick)
   {
     return False;
   }
-  $result=$location." - currently ".$temps[0]." / ".$tempsC[0].", ".$conds[0].$wind_caption.", humidity ".$humidity." - ";
+  if ($use_unit_pref==False)
+  {
+    $result=$location." - currently ".$temps[0]." / ".$tempsC[0].", ".$conds[0].$wind_caption.", humidity ".$humidity." - ";
+  }
+  else
+  {
+    $result=$location." - currently ".$temps[0].", ".$conds[0].$wind_caption.", humidity ".$humidity." - ";
+  }
   $fulldays=array("Sun"=>"Sunday","Mon"=>"Monday","Tue"=>"Tuesday","Wed"=>"Wednesday","Thu"=>"Thursday","Fri"=>"Friday","Sat"=>"Saturday");
   for ($i=1;$i<=4;$i++)
   {
     $day=$days[$i-1];
     $day=$fulldays[$day];
-    $result=$result.$day." ".$conds[$i]." (".$temps[$i*2+1-$offset]."-".$temps[$i*2-$offset]." / ".$tempsC[$i*2+1-$offset]."-".$tempsC[$i*2-$offset].")";
+    if ($use_unit_pref==False)
+    {
+      $result=$result.$day." ".$conds[$i]." (".$temps[$i*2+1-$offset]."-".$temps[$i*2-$offset]." / ".$tempsC[$i*2+1-$offset]."-".$tempsC[$i*2-$offset].")";
+    }
+    else
+    {
+      $result=$result.$day." ".$conds[$i]." (".$temps[$i*2+1-$offset]."-".$temps[$i*2-$offset].")";
+    }
     if ($i<4)
     {
       $result=$result.", ";
     }
   }
-  $result=$result." - source: Google";
+  $result=chr(3)."03".$result." - google";
   return $result;
 }
 
