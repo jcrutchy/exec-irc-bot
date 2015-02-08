@@ -24,6 +24,11 @@ if (isset($_GET["user"])==True)
   die("user=".$_GET["user"]);
 }
 
+if (isset($_GET["tfa"])==True)
+{
+  die("tfa=".$_GET["tfa"]);
+}
+
 echo "<html><head><title>hi chromas!</title></head><body><p>welcome to news.my.to -- crutchy</p></body></html>";
 
 #####################################################################################################
