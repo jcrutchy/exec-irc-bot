@@ -15,14 +15,14 @@
 #####################################################################################################
 
 echo "<!DOCTYPE html>\n";
-echo "<html style=\"font-family: \"Courier New\", Courier, monospace;\">\n";
+echo "<html>\n";
 echo "<head>\n";
 echo "<title></title>\n";
 echo "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\n";
 echo "<style type=\"text/css\"></style>\n";
 echo "<script type=\"text/javascript\"></script>\n";
 echo "</head>\n";
-echo "<body>\n";
+echo "<body style=\"font-family: \"Courier New\", Courier, monospace;\">\n";
 
 echo "<p>news.my.to: home | recent | submit | about | help | css / atom</p>\n";
 
