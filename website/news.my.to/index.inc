@@ -14,9 +14,14 @@
 
 #####################################################################################################
 
-if ((isset($_GET["op"])==True) and (isset($_GET["user"])==True))
+if (isset($_GET["op"])==True)
 {
-  die("success!");
+  die("op=".$_GET["op"]);
+}
+
+if (isset($_GET["user"])==True)
+{
+  die("user=".$_GET["user"]);
 }
 
 echo "<html><head><title>hi chromas!</title></head><body><p>welcome to news.my.to -- crutchy</p></body></html>";
