@@ -24,7 +24,7 @@ echo "<script type=\"text/javascript\"></script>\n";
 echo "</head>\n";
 echo "<body style=\"font-family: 'Courier New', Courier, monospace;\">\n";
 
-echo "<p>news.my.to: home | recent | submit | about | help | css / atom</p>\n";
+echo "<p>news.my.to: <a href=\"/\">home</a> | <a href=\"/\">recent</a> | <a href=\"/\">submit</a> | <a href=\"/\">about</a> | <a href=\"/\">help</a> | <a href=\"/\">css</a> / <a href=\"/\">atom</a></p>\n";
 
 echo "<hr>\n";
 echo "<p>08 Feb 15 | <a href=\"/op/mod?dir=dn&amp;tfa=1678\">&lt;&lt;</a> <a href=\"/op/mod?dir=up&amp;tfa=1678\">&gt;&gt;</a> +03 | 050 comments | <a href=\"/tfa/1678\">Google Prepares to Disrupt Wireless Carrier Industry; Verizon Yawns</a></p>\n";
