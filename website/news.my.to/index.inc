@@ -4,9 +4,9 @@
 
 /*
   RewriteEngine On
-  RewriteRule ^/tfa/(.*)$ /index.php?tfa=$1 [L]
-  RewriteRule ^/img/(.*)$ /index.php?img=$1 [L]
-  RewriteRule ^/op/(.*)$ /index.php?op=$1 [L]
+  RewriteRule ^/tfa/(.*)$ /index.php?tfa=$1 [L,QSA]
+  RewriteRule ^/img/(.*)$ /index.php?img=$1 [L,QSA]
+  RewriteRule ^/op/(.*)$ /index.php?op=$1 [L,QSA]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.php [L]
@@ -14,22 +14,32 @@
 
 #####################################################################################################
 
-if (isset($_GET["op"])==True)
-{
-  die("op=".$_GET["op"]);
-}
+echo "<!DOCTYPE html>\n";
+echo "<html style=\"font-family: \"Courier New\", Courier, monospace;\">\n";
+echo "<head>\n";
+echo "<title></title>\n";
+echo "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\">\n";
+echo "<style type=\"text/css\"></style>\n";
+echo "<script type=\"text/javascript\"></script>\n";
+echo "</head>\n";
+echo "<body>\n";
 
-if (isset($_GET["user"])==True)
-{
-  die("user=".$_GET["user"]);
-}
+echo "<p>news.my.to: home | recent | submit | about | help | css / atom</p>\n";
 
-if (isset($_GET["tfa"])==True)
-{
-  die("tfa=".$_GET["tfa"]);
-}
+echo "<hr>\n";
+echo "<p>08 Feb 15 | <a href=\"/op/mod?dir=dn&amp;tfa=1678\">&lt;&lt;</a> <a href=\"/op/mod?dir=up&amp;tfa=1678\">&gt;&gt;</a> +03 | 050 comments | <a href=\"/tfa/1678\">Google Prepares to Disrupt Wireless Carrier Industry; Verizon Yawns</a></p>\n";
 
-echo "<html><head><title>hi chromas!</title></head><body><p>welcome to news.my.to -- crutchy</p></body></html>";
+echo "<hr>\n";
+echo "<p>08 Feb 15 | <a href=\"/op/mod?dir=dn&amp;tfa=1678\">&lt;&lt;</a> <a href=\"/op/mod?dir=up&amp;tfa=1678\">&gt;&gt;</a> +03 | 050 comments | <a href=\"/tfa/1678\">Pluto's Evaporating Ice Leaves it with a Blank Face</a></p>\n";
+
+echo "<hr>\n";
+echo "<p>08 Feb 15 | <a href=\"/op/mod?dir=dn&amp;tfa=1678\">&lt;&lt;</a> <a href=\"/op/mod?dir=up&amp;tfa=1678\">&gt;&gt;</a> +03 | 050 comments | <a href=\"/tfa/1678\">Scientists Explain How Brian Williams' Memory may have Failed Him</a></p>\n";
+
+echo "<hr>\n";
+echo "<p>08 Feb 15 | <a href=\"/op/mod?dir=dn&amp;tfa=1678\">&lt;&lt;</a> <a href=\"/op/mod?dir=up&amp;tfa=1678\">&gt;&gt;</a> +03 | 050 comments | <a href=\"/tfa/1678\">Jailbreak your Tractor or Make it Run OSS?</a></p>\n";
+
+echo "</body>\n";
+echo "</html>\n";
 
 #####################################################################################################
 
