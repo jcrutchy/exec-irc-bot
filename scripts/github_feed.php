@@ -105,7 +105,7 @@ $list=array(
 
 sort($list);
 
-define("TIME_LIMIT_SEC",300); # 5 mins
+define("TIME_LIMIT_SEC",600); # 10 mins
 define("CREATE_TIME_FORMAT","Y-m-d H:i:s ");
 
 if ($alias=="~github-list")
