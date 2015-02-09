@@ -14,15 +14,16 @@
 
 #####################################################################################################
 
-require_once(__DIR__."/utils.inc");
+define("TEMPLATES_PATH",__DIR__."/templates");
 
-$page=trim(file_get_contents(__DIR__."/template_page.txt"));
+$page=trim(file_get_contents(TEMPLATES_PATH."/template_page.txt"));
 
 $css=trim(file_get_contents(__DIR__."/default.css"));
 $page=str_replace("%%css%%",$css,$page);
 
-$menu=trim(file_get_contents(__DIR__."/template_menu.txt"));
-$menu_item_template=trim(file_get_contents(__DIR__."/template_menu_item.txt"));
+$menu=trim(file_get_contents(TEMPLATES_PATH."/template_menu.txt"));
+$menu_item_template=trim(file_get_contents(TEMPLATES_PATH."/template_menu_item.txt"));
+$active_menu_item_template=trim(file_get_contents(TEMPLATES_PATH."/template_menu_item_active.txt"));
 $menu_items_html="";
 $menu_items_data=file_get_contents(__DIR__."/menu_items.txt");
 $menu_items_data=explode("\n",$menu_items_data);
@@ -39,9 +40,16 @@ for ($i=0;$i<count($menu_items_data);$i++)
   }
   else
   {
-    $menu_item_html=$menu_item_template;
+    if ($_SERVER["REQUEST_URI"]==$href)
+    {
+      $menu_item_html=$active_menu_item_template;
+    }
+    else
+    {
+      $menu_item_html=$menu_item_template;
+      $menu_item_html=str_replace("%%href%%",$href,$menu_item_html);
+    }
     $menu_item_html=str_replace("%%caption%%",$caption,$menu_item_html);
-    $menu_item_html=str_replace("%%href%%",$href,$menu_item_html);
   }
   $menu_items_html=$menu_items_html.$menu_item_html;
 }
@@ -49,8 +57,8 @@ $menu=str_replace("%%menu_items%%",$menu_items_html,$menu);
 
 $page=str_replace("%%title%%","news.my.to",$page);
 
-$article_head_template=trim(file_get_contents(__DIR__."/template_article_head.txt"));
-$article_summary_template=trim(file_get_contents(__DIR__."/template_article_summary.txt"));
+$article_head_template=trim(file_get_contents(TEMPLATES_PATH."/template_article_head.txt"));
+$article_summary_template=trim(file_get_contents(TEMPLATES_PATH."/template_article_summary.txt"));
 
 $articles_html="";
 
