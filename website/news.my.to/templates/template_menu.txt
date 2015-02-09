@@ -1,0 +1,5 @@
+<div class="menu">
+<div class="menu_content">
+%%menu_items%%
+</div>
+</div>

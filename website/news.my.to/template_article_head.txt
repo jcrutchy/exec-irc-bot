@@ -1,1 +1,0 @@
-<div class="tfa_head"><div class="tfa_head_content">%%date%% | mod: <a href="/op/mod?dir=dn&amp;tfa=%%tfa%%">[-]</a> <a href="/op/mod?dir=up&amp;tfa=%%tfa%%">[+]</a> score: %%score%% | %%comments%% | <a href="/tfa/%%tfa%%">%%title%%</a></div></div>

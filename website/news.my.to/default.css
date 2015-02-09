@@ -40,7 +40,12 @@ a
 
 .menu a:hover
   {
-    color: #3333BB;
+    color: #5555BB;
+  }
+
+.active_menu_item
+  {
+    text-decoration: underline;
   }
 
 .tfa_head
