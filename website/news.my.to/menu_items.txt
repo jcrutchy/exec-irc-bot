@@ -1,0 +1,13 @@
+news.my.to=/
+ | 
+recent=/
+ | 
+submit=/
+ | 
+about=/
+ | 
+help=/
+ | 
+rss=/
+/
+atom=/

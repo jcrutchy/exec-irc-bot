@@ -36,7 +36,7 @@ function load_settings($filename)
     return False;
   }
   $data=explode("\n",$data);
-  $locations=array();
+  $settings=array();
   for ($i=0;$i<count($data);$i++)
   {
     $parts=explode("=",$data[$i]);
@@ -44,9 +44,9 @@ function load_settings($filename)
     {
       continue;
     }
-    $locations[trim($parts[0])]=trim($parts[1]);
+    $settings[trim($parts[0])]=trim($parts[1]);
   }
-  return $locations;
+  return $settings;
 }
 
 #####################################################################################################

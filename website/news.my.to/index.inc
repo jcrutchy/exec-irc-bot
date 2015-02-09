@@ -16,13 +16,29 @@
 
 $page=file_get_contents(__DIR__."/template_page.txt");
 
-$menu=file_get_contents(__DIR__."/template_menu.txt");
-
-$menu_items="<a href=\"/\">news.my.to</a> | <a href=\"/\">recent</a> | <a href=\"/\">submit</a> | <a href=\"/\">about</a> | <a href=\"/\">help</a> | <a href=\"/\">css</a> / <a href=\"/\">atom</a>";
-$menu=str_replace("%%menu_items%%",$menu_items,$menu);
-
 $css=file_get_contents(__DIR__."/default.css");
 $page=str_replace("%%css%%",$css,$page);
+
+$menu=file_get_contents(__DIR__."/template_menu.txt");
+$menu_item_template=file_get_contents(__DIR__."/template_menu_item.txt");
+$menu_items=utils__load_settings(__DIR__."/menu_items.txt");
+$menu_items="<a href=\"/\">news.my.to</a> | <a href=\"/\">recent</a> | <a href=\"/\">submit</a> | <a href=\"/\">about</a> | <a href=\"/\">help</a> | <a href=\"/\">rss</a> / <a href=\"/\">atom</a>";
+$menu_items_html="";
+foreach ($menu_items as $caption => $href)
+{
+  if ($href=="")
+  {
+    $menu_item_html=$caption;
+  }
+  else
+  {
+    $menu_item_html=$menu_item_template;
+    $menu_item_html=str_replace("%%caption%%",$caption,$menu_item_html);
+    $menu_item_html=str_replace("%%href%%",$href,$menu_item_html);
+  }
+  $menu_items_html=$menu_items_html.$menu_item_html;
+}
+$menu=str_replace("%%menu_items%%",$menu_items_html,$menu);
 
 $page=str_replace("%%title%%","news.my.to",$page);
 
