@@ -8,7 +8,7 @@ CREATE TABLE  `news_my_to`.`stories` (
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`sid`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=ascii;
 
 DROP TABLE IF EXISTS `news_my_to`.`comments`;
 CREATE TABLE  `news_my_to`.`comments` (
@@ -25,7 +25,7 @@ CREATE TABLE  `news_my_to`.`comments` (
   KEY `sid` (`sid`),
   KEY `parent_cid` (`parent_cid`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=ascii;
 
 DROP TABLE IF EXISTS `news_my_to`.`nicks`;
 CREATE TABLE  `news_my_to`.`nicks` (
@@ -34,10 +34,10 @@ CREATE TABLE  `news_my_to`.`nicks` (
   `ip_address` tinytext NOT NULL,
   `auth_hash` text NOT NULL,
   PRIMARY KEY (`nick`)
-) ENGINE=MyISAM DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB DEFAULT CHARSET=ascii;
 
-DROP TABLE IF EXISTS `news_my_to`.`story_scores`;
-CREATE TABLE  `news_my_to`.`story_scores` (
+DROP TABLE IF EXISTS `news_my_to`.`story_mods`;
+CREATE TABLE  `news_my_to`.`story_mods` (
   `sid` integer unsigned NOT NULL,
   `ip_address` tinytext NOT NULL,
   `mod` tinyint(1) NOT NULL,
@@ -45,10 +45,10 @@ CREATE TABLE  `news_my_to`.`story_scores` (
   PRIMARY KEY (`sid`,`ip_address`),
   KEY `mod` (`mod`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=MyISAM DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB DEFAULT CHARSET=ascii;
 
-DROP TABLE IF EXISTS `news_my_to`.`comment_scores`;
-CREATE TABLE  `news_my_to`.`comment_scores` (
+DROP TABLE IF EXISTS `news_my_to`.`comment_mods`;
+CREATE TABLE  `news_my_to`.`comment_mods` (
   `cid` integer unsigned NOT NULL,
   `ip_address` tinytext NOT NULL,
   `mod` tinyint(1) NOT NULL,
@@ -56,4 +56,5 @@ CREATE TABLE  `news_my_to`.`comment_scores` (
   PRIMARY KEY (`sid`,`ip_address`),
   KEY `mod` (`mod`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=MyISAM DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB DEFAULT CHARSET=ascii;
+
