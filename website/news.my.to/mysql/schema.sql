@@ -31,7 +31,7 @@ DROP TABLE IF EXISTS `news_my_to`.`nicks`;
 CREATE TABLE  `news_my_to`.`nicks` (
   `nick` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `ip_address` varchar(255) NOT NULL,
+  `ip_address` varchar(15) NOT NULL,
   `auth_hash` varchar(65535) NOT NULL,
   PRIMARY KEY (`nick`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ascii;
@@ -39,7 +39,7 @@ CREATE TABLE  `news_my_to`.`nicks` (
 DROP TABLE IF EXISTS `news_my_to`.`story_mods`;
 CREATE TABLE  `news_my_to`.`story_mods` (
   `sid` integer unsigned NOT NULL,
-  `ip_address` varchar(255) NOT NULL,
+  `ip_address` varchar(15) NOT NULL,
   `mod` tinyint NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`sid`,`ip_address`),
@@ -50,7 +50,7 @@ CREATE TABLE  `news_my_to`.`story_mods` (
 DROP TABLE IF EXISTS `news_my_to`.`comment_mods`;
 CREATE TABLE  `news_my_to`.`comment_mods` (
   `cid` integer unsigned NOT NULL,
-  `ip_address` varchar(255) NOT NULL,
+  `ip_address` varchar(15) NOT NULL,
   `mod` tinyint NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`sid`,`ip_address`),
