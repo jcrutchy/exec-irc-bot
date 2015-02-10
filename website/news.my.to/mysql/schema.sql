@@ -59,3 +59,4 @@ CREATE TABLE  `news_my_to`.`comment_mods` (
   KEY `timestamp` (`timestamp`)
 ) ENGINE=InnoDB;
 
+/* NEED TO ADD USER PERMISSIONS FOR 'www' USER */
