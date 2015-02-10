@@ -10,13 +10,15 @@ if ($pdo===False)
 {
   die("ERROR CONNECTING TO MYSQL SERVER");
 }
-$pdo->exec("DROP DATABASE IF EXISTS ".DB_SCHEMA);
-$result=$pdo->exec("CREATE DATABASE ".DB_SCHEMA);
+$sql=file_get_contents("schema.sql");
+$result=$pdo->exec($sql);
 if ($result===False)
 {
   die("ERROR CREATING DATABASE");
 }
-
-DROP TABLE IF EXISTS `EDR_Sections`.`EDR_UA`;
+else
+{
+  die("DATABASE CREATED");
+}
 
 ?>

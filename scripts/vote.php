@@ -4,7 +4,7 @@
 
 /*
 exec:~vote|10|0|0|1|*||||php scripts/vote.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~kickpoll|10|0|0|1|*||||php scripts/vote.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~quickpoll|10|0|0|1|*||||php scripts/vote.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################
