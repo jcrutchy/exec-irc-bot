@@ -1,4 +1,5 @@
-CREATE DATABASE IF NOT EXISTS news_my_to;
+DROP DATABASE IF EXISTS news_my_to;
+CREATE DATABASE IF NOT EXISTS news_my_to DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 
 DROP TABLE IF EXISTS `news_my_to`.`stories`;
 CREATE TABLE  `news_my_to`.`stories` (
@@ -8,7 +9,7 @@ CREATE TABLE  `news_my_to`.`stories` (
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`sid`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 DROP TABLE IF EXISTS `news_my_to`.`comments`;
 CREATE TABLE  `news_my_to`.`comments` (
@@ -25,7 +26,7 @@ CREATE TABLE  `news_my_to`.`comments` (
   KEY `sid` (`sid`),
   KEY `parent_cid` (`parent_cid`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 DROP TABLE IF EXISTS `news_my_to`.`nicks`;
 CREATE TABLE  `news_my_to`.`nicks` (
@@ -34,7 +35,7 @@ CREATE TABLE  `news_my_to`.`nicks` (
   `ip_address` varchar(15) NOT NULL,
   `auth_hash` varchar(65535) NOT NULL,
   PRIMARY KEY (`nick`)
-) ENGINE=InnoDB DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `news_my_to`.`story_mods`;
 CREATE TABLE  `news_my_to`.`story_mods` (
@@ -45,7 +46,7 @@ CREATE TABLE  `news_my_to`.`story_mods` (
   PRIMARY KEY (`sid`,`ip_address`),
   KEY `mod` (`mod`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `news_my_to`.`comment_mods`;
 CREATE TABLE  `news_my_to`.`comment_mods` (
@@ -56,5 +57,5 @@ CREATE TABLE  `news_my_to`.`comment_mods` (
   PRIMARY KEY (`sid`,`ip_address`),
   KEY `mod` (`mod`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB;
 
