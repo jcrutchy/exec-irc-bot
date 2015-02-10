@@ -3,8 +3,8 @@ CREATE DATABASE IF NOT EXISTS news_my_to;
 DROP TABLE IF EXISTS `news_my_to`.`stories`;
 CREATE TABLE  `news_my_to`.`stories` (
   `sid` integer unsigned NOT NULL AUTO_INCREMENT,
-  `title` tinytext NOT NULL,
-  `content` text NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `content` varchar(65535) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`sid`),
   KEY `timestamp` (`timestamp`)
@@ -13,12 +13,12 @@ CREATE TABLE  `news_my_to`.`stories` (
 DROP TABLE IF EXISTS `news_my_to`.`comments`;
 CREATE TABLE  `news_my_to`.`comments` (
   `cid` integer unsigned NOT NULL AUTO_INCREMENT,
-  `nick` tinytext NOT NULL,
+  `nick` varchar(255) NOT NULL,
   `sid` integer unsigned NOT NULL,
   `parent_cid` integer unsigned NOT NULL,
-  `subject` tinytext NOT NULL,
-  `content` text NOT NULL,
-  `auth_hash` text NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `content` varchar(65535) NOT NULL,
+  `auth_hash` varchar(65535) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`cid`),
   KEY `nick` (`nick`),
@@ -29,18 +29,18 @@ CREATE TABLE  `news_my_to`.`comments` (
 
 DROP TABLE IF EXISTS `news_my_to`.`nicks`;
 CREATE TABLE  `news_my_to`.`nicks` (
-  `nick` tinytext NOT NULL,
-  `email` tinytext NOT NULL,
-  `ip_address` tinytext NOT NULL,
-  `auth_hash` text NOT NULL,
+  `nick` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `ip_address` varchar(255) NOT NULL,
+  `auth_hash` varchar(65535) NOT NULL,
   PRIMARY KEY (`nick`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ascii;
 
 DROP TABLE IF EXISTS `news_my_to`.`story_mods`;
 CREATE TABLE  `news_my_to`.`story_mods` (
   `sid` integer unsigned NOT NULL,
-  `ip_address` tinytext NOT NULL,
-  `mod` tinyint(1) NOT NULL,
+  `ip_address` varchar(255) NOT NULL,
+  `mod` tinyint NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`sid`,`ip_address`),
   KEY `mod` (`mod`),
@@ -50,8 +50,8 @@ CREATE TABLE  `news_my_to`.`story_mods` (
 DROP TABLE IF EXISTS `news_my_to`.`comment_mods`;
 CREATE TABLE  `news_my_to`.`comment_mods` (
   `cid` integer unsigned NOT NULL,
-  `ip_address` tinytext NOT NULL,
-  `mod` tinyint(1) NOT NULL,
+  `ip_address` varchar(255) NOT NULL,
+  `mod` tinyint NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`sid`,`ip_address`),
   KEY `mod` (`mod`),
