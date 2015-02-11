@@ -17,7 +17,7 @@ include ./scripts/translate.php
 include ./scripts/rainbow.php
 include ./scripts/quit.php
 
-include ./scripts/github_feed.php
+~epoch-feed|280|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 ~cowsay|10|0|1|0|||||cowsay %%trailing%%
 ~moo|10|0|1|1|||||apt-get moo

@@ -2,6 +2,8 @@
 
 # http://openweathermap.org/API
 
+# TODO: BROKEN FOR "ADA, OKLAHOMA" FOR SOME REASON (BUT WORKS FOR "TULSA, OK")
+
 #####################################################################################################
 
 require_once("lib.php");
@@ -128,6 +130,7 @@ function get_prefs($nick)
 function process_weather(&$location,$nick)
 {
   $loc=get_location($location,$nick);
+  term_echo("*** WEATHER LOCATION LOOKUP: $loc");
   if ($loc===False)
   {
     if ($location=="")
