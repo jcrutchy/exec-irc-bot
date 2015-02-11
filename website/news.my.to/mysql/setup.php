@@ -10,7 +10,11 @@ if ($pdo===False)
 {
   die("ERROR CONNECTING TO MYSQL SERVER");
 }
-$sql=file_get_contents("schema.sql");
+else
+{
+  echo "CONNECTED\n";
+}
+/*$sql=file_get_contents("schema.sql");
 $result=$pdo->exec($sql);
 if ($result===False)
 {
@@ -19,6 +23,6 @@ if ($result===False)
 else
 {
   die("DATABASE CREATED");
-}
+}*/
 
 ?>

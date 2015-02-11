@@ -59,4 +59,4 @@ CREATE TABLE  `news_my_to`.`comment_mods` (
   KEY `timestamp` (`timestamp`)
 ) ENGINE=InnoDB;
 
-/* NEED TO ADD USER PERMISSIONS FOR 'www' USER */
+GRANT SELECT, INSERT, UPDATE, DELETE ON news_my_to.* TO www@'localhost';

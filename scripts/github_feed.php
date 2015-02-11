@@ -6,6 +6,7 @@
 exec:~github-list|60|0|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~github-feed|280|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~slashcode-issue|60|0|0|1|crutchy,TheMightyBuzzard||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~epoch-feed|280|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 startup:~join #github
 */
 
@@ -62,8 +63,6 @@ if ($alias=="~slashcode-issue")
   return;
 }
 
-define("FEED_CHAN","#github");
-
 $list=array(
   "crutchy-/exec-irc-bot",
   "TheMightyBuzzard/slashcode",
@@ -106,6 +105,16 @@ $list=array(
   "Lagg/weechat-scripts",
   "Lagg/steam-tracker",
   "Lagg/steam-swissapiknife");
+
+if ($alias=="~epoch-feed")
+{
+  $list=array("Subsentient/epoch");
+  define("FEED_CHAN","#epoch");
+}
+else
+{
+  define("FEED_CHAN","#github");
+}
 
 sort($list);
 
