@@ -47,7 +47,7 @@ a
     text-decoration: underline;
   }
 
-.tfa_head
+.story_head
   {
     border-top: 1px #222222 solid;
     width: 100%;
@@ -55,27 +55,27 @@ a
     background-color: #CCCCCC;
   }
 
-.tfa_head_sub
+.story_head_sub
   {
     font-size: 0.8em;
   }
 
-.tfa_head_content
+.story_head_content
   {
     padding: 2px 5px 2px 5px;
   }
 
-.tfa_head a:link
+.story_head a:link
   {
     color: #222222;
   }
 
-.tfa_head a:hover
+.story_head a:hover
   {
     color: #BB3333;
   }
 
-.tfa_content
+.story_content
   {
     padding: 5px;
   }
