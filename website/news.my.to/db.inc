@@ -5,7 +5,7 @@
 define("DB_SCHEMA","news_my_to");
 define("DB_HOST","localhost");
 define("DB_USER","www");
-define("DB_PASSWORD",trim(file_get_contents("../../../pwd/mysql_www")));
+define("DB_PASSWORD",trim(file_get_contents(__DIR__."/../../../pwd/mysql_www")));
 
 $pdo=new PDO("mysql:host=".DB_HOST,DB_USER,DB_PASSWORD);
 if ($pdo===False)
