@@ -16,6 +16,10 @@
 
 require_once(__DIR__."/db.inc");
 
+$stories=db__get_all_stories();
+
+var_dump($stories);
+
 define("TEMPLATES_PATH",__DIR__."/templates");
 
 $page=trim(file_get_contents(TEMPLATES_PATH."/template_page.txt"));

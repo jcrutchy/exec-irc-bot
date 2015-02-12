@@ -24,6 +24,7 @@ function db__get_all_stories()
   {
     die("SQL ERROR\n\n$sql");
   }
+  return $statement->fetchAll(PDO::FETCH_ASSOC);
 }
 
 #####################################################################################################
