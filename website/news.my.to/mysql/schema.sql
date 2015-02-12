@@ -1,5 +1,5 @@
 DROP DATABASE IF EXISTS news_my_to;
-CREATE DATABASE IF NOT EXISTS news_my_to DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+CREATE DATABASE IF NOT EXISTS news_my_to DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 DROP TABLE IF EXISTS `news_my_to`.`stories`;
 CREATE TABLE  `news_my_to`.`stories` (
@@ -8,7 +8,7 @@ CREATE TABLE  `news_my_to`.`stories` (
   `content` varchar(65535) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`sid`),
-  KEY `timestamp` (`timestamp`)
+  INDEX `timestamp` (`timestamp` ASC)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 DROP TABLE IF EXISTS `news_my_to`.`comments`;
@@ -22,10 +22,10 @@ CREATE TABLE  `news_my_to`.`comments` (
   `auth_hash` varchar(65535) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`cid`),
-  KEY `nick` (`nick`),
-  KEY `sid` (`sid`),
-  KEY `parent_cid` (`parent_cid`),
-  KEY `timestamp` (`timestamp`)
+  INDEX `nick` (`nick` ASC),
+  INDEX `sid` (`sid` ASC),
+  INDEX `parent_cid` (`parent_cid` ASC),
+  INDEX `timestamp` (`timestamp` ASC)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 DROP TABLE IF EXISTS `news_my_to`.`nicks`;
@@ -44,8 +44,8 @@ CREATE TABLE  `news_my_to`.`story_mods` (
   `mod` tinyint NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`sid`,`ip_address`),
-  KEY `mod` (`mod`),
-  KEY `timestamp` (`timestamp`)
+  INDEX `mod` (`mod` ASC),
+  INDEX `timestamp` (`timestamp` ASC)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `news_my_to`.`comment_mods`;
@@ -55,8 +55,6 @@ CREATE TABLE  `news_my_to`.`comment_mods` (
   `mod` tinyint NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`sid`,`ip_address`),
-  KEY `mod` (`mod`),
-  KEY `timestamp` (`timestamp`)
+  INDEX `mod` (`mod` ASC),
+  INDEX `timestamp` (`timestamp` ASC)
 ) ENGINE=InnoDB;
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON news_my_to.* TO www@'localhost';
