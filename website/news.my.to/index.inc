@@ -24,7 +24,7 @@ db__insert_story($test_story);
 
 $stories=db__get_all_stories();
 
-var_dump($stories);
+#var_dump($stories);
 
 define("TEMPLATES_PATH",__DIR__."/templates");
 
