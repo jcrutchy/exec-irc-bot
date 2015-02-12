@@ -4,7 +4,7 @@
 
 /*
   RewriteEngine On
-  RewriteRule ^/tfa/(.*)$ /index.php?tfa=$1 [L,QSA]
+  RewriteRule ^/stories/(.*)$ /index.php?sid=$1 [L,QSA]
   RewriteRule ^/img/(.*)$ /index.php?img=$1 [L,QSA]
   RewriteRule ^/op/(.*)$ /index.php?op=$1 [L,QSA]
   RewriteCond %{REQUEST_FILENAME} !-f
@@ -13,6 +13,8 @@
 */
 
 #####################################################################################################
+
+require_once(__DIR__."/db.inc");
 
 define("TEMPLATES_PATH",__DIR__."/templates");
 
@@ -57,56 +59,56 @@ $menu=str_replace("%%menu_items%%",$menu_items_html,$menu);
 
 $page=str_replace("%%title%%","news.my.to",$page);
 
-$article_head_template=trim(file_get_contents(TEMPLATES_PATH."/template_article_head.txt"));
-$article_summary_template=trim(file_get_contents(TEMPLATES_PATH."/template_article_summary.txt"));
+$story_head_template=trim(file_get_contents(TEMPLATES_PATH."/template_story_head.txt"));
+$story_summary_template=trim(file_get_contents(TEMPLATES_PATH."/template_story_summary.txt"));
 
-$articles_html="";
+$stories_html="";
 
-$articles=array();
+$stories=array();
 
-$test_article=array();
-$test_article["tfa"]=1678;
-$test_article["date"]="16 Feb 2015";
-$test_article["score"]=5;
-$test_article["comments"]=54;
-$test_article["title"]="Test article title";
-$test_article["summary"]="Google is reportedly laying plans to enter the wireless phone service business, in competition with Verizon and AT&T and in co-opetition with T-Mobile and Sprint. In late January, The Information broke the news that the company had reached agreements with T-Mobile and Sprint (paywalled, but a secondary report is here) enabling Google to use their cellular networks. When placing a call, Google's handset would choose between the two carrier networks, or Wi-Fi, depending on the caller's location and relative signal strength of the alternatives.";
+$test_story=array();
+$test_story["sid"]=1678;
+$test_story["date"]="16 Feb 2015";
+$test_story["score"]=5;
+$test_story["comments"]=54;
+$test_story["title"]="Test story title";
+$test_story["summary"]="Google is reportedly laying plans to enter the wireless phone service business, in competition with Verizon and AT&T and in co-opetition with T-Mobile and Sprint. In late January, The Information broke the news that the company had reached agreements with T-Mobile and Sprint (paywalled, but a secondary report is here) enabling Google to use their cellular networks. When placing a call, Google's handset would choose between the two carrier networks, or Wi-Fi, depending on the caller's location and relative signal strength of the alternatives.";
 
-$articles[]=$test_article;
-$articles[]=$test_article;
-$articles[]=$test_article;
-$articles[]=$test_article;
-$articles[]=$test_article;
-$articles[]=$test_article;
+$stories[]=$test_story;
+$stories[]=$test_story;
+$stories[]=$test_story;
+$stories[]=$test_story;
+$stories[]=$test_story;
+$stories[]=$test_story;
 
-for ($i=0;$i<count($articles);$i++)
+for ($i=0;$i<count($stories);$i++)
 {
-  $article_head=$article_head_template;
-  $article_head=str_replace("%%tfa%%",$articles[$i]["tfa"],$article_head);
-  $article_head=str_replace("%%date%%",$articles[$i]["date"],$article_head);
-  $score_caption=$articles[$i]["score"];
-  if ($articles[$i]["score"]>0)
+  $story_head=$story_head_template;
+  $story_head=str_replace("%%sid%%",$stories[$i]["sid"],$story_head);
+  $story_head=str_replace("%%date%%",$stories[$i]["date"],$story_head);
+  $score_caption=$stories[$i]["score"];
+  if ($stories[$i]["score"]>0)
   {
     $score_caption="+".$score_caption;
   }
-  $article_head=str_replace("%%score%%",$score_caption,$article_head);
+  $story_head=str_replace("%%score%%",$score_caption,$story_head);
   $comments_caption="no comments";
-  if ($articles[$i]["comments"]>1)
+  if ($stories[$i]["comments"]>1)
   {
-    $comments_caption=$articles[$i]["comments"]." comments";
+    $comments_caption=$stories[$i]["comments"]." comments";
   }
-  elseif ($articles[$i]["comments"]>0)
+  elseif ($stories[$i]["comments"]>0)
   {
-    $comments_caption=$articles[$i]["comments"]." comment";
+    $comments_caption=$stories[$i]["comments"]." comment";
   }
-  $article_head=str_replace("%%comments%%",$comments_caption,$article_head);
-  $article_head=str_replace("%%title%%",$articles[$i]["title"],$article_head);
-  $article_summary=$article_summary_template;
-  $article_summary=str_replace("%%summary%%",$articles[$i]["summary"],$article_summary);
-  $articles_html=$articles_html.$article_head.$article_summary;
+  $story_head=str_replace("%%comments%%",$comments_caption,$story_head);
+  $story_head=str_replace("%%title%%",$stories[$i]["title"],$story_head);
+  $story_summary=$story_summary_template;
+  $story_summary=str_replace("%%summary%%",$stories[$i]["summary"],$story_summary);
+  $stories_html=$stories_html.$story_head.$story_summary;
 }
 
-$body=$menu.$articles_html;
+$body=$menu.$stories_html;
 
 $page=str_replace("%%body%%",$body,$page);
 

@@ -1,7 +1,6 @@
 DROP DATABASE IF EXISTS news_my_to;
 CREATE DATABASE IF NOT EXISTS news_my_to DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-DROP TABLE IF EXISTS `news_my_to`.`stories`;
 CREATE TABLE  `news_my_to`.`stories` (
   `sid` integer unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
@@ -11,7 +10,6 @@ CREATE TABLE  `news_my_to`.`stories` (
   INDEX `timestamp` (`timestamp` ASC)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
-DROP TABLE IF EXISTS `news_my_to`.`comments`;
 CREATE TABLE  `news_my_to`.`comments` (
   `cid` integer unsigned NOT NULL AUTO_INCREMENT,
   `nick` varchar(255) NOT NULL,
@@ -28,7 +26,6 @@ CREATE TABLE  `news_my_to`.`comments` (
   INDEX `timestamp` (`timestamp` ASC)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
-DROP TABLE IF EXISTS `news_my_to`.`nicks`;
 CREATE TABLE  `news_my_to`.`nicks` (
   `nick` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
@@ -37,7 +34,6 @@ CREATE TABLE  `news_my_to`.`nicks` (
   PRIMARY KEY (`nick`)
 ) ENGINE=InnoDB;
 
-DROP TABLE IF EXISTS `news_my_to`.`story_mods`;
 CREATE TABLE  `news_my_to`.`story_mods` (
   `sid` integer unsigned NOT NULL,
   `ip_address` varchar(15) NOT NULL,
@@ -48,7 +44,6 @@ CREATE TABLE  `news_my_to`.`story_mods` (
   INDEX `timestamp` (`timestamp` ASC)
 ) ENGINE=InnoDB;
 
-DROP TABLE IF EXISTS `news_my_to`.`comment_mods`;
 CREATE TABLE  `news_my_to`.`comment_mods` (
   `cid` integer unsigned NOT NULL,
   `ip_address` varchar(15) NOT NULL,
