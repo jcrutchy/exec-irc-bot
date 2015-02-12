@@ -108,8 +108,10 @@ $list=array(
 
 if ($alias=="~epoch-feed")
 {
-  $list=array("Subsentient/epoch");
-  define("FEED_CHAN","#epoch");
+  #$list=array("Subsentient/epoch");
+  $list=array("crutchy-/exec-irc-bot");
+  #define("FEED_CHAN","#epoch");
+  define("FEED_CHAN","#sylnt");
 }
 else
 {
