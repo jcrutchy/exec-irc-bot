@@ -240,7 +240,7 @@ function process_weather(&$location,$nick)
       $result=$result.", ";
     }
   }
-  $result=chr(3)."03".$result." - google";
+  $result=chr(3)."03".$result;
   return $result;
 }
 

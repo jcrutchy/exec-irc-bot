@@ -108,10 +108,10 @@ $list=array(
 
 if ($alias=="~epoch-feed")
 {
-  #$list=array("Subsentient/epoch");
-  $list=array("crutchy-/exec-irc-bot");
-  #define("FEED_CHAN","#epoch");
-  define("FEED_CHAN","#sylnt");
+  $list=array("Subsentient/epoch");
+  #$list=array("crutchy-/exec-irc-bot");
+  define("FEED_CHAN","#epoch");
+  #define("FEED_CHAN","#sylnt");
 }
 else
 {
@@ -167,7 +167,7 @@ function check_push_events($repo)
     for ($j=0;$j<count($data[$i]["payload"]["commits"]);$j++)
     {
       $commit=$data[$i]["payload"]["commits"][$j];
-      pm(FEED_CHAN,chr(3)."11"."  ".$commit["author"]["name"].": ".$commit["message"]);
+      pm(FEED_CHAN,chr(3)."11"."  ".$commit["author"]["name"].": ".chr(2).chr(3)."03".$commit["message"]);
       $commit_url=$commit["url"];
       $commit_host="";
       $commit_uri="";
