@@ -31,9 +31,7 @@ function db__get_all_stories()
 
 function db__insert_story($story)
 {
-  #var_dump($story);
   global $pdo;
-  $sql="SELECT * FROM ".DB_SCHEMA.".stories ORDER BY sid";
   $sql="INSERT INTO ".DB_SCHEMA.".stories (title,content) VALUES (:title,:content)";
   $statement=$pdo->prepare($sql);
   if ($statement===False)
