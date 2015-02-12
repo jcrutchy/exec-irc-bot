@@ -20,7 +20,7 @@ $test_story=array();
 $test_story["title"]="Test story title";
 $test_story["content"]="test content blah stuff";
 
-db__insert_story($test_story);
+#db__insert_story($test_story);
 
 $stories=db__get_all_stories();
 
