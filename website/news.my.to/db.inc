@@ -18,13 +18,34 @@ if ($pdo===False)
 function db__get_all_stories()
 {
   global $pdo;
-  $sql="SELECT * FROM ".DB_SCHEMA."stories ORDER BY sid";
+  $sql="SELECT * FROM ".DB_SCHEMA.".stories ORDER BY sid";
   $statement=$pdo->query($sql);
   if ($statement===False)
   {
-    die("SQL ERROR\n\n$sql");
+    die("SQL QUERY ERROR\n\n$sql");
   }
   return $statement->fetchAll(PDO::FETCH_ASSOC);
+}
+
+#####################################################################################################
+
+function db__insert_story($story)
+{
+  #var_dump($story);
+  global $pdo;
+  $sql="SELECT * FROM ".DB_SCHEMA.".stories ORDER BY sid";
+  $sql="INSERT INTO ".DB_SCHEMA.".stories (title,content) VALUES (:title,:content)";
+  $statement=$pdo->prepare($sql);
+  if ($statement===False)
+  {
+    die("SQL PREPARE ERROR\n\n$sql");
+  }
+  $statement->bindParam(":title",$story["title"],PDO::PARAM_STR);
+  $statement->bindParam(":content",$story["content"],PDO::PARAM_STR);
+  if ($statement->execute()===False)
+  {
+    die("SQL EXECUTE ERROR\n\n$sql");
+  }
 }
 
 #####################################################################################################

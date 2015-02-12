@@ -16,6 +16,12 @@
 
 require_once(__DIR__."/db.inc");
 
+$test_story=array();
+$test_story["title"]="Test story title";
+$test_story["content"]="test content blah stuff";
+
+db__insert_story($test_story);
+
 $stories=db__get_all_stories();
 
 var_dump($stories);
@@ -68,28 +74,13 @@ $story_summary_template=trim(file_get_contents(TEMPLATES_PATH."/template_story_s
 
 $stories_html="";
 
-$stories=array();
-
-$test_story=array();
-$test_story["sid"]=1678;
-$test_story["date"]="16 Feb 2015";
-$test_story["score"]=5;
-$test_story["comments"]=54;
-$test_story["title"]="Test story title";
-$test_story["summary"]="Google is reportedly laying plans to enter the wireless phone service business, in competition with Verizon and AT&T and in co-opetition with T-Mobile and Sprint. In late January, The Information broke the news that the company had reached agreements with T-Mobile and Sprint (paywalled, but a secondary report is here) enabling Google to use their cellular networks. When placing a call, Google's handset would choose between the two carrier networks, or Wi-Fi, depending on the caller's location and relative signal strength of the alternatives.";
-
-$stories[]=$test_story;
-$stories[]=$test_story;
-$stories[]=$test_story;
-$stories[]=$test_story;
-$stories[]=$test_story;
-$stories[]=$test_story;
-
 for ($i=0;$i<count($stories);$i++)
 {
+  $stories[$i]["score"]=5; # TODO
+  $stories[$i]["comments"]=50; # TODO
   $story_head=$story_head_template;
   $story_head=str_replace("%%sid%%",$stories[$i]["sid"],$story_head);
-  $story_head=str_replace("%%date%%",$stories[$i]["date"],$story_head);
+  $story_head=str_replace("%%date%%",$stories[$i]["timestamp"],$story_head);
   $score_caption=$stories[$i]["score"];
   if ($stories[$i]["score"]>0)
   {
@@ -108,7 +99,7 @@ for ($i=0;$i<count($stories);$i++)
   $story_head=str_replace("%%comments%%",$comments_caption,$story_head);
   $story_head=str_replace("%%title%%",$stories[$i]["title"],$story_head);
   $story_summary=$story_summary_template;
-  $story_summary=str_replace("%%summary%%",$stories[$i]["summary"],$story_summary);
+  $story_summary=str_replace("%%summary%%",$stories[$i]["content"],$story_summary);
   $stories_html=$stories_html.$story_head.$story_summary;
 }
 
