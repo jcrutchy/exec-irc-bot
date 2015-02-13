@@ -17,8 +17,15 @@ if ($pdo===False)
 
 function db__get_all_stories()
 {
+  return db__select_query("db__get_all_stories");
+}
+
+#####################################################################################################
+
+function db__select_query($filename)
+{
   global $pdo;
-  $sql=file_get_contents(SQL_PATH."/db__get_all_stories.sql");
+  $sql=file_get_contents(SQL_PATH."/$filename.sql");
   $statement=$pdo->query($sql);
   if ($statement===False)
   {
