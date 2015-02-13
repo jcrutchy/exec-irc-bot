@@ -2,10 +2,10 @@
 
 #####################################################################################################
 
-define("DB_SCHEMA","news_my_to");
 define("DB_HOST","localhost");
 define("DB_USER","www");
 define("DB_PASSWORD",trim(file_get_contents(__DIR__."/../../../pwd/mysql_www")));
+define("SQL_PATH",__DIR__."/mysql");
 
 $pdo=new PDO("mysql:host=".DB_HOST,DB_USER,DB_PASSWORD);
 if ($pdo===False)
@@ -18,7 +18,7 @@ if ($pdo===False)
 function db__get_all_stories()
 {
   global $pdo;
-  $sql="SELECT * FROM ".DB_SCHEMA.".stories ORDER BY sid";
+  $sql=file_get_contents(SQL_PATH."/db__get_all_stories.sql");
   $statement=$pdo->query($sql);
   if ($statement===False)
   {
@@ -32,7 +32,7 @@ function db__get_all_stories()
 function db__insert_story($story)
 {
   global $pdo;
-  $sql="INSERT INTO ".DB_SCHEMA.".stories (title,content) VALUES (:title,:content)";
+  $sql="INSERT INTO news_my_to.stories (title,content) VALUES (:title,:content)";
   $statement=$pdo->prepare($sql);
   if ($statement===False)
   {

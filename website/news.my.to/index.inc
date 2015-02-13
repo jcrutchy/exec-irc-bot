@@ -76,8 +76,8 @@ $stories_html="";
 
 for ($i=0;$i<count($stories);$i++)
 {
-  $stories[$i]["score"]=5; # TODO
-  $stories[$i]["comments"]=50; # TODO
+  #$stories[$i]["score"]=db__get_story_score($stories[$i]["sid"]); # TODO: MERGE INTO SINGLE SQL QUERY
+  #$stories[$i]["comments"]=db__get_comment_count($stories[$i]["sid"]); # TODO: MERGE INTO SINGLE SQL QUERY
   $story_head=$story_head_template;
   $story_head=str_replace("%%sid%%",$stories[$i]["sid"],$story_head);
   $story_head=str_replace("%%date%%",$stories[$i]["timestamp"],$story_head);
