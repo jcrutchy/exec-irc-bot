@@ -9,8 +9,6 @@ $test_story["title"]="Test story title";
 $test_story["content"]="test content blah stuff";
 db__insert_story($test_story);*/
 
-$stories=db__get_all_stories();
-
 define("TEMPLATES_PATH",__DIR__."/templates");
 
 $page=trim(file_get_contents(TEMPLATES_PATH."/template_page.txt"));
@@ -52,7 +50,16 @@ for ($i=0;$i<count($menu_items_data);$i++)
 }
 $menu=str_replace("%%menu_items%%",$menu_items_html,$menu);
 
+if (isset($_GET["sid"])==True)
+{
+
+  $page=str_replace("%%title%%","news.my.to",$page);
+
+}
+
 $page=str_replace("%%title%%","news.my.to",$page);
+
+$stories=db__get_all_stories();
 
 $story_head_template=trim(file_get_contents(TEMPLATES_PATH."/template_story_head.txt"));
 $story_summary_template=trim(file_get_contents(TEMPLATES_PATH."/template_story_summary.txt"));
