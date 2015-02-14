@@ -3,6 +3,7 @@
 #####################################################################################################
 
 require_once(__DIR__."/db.inc");
+require_once(__DIR__."/utils.inc");
 
 /*$test_story=array();
 $test_story["title"]="Test story title";
@@ -16,6 +17,8 @@ $page=str_replace("%%css%%",$css,$page);
 $menu=trim(file_get_contents(TEMPLATES_PATH."/template_menu.txt"));
 $menu_item_template=trim(file_get_contents(TEMPLATES_PATH."/template_menu_item.txt"));
 $active_menu_item_template=trim(file_get_contents(TEMPLATES_PATH."/template_menu_item_active.txt"));
+$story_head_template=trim(file_get_contents(TEMPLATES_PATH."/template_story_head.txt"));
+$story_summary_template=trim(file_get_contents(TEMPLATES_PATH."/template_story_summary.txt"));
 $menu_items_html="";
 $menu_items_data=file_get_contents(__DIR__."/menu_items.txt");
 $menu_items_data=explode("\n",$menu_items_data);
@@ -49,55 +52,18 @@ $menu=str_replace("%%menu_items%%",$menu_items_html,$menu);
 $body=$menu;
 if (isset($_GET["sid"])==True)
 {
-
   $story=db__get_story($_GET["sid"]);
-
-  var_dump($story);
-
-  $page=str_replace("%%title%%","news.my.to: story".$_GET["sid"],$page);
-  $story_html="<p>THIS IS A TEST<br>sid = ".$_GET["sid"]."</p>";
-  $body=$body.$story_html;
+  $page=str_replace("%%title%%","news.my.to: story".$story["title"]." - news.my.to",$page);
+  $body=$body.format_story($story,$story_head_template,$story_summary_template);
 }
 else
 {
   $page=str_replace("%%title%%","news.my.to",$page);
   $stories=db__get_all_stories();
-  $story_head_template=trim(file_get_contents(TEMPLATES_PATH."/template_story_head.txt"));
-  $story_summary_template=trim(file_get_contents(TEMPLATES_PATH."/template_story_summary.txt"));
   $stories_html="";
   for ($i=0;$i<count($stories);$i++)
   {
-    if ($stories[$i]["comments"]==NULL)
-    {
-      $stories[$i]["comments"]=0;
-    }
-    if ($stories[$i]["score"]==NULL)
-    {
-      $stories[$i]["score"]=0;
-    }
-    $story_head=$story_head_template;
-    $story_head=str_replace("%%sid%%",$stories[$i]["sid"],$story_head);
-    $story_head=str_replace("%%date%%",$stories[$i]["timestamp"],$story_head);
-    $score_caption=$stories[$i]["score"];
-    if ($stories[$i]["score"]>0)
-    {
-      $score_caption="+".$score_caption;
-    }
-    $story_head=str_replace("%%score%%",$score_caption,$story_head);
-    $comments_caption="no comments";
-    if ($stories[$i]["comments"]>1)
-    {
-      $comments_caption=$stories[$i]["comments"]." comments";
-    }
-    elseif ($stories[$i]["comments"]>0)
-    {
-      $comments_caption=$stories[$i]["comments"]." comment";
-    }
-    $story_head=str_replace("%%comments%%",$comments_caption,$story_head);
-    $story_head=str_replace("%%title%%",$stories[$i]["title"],$story_head);
-    $story_summary=$story_summary_template;
-    $story_summary=str_replace("%%summary%%",$stories[$i]["content"],$story_summary);
-    $stories_html=$stories_html.$story_head.$story_summary;
+    $stories_html=$stories_html.format_story($stories[$i],$story_head_template,$story_summary_template);
   }
   $body=$body.$stories_html;
 }
