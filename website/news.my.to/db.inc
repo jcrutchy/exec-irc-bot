@@ -22,6 +22,14 @@ function db__get_all_stories()
 
 #####################################################################################################
 
+function db__insert_story($story)
+{
+  $params=array("title"=>$story["title"],"content"=>$story["content"]);
+  db__execute_prepare("db__insert_story",$params);
+}
+
+#####################################################################################################
+
 function db__select_query($filename)
 {
   global $pdo;
@@ -36,17 +44,26 @@ function db__select_query($filename)
 
 #####################################################################################################
 
-function db__insert_story($story)
+function db__execute_prepare($filename,$params)
 {
   global $pdo;
-  $sql="INSERT INTO news_my_to.stories (title,content) VALUES (:title,:content)";
+  $sql=file_get_contents(SQL_PATH."/$filename.sql");
   $statement=$pdo->prepare($sql);
   if ($statement===False)
   {
     die("SQL PREPARE ERROR\n\n$sql");
   }
-  $statement->bindParam(":title",$story["title"],PDO::PARAM_STR);
-  $statement->bindParam(":content",$story["content"],PDO::PARAM_STR);
+  foreach ($params as $key => $value)
+  {
+    if (ctype_digit(strval($value))==True)
+    {
+      $statement->bindParam(":$key",$value,PDO::PARAM_INT);
+    }
+    else
+    {
+      $statement->bindParam(":$key",$value,PDO::PARAM_STR);
+    }
+  }
   if ($statement->execute()===False)
   {
     die("SQL EXECUTE ERROR\n\n$sql");
