@@ -49,6 +49,11 @@ $menu=str_replace("%%menu_items%%",$menu_items_html,$menu);
 $body=$menu;
 if (isset($_GET["sid"])==True)
 {
+
+  $story=db__get_story($_GET["sid"]);
+
+  var_dump($story);
+
   $page=str_replace("%%title%%","news.my.to: story".$_GET["sid"],$page);
   $story_html="<p>THIS IS A TEST<br>sid = ".$_GET["sid"]."</p>";
   $body=$body.$story_html;

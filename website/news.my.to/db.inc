@@ -22,6 +22,14 @@ function db__get_all_stories()
 
 #####################################################################################################
 
+function db__get_story($sid)
+{
+  $params=array("sid"=>$sid);
+  return db__fetch_prepare("db__get_story",$params);
+}
+
+#####################################################################################################
+
 function db__insert_story($story)
 {
   $params=array("title"=>$story["title"],"content"=>$story["content"]);
