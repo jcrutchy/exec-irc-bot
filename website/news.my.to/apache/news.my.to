@@ -1,0 +1,40 @@
+<VirtualHost *:80>
+
+  ServerName  news.my.to
+
+  DirectoryIndex index.php
+  DocumentRoot /var/www/news.my.to/
+  Redirect 404 /favicon.ico
+
+	<Directory />
+		Order Deny,Allow
+		Deny from all
+		Options None
+		AllowOverride None
+	</Directory>
+	<Directory /var/www/news.my.to/>
+		Order Allow,Deny
+		Allow from all
+		Options None
+		AllowOverride all
+	</Directory>
+	<Files *.inc>
+		Order Deny,Allow
+		Deny from all
+		Options None
+	</Files>
+
+  LogLevel warn
+  ErrorLog  /var/include/vhosts/news.my.to/log/error.log
+  CustomLog /var/include/vhosts/news.my.to/log/access.log combined
+
+  RewriteEngine On
+  RewriteRule ^/stories/(.*)$ /index.php?sid=$1 [L,QSA]
+  RewriteRule ^/img/(.*)$ /index.php?img=$1 [L,QSA]
+  RewriteRule ^/op/(.*)$ /index.php?op=$1 [L,QSA]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.php [L]
+
+</VirtualHost>
+

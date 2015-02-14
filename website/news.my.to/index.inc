@@ -2,29 +2,14 @@
 
 #####################################################################################################
 
-/*
-  RewriteEngine On
-  RewriteRule ^/stories/(.*)$ /index.php?sid=$1 [L,QSA]
-  RewriteRule ^/img/(.*)$ /index.php?img=$1 [L,QSA]
-  RewriteRule ^/op/(.*)$ /index.php?op=$1 [L,QSA]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /index.php [L]
-*/
-
-#####################################################################################################
-
 require_once(__DIR__."/db.inc");
 
-$test_story=array();
+/*$test_story=array();
 $test_story["title"]="Test story title";
 $test_story["content"]="test content blah stuff";
-
-#db__insert_story($test_story);
+db__insert_story($test_story);*/
 
 $stories=db__get_all_stories();
-
-#var_dump($stories);
 
 define("TEMPLATES_PATH",__DIR__."/templates");
 
@@ -76,8 +61,14 @@ $stories_html="";
 
 for ($i=0;$i<count($stories);$i++)
 {
-  #$stories[$i]["score"]=db__get_story_score($stories[$i]["sid"]); # TODO: MERGE INTO SINGLE SQL QUERY
-  #$stories[$i]["comments"]=db__get_comment_count($stories[$i]["sid"]); # TODO: MERGE INTO SINGLE SQL QUERY
+  if ($stories[$i]["comments"]==NULL)
+  {
+    $stories[$i]["comments"]=0;
+  }
+  if ($stories[$i]["score"]==NULL)
+  {
+    $stories[$i]["score"]=0;
+  }
   $story_head=$story_head_template;
   $story_head=str_replace("%%sid%%",$stories[$i]["sid"],$story_head);
   $story_head=str_replace("%%date%%",$stories[$i]["timestamp"],$story_head);

@@ -17,7 +17,7 @@ if ($pdo===False)
 
 function db__get_all_stories()
 {
-  return db__select_query("db__get_all_stories");
+  return db__fetch_query("db__get_all_stories");
 }
 
 #####################################################################################################
@@ -30,7 +30,7 @@ function db__insert_story($story)
 
 #####################################################################################################
 
-function db__select_query($filename)
+function db__fetch_query($filename)
 {
   global $pdo;
   $sql=file_get_contents(SQL_PATH."/$filename.sql");
@@ -68,6 +68,35 @@ function db__execute_prepare($filename,$params)
   {
     die("SQL EXECUTE ERROR\n\n$sql");
   }
+}
+
+#####################################################################################################
+
+function db__fetch_prepare($filename,$params)
+{
+  global $pdo;
+  $sql=file_get_contents(SQL_PATH."/$filename.sql");
+  $statement=$pdo->prepare($sql);
+  if ($statement===False)
+  {
+    die("SQL PREPARE ERROR\n\n$sql");
+  }
+  foreach ($params as $key => $value)
+  {
+    if (ctype_digit(strval($value))==True)
+    {
+      $statement->bindParam(":$key",$value,PDO::PARAM_INT);
+    }
+    else
+    {
+      $statement->bindParam(":$key",$value,PDO::PARAM_STR);
+    }
+  }
+  if ($statement->execute()===False)
+  {
+    die("SQL EXECUTE ERROR\n\n$sql");
+  }
+  return $statement->fetchAll(PDO::FETCH_ASSOC);
 }
 
 #####################################################################################################
