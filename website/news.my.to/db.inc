@@ -25,7 +25,15 @@ function db__get_all_stories()
 function db__get_story($sid)
 {
   $params=array("sid"=>$sid);
-  return db__fetch_prepare("db__get_story",$params);
+  $stories=db__fetch_prepare("db__get_story",$params);
+  if (isset($stories[0])==True)
+  {
+    return $stories[0];
+  }
+  else
+  {
+    die("STORY NOT FOUND");
+  }
 }
 
 #####################################################################################################

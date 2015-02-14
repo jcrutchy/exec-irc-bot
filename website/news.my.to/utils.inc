@@ -2,7 +2,7 @@
 
 #####################################################################################################
 
-function format_story($story,$story_head_template,$story_summary_template)
+function utils__format_story($story,$story_head_template,$story_summary_template)
 {
   if ($story["comments"]==NULL)
   {

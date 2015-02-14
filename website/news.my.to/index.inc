@@ -53,8 +53,8 @@ $body=$menu;
 if (isset($_GET["sid"])==True)
 {
   $story=db__get_story($_GET["sid"]);
-  $page=str_replace("%%title%%","news.my.to: story".$story["title"]." - news.my.to",$page);
-  $body=$body.format_story($story,$story_head_template,$story_summary_template);
+  $page=str_replace("%%title%%",$story["title"]." - news.my.to",$page);
+  $body=$body.utils__format_story($story,$story_head_template,$story_summary_template);
 }
 else
 {
@@ -63,7 +63,7 @@ else
   $stories_html="";
   for ($i=0;$i<count($stories);$i++)
   {
-    $stories_html=$stories_html.format_story($stories[$i],$story_head_template,$story_summary_template);
+    $stories_html=$stories_html.utils__format_story($stories[$i],$story_head_template,$story_summary_template);
   }
   $body=$body.$stories_html;
 }
