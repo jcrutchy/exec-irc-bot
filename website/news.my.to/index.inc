@@ -10,13 +10,14 @@ $test_story["title"]="Test story title";
 $test_story["content"]="test content blah stuff";
 db__insert_story($test_story);*/
 
+/*$test_comment=array();
 $test_comment["nick"]="crutchy";
 $test_comment["sid"]=1;
 $test_comment["parent_cid"]=1;
 $test_comment["subject"]="test comment subject";
 $test_comment["content"]="test comment content";
 $test_comment["auth_hash"]="test auth hash";
-db__insert_comment($test_comment);
+db__insert_comment($test_comment);*/
 
 define("TEMPLATES_PATH",__DIR__."/templates");
 $page=trim(file_get_contents(TEMPLATES_PATH."/template_page.txt"));
@@ -63,14 +64,26 @@ if (isset($_GET["sid"])==True)
   $story=db__get_story($_GET["sid"]);
   $page=str_replace("%%title%%",$story["title"]." - news.my.to",$page);
   $body=$body.utils__format_story($story,$story_template);
+  $comments_html="";
+  #$comments=db__get_comments($_GET["sid"]);
 
-  #db__get_comments($sid)
-
-  for ($i=0;$i<count();$i++)
+  $statement=$pdo->query("SELECT * FROM news_my_to.comments");
+  if ($statement===False)
   {
-    # utils__format_comment($comment,$comment_template)
+    die("SQL QUERY ERROR\n\n$sql");
   }
+  $comments=$statement->fetchAll(PDO::FETCH_ASSOC);
 
+  var_dump($comments);
+
+  /*for ($i=0;$i<count($comments);$i++)
+  {
+    if ($comments[$i]["parent_cid"]==0)
+    {
+      $comments_html=$comments_html.utils__format_comment($comments[$i],$comment_template,$comments);
+    }
+  }
+  $body=$body.$comments_html;*/
 }
 else
 {

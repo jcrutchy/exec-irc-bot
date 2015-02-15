@@ -49,7 +49,7 @@ CREATE TABLE `news_my_to`.`comment_mods` (
   `ip_address` varchar(15) NOT NULL,
   `mod` tinyint NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`sid`,`ip_address`),
+  PRIMARY KEY (`cid`,`ip_address`),
   INDEX `mod` (`mod` ASC),
   INDEX `timestamp` (`timestamp` ASC)
 ) ENGINE=InnoDB;

@@ -38,7 +38,7 @@ function utils__format_story($story,$story_template)
 
 #####################################################################################################
 
-function utils__format_comment($comment,$comment_template)
+function utils__format_comment($comment,$comment_template,&$comments)
 {
   if ($story["score"]==NULL)
   {
@@ -57,9 +57,12 @@ function utils__format_comment($comment,$comment_template)
   $comment_html=str_replace("%%subject%%",$comment["subject"],$comment_html);
   $comment_html=str_replace("%%content%%",$comment["content"],$comment_html);
   $children_html="";
-  for ($i=0;$i<count($comment["children"]);$i++)
+  for ($i=0;$i<count($comments);$i++)
   {
-  
+    if ($comments[$i]["parent_cid"]==$comment["cid"])
+    {
+      $children_html=$children_html.utils__format_comment($comment,$comment_template,$comments);
+    }
   }
   $comment_html=str_replace("%%comment_children%%",$children_html,$comment_html);
   return $comment_html;
