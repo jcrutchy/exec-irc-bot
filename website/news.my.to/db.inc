@@ -38,10 +38,26 @@ function db__get_story($sid)
 
 #####################################################################################################
 
+function db__get_comments($sid)
+{
+  $params=array("sid"=>$sid);
+  return db__fetch_prepare("db__get_comments",$params);
+}
+
+#####################################################################################################
+
 function db__insert_story($story)
 {
   $params=array("title"=>$story["title"],"content"=>$story["content"]);
   db__execute_prepare("db__insert_story",$params);
+}
+
+#####################################################################################################
+
+function db__insert_comment($comment)
+{
+  $params=array("nick"=>$comment["nick"],"sid"=>$comment["sid"],"parent_cid"=>$comment["parent_cid"],"subject"=>$comment["subject"],"content"=>$comment["content"],"auth_hash"=>$comment["auth_hash"]);
+  db__execute_prepare("db__insert_comment",$params);
 }
 
 #####################################################################################################

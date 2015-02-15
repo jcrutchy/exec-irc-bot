@@ -4,3 +4,6 @@
 <div class="story_head_sub">%%date%% | mod: <a href="/op/mod?dir=dn&amp;sid=%%sid%%">[-]</a> <a href="/op/mod?dir=up&amp;sid=%%sid%%">[+]</a> score: %%score%% | %%comments%%</div>
 </div>
 </div>
+<div class="story_content">
+<p>%%summary%%</p>
+</div>

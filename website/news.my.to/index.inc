@@ -10,6 +10,14 @@ $test_story["title"]="Test story title";
 $test_story["content"]="test content blah stuff";
 db__insert_story($test_story);*/
 
+$test_comment["nick"]="crutchy";
+$test_comment["sid"]=1;
+$test_comment["parent_cid"]=1;
+$test_comment["subject"]="test comment subject";
+$test_comment["content"]="test comment content";
+$test_comment["auth_hash"]="test auth hash";
+db__insert_comment($test_comment);
+
 define("TEMPLATES_PATH",__DIR__."/templates");
 $page=trim(file_get_contents(TEMPLATES_PATH."/template_page.txt"));
 $css=trim(file_get_contents(__DIR__."/default.css"));
@@ -17,8 +25,8 @@ $page=str_replace("%%css%%",$css,$page);
 $menu=trim(file_get_contents(TEMPLATES_PATH."/template_menu.txt"));
 $menu_item_template=trim(file_get_contents(TEMPLATES_PATH."/template_menu_item.txt"));
 $active_menu_item_template=trim(file_get_contents(TEMPLATES_PATH."/template_menu_item_active.txt"));
-$story_head_template=trim(file_get_contents(TEMPLATES_PATH."/template_story_head.txt"));
-$story_summary_template=trim(file_get_contents(TEMPLATES_PATH."/template_story_summary.txt"));
+$story_template=trim(file_get_contents(TEMPLATES_PATH."/template_story.txt"));
+$comment_template=trim(file_get_contents(TEMPLATES_PATH."/template_comment.txt"));
 $menu_items_html="";
 $menu_items_data=file_get_contents(__DIR__."/menu_items.txt");
 $menu_items_data=explode("\n",$menu_items_data);
@@ -54,7 +62,15 @@ if (isset($_GET["sid"])==True)
 {
   $story=db__get_story($_GET["sid"]);
   $page=str_replace("%%title%%",$story["title"]." - news.my.to",$page);
-  $body=$body.utils__format_story($story,$story_head_template,$story_summary_template);
+  $body=$body.utils__format_story($story,$story_template);
+
+  #db__get_comments($sid)
+
+  for ($i=0;$i<count();$i++)
+  {
+    # utils__format_comment($comment,$comment_template)
+  }
+
 }
 else
 {
@@ -63,7 +79,7 @@ else
   $stories_html="";
   for ($i=0;$i<count($stories);$i++)
   {
-    $stories_html=$stories_html.utils__format_story($stories[$i],$story_head_template,$story_summary_template);
+    $stories_html=$stories_html.utils__format_story($stories[$i],$story_template);
   }
   $body=$body.$stories_html;
 }

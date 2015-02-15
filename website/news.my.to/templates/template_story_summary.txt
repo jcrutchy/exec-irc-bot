@@ -1,3 +1,0 @@
-<div class="story_content">
-<p>%%summary%%</p>
-</div>
