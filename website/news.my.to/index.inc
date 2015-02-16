@@ -19,7 +19,7 @@ $test_comment["content"]="test comment content";
 $test_comment["auth_hash"]="test auth hash";
 db__insert_comment($test_comment);*/
 
-define("TEMPLATES_PATH",__DIR__."/templates");
+define("TEMPLATES_PATH",__DIR__."/templates/");
 
 $templates=load_templates(TEMPLATES_PATH);
 
