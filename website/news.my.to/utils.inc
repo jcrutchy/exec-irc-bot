@@ -94,7 +94,7 @@ function load_templates($path)
     $full=$path.$fn;
     if((is_dir($full)==False) and (substr($fn,0,strlen($prefix))==$prefix) and (substr($fn,strlen($fn)-strlen($suffix))==$suffix))
     {
-      $templates[substr($fn,strlen($prefix),strlen($fn)-strlen($prefix)-strlen($suffix))]=$full;
+      $templates[substr($fn,strlen($prefix),strlen($fn)-strlen($prefix)-strlen($suffix))]=file_get_contents($full);
     }
   }
   closedir($handle);
