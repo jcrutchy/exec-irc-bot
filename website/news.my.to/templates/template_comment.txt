@@ -1,13 +1,16 @@
 <div class="comment">
-<div class="comment_head">
-<div class="comment_head_content">
-<a href="/comment/%%cid%%">%%subject%%</a>
-<div class="comment_head_sub">%%date%% | mod: <a href="/op/mod?dir=dn&amp;cid=%%cid%%">[-]</a> <a href="/op/mod?dir=up&amp;cid=%%cid%%">[+]</a> score: %%score%%</div>
-</div>
-</div>
-<div class="comment_content">
-<p>%%content%%</p>
-</div>
-<div class="comment_children">
-%%comment_children%%
+  <div class="this_comment">
+    <div class="comment_head">
+      <div class="comment_head_content">
+        <a href="/comment/%%cid%%">%%subject%%</a>
+        <div class="comment_head_sub">
+          %%date%% | mod: <a href="/op/mod?dir=dn&amp;cid=%%cid%%">[-]</a> <a href="/op/mod?dir=up&amp;cid=%%cid%%">[+]</a> score: %%score%%
+        </div>
+      </div>
+    </div>
+    <div class="comment_content">
+      <p>%%content%%</p>
+    </div>
+  </div>
+  %%comment_children%%
 </div>

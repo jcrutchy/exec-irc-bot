@@ -79,3 +79,44 @@ a
   {
     padding: 5px;
   }
+
+.comment_container
+  {
+    padding: 5px;
+  }
+
+.comment
+  {
+    padding: 5px 0 0 5px;
+    margin-bottom: 5px;
+  }
+
+.this_comment
+  {
+    background-color: #FFFFCC;
+    border: 1px #222222 solid;
+  }
+
+.comment_head
+  {
+  }
+
+.comment_head_content
+  {
+  }
+
+.comment_head_sub
+  {
+    font-size: 0.8em;
+  }
+
+.comment_content
+  {
+  }
+
+.comment_children
+  {
+    border-left: 1px #222222 solid;
+    padding: 5px 0 0 5px;
+    margin: 0;
+  }

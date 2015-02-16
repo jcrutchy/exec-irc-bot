@@ -38,31 +38,37 @@ function utils__format_story($story,$story_template)
 
 #####################################################################################################
 
-function utils__format_comment($comment,$comment_template,&$comments)
+function utils__format_comment($comment,$comment_template,$comment_children_template,&$comments)
 {
-  if ($story["score"]==NULL)
+  if ($comment["score"]==NULL)
   {
-    $story["score"]=0;
+    $comment["score"]=0;
   }
-  $comment_html=$story_template;
+  $comment_html=$comment_template;
   $comment_html=str_replace("%%sid%%",$comment["sid"],$comment_html);
   $comment_html=str_replace("%%cid%%",$comment["cid"],$comment_html);
   $comment_html=str_replace("%%date%%",$comment["timestamp"],$comment_html);
   $score_caption=$comment["score"];
-  if ($story["score"]>0)
+  if ($comment["score"]>0)
   {
     $score_caption="+".$score_caption;
   }
   $comment_html=str_replace("%%score%%",$score_caption,$comment_html);
   $comment_html=str_replace("%%subject%%",$comment["subject"],$comment_html);
   $comment_html=str_replace("%%content%%",$comment["content"],$comment_html);
-  $children_html="";
+  $children="";
   for ($i=0;$i<count($comments);$i++)
   {
     if ($comments[$i]["parent_cid"]==$comment["cid"])
     {
-      $children_html=$children_html.utils__format_comment($comment,$comment_template,$comments);
+      $children=$children.utils__format_comment($comments[$i],$comment_template,$comment_children_template,$comments);
     }
+  }
+  $children_html="";
+  if ($children<>"")
+  {
+    $children_html=$comment_children_template;
+    $children_html=str_replace("%%children%%",$children,$children_html);
   }
   $comment_html=str_replace("%%comment_children%%",$children_html,$comment_html);
   return $comment_html;

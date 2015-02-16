@@ -8,12 +8,12 @@ require_once(__DIR__."/utils.inc");
 /*$test_story=array();
 $test_story["title"]="Test story title";
 $test_story["content"]="test content blah stuff";
-db__insert_story($test_story);*/
+db__insert_story($test_story);
 
-/*$test_comment=array();
+$test_comment=array();
 $test_comment["nick"]="crutchy";
 $test_comment["sid"]=1;
-$test_comment["parent_cid"]=1;
+$test_comment["parent_cid"]=mt_rand(1,100);
 $test_comment["subject"]="test comment subject";
 $test_comment["content"]="test comment content";
 $test_comment["auth_hash"]="test auth hash";
@@ -28,6 +28,8 @@ $menu_item_template=trim(file_get_contents(TEMPLATES_PATH."/template_menu_item.t
 $active_menu_item_template=trim(file_get_contents(TEMPLATES_PATH."/template_menu_item_active.txt"));
 $story_template=trim(file_get_contents(TEMPLATES_PATH."/template_story.txt"));
 $comment_template=trim(file_get_contents(TEMPLATES_PATH."/template_comment.txt"));
+$comment_container_template=trim(file_get_contents(TEMPLATES_PATH."/template_comment_container.txt"));
+$comment_children_template=trim(file_get_contents(TEMPLATES_PATH."/template_comment_children.txt"));
 $menu_items_html="";
 $menu_items_data=file_get_contents(__DIR__."/menu_items.txt");
 $menu_items_data=explode("\n",$menu_items_data);
@@ -65,25 +67,17 @@ if (isset($_GET["sid"])==True)
   $page=str_replace("%%title%%",$story["title"]." - news.my.to",$page);
   $body=$body.utils__format_story($story,$story_template);
   $comments_html="";
-  #$comments=db__get_comments($_GET["sid"]);
-
-  $statement=$pdo->query("SELECT * FROM news_my_to.comments");
-  if ($statement===False)
-  {
-    die("SQL QUERY ERROR\n\n$sql");
-  }
-  $comments=$statement->fetchAll(PDO::FETCH_ASSOC);
-
-  var_dump($comments);
-
-  /*for ($i=0;$i<count($comments);$i++)
+  $comments=db__get_comments($_GET["sid"]);
+  for ($i=0;$i<count($comments);$i++)
   {
     if ($comments[$i]["parent_cid"]==0)
     {
-      $comments_html=$comments_html.utils__format_comment($comments[$i],$comment_template,$comments);
+      $comments_html=$comments_html.utils__format_comment($comments[$i],$comment_template,$comment_children_template,$comments);
     }
   }
-  $body=$body.$comments_html;*/
+  $comment_container=$comment_container_template;
+  $comment_container=str_replace("%%comments%%",$comments_html,$comment_container);
+  $body=$body.$comment_container;
 }
 else
 {

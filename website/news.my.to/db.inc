@@ -89,11 +89,11 @@ function db__execute_prepare($filename,$params)
   {
     if (ctype_digit(strval($value))==True)
     {
-      $statement->bindParam(":$key",$value,PDO::PARAM_INT);
+      $statement->bindParam(":$key",$params[$key],PDO::PARAM_INT);
     }
     else
     {
-      $statement->bindParam(":$key",$value,PDO::PARAM_STR);
+      $statement->bindParam(":$key",$params[$key],PDO::PARAM_STR);
     }
   }
   if ($statement->execute()===False)

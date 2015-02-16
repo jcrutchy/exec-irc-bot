@@ -1,6 +1,6 @@
 <div class="story_head">
 <div class="story_head_content">
-<a href="/stories/%%sid%%">%%title%%</a>
+<a href="/story/%%sid%%">%%title%%</a>
 <div class="story_head_sub">%%date%% | mod: <a href="/op/mod?dir=dn&amp;sid=%%sid%%">[-]</a> <a href="/op/mod?dir=up&amp;sid=%%sid%%">[+]</a> score: %%score%% | %%comments%%</div>
 </div>
 </div>

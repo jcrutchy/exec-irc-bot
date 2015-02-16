@@ -29,7 +29,8 @@
   CustomLog /var/include/vhosts/news.my.to/log/access.log combined
 
   RewriteEngine On
-  RewriteRule ^/stories/(.*)$ /index.php?sid=$1 [L,QSA]
+  RewriteRule ^/story/(.*)$ /index.php?sid=$1 [L,QSA]
+  RewriteRule ^/comment/(.*)$ /index.php?cid=$1 [L,QSA]
   RewriteRule ^/img/(.*)$ /index.php?img=$1 [L,QSA]
   RewriteRule ^/op/(.*)$ /index.php?op=$1 [L,QSA]
   RewriteCond %{REQUEST_FILENAME} !-f
