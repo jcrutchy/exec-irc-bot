@@ -38,7 +38,7 @@ function utils__format_story($story,$story_template)
 
 #####################################################################################################
 
-function utils__format_comment($comment,$comment_template,$comment_children_template,&$comments)
+function utils__format_comment($comment,$comment_template,$comment_children_template,$comment_parent_link_template,&$comments)
 {
   if ($comment["score"]==NULL)
   {
@@ -56,12 +56,19 @@ function utils__format_comment($comment,$comment_template,$comment_children_temp
   $comment_html=str_replace("%%score%%",$score_caption,$comment_html);
   $comment_html=str_replace("%%subject%%",$comment["subject"],$comment_html);
   $comment_html=str_replace("%%content%%",$comment["content"],$comment_html);
+  $parent="";
+  if ($comment["parent_cid"]>0)
+  {
+    $parent=$comment_parent_link_template;
+    $parent=str_replace("%%parent_cid%%",$comment["parent_cid"],$parent);
+  }
+  $comment_html=str_replace("%%parent_link%%",$parent,$comment_html);
   $children="";
   for ($i=0;$i<count($comments);$i++)
   {
     if ($comments[$i]["parent_cid"]==$comment["cid"])
     {
-      $children=$children.utils__format_comment($comments[$i],$comment_template,$comment_children_template,$comments);
+      $children=$children.utils__format_comment($comments[$i],$comment_template,$comment_children_template,$comment_parent_link_template,$comments);
     }
   }
   $children_html="";

@@ -20,16 +20,19 @@ $test_comment["auth_hash"]="test auth hash";
 db__insert_comment($test_comment);*/
 
 define("TEMPLATES_PATH",__DIR__."/templates");
+
 $page=trim(file_get_contents(TEMPLATES_PATH."/template_page.txt"));
-$css=trim(file_get_contents(__DIR__."/default.css"));
-$page=str_replace("%%css%%",$css,$page);
-$menu=trim(file_get_contents(TEMPLATES_PATH."/template_menu.txt"));
 $menu_item_template=trim(file_get_contents(TEMPLATES_PATH."/template_menu_item.txt"));
 $active_menu_item_template=trim(file_get_contents(TEMPLATES_PATH."/template_menu_item_active.txt"));
 $story_template=trim(file_get_contents(TEMPLATES_PATH."/template_story.txt"));
 $comment_template=trim(file_get_contents(TEMPLATES_PATH."/template_comment.txt"));
 $comment_container_template=trim(file_get_contents(TEMPLATES_PATH."/template_comment_container.txt"));
 $comment_children_template=trim(file_get_contents(TEMPLATES_PATH."/template_comment_children.txt"));
+$comment_parent_link_template=trim(file_get_contents(TEMPLATES_PATH."/template_comment_parent_link.txt"));
+
+$css=trim(file_get_contents(__DIR__."/default.css"));
+$page=str_replace("%%css%%",$css,$page);
+$menu=trim(file_get_contents(TEMPLATES_PATH."/template_menu.txt"));
 $menu_items_html="";
 $menu_items_data=file_get_contents(__DIR__."/menu_items.txt");
 $menu_items_data=explode("\n",$menu_items_data);
@@ -72,7 +75,7 @@ if (isset($_GET["sid"])==True)
   {
     if ($comments[$i]["parent_cid"]==0)
     {
-      $comments_html=$comments_html.utils__format_comment($comments[$i],$comment_template,$comment_children_template,$comments);
+      $comments_html=$comments_html.utils__format_comment($comments[$i],$comment_template,$comment_children_template,$comment_parent_link_template,$comments);
     }
   }
   $comment_container=$comment_container_template;
