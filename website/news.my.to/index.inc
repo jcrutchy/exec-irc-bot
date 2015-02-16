@@ -21,20 +21,15 @@ db__insert_comment($test_comment);*/
 
 define("TEMPLATES_PATH",__DIR__."/templates");
 
-$page=trim(file_get_contents(TEMPLATES_PATH."/template_page.txt"));
-$menu_item_template=trim(file_get_contents(TEMPLATES_PATH."/template_menu_item.txt"));
-$active_menu_item_template=trim(file_get_contents(TEMPLATES_PATH."/template_menu_item_active.txt"));
-$story_template=trim(file_get_contents(TEMPLATES_PATH."/template_story.txt"));
-$comment_template=trim(file_get_contents(TEMPLATES_PATH."/template_comment.txt"));
-$comment_container_template=trim(file_get_contents(TEMPLATES_PATH."/template_comment_container.txt"));
-$comment_children_template=trim(file_get_contents(TEMPLATES_PATH."/template_comment_children.txt"));
-$comment_parent_link_template=trim(file_get_contents(TEMPLATES_PATH."/template_comment_parent_link.txt"));
+$templates=load_templates(TEMPLATES_PATH);
 
 $css=trim(file_get_contents(__DIR__."/default.css"));
-$page=str_replace("%%css%%",$css,$page);
-$menu=trim(file_get_contents(TEMPLATES_PATH."/template_menu.txt"));
-$menu_items_html="";
 $menu_items_data=file_get_contents(__DIR__."/menu_items.txt");
+
+$page=$templates["page"];
+$page=str_replace("%%css%%",$css,$page);
+$menu=$templates["menu"];
+$menu_items_html="";
 $menu_items_data=explode("\n",$menu_items_data);
 $settings=array();
 for ($i=0;$i<count($menu_items_data);$i++)
@@ -51,11 +46,11 @@ for ($i=0;$i<count($menu_items_data);$i++)
   {
     if ($_SERVER["REQUEST_URI"]==$href)
     {
-      $menu_item_html=$active_menu_item_template;
+      $menu_item_html=$templates["menu_item_active"];
     }
     else
     {
-      $menu_item_html=$menu_item_template;
+      $menu_item_html=$templates["menu_item"];
       $menu_item_html=str_replace("%%href%%",$href,$menu_item_html);
     }
     $menu_item_html=str_replace("%%caption%%",$caption,$menu_item_html);
@@ -68,17 +63,17 @@ if (isset($_GET["sid"])==True)
 {
   $story=db__get_story($_GET["sid"]);
   $page=str_replace("%%title%%",$story["title"]." - news.my.to",$page);
-  $body=$body.utils__format_story($story,$story_template);
+  $body=$body.utils__format_story($story,$templates);
   $comments_html="";
   $comments=db__get_comments($_GET["sid"]);
   for ($i=0;$i<count($comments);$i++)
   {
     if ($comments[$i]["parent_cid"]==0)
     {
-      $comments_html=$comments_html.utils__format_comment($comments[$i],$comment_template,$comment_children_template,$comment_parent_link_template,$comments);
+      $comments_html=$comments_html.utils__format_comment($comments[$i],$templates,$comments);
     }
   }
-  $comment_container=$comment_container_template;
+  $comment_container=$templates["comment_container"];
   $comment_container=str_replace("%%comments%%",$comments_html,$comment_container);
   $body=$body.$comment_container;
 }
@@ -89,7 +84,7 @@ else
   $stories_html="";
   for ($i=0;$i<count($stories);$i++)
   {
-    $stories_html=$stories_html.utils__format_story($stories[$i],$story_template);
+    $stories_html=$stories_html.utils__format_story($stories[$i],$templates);
   }
   $body=$body.$stories_html;
 }

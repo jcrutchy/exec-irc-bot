@@ -2,7 +2,7 @@
 
 #####################################################################################################
 
-function utils__format_story($story,$story_template)
+function utils__format_story($story,&$templates)
 {
   if ($story["comments"]==NULL)
   {
@@ -12,7 +12,7 @@ function utils__format_story($story,$story_template)
   {
     $story["score"]=0;
   }
-  $story_html=$story_template;
+  $story_html=$templates["story"];
   $story_html=str_replace("%%sid%%",$story["sid"],$story_html);
   $story_html=str_replace("%%date%%",$story["timestamp"],$story_html);
   $score_caption=$story["score"];
@@ -38,13 +38,13 @@ function utils__format_story($story,$story_template)
 
 #####################################################################################################
 
-function utils__format_comment($comment,$comment_template,$comment_children_template,$comment_parent_link_template,&$comments)
+function utils__format_comment($comment,&$templates,&$comments)
 {
   if ($comment["score"]==NULL)
   {
     $comment["score"]=0;
   }
-  $comment_html=$comment_template;
+  $comment_html=$templates["comment"];
   $comment_html=str_replace("%%sid%%",$comment["sid"],$comment_html);
   $comment_html=str_replace("%%cid%%",$comment["cid"],$comment_html);
   $comment_html=str_replace("%%date%%",$comment["timestamp"],$comment_html);
@@ -59,7 +59,7 @@ function utils__format_comment($comment,$comment_template,$comment_children_temp
   $parent="";
   if ($comment["parent_cid"]>0)
   {
-    $parent=$comment_parent_link_template;
+    $parent=$templates["comment_parent_link"];
     $parent=str_replace("%%parent_cid%%",$comment["parent_cid"],$parent);
   }
   $comment_html=str_replace("%%parent_link%%",$parent,$comment_html);
@@ -68,17 +68,37 @@ function utils__format_comment($comment,$comment_template,$comment_children_temp
   {
     if ($comments[$i]["parent_cid"]==$comment["cid"])
     {
-      $children=$children.utils__format_comment($comments[$i],$comment_template,$comment_children_template,$comment_parent_link_template,$comments);
+      $children=$children.utils__format_comment($comments[$i],$templates,$comments);
     }
   }
   $children_html="";
   if ($children<>"")
   {
-    $children_html=$comment_children_template;
+    $children_html=$templates["comment_children"];
     $children_html=str_replace("%%children%%",$children,$children_html);
   }
   $comment_html=str_replace("%%comment_children%%",$children_html,$comment_html);
   return $comment_html;
+}
+
+#####################################################################################################
+
+function load_templates($path)
+{
+  $prefix="template_";
+  $suffix=".txt";
+  $templates=array();
+  $handle=opendir($path);
+  while (($fn=readdir($handle))!==False)
+  {
+    $full=$path.$fn;
+    if((is_dir($full)==False) and (substr($fn,0,strlen($prefix))==$prefix) and (substr($fn,strlen($fn)-strlen($suffix))==$suffix))
+    {
+      $templates[substr($fn,strlen($prefix),strlen($fn)-strlen($prefix)-strlen($suffix))]=$full;
+    }
+  }
+  closedir($handle);
+  return $templates;
 }
 
 #####################################################################################################
