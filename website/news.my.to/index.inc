@@ -65,7 +65,7 @@ if (isset($_GET["sid"])==True)
   $page=str_replace("%%title%%",$story["title"]." - news.my.to",$page);
   $body=$body.utils__format_story($story,$templates);
   $comments_html="";
-  $comments=db__get_comments($_GET["sid"]);
+  $comments=db__get_comments_sid($_GET["sid"]);
   for ($i=0;$i<count($comments);$i++)
   {
     if ($comments[$i]["parent_cid"]==0)
@@ -76,6 +76,11 @@ if (isset($_GET["sid"])==True)
   $comment_container=$templates["comment_container"];
   $comment_container=str_replace("%%comments%%",$comments_html,$comment_container);
   $body=$body.$comment_container;
+}
+elseif (isset($_GET["cid"])==True)
+{
+  $comments=db__get_comments_cid($_GET["cid"]);
+  var_dump($comments);
 }
 else
 {

@@ -4,6 +4,7 @@
 
 /*
 exec:~link|10|0|0|1|*||||php scripts/link.php %%trailing%% %%dest%% %%nick%%
+exec:~!|10|0|0|1|*||||php scripts/link.php %%trailing%% %%dest%% %%nick%%
 */
 
 #####################################################################################################
@@ -16,29 +17,42 @@ $nick=$argv[3];
 
 if ($trailing=="")
 {
+  privmsg("syntax to search: ~! %search%, set: ~! %id% %content%, delete: ~! %id% -");
+  privmsg("can't use pipe (|) char, %id% can't contain spaces, but %content% can, %search% is a regexp pattern");
+  privmsg("will return a list of one or more %id% => %content% if %search% matches either %id% or %content%");
   return;
 }
 
 $list=load_settings(DATA_PATH."links","|");
 $parts=explode(" ",$trailing);
-if (count($parts)==2)
+if (count($parts)>=2)
 {
-  if ($parts[1]=="-")
+  if ((count($parts)==2) and ($parts[1]=="-"))
   {
     if (isset($list[$parts[0]])==True)
     {
       unset($list[$parts[0]]);
-      privmsg("  link unset");
+      privmsg("  └─ deleted ".$parts[0]);
     }
     else
     {
-      privmsg("  error: link not found");
+      privmsg("  └─ ".$parts[0]." not found");
     }
   }
   else
   {
-    $list[$parts[0]]=$parts[1];
-    privmsg("  link set");
+    $id=$parts[0];
+    array_shift($parts);
+    $content=implode(" ",$parts);
+    if ((strpos($id,"|")===False) and (strpos($content,"|")===False))
+    {
+      $list[$id]=$content;
+      privmsg("  └─ $id => ".$list[$id]);
+    }
+    else
+    {
+      privmsg("  └─ error: can't contain pipe (|) character");
+    }
   }
   save_settings($list,DATA_PATH."links","|");
 }
@@ -61,24 +75,37 @@ else
   $n=count($results);
   if ($n>0)
   {
+    $w=max_key_len($results);
     $i=0;
     foreach ($results as $key => $value)
     {
       if ($i==($n-1))
       {
-        privmsg("  └─ $key => $value");
+        privmsg("  └─ ".str_pad($key,$w)." => $value");
       }
       else
       {
-        privmsg("  ├─ $key => $value");
+        privmsg("  ├─ ".str_pad($key,$w)." => $value");
       }
       $i++;
     }
   }
   else
   {
-    privmsg("  error: no links match");
+    privmsg("  └─ \"".trim($argv[1])."\" not found");
   }
+}
+
+#####################################################################################################
+
+function max_key_len($array)
+{
+  $result=0;
+  foreach ($array as $key => $value)
+  {
+    $result=max($result,strlen($key));
+  }
+  return $result;
 }
 
 #####################################################################################################

@@ -38,10 +38,18 @@ function db__get_story($sid)
 
 #####################################################################################################
 
-function db__get_comments($sid)
+function db__get_comments_cid($cid)
+{
+  $params=array("cid"=>$cid);
+  return db__fetch_prepare("db__get_comments_cid",$params);
+}
+
+#####################################################################################################
+
+function db__get_comments_sid($sid)
 {
   $params=array("sid"=>$sid);
-  return db__fetch_prepare("db__get_comments",$params);
+  return db__fetch_prepare("db__get_comments_sid",$params);
 }
 
 #####################################################################################################

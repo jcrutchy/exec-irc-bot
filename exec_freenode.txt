@@ -16,6 +16,7 @@ include ./scripts/isup.php
 include ./scripts/translate.php
 include ./scripts/rainbow.php
 include ./scripts/quit.php
+include ./scripts/link.php
 
 ~epoch-feed|280|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 

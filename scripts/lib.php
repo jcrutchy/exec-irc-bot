@@ -36,7 +36,6 @@ function load_settings($filename,$delim="=")
     return False;
   }
   $data=explode("\n",$data);
-  var_dump($data);
   $settings=array();
   for ($i=0;$i<count($data);$i++)
   {

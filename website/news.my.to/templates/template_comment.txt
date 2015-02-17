@@ -4,7 +4,7 @@
       <div class="comment_head_content">
         <a name="cid%%cid%%" href="/comment/%%cid%%">%%subject%%</a>
         <div class="comment_head_sub">
-          %%date%% | mod: <a href="/op/mod?dir=dn&amp;cid=%%cid%%">[-]</a> <a href="/op/mod?dir=up&amp;cid=%%cid%%">[+]</a> score: %%score%%%%parent_link%%
+          %%date%% | mod: <a href="/op/mod?dir=dn&amp;cid=%%cid%%">[-]</a> <a href="/op/mod?dir=up&amp;cid=%%cid%%">[+]</a> score: %%score%% | <a href="/op/reply?cid=%%cid%%">reply</a>%%parent_link%%
         </div>
       </div>
     </div>
