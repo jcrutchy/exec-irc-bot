@@ -22,7 +22,7 @@ define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 
 #####################################################################################################
 
-function load_settings($filename)
+function load_settings($filename,$delim="=")
 {
   if (file_exists($filename)==False)
   {
@@ -36,10 +36,11 @@ function load_settings($filename)
     return False;
   }
   $data=explode("\n",$data);
+  var_dump($data);
   $settings=array();
   for ($i=0;$i<count($data);$i++)
   {
-    $parts=explode("=",$data[$i]);
+    $parts=explode($delim,$data[$i]);
     if (count($parts)<>2)
     {
       continue;
@@ -51,12 +52,12 @@ function load_settings($filename)
 
 #####################################################################################################
 
-function save_settings(&$data,$filename)
+function save_settings(&$data,$filename,$delim="=")
 {
   $content="";
   foreach ($data as $key => $value)
   {
-    $content=$content.$key."=".$value."\n";
+    $content=$content.$key.$delim.$value."\n";
   }
   if (file_put_contents($filename,$content)===False)
   {

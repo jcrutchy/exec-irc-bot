@@ -19,7 +19,7 @@ if ($trailing=="")
   return;
 }
 
-$list=get_array_bucket("~link/list");
+$list=load_settings(DATA_PATH."links","|");
 $parts=explode(" ",$trailing);
 if (count($parts)==2)
 {
@@ -40,7 +40,7 @@ if (count($parts)==2)
     $list[$parts[0]]=$parts[1];
     privmsg("  link set");
   }
-  set_array_bucket($list,"~link/list");
+  save_settings($list,DATA_PATH."links","|");
 }
 else
 {
@@ -57,7 +57,7 @@ else
   {
     $trailing="~".$trailing."~";
   }
-  $results=preg_match_keys($trailing,$list);
+  $results=array_merge(preg_match_keys($trailing,$list),preg_match_values($trailing,$list));
   $n=count($results);
   if ($n>0)
   {
@@ -89,6 +89,21 @@ function preg_match_keys($pattern,$subject)
   foreach ($subject as $key => $value)
   {
     if (preg_match($pattern,$key)==1)
+    {
+      $result[$key]=$value;
+    }
+  }
+  return $result;
+}
+
+#####################################################################################################
+
+function preg_match_values($pattern,$subject)
+{
+  $result=array();
+  foreach ($subject as $key => $value)
+  {
+    if (preg_match($pattern,$value)==1)
     {
       $result[$key]=$value;
     }
