@@ -24,6 +24,7 @@ if ($trailing=="")
 }
 
 $list=load_settings(DATA_PATH."links","|");
+ksort($list);
 $parts=explode(" ",$trailing);
 if (count($parts)>=2)
 {
@@ -67,10 +68,11 @@ else
   # TODO: ALLOW USE OF PCRE DELIMITERS & MODIFIERS
   # http://php.net/manual/en/reference.pcre.pattern.syntax.php
   # http://php.net/manual/en/reference.pcre.pattern.modifiers.php
-  if ((substr($trailing,0,1)<>substr($trailing,strlen($trailing)-1,1)) or (strlen($trailing)==1))
+  /*if ((substr($trailing,0,1)<>substr($trailing,strlen($trailing)-1,1)) or (strlen($trailing)==1))
   {
     $trailing="~".$trailing."~";
-  }
+  }*/
+  $trailing="~".$trailing."~";
   $results=array_merge(preg_match_keys($trailing,$list),preg_match_values($trailing,$list));
   $n=count($results);
   if ($n>0)
