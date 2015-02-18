@@ -23,7 +23,8 @@ $alias=strtolower(trim($argv[4]));
 define("FEED_CHAN","#github");
 
 $list=array(
-  "bcsd/uselessd");
+  "bcsd/uselessd",
+  "Tarnyko/uselessd");
 
 define("TIME_LIMIT_SEC",300); # 5 mins
 

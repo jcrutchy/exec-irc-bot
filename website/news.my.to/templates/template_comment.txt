@@ -2,9 +2,9 @@
   <div class="this_comment">
     <div class="comment_head">
       <div class="comment_head_content">
-        <a name="cid%%cid%%" href="/comment/%%cid%%">%%subject%%</a>
+        <a name="c%%cid%%" href="/comment/%%cid%%">%%subject%%</a>
         <div class="comment_head_sub">
-          %%date%% | mod: <a href="/op/mod?dir=dn&amp;cid=%%cid%%">[-]</a> <a href="/op/mod?dir=up&amp;cid=%%cid%%">[+]</a> score: %%score%% | <a href="/op/reply?cid=%%cid%%">reply</a>%%parent_link%%
+          %%date%% | mod: <a href="/story/%%sid%%?mod=-1&amp;c=%%cid%%#c%%cid%%">[-]</a> <a href="/story/%%sid%%?mod=1&amp;c=%%cid%%#c%%cid%%">[+]</a> score: %%score%% | <a href="/story/%%sid%%?reply&amp;c=%%cid%%#c%%cid%%">reply</a> | <a href="/story/%%sid%%">story</a>%%parent_link%%
         </div>
       </div>
     </div>
