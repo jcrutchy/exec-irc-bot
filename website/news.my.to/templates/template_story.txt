@@ -1,7 +1,7 @@
 <div class="story_head">
 <div class="story_head_content">
 <a name="s%%sid%%" href="/story/%%sid%%">%%title%%</a>
-<div class="story_head_sub">%%date%% | mod: <a href="/?mod=-1&amp;s=%%sid%%#s%%sid%%">[-]</a> <a href="/?mod=1&amp;s=%%sid%%#s%%sid%%">[+]</a> score: %%score%% | <a href="/story/%%sid%%?reply">reply</a> | %%comments%%</div>
+<div class="story_head_sub">%%date%% | mod: <a href="%%url_path%%?mod=-1&s=%%sid%%#s%%sid%%">[-]</a> <a href="%%url_path%%?mod=1&s=%%sid%%#s%%sid%%">[+]</a> score: %%score%% | <a href="/story/%%sid%%?reply">reply</a> | %%comments%%</div>
 </div>
 </div>
 <div class="story_content">

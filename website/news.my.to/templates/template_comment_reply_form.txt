@@ -1,0 +1,3 @@
+<div class="reply_form_container">
+%%reply_form%%
+</div>

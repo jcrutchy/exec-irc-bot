@@ -121,3 +121,27 @@ a
     padding: 5px 0 0 5px;
     margin: 0;
   }
+
+.reply_form_container
+  {
+    border-left: 1px #222222 solid;
+    padding: 10px 0 0 10px;
+    margin: 0;
+  }
+
+.reply_form
+  {
+    background-color: #FFCCFF;
+    padding: 5px;
+  }
+
+textarea.comment
+  {
+    width: 50%;
+    height: 4em;
+  }
+
+.comment_preview
+  {
+    margin-bottom: 5px;
+  }

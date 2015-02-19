@@ -3,7 +3,9 @@
 #####################################################################################################
 
 /*
-exec:~staff|20|0|0|1|||||php scripts/staff.php %%trailing%%
+exec:~staff|20|0|0|1|||||php scripts/staff.php %%trailing%% %%alias%%
+exec:~eds|10|0|0|1|||||php scripts/staff.php %%trailing%% %%alias%%
+exec:~devs|10|0|0|1|||||php scripts/staff.php %%trailing%% %%alias%%
 */
 
 #####################################################################################################
@@ -11,6 +13,18 @@ exec:~staff|20|0|0|1|||||php scripts/staff.php %%trailing%%
 require_once("lib.php");
 
 $trailing=strtolower(trim($argv[1]));
+$alias=$argv[2];
+
+switch ($alias)
+{
+  case "~eds":
+    #privmsg("editor ping: janrinok LaminatorX n1 nick martyb Bytram Azrael Woods Blackmoore Dopefish NCommander zizban mrcoolbp");
+    privmsg("editor ping: janrinok LaminatorX n1 nick martyb Bytram Azrael mrcoolbp");
+    return;
+  case "~devs":
+    privmsg("dev ping: TheMightyBuzzard paulej72");
+    return;
+}
 
 switch ($trailing)
 {

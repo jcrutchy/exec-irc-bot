@@ -1,1 +1,1 @@
-&nbsp;|&nbsp;<a href="#c%%parent_cid%%">parent</a>
+&nbsp;|&nbsp;<a href="%%url_path%%#c%%parent_cid%%">parent</a>

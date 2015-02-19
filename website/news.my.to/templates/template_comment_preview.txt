@@ -1,0 +1,15 @@
+<div class="comment_preview">
+  <div class="this_comment">
+    <div class="comment_head">
+      <div class="comment_head_content">
+        %%subject%%
+        <div class="comment_head_sub">
+          by %%nick%%
+        </div>
+      </div>
+    </div>
+    <div class="comment_content">
+      <p>%%content%%</p>
+    </div>
+  </div>
+</div>

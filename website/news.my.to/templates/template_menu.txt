@@ -1,5 +1,5 @@
 <div class="menu">
 <div class="menu_content">
-%%menu_items%%
+<a href="/">news.my.to</a>%%menu_items%%
 </div>
 </div>

@@ -2,6 +2,54 @@
 
 #####################################################################################################
 
+function utils__format_reply_form($sid,&$templates)
+{
+  $html=$templates["reply_form"];
+  $html=str_replace("%%sid%%",$sid,$html);
+  $parent_cid=0;
+  $anchor="s=$sid#s$sid";
+  if (isset($_GET["c"])==True)
+  {
+    $parent_cid=$_GET["c"];
+    $anchor="c=$parent_cid#c$parent_cid";
+  }
+  $html=str_replace("%%parent_cid%%",$parent_cid,$html);
+  $submit_caption="Preview";
+  $preview_query="?preview";
+  $reply_preview="";
+  $nick="";
+  $subject="";
+  $content="";
+  if ((isset($_GET["preview"])==True) and (isset($_POST["reply_subject"])==True) and (isset($_POST["reply_content"])==True) and (isset($_POST["reply_nick"])==True))
+  {
+    $submit_caption="Submit";
+    $preview_query="";
+    $comment=array();
+    $comment["nick"]=$_POST["reply_nick"];
+    $comment["subject"]=$_POST["reply_subject"];
+    $comment["content"]=$_POST["reply_content"];
+    $reply_preview=utils__format_comment_preview($comment,$templates);
+    $nick=$_POST["reply_nick"];
+    $subject=$_POST["reply_subject"];
+    $content=$_POST["reply_content"];
+    $anchor="?".$anchor;
+  }
+  else
+  {
+    $anchor="&amp;".$anchor;
+  }
+  $html=str_replace("%%submit_caption%%",$submit_caption,$html);
+  $html=str_replace("%%preview_query%%",$preview_query,$html);
+  $html=str_replace("%%reply_preview%%",$reply_preview,$html);
+  $html=str_replace("%%nick%%",$nick,$html);
+  $html=str_replace("%%subject%%",$subject,$html);
+  $html=str_replace("%%content%%",$content,$html);
+  $html=str_replace("%%anchor%%",$anchor,$html);
+  return $html;
+}
+
+#####################################################################################################
+
 function utils__format_story($story,&$templates)
 {
   if ($story["comments"]==NULL)
@@ -12,15 +60,15 @@ function utils__format_story($story,&$templates)
   {
     $story["score"]=0;
   }
-  $story_html=$templates["story"];
-  $story_html=str_replace("%%sid%%",$story["sid"],$story_html);
-  $story_html=str_replace("%%date%%",$story["timestamp"],$story_html);
+  $html=$templates["story"];
+  $html=str_replace("%%sid%%",$story["sid"],$html);
+  $html=str_replace("%%date%%",$story["timestamp"],$html);
   $score_caption=$story["score"];
   if ($story["score"]>0)
   {
     $score_caption="+".$score_caption;
   }
-  $story_html=str_replace("%%score%%",$score_caption,$story_html);
+  $html=str_replace("%%score%%",$score_caption,$html);
   $comments_caption="no comments";
   if ($story["comments"]>1)
   {
@@ -30,10 +78,10 @@ function utils__format_story($story,&$templates)
   {
     $comments_caption=$story["comments"]." comment";
   }
-  $story_html=str_replace("%%comments%%",$comments_caption,$story_html);
-  $story_html=str_replace("%%title%%",$story["title"],$story_html);
-  $story_html=str_replace("%%summary%%",$story["content"],$story_html);
-  return $story_html;
+  $html=str_replace("%%comments%%",$comments_caption,$html);
+  $html=str_replace("%%title%%",$story["title"],$html);
+  $html=str_replace("%%summary%%",$story["content"],$html);
+  return $html;
 }
 
 #####################################################################################################
@@ -44,25 +92,26 @@ function utils__format_comment($comment,&$templates,&$comments)
   {
     $comment["score"]=0;
   }
-  $comment_html=$templates["comment"];
-  $comment_html=str_replace("%%sid%%",$comment["sid"],$comment_html);
-  $comment_html=str_replace("%%cid%%",$comment["cid"],$comment_html);
-  $comment_html=str_replace("%%date%%",$comment["timestamp"],$comment_html);
+  $html=$templates["comment"];
+  $html=str_replace("%%sid%%",$comment["sid"],$html);
+  $html=str_replace("%%cid%%",$comment["cid"],$html);
+  $html=str_replace("%%date%%",$comment["timestamp"],$html);
   $score_caption=$comment["score"];
   if ($comment["score"]>0)
   {
     $score_caption="+".$score_caption;
   }
-  $comment_html=str_replace("%%score%%",$score_caption,$comment_html);
-  $comment_html=str_replace("%%subject%%",$comment["subject"],$comment_html);
-  $comment_html=str_replace("%%content%%",$comment["content"],$comment_html);
+  $html=str_replace("%%score%%",$score_caption,$html);
+  $html=str_replace("%%nick%%",$comment["nick"],$html);
+  $html=str_replace("%%subject%%",$comment["subject"],$html);
+  $html=str_replace("%%content%%",$comment["content"],$html);
   $parent="";
   if ($comment["parent_cid"]>0)
   {
     $parent=$templates["comment_parent_link"];
     $parent=str_replace("%%parent_cid%%",$comment["parent_cid"],$parent);
   }
-  $comment_html=str_replace("%%parent_link%%",$parent,$comment_html);
+  $html=str_replace("%%parent_link%%",$parent,$html);
   $children="";
   for ($i=0;$i<count($comments);$i++)
   {
@@ -77,8 +126,29 @@ function utils__format_comment($comment,&$templates,&$comments)
     $children_html=$templates["comment_children"];
     $children_html=str_replace("%%children%%",$children,$children_html);
   }
-  $comment_html=str_replace("%%comment_children%%",$children_html,$comment_html);
-  return $comment_html;
+  $html=str_replace("%%comment_children%%",$children_html,$html);
+  $reply_form_html="";
+  if (((isset($_GET["reply"])==True) or (isset($_GET["preview"])==True)) and (isset($_GET["c"])==True))
+  {
+    if ($_GET["c"]==$comment["cid"])
+    {
+      $reply_form_html=utils__format_reply_form($comment["sid"],$templates);
+      $reply_form_html=str_replace("%%reply_form%%",$reply_form_html,$templates["comment_reply_form"]);
+    }
+  }
+  $html=str_replace("%%reply_form%%",$reply_form_html,$html);
+  return $html;
+}
+
+#####################################################################################################
+
+function utils__format_comment_preview($comment,&$templates)
+{
+  $html=$templates["comment_preview"];
+  $html=str_replace("%%nick%%",$comment["nick"],$html);
+  $html=str_replace("%%subject%%",$comment["subject"],$html);
+  $html=str_replace("%%content%%",$comment["content"],$html);
+  return $html;
 }
 
 #####################################################################################################

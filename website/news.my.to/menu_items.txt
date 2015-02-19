@@ -1,13 +1,12 @@
-news.my.to=/
- | 
+&nbsp;|&nbsp;
 recent=/op/recent
- | 
+&nbsp;|&nbsp;
 submit=/op/submit
- | 
+&nbsp;|&nbsp;
 about=/op/about
- | 
+&nbsp;|&nbsp;
 help=/op/help
- | 
+&nbsp;|&nbsp;
 rss=/op/rss
 /
 atom=/op/atom

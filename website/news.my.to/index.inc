@@ -35,9 +35,9 @@ $settings=array();
 for ($i=0;$i<count($menu_items_data);$i++)
 {
   $parts=explode("=",$menu_items_data[$i]);
-  $caption=$parts[0];
+  $caption=trim($parts[0]);
   array_shift($parts);
-  $href=implode("=",$parts);
+  $href=trim(implode("=",$parts));
   if ($href=="")
   {
     $menu_item_html=$caption;
@@ -46,11 +46,11 @@ for ($i=0;$i<count($menu_items_data);$i++)
   {
     if ($_SERVER["REQUEST_URI"]==$href)
     {
-      $menu_item_html=$templates["menu_item_active"];
+      $menu_item_html=trim($templates["menu_item_active"]);
     }
     else
     {
-      $menu_item_html=$templates["menu_item"];
+      $menu_item_html=trim($templates["menu_item"]);
       $menu_item_html=str_replace("%%href%%",$href,$menu_item_html);
     }
     $menu_item_html=str_replace("%%caption%%",$caption,$menu_item_html);
@@ -73,6 +73,10 @@ if (isset($_GET["sid"])==True)
       $comments_html=$comments_html.utils__format_comment($comments[$i],$templates,$comments);
     }
   }
+  if (((isset($_GET["reply"])==True) or (isset($_GET["preview"])==True)) and (isset($_GET["c"])==False))
+  {
+    $body=$body.utils__format_reply_form($_GET["sid"],$templates);
+  }
   $comment_container=$templates["comment_container"];
   $comment_container=str_replace("%%comments%%",$comments_html,$comment_container);
   $body=$body.$comment_container;
@@ -80,7 +84,7 @@ if (isset($_GET["sid"])==True)
 elseif (isset($_GET["cid"])==True)
 {
   $comments=db__get_comments_cid($_GET["cid"]);
-  var_dump($comments);
+  #var_dump($comments);
 }
 else
 {
@@ -92,6 +96,11 @@ else
     $stories_html=$stories_html.utils__format_story($stories[$i],$templates);
   }
   $body=$body.$stories_html;
+}
+$uri_parts=parse_url($_SERVER["REQUEST_URI"]);
+if (isset($uri_parts["path"])==True)
+{
+  $body=str_replace("%%url_path%%",$uri_parts["path"],$body);
 }
 $page=str_replace("%%body%%",$body,$page);
 echo $page;
