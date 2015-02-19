@@ -19,11 +19,20 @@ $nick=trim($argv[3]);
 switch ($alias)
 {
   case "~eds":
-    #privmsg("editor ping for $nick: janrinok LaminatorX n1 nick martyb Bytram Azrael Woods Blackmoore Dopefish NCommander zizban mrcoolbp");
-    privmsg("editor ping for $nick: janrinok LaminatorX n1 nick martyb Bytram Azrael mrcoolbp");
+    $reason="";
+    if ($trailing<>"")
+    {
+      $reason=" (reason: ".$trailing.")";
+    }
+    privmsg("editor ping for $nick$reason: janrinok LaminatorX n1 nick martyb Bytram Azrael mrcoolbp");
     return;
   case "~devs":
-    privmsg("dev ping for $nick: TheMightyBuzzard paulej72");
+    $reason="";
+    if ($trailing<>"")
+    {
+      $reason=" (reason: ".$trailing.")";
+    }
+    privmsg("dev ping for $nick$reason: TheMightyBuzzard paulej72");
     return;
 }
 
