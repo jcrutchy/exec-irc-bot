@@ -5,20 +5,6 @@
 require_once(__DIR__."/db.inc");
 require_once(__DIR__."/utils.inc");
 
-/*$test_story=array();
-$test_story["title"]="Test story title";
-$test_story["content"]="test content blah stuff";
-db__insert_story($test_story);
-
-$test_comment=array();
-$test_comment["nick"]="crutchy";
-$test_comment["sid"]=1;
-$test_comment["parent_cid"]=mt_rand(1,100);
-$test_comment["subject"]="test comment subject";
-$test_comment["content"]="test comment content";
-$test_comment["auth_hash"]="test auth hash";
-db__insert_comment($test_comment);*/
-
 define("TEMPLATES_PATH",__DIR__."/templates/");
 
 $templates=load_templates(TEMPLATES_PATH);
@@ -46,11 +32,11 @@ for ($i=0;$i<count($menu_items_data);$i++)
   {
     if ($_SERVER["REQUEST_URI"]==$href)
     {
-      $menu_item_html=trim($templates["menu_item_active"]);
+      $menu_item_html=$templates["menu_item_active"];
     }
     else
     {
-      $menu_item_html=trim($templates["menu_item"]);
+      $menu_item_html=$templates["menu_item"];
       $menu_item_html=str_replace("%%href%%",$href,$menu_item_html);
     }
     $menu_item_html=str_replace("%%caption%%",$caption,$menu_item_html);
@@ -61,6 +47,10 @@ $menu=str_replace("%%menu_items%%",$menu_items_html,$menu);
 $body=$menu;
 if (isset($_GET["sid"])==True)
 {
+  if (isset($_POST["submit"])==True)
+  {
+    $message="submitted comment in reply to story ".$_GET["sid"];
+  }
   $story=db__get_story($_GET["sid"]);
   $page=str_replace("%%title%%",$story["title"]." - news.my.to",$page);
   $body=$body.utils__format_story($story,$templates);
@@ -73,7 +63,7 @@ if (isset($_GET["sid"])==True)
       $comments_html=$comments_html.utils__format_comment($comments[$i],$templates,$comments);
     }
   }
-  if (((isset($_GET["reply"])==True) or (isset($_GET["preview"])==True)) and (isset($_GET["c"])==False))
+  if (((isset($_GET["reply"])==True) or (isset($_POST["preview"])==True)) and (isset($_GET["c"])==False))
   {
     $body=$body.utils__format_reply_form($_GET["sid"],$templates);
   }
@@ -83,8 +73,11 @@ if (isset($_GET["sid"])==True)
 }
 elseif (isset($_GET["cid"])==True)
 {
+  if (isset($_POST["submit"])==True)
+  {
+    $message="submitted comment in reply to comment ".$_GET["cid"];
+  }
   $comments=db__get_comments_cid($_GET["cid"]);
-  #var_dump($comments);
 }
 else
 {

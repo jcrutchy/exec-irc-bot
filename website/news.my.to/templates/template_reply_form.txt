@@ -1,11 +1,10 @@
 <div class="reply_form">
-<div>%%reply_preview%%</div>
-<form action="%%url_path%%%%preview_query%%%%anchor%%" method="POST">
-<input type="hidden" name="reply_sid" value="%%sid%%">
-<input type="hidden" name="reply_parent_cid" value="%%parent_cid%%">
-<div>Nick <input type="text" name="reply_nick" value="%%nick%%"></div>
-<div>Subject <input type="text" name="reply_subject" value="%%subject%%"></div>
-<div><textarea class="comment" name="reply_content">%%content%%</textarea></div>
-<div><input type="submit" value="%%submit_caption%%"></div>
+<div>%%preview%%</div>
+<form action="%%action%%" method="POST">
+<input type="hidden" name="parent_cid" value="%%parent_cid%%">
+<div>Nick <input type="text" name="nick" value="%%nick%%"></div>
+<div>Subject <input type="text" name="subject" value="%%subject%%"></div>
+<div><textarea class="comment" name="content">%%content%%</textarea></div>
+<div><input type="submit" name="%%submit_name%%" value="%%submit_caption%%"></div>
 </form>
 </div>

@@ -1,0 +1,1 @@
+/story/%%sid%%?c=%%parent_cid%%#c%%parent_cid%%
