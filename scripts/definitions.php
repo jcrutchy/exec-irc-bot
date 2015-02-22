@@ -355,7 +355,7 @@ function source_define($host,$term,$params)
     {
       return False;
     }
-    privmsg("[".$params["name"]."] ".chr(3)."3$term".chr(3).": ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
+    privmsg("[".$params["name"]."] ".chr(3)."03$term".chr(3).": ".html_entity_decode($def,ENT_QUOTES,"UTF-8"));
     return True;
   }
 }

@@ -109,7 +109,7 @@ function utils__format_comment($comment,&$templates,&$comments)
 
 #####################################################################################################
 
-function load_templates($path)
+function utils__load_templates($path)
 {
   $prefix="template_";
   $suffix=".txt";
@@ -129,13 +129,53 @@ function load_templates($path)
 
 #####################################################################################################
 
-function template_replace_values($template,$params)
+function utils__template_replace($template_key,$params,$cascade=True)
 {
+  global $templates;
+  $result=$templates[$template_key];
+  if ($cascade==True)
+  {
+    do
+    {
+      $test=utils__template_cascade($result,$params);
+    }
+    while ($test==True);
+  }
   foreach ($params as $key => $value)
   {
-    $template=str_replace("%%$key%%",$value,$template);
+    if ($cascade==True)
+    {
+      do
+      {
+        $test=utils__template_cascade($value,array());
+      }
+      while ($test==True);
+    }
+    $result=str_replace("%%$key%%",$value,$result);
   }
-  return $template;
+  return $result;
+}
+
+#####################################################################################################
+
+function utils__template_cascade(&$template,$params)
+{
+  global $templates;
+  $result=False;
+  foreach ($templates as $key => $value)
+  {
+    if (isset($params[$key])==True)
+    {
+      continue;
+    }
+    $i=0;
+    $template=str_replace("%%$key%%",$value,$template,$i);
+    if ($i>0)
+    {
+      $result=True;
+    }
+  }
+  return $result;
 }
 
 #####################################################################################################

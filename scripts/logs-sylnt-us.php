@@ -3,12 +3,12 @@
 #####################################################################################################
 
 /*
-exec:~count|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~first|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~last|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~find-first|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~find-last|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~chart|0|0|0|1|crutchy||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~count|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~first|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~last|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~find-first|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~find-last|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~chart|0|0|0|1|crutchy||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################

@@ -7,7 +7,7 @@ require_once(__DIR__."/utils.inc");
 
 define("TEMPLATES_PATH",__DIR__."/templates/");
 
-$templates=load_templates(TEMPLATES_PATH);
+$templates=utils__load_templates(TEMPLATES_PATH);
 
 $css=trim(file_get_contents(__DIR__."/default.css"));
 $menu_items_data=file_get_contents(__DIR__."/menu_items.txt");
