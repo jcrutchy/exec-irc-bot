@@ -109,6 +109,41 @@ function utils__format_comment($comment,&$templates,&$comments)
 
 #####################################################################################################
 
+function utils__format_menu()
+{
+  $items=file_get_contents(__DIR__."/menu_items.txt");
+  $items=explode("\n",$items);
+  $params=array();
+  $params["menu_items"]="";
+  for ($i=0;$i<count($items);$i++)
+  {
+    $item_params=array();
+    $parts=explode("=",$items[$i]);
+    $item_params["caption"]=trim($parts[0]);
+    array_shift($parts);
+    $item_params["href"]=trim(implode("=",$parts));
+    if ($item_params["href"]=="")
+    {
+      $params["menu_items"]=$params["menu_items"].$caption;
+    }
+    else
+    {
+      if ($_SERVER["REQUEST_URI"]==$href)
+      {
+        $menu_item="menu_item_active";
+      }
+      else
+      {
+        $menu_item="menu_item";
+      }
+      $params["menu_items"]=$params["menu_items"].utils__template_replace($menu_item,$item_params);
+    }
+  }
+  return utils__template_replace("menu",$params);
+}
+
+#####################################################################################################
+
 function utils__load_templates($path)
 {
   $prefix="template_";
@@ -132,6 +167,10 @@ function utils__load_templates($path)
 function utils__template_replace($template_key,$params,$cascade=True)
 {
   global $templates;
+  if (isset($templates[$template_key])==False)
+  {
+    return $template_key;
+  }
   $result=$templates[$template_key];
   if ($cascade==True)
   {

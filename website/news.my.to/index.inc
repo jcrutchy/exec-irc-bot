@@ -9,43 +9,12 @@ define("TEMPLATES_PATH",__DIR__."/templates/");
 
 $templates=utils__load_templates(TEMPLATES_PATH);
 
-$css=trim(file_get_contents(__DIR__."/default.css"));
-$menu_items_data=file_get_contents(__DIR__."/menu_items.txt");
+$params["css"]=trim(file_get_contents(__DIR__."/default.css"));
+$params["menu"]=utils__format_menu();
 
-$page=$templates["page"];
-$page=str_replace("%%css%%",$css,$page);
-$menu=$templates["menu"];
-$menu_items_html="";
-$menu_items_data=explode("\n",$menu_items_data);
-$settings=array();
-for ($i=0;$i<count($menu_items_data);$i++)
-{
-  $parts=explode("=",$menu_items_data[$i]);
-  $caption=trim($parts[0]);
-  array_shift($parts);
-  $href=trim(implode("=",$parts));
-  if ($href=="")
-  {
-    $menu_item_html=$caption;
-  }
-  else
-  {
-    if ($_SERVER["REQUEST_URI"]==$href)
-    {
-      $menu_item_html=$templates["menu_item_active"];
-    }
-    else
-    {
-      $menu_item_html=$templates["menu_item"];
-      $menu_item_html=str_replace("%%href%%",$href,$menu_item_html);
-    }
-    $menu_item_html=str_replace("%%caption%%",$caption,$menu_item_html);
-  }
-  $menu_items_html=$menu_items_html.$menu_item_html;
-}
-$menu=str_replace("%%menu_items%%",$menu_items_html,$menu);
-$body=$menu;
-if (isset($_GET["sid"])==True)
+$params["body"]="%%body_home%%";
+
+/*if (isset($_GET["sid"])==True)
 {
   if (isset($_POST["submit"])==True)
   {
@@ -94,9 +63,9 @@ $uri_parts=parse_url($_SERVER["REQUEST_URI"]);
 if (isset($uri_parts["path"])==True)
 {
   $body=str_replace("%%url_path%%",$uri_parts["path"],$body);
-}
-$page=str_replace("%%body%%",$body,$page);
-echo $page;
+}*/
+
+echo utils__template_replace("page",$params);
 
 #####################################################################################################
 

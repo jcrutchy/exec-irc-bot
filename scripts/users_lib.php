@@ -51,6 +51,7 @@ function users_get_account($nick)
   {
     if (isset($users[$nick]["account"])==True)
     {
+      # TODO: expiry
       return $users[$nick]["account"];
     }
   }

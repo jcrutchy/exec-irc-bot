@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~comments|1700|0|0|1|crutchy||||php scripts/comment_feed.php
-exec:~comments-internal|1700|3600|0|1||INTERNAL|||php scripts/comment_feed.php
+exec:~comments|1700|0|0|1|||||php scripts/comment_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~comments-internal|1700|3600|0|1||INTERNAL|||php scripts/comment_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 startup:~join #comments
 */
 
@@ -31,11 +31,62 @@ require_once("lib.php");
 require_once("feeds_lib.php");
 #require_once("copyright_lib.php");
 
-$subscribers=get_array_bucket("<<comment_feed_subscribers>>"); # TODO
-
 define("COMMENTS_FEED_FILE","../data/comments_feed.txt");
 define("COMMENTS_CID_FILE","../data/comments_cid.txt");
 define("COMMENTS_TOP_FILE","../data/comments_top.txt");
+define("COMMENTS_DESTS_FILE","../data/comments_dests.txt");
+
+$trailing=trim($argv[1]);
+$dest=strtolower(trim($argv[2]));
+$nick=strtolower(trim($argv[3]));
+$alias=strtolower(trim($argv[4]));
+
+$dests=load_settings(COMMENTS_DESTS_FILE);
+
+if ($alias=="~comments")
+{
+  $parts=explode(" ",$trailing);
+  $action=strtolower($parts[0]);
+  array_shift($parts);
+  $channel="";
+  if (isset($parts[0])==True)
+  {
+    $channel=strtolower($parts[0]);
+    array_shift($parts);
+  }
+  $trailing=trim(implode(" ",$parts));
+  switch ($action)
+  {
+    case "feed":
+      if (users_get_account($nick)=="crutchy")
+      {
+        break;
+      }
+      return;
+    case "dest-add":
+
+      $dests=save_settings($dests,COMMENTS_DESTS_FILE);
+      return;
+    case "dest-delete":
+
+      $dests=save_settings($dests,COMMENTS_DESTS_FILE);
+      return;
+    case "dest-rename":
+
+      $dests=save_settings($dests,COMMENTS_DESTS_FILE);
+      return;
+    case "filter-add":
+
+      $dests=save_settings($dests,COMMENTS_DESTS_FILE);
+      return;
+    case "filter-delete":
+
+      $dests=save_settings($dests,COMMENTS_DESTS_FILE);
+      return;
+    default:
+      return;
+  }
+}
 
 $host="soylentnews.org";
 $feed_uri="/index.xml";
@@ -264,16 +315,16 @@ output($msg,True);
 
 function output($msg,$term=False)
 {
-  global $subscribers;
+  #global $subscribers;
   if ($term==True)
   {
     term_echo($msg);
   }
   pm("#comments",$msg);
-  for ($i=0;$i<count($subscribers);$i++)
+  /*for ($i=0;$i<count($subscribers);$i++)
   {
     pm($subscribers[$i],$msg);
-  }
+  }*/
 }
 
 #####################################################################################################

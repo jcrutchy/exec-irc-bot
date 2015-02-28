@@ -3,8 +3,9 @@
 #####################################################################################################
 
 /*
-exec:~link|10|0|0|1|*||||php scripts/link.php %%trailing%% %%dest%% %%nick%%
-exec:~!|10|0|0|1|*||||php scripts/link.php %%trailing%% %%dest%% %%nick%%
+exec:~link|10|0|0|1|*||||php scripts/link.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~links|10|0|0|1|*||||php scripts/link.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~!|10|0|0|1|*||||php scripts/link.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################
@@ -14,10 +15,11 @@ require_once("lib.php");
 $trailing=trim($argv[1]);
 $dest=$argv[2];
 $nick=$argv[3];
+$alias=$argv[4];
 
 if ($trailing=="")
 {
-  privmsg("syntax to search: ~! %search%, set: ~! %id% %content%, delete: ~! %id% -");
+  privmsg("syntax to search: $alias %search%, set: $alias %id% %content%, delete: $alias %id% -");
   privmsg("can't use pipe (|) char, %id% can't contain spaces, but %content% can, %search% is a regexp pattern");
   privmsg("will return a list of one or more %id% => %content% if %search% matches either %id% or %content%");
   return;
