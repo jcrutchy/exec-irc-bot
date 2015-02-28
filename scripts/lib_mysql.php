@@ -5,7 +5,31 @@
 $pdo=new PDO("mysql:host=localhost","www",trim(file_get_contents("../pwd/mysql_www")));
 if ($pdo===False)
 {
-  die("ERROR CONNECTING TO DATABASE");
+  die("ERROR CONNECTING TO DATABASE\n");
+}
+
+#####################################################################################################
+
+function log_mysql($items)
+{
+  $fieldnames=array_keys($items);
+  $placeholders=array_map("callback_prepare",$fieldnames);
+  $fieldnames=array_map("callback_quote",$fieldnames);
+  execute_prepare("INSERT INTO exec_irc_bot.irc_log (".implode(",",$fieldnames).") VALUES (".implode(",",$placeholders).")",$items);
+}
+
+#####################################################################################################
+
+function callback_quote($field)
+{
+  return "`$field`";
+}
+
+#####################################################################################################
+
+function callback_prepare($field)
+{
+  return ":$field";
 }
 
 #####################################################################################################
@@ -16,7 +40,12 @@ function fetch_query($sql)
   $statement=$pdo->query($sql);
   if ($statement===False)
   {
-    die("SQL QUERY ERROR\n\n$sql");
+    $err=$pdo->errorInfo();
+    if ($err[0]<>Null)
+    {
+      echo $err[2]."\n";
+    }
+    die("SQL QUERY ERROR\n\n$sql\n");
   }
   return $statement->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -29,7 +58,7 @@ function execute_prepare($sql,$params)
   $statement=$pdo->prepare($sql);
   if ($statement===False)
   {
-    die("SQL PREPARE ERROR\n\n$sql");
+    die("SQL PREPARE ERROR\n\n$sql\n");
   }
   foreach ($params as $key => $value)
   {
@@ -44,7 +73,12 @@ function execute_prepare($sql,$params)
   }
   if ($statement->execute()===False)
   {
-    die("SQL EXECUTE ERROR\n\n$sql");
+    $err=$statement->errorInfo();
+    if ($err[0]<>Null)
+    {
+      echo $err[2]."\n";
+    }
+    die("SQL EXECUTE ERROR\n\n$sql\n");
   }
 }
 
@@ -56,7 +90,7 @@ function fetch_prepare($sql,$params)
   $statement=$pdo->prepare($sql);
   if ($statement===False)
   {
-    die("SQL PREPARE ERROR\n\n$sql");
+    die("SQL PREPARE ERROR\n\n$sql\n");
   }
   foreach ($params as $key => $value)
   {
@@ -71,7 +105,12 @@ function fetch_prepare($sql,$params)
   }
   if ($statement->execute()===False)
   {
-    die("SQL EXECUTE ERROR\n\n$sql");
+    $err=$statement->errorInfo();
+    if ($err[0]<>Null)
+    {
+      echo $err[2]."\n";
+    }
+    die("SQL EXECUTE ERROR\n\n$sql\n");
   }
   return $statement->fetchAll(PDO::FETCH_ASSOC);
 }

@@ -2028,6 +2028,7 @@ function parse_data($data)
     return False;
   }
   $sub=trim($data,"\n\r\0\x0B");
+  $result["server"]=IRC_HOST;
   $result["microtime"]=microtime(True);
   $result["time"]=date("Y-m-d H:i:s",$result["microtime"]);
   $result["data"]=$sub;
