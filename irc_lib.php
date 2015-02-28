@@ -219,7 +219,7 @@ function log_items($items)
   $fieldnames=array_keys($items);
   $placeholders=array_map("callback_prepare",$fieldnames);
   $fieldnames=array_map("callback_quote",$fieldnames);
-  execute_prepare("INSERT INTO exec_irc_bot.irc_log (".implode(",",$fieldnames).") VALUES (".implode(",",$placeholders).")",$items);
+  execute_prepare("INSERT INTO ".BOT_SCHEMA.".".LOG_TABLE." (".implode(",",$fieldnames).") VALUES (".implode(",",$placeholders).")",$items);
 }
 
 #####################################################################################################
@@ -288,7 +288,7 @@ function handle_process($handle)
     fclose($handle["pipe_stdout"]);
     fclose($handle["pipe_stderr"]);
     proc_close($handle["process"]);
-    if (($handle["alias"]<>ALIAS_ALL) and ($handle["alias"]<>ALIAS_LOG_ITEMS))
+    if ($handle["alias"]<>ALIAS_ALL)
     {
       #term_echo("process terminated normally: ".$handle["command"]);
     }
@@ -2174,7 +2174,7 @@ function process_scripts($items,$reserved="")
   $cwd=NULL;
   $env=NULL;
   $descriptorspec=array(0=>array("pipe","r"),1=>array("pipe","w"),2=>array("pipe","w"));
-  if (($alias<>ALIAS_ALL) and ($alias<>ALIAS_LOG_ITEMS))
+  if ($alias<>ALIAS_ALL)
   {
     term_echo("EXEC: ".$command);
   }

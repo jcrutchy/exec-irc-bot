@@ -285,9 +285,9 @@ function get_api_data($uri)
 function github_msg($repo,$msg)
 {
   pm(FEED_CHAN,$msg);
-  if ((strpos(strtolower($repo),"slashcode")!==False) or (strpos(strtolower($repo),"soylentcode")!==False) or (strpos(strtolower($repo),"exec")!==False))
+  if ((strpos(strtolower($repo),"slashcode")!==False) or (strpos(strtolower($repo),"soylentcode")!==False))
   {
-    pm("#journals",$msg);
+    pm("#dev",$msg);
   }
 }
 

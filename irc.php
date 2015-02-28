@@ -91,7 +91,6 @@ define("BUCKET_SELF_TRIGGER_EVENTS_FLAG","<<SELF_TRIGGER_EVENTS_FLAG>>");
 
 # reserved aliases
 define("ALIAS_ALL","*");
-define("ALIAS_LOG_ITEMS","<log>");
 define("ALIAS_INIT","<init>");
 define("ALIAS_STARTUP","<startup>");
 define("ALIAS_QUIT","<quit>");
@@ -212,7 +211,6 @@ $admin_aliases=array(
 
 $reserved_aliases=array(
   ALIAS_ALL,
-  ALIAS_LOG_ITEMS,
   ALIAS_INIT,
   ALIAS_STARTUP,
   ALIAS_QUIT);

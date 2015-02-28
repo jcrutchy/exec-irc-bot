@@ -27,12 +27,12 @@ if ($trailing=="")
   $parts2=array();
   for ($i=0;$i<count($parts);$i++)
   {
-    if (strlen($parts[$i])>1)
+    if (strlen($parts[$i])>2)
     {
       $parts2[]=$parts[$i];
     }
   }
-  if (count($parts2)>0)
+  if (count($parts2)>1)
   {
     $msg="ciri: ".implode(" ",$parts2);
     if ($dest=="")
@@ -48,7 +48,6 @@ if ($trailing=="")
 else
 {
   # google search using $trailing
-  
 }
 
 #####################################################################################################
