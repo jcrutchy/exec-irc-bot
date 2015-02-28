@@ -10,16 +10,6 @@ if ($pdo===False)
 
 #####################################################################################################
 
-function log_mysql($items)
-{
-  $fieldnames=array_keys($items);
-  $placeholders=array_map("callback_prepare",$fieldnames);
-  $fieldnames=array_map("callback_quote",$fieldnames);
-  execute_prepare("INSERT INTO exec_irc_bot.irc_log (".implode(",",$fieldnames).") VALUES (".implode(",",$placeholders).")",$items);
-}
-
-#####################################################################################################
-
 function callback_quote($field)
 {
   return "`$field`";

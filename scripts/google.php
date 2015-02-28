@@ -9,70 +9,19 @@ exec:~google|20|0|0|0|||||php scripts/google.php %%trailing%%
 #####################################################################################################
 
 require_once("lib.php");
+require_once("google_lib.php");
 
-$html=wget("www.google.com","/search?source=hp&q=".urlencode($argv[1]),80);
-$html=strip_headers($html);
-strip_all_tag($html,"head");
-strip_all_tag($html,"script");
-strip_all_tag($html,"style");
-strip_all_tag($html,"a");
-$html=strip_tags($html,"<div>");
-$result="";
-$delim1="<div id=\"res\"><div id=\"topstuff\"></div><div id=\"search\"><div id=\"ires\">";
-$delim2="</div>";
-$i=strpos($html,$delim1);
-if ($i!==False)
+$results=google_search($argv[1]);
+
+privmsg("test");
+
+return;
+
+if ($results!==False)
 {
-  $html=substr($html,$i+strlen($delim1));
-  $i=strpos($html,$delim2);
-  if ($i!==False)
+  if (count($results)>0)
   {
-    $html=trim(substr($html,0,$i));
-    if (($html<>"") and (strpos($html,"Time in")!==False))
-    {
-      $result=substr($html,0,300);
-    }
-  }
-}
-if ($result<>"")
-{
-  privmsg("[Google] ".$result);
-}
-else
-{
-  $delim1="</div><div style=\"display:none\" class=\"am-dropdown-menu\" role=\"menu\" tabindex=\"-1\"></div></div></div>";
-  $delim2="</div";
-  $i=strpos($html,$delim1);
-  if ($i!==False)
-  {
-    $html=substr($html,$i+strlen($delim1));
-    $i=strpos($html,$delim2);
-    if ($i!==False)
-    {
-      $html=trim(substr($html,0,$i));
-      if ($html<>"")
-      {
-        $result=html_entity_decode($html,ENT_QUOTES,"UTF-8");
-        $result=str_replace("\n","",$result);
-        $result=strip_tags($result);
-        $delim=" - ‎ - ‎ - ‎";
-        if (substr($result,strlen($result)-strlen($delim))==$delim)
-        {
-          $result=trim(substr($result,0,strlen($result)-strlen($delim)));
-        }
-        $delim=" - ‎ - ‎‎";
-        if (substr($result,strlen($result)-strlen($delim))==$delim)
-        {
-          $result=trim(substr($result,0,strlen($result)-strlen($delim)));
-        }
-        $result=trim(substr($result,0,400));
-        $result=trim($result," ");
-        if ($result<>"")
-        {
-          privmsg("[Google] ".$result);
-        }
-      }
-    }
+    privmsg("[Google] ".$results[0]);
   }
 }
 

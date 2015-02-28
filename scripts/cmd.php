@@ -13,8 +13,6 @@
 #                                                                                                   #
 #####################################################################################################
 
-require_once("lib_mysql.php");
-
 $items=unserialize(base64_decode($argv[1]));
 
 $cmd=$items["cmd"];
@@ -23,8 +21,6 @@ $trailing=$items["trailing"];
 $dest=$items["destination"];
 $params=$items["params"];
 $nick=$items["nick"];
-
-log_mysql($items);
 
 switch (strtoupper($cmd))
 {

@@ -3,6 +3,7 @@
 #####################################################################################################
 
 require_once("irc_lib.php");
+require_once("scripts/lib_mysql.php");
 
 set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)
 ini_set("display_errors","on"); # output errors to stdout
@@ -21,8 +22,6 @@ if (isset($argv[1])==False)
   define("IGNORE_FILE","../data/ignore");
   define("EXEC_FILE","exec.txt");
   define("INIT_CHAN_LIST","#,#debug"); # comma delimited
-  define("EXEC_LOG_PATH","/var/www/irciv.us.to/exec_logs/");
-  define("IRC_LOG_URL","http://irciv.us.to/irc_logs/");
   define("IRC_HOST_CONNECT","irc.sylnt.us");
   define("IRC_HOST","irc.sylnt.us");
   define("IRC_PORT","6667");
@@ -84,7 +83,6 @@ define("TEMPLATE_DELIM","%%");
 define("DIRECTIVE_QUIT","<<quit>>");
 
 # internally used buckets
-define("BUCKET_LOGGED_CHANS","<<LOGGED_CHANNELS>>");
 define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 define("BUCKET_USERS","<<EXEC_USERS>>");
 define("BUCKET_EVENT_HANDLERS","<<EXEC_EVENT_HANDLERS>>");
@@ -150,7 +148,6 @@ define("ALIAS_ADMIN_EXEC_CONFLICTS","~exec-conflicts");
 define("ALIAS_ADMIN_EXEC_LIST","~exec-list");
 define("ALIAS_ADMIN_EXEC_TIMERS","~exec-timers");
 define("ALIAS_ADMIN_EXEC_ERRORS","~exec-errors");
-define("ALIAS_LOG","~log");
 define("ALIAS_LOCK","~lock");
 define("ALIAS_UNLOCK","~unlock");
 define("ALIAS_LIST","~list");

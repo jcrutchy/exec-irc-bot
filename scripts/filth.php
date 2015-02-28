@@ -18,23 +18,37 @@ $nick=$argv[3];
 if ($trailing=="")
 {
   # poke ciri with something random
-  $records=fetch_query("SELECT * FROM exec_irc_bot.irc_log WHERE ((destination='#') AND (server='irc.sylnt.us') AND (nick!='exec') AND (cmd='PRIVMSG') AND (`trailing` not like '~%') AND (`trailing` not like 'ACTION%'))");
+  $records=fetch_query("SELECT * FROM exec_irc_bot.irc_log WHERE ((destination='#') AND (server='irc.sylnt.us') AND (nick!='exec') AND (cmd='PRIVMSG') AND (`trailing` not like '%--%') AND (`trailing` not like '%++%') AND (`trailing` not like '%karma%') AND (`trailing` not like '=%') AND (`trailing` not like '!%') AND (`trailing` not like '$%') AND (`trailing` not like '~%') AND (`trailing` not like 'ACTION%'))");
   $m=mt_rand(0,count($records));
   $n=mt_rand(0,count($records));
-  $msg="ciri: ".$records[$m]["trailing"]." ".$records[$n]["trailing"];
-  if ($dest=="")
+  $msg=$records[$m]["trailing"]." ".$records[$n]["trailing"];
+  $parts=explode(" ",$msg);
+  shuffle($parts);
+  $parts2=array();
+  for ($i=0;$i<count($parts);$i++)
   {
-    pm("#",$msg);
+    if (strlen($parts[$i])>1)
+    {
+      $parts2[]=$parts[$i];
+    }
   }
-  elseif ($dest=="#")
+  if (count($parts2)>0)
   {
-    privmsg($msg);
+    $msg="ciri: ".implode(" ",$parts2);
+    if ($dest=="")
+    {
+      pm("#",$msg);
+    }
+    elseif ($dest=="#")
+    {
+      privmsg($msg);
+    }
   }
 }
 else
 {
   # google search using $trailing
-  # wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout=20,$breakcode="",$chunksize=1024)
+  
 }
 
 #####################################################################################################

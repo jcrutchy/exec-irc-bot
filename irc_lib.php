@@ -6,7 +6,6 @@ function initialize_buckets()
 {
   global $buckets;
   $empty=array();
-  $buckets[BUCKET_LOGGED_CHANS]=serialize($empty);
   $buckets[BUCKET_EVENT_HANDLERS]=serialize($empty);
   $buckets[BUCKET_CONNECTION_ESTABLISHED]="0";
   $buckets[BUCKET_USERS]=serialize($empty);
@@ -141,7 +140,7 @@ function get_list($items)
 {
   global $exec_list;
   global $reserved_aliases;
-  $msg=" ~list ~list-auth ~log ~lock ~unlock";
+  $msg=" ~list ~list-auth ~lock ~unlock";
   privmsg($items["destination"],$items["nick"],$msg);
   $msg="";
   foreach ($exec_list as $alias => $data)
@@ -199,12 +198,9 @@ function get_list_auth($items)
 
 #####################################################################################################
 
-function log_data($data)
+function handle_errors($data)
 {
-  $filename=EXEC_LOG_PATH.date("Ymd",time()).".txt";
   $msg=trim($data,"\n\r\0\x0B");
-  $line="<<".date("Y-m-d H:i:s",microtime(True)).">> $msg\n";
-  file_put_contents($filename,$line,FILE_APPEND);
   $lmsg=strtolower($msg);
   if ((DEBUG_CHAN<>"") and (strpos($lmsg,DEBUG_CHAN)===False))
   {
@@ -220,25 +216,10 @@ function log_data($data)
 
 function log_items($items)
 {
-  global $buckets;
-  $dest=$items["destination"];
-  if (isset($buckets[BUCKET_LOGGED_CHANS])==False)
-  {
-    $buckets[BUCKET_LOGGED_CHANS]=serialize(array());
-  }
-  $logged_chans=unserialize($buckets[BUCKET_LOGGED_CHANS]);
-  if (isset($logged_chans[$dest])==True)
-  {
-    if ($logged_chans[$dest]<>"on")
-    {
-      return;
-    }
-  }
-  else
-  {
-    return;
-  }
-  process_scripts($items,ALIAS_LOG_ITEMS);
+  $fieldnames=array_keys($items);
+  $placeholders=array_map("callback_prepare",$fieldnames);
+  $fieldnames=array_map("callback_quote",$fieldnames);
+  execute_prepare("INSERT INTO exec_irc_bot.irc_log (".implode(",",$fieldnames).") VALUES (".implode(",",$placeholders).")",$items);
 }
 
 #####################################################################################################
@@ -394,7 +375,7 @@ function handle_stdout($handle)
   {
     $msg=substr($msg,0,strlen($msg)-1);
   }
-  log_data($msg);
+  handle_errors($msg);
   if ($handle["auto_privmsg"]==1)
   {
     privmsg($handle["destination"],$handle["nick"],$msg);
@@ -586,7 +567,7 @@ function handle_stderr($handle)
   {
     $msg=substr($msg,0,strlen($msg)-1);
   }
-  log_data("STDERR IN [".$handle["command"]."]: ".$msg);
+  handle_errors("STDERR IN [".$handle["command"]."]: ".$msg);
   term_echo("STDERR IN [".$handle["command"]."]: ".$msg);
 }
 
@@ -1380,7 +1361,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
   if ($auth==False)
   {
     echo "\033[33m".date("Y-m-d H:i:s",microtime(True))." > \033[0m$data";
-    log_data($data);
+    handle_errors($data);
   }
   else
   {
@@ -1502,39 +1483,6 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         {
           privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]][$items["destination"]]."\" unlocked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
           unset($alias_locks[$items["nick"]][$items["destination"]]);
-        }
-        break;
-      case ALIAS_LOG:
-        if (check_nick($items,$alias)==True)
-        {
-          if (count($args)==2)
-          {
-            $state=strtolower($args[1]);
-            $dest=$items["destination"];
-            if (($state=="on") or ($state=="off"))
-            {
-              $bucket_chans=unserialize($buckets[BUCKET_LOGGED_CHANS]);
-              $bucket_chans[$dest]=$state;
-              $buckets[BUCKET_LOGGED_CHANS]=serialize($bucket_chans);
-              if ($state=="on")
-              {
-                privmsg($dest,$items["nick"],"logging enabled for ".chr(3)."8".$dest.chr(3));
-                privmsg($dest,$items["nick"],IRC_LOG_URL);
-              }
-              else
-              {
-                privmsg($dest,$items["nick"],"logging disabled for ".chr(3)."8".$dest.chr(3));
-              }
-            }
-            else
-            {
-              privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_LOG." on|off");
-            }
-          }
-          else
-          {
-            privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_LOG." on|off");
-          }
         }
         break;
       case ALIAS_ADMIN_DEST_OVERRIDE:

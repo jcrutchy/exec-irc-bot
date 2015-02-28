@@ -163,12 +163,12 @@ function check_push_events($repo)
     {
       continue;
     }
-    pm(FEED_CHAN,chr(3)."13"."push to https://github.com/$repo @ ".date("H:i:s",$t)." by ".$data[$i]["actor"]["login"]);
-    pm(FEED_CHAN,"  ".chr(3)."03".$data[$i]["payload"]["ref"]);
+    github_msg($repo,chr(3)."13"."push to https://github.com/$repo @ ".date("H:i:s",$t)." by ".$data[$i]["actor"]["login"]);
+    github_msg($repo,"  ".chr(3)."03".$data[$i]["payload"]["ref"]);
     for ($j=0;$j<count($data[$i]["payload"]["commits"]);$j++)
     {
       $commit=$data[$i]["payload"]["commits"][$j];
-      pm(FEED_CHAN,chr(3)."11"."  ".$commit["author"]["name"].": ".chr(2).chr(3)."03".$commit["message"]);
+      github_msg($repo,chr(3)."11"."  ".$commit["author"]["name"].": ".chr(2).chr(3)."03".$commit["message"]);
       $commit_url=$commit["url"];
       $commit_host="";
       $commit_uri="";
@@ -181,14 +181,14 @@ function check_push_events($repo)
         {
           $branch=$ref_parts[2];
           $html_url=$commit_data["html_url"];
-          pm(FEED_CHAN,chr(3)."11"."  ".$html_url);
+          github_msg($repo,chr(3)."11"."  ".$html_url);
           $n1=count($commit_data["files"]);
           for ($k=0;$k<$n1;$k++)
           {
             if ($k>4)
             {
               $rem=$n1-$k;
-              pm(FEED_CHAN,"  ".chr(3)."08"."└─".chr(3)."($rem files skipped)");
+              github_msg($repo,"  ".chr(3)."08"."└─".chr(3)."($rem files skipped)");
               break;
             }
             $commit_filename=str_replace(" ","%20",$commit_data["files"][$k]["filename"]);
@@ -200,7 +200,7 @@ function check_push_events($repo)
             }
             if ($commit_status=="removed")
             {
-              pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol."removed:".chr(3)." /$repo/blob/$branch/$commit_filename");
+              github_msg($repo,"  ".chr(3)."08".$tree_symbol."removed:".chr(3)." /$repo/blob/$branch/$commit_filename");
             }
             else
             {
@@ -211,7 +211,7 @@ function check_push_events($repo)
                 $deletions=$commit_data["files"][$k]["deletions"];
                 $commit_changes=" [+$additions,-$deletions]";
               }
-              pm(FEED_CHAN,"  ".chr(3)."08".$tree_symbol.$commit_status.$commit_changes.":".chr(3)." https://github.com/$repo/blob/$branch/$commit_filename");
+              github_msg($repo,"  ".chr(3)."08".$tree_symbol.$commit_status.$commit_changes.":".chr(3)." https://github.com/$repo/blob/$branch/$commit_filename");
             }
           }
         }
@@ -237,8 +237,8 @@ function check_pull_events($repo)
     $dt=microtime(True)-$t;
     if ($dt<=TIME_LIMIT_SEC)
     {
-      pm(FEED_CHAN,chr(3)."13"."pull request by ".$data[$i]["user"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["_links"]["html"]["href"]);
-      pm(FEED_CHAN,chr(3)."08"."└─".chr(3).$data[$i]["body"]);
+      github_msg($repo,chr(3)."13"."pull request by ".$data[$i]["user"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["_links"]["html"]["href"]);
+      github_msg($repo,chr(3)."08"."└─".chr(3).$data[$i]["body"]);
     }
   }
 }
@@ -260,7 +260,7 @@ function check_issue_events($repo)
     $dt=microtime(True)-$t;
     if ($dt<=TIME_LIMIT_SEC)
     {
-      pm(FEED_CHAN,chr(3)."13"."issue ".$data[$i]["event"]." by ".$data[$i]["actor"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["issue"]["html_url"]);
+      github_msg($repo,chr(3)."13"."issue ".$data[$i]["event"]." by ".$data[$i]["actor"]["login"]." @ ".date("H:i:s",$t)." - ".$data[$i]["issue"]["html_url"]);
     }
   }
 }
@@ -278,6 +278,17 @@ function get_api_data($uri)
   $response=wget($host,$uri,$port,ICEWEASEL_UA,$headers,60);
   $content=strip_headers($response);
   return json_decode($content,True);
+}
+
+#####################################################################################################
+
+function github_msg($repo,$msg)
+{
+  pm(FEED_CHAN,$msg);
+  if ((strpos(strtolower($repo),"slashcode")!==False) or (strpos(strtolower($repo),"soylentcode")!==False) or (strpos(strtolower($repo),"exec")!==False))
+  {
+    pm("#journals",$msg);
+  }
 }
 
 #####################################################################################################
