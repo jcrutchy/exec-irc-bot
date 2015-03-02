@@ -1937,10 +1937,22 @@ function doquit()
       }
     }
   }
+  term_echo("QUITTING SCRIPT");
+  /*if (defined("RESTART")==True)
+  {
+    $fp=fopen(EXEC_SOCK_FILE,"wb");
+    fclose($fp);
+    pcntl_exec($_SERVER["_"],$argv);
+  }
+  else
+  {
+    rawmsg("NickServ LOGOUT");
+    rawmsg("QUIT :dafuq");
+    fclose($socket);
+  }*/
   rawmsg("NickServ LOGOUT");
   rawmsg("QUIT :dafuq");
   fclose($socket);
-  term_echo("QUITTING SCRIPT");
   if (defined("RESTART")==True)
   {
     pcntl_exec($_SERVER["_"],$argv);

@@ -56,6 +56,8 @@ else
 
 # TODO: ADD FLAG TO HAVE EXEC IGNORE ITSELF
 
+define("EXEC_SOCK_FILE","../data/sock");
+
 define("EXEC_DELIM","|");
 define("EXEC_DIRECTIVE_DELIM"," ");
 define("EXEC_INCLUDE","include");
@@ -244,6 +246,65 @@ $direct_stdin=fopen("php://stdin","r");
 stream_set_blocking($direct_stdin,0);
 
 init();
+/*if (file_exists(EXEC_SOCK_FILE)==True)
+{
+  unlink(EXEC_SOCK_FILE);
+  $pid=getmypid();
+  $ip=gethostbyname(IRC_HOST_CONNECT);
+  $ip_parts=explode(".",$ip);
+  $ip_hex=dechex($ip_parts[3]).dechex($ip_parts[2]).dechex($ip_parts[1]).dechex($ip_parts[0]);
+  $port_hex=dechex(IRC_PORT);
+  $tcp=file_get_contents("/proc/$pid/net/tcp");
+  $fds=explode(PHP_EOL,$tcp);
+  for ($i=0;$i<count($fds);$i++)
+  {
+    $line=trim($fds[$i]);
+    echo "$line\n";
+    $parts=explode(" ",$line);
+    $remote=$parts[2];
+    if ($remote==strtoupper("$ip_hex:$port_hex"))
+    {
+      $inode=$parts[count($parts)-1];
+      if ($inode<0)
+      {
+        continue;
+      }
+      $fd="/proc/$pid/fd/$inode";
+      if (file_exists($fd)==True)
+      {
+        #$socket=fsockopen("unix://$fd",0);
+        $socket=fopen($fd,"rw");
+        stream_set_blocking($socket,0);
+      }
+      else
+      {
+        die("SOCKET \"$fd\" NOT FOUND\n");
+      }
+      break;
+    }
+  }
+}
+else
+{
+  if (IRC_PORT=="6697")
+  {
+    $socket=fsockopen("ssl://".IRC_HOST_CONNECT,IRC_PORT);
+  }
+  else
+  {
+    $socket=fsockopen(IRC_HOST_CONNECT,IRC_PORT);
+  }
+  if ($socket===False)
+  {
+    term_echo("ERROR CREATING IRC SOCKET");
+  }
+  else
+  {
+    stream_set_blocking($socket,0);
+    rawmsg("NICK ".NICK);
+    rawmsg("USER ".USER_NAME." hostname servername :".FULL_NAME);
+  }
+}*/
 if (IRC_PORT=="6697")
 {
   $socket=fsockopen("ssl://".IRC_HOST_CONNECT,IRC_PORT);
@@ -252,7 +313,6 @@ else
 {
   $socket=fsockopen(IRC_HOST_CONNECT,IRC_PORT);
 }
-
 if ($socket===False)
 {
   term_echo("ERROR CREATING IRC SOCKET");
