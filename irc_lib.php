@@ -216,6 +216,10 @@ function handle_errors($data)
 
 function log_items($items)
 {
+  if ((BOT_SCHEMA=="") or (LOG_TABLE==""))
+  {
+    return;
+  }
   $fieldnames=array_keys($items);
   $placeholders=array_map("callback_prepare",$fieldnames);
   $fieldnames=array_map("callback_quote",$fieldnames);
@@ -1403,7 +1407,10 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
     }
     if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]==NICKSERV_IDENTIFY_PROMPT))
     {
-      rawmsg("NickServ IDENTIFY ".trim(file_get_contents(PASSWORD_FILE)),True);
+      if (file_exists(PASSWORD_FILE)==True)
+      {
+        rawmsg("NickServ IDENTIFY ".trim(file_get_contents(PASSWORD_FILE)),True);
+      }
       startup();
     }
     $args=explode(" ",$items["trailing"]);

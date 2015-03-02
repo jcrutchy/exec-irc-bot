@@ -26,6 +26,7 @@ if ($trailing=="register-events")
 if ($trailing=="!stats")
 {
   privmsg("http://stats.sylnt.us/social/soylent/");
+  privmsg("http://antiartificial.com/stats/soylent/soylentnews.html");
   return;
 }
 

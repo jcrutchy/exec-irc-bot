@@ -25,7 +25,6 @@ if (isset($argv[1])==False)
   define("IRC_HOST_CONNECT","irc.sylnt.us");
   define("IRC_HOST","irc.sylnt.us");
   define("IRC_PORT","6667");
-  define("MEMORY_LIMIT","128M");
   define("OPERATOR_ACCOUNT","crutchy");
   define("DEBUG_CHAN","#debug");
   define("NICKSERV_IDENTIFY_PROMPT","You have 60 seconds to identify to your nickname before it is changed.");
@@ -56,14 +55,6 @@ else
 }
 
 # TODO: ADD FLAG TO HAVE EXEC IGNORE ITSELF
-
-ini_set("memory_limit",MEMORY_LIMIT);
-
-if (file_exists(PASSWORD_FILE)==False)
-{
-  term_echo("bot NickServ password file not found. quitting");
-  return;
-}
 
 define("EXEC_DELIM","|");
 define("EXEC_DIRECTIVE_DELIM"," ");

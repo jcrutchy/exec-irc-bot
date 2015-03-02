@@ -8,16 +8,12 @@
 #exec:~last|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #exec:~find-first|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 #exec:~find-last|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#exec:~chart|0|0|0|1|crutchy||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################
 
 date_default_timezone_set("UTC");
 require_once("lib.php");
-require_once("logs-sylnt-us_lib.php");
-
-define("CACHE_PATH","/var/www/irciv.us.to/logs.sylnt.us/");
 
 $trailing=trim($argv[1]);
 $nick=trim($argv[2]);
@@ -27,8 +23,6 @@ $alias=$argv[4];
 $uri="/".urlencode($dest)."/index.html";
 $html=wget("logs.sylnt.us",$uri,80);
 $html=strip_headers($html);
-
-#term_echo("downloaded http://logs.sylnt.us$uri => ".strlen($html)." bytes (content)");
 
 strip_all_tag($html,"head");
 
@@ -119,6 +113,21 @@ for ($i=0;$i<count($links2);$i++)
       $line_msg=$line;
       $line_dest=$dest;
       $line_date=$date_parts[0];
+
+      $items=array();
+      $items["server"]="irc.sylnt.us";
+      $items["microtime"]=convert_timestamp($record["date"]." ".$record["time"],"Y-m-d H:i:s");;
+      $items["time"]="";
+      $items["data"]="";
+      $items["prefix"]="";
+      $items["params"]=$line_dest;
+      $items["trailing"]="";
+      $items["nick"]=$line_nick;
+      $items["user"]="";
+      $items["hostname"]="";
+      $items["destination"]=$line_dest;
+      $items["cmd"]="PRIVMSG";
+
       $record=array();
       $record["dest"]=$line_dest;
       $record["date"]=$line_date;
@@ -281,6 +290,30 @@ else
 }
 
 #term_echo("log line count = ".count($privmsg));
+
+#####################################################################################################
+
+function register_loggie_channel($channel)
+{
+  $items=array();
+  $items["server"]="irc.sylnt.us";
+  $items["microtime"]="";
+  $items["time"]="";
+  $items["data"]="";
+  $items["prefix"]="";
+  $items["params"]="";
+  $items["trailing"]="";
+  $items["nick"]="";
+  $items["user"]="";
+  $items["hostname"]="";
+  $items["destination"]="";
+  $items["cmd"]="";
+
+  $fieldnames=array_keys($items);
+  $placeholders=array_map("callback_prepare",$fieldnames);
+  $fieldnames=array_map("callback_quote",$fieldnames);
+  execute_prepare("INSERT INTO ".BOT_SCHEMA.".".LOG_TABLE." (".implode(",",$fieldnames).") VALUES (".implode(",",$placeholders).")",$items);
+}
 
 #####################################################################################################
 
