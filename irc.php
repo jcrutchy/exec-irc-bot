@@ -56,7 +56,7 @@ else
 
 # TODO: ADD FLAG TO HAVE EXEC IGNORE ITSELF
 
-define("EXEC_SOCK_FILE","../data/sock");
+define("EXEC_SOCK_FILE","../data/sock_".IRC_HOST_CONNECT);
 
 define("EXEC_DELIM","|");
 define("EXEC_DIRECTIVE_DELIM"," ");
@@ -223,6 +223,8 @@ $valid_data_cmd=get_valid_data_cmd();
 $init=array();
 $startup=array();
 
+$socket=initialize_socket();
+
 $exec_errors=array(); # stores exec load errors
 $exec_list=exec_load();
 if ($exec_list===False)
@@ -246,7 +248,6 @@ $direct_stdin=fopen("php://stdin","r");
 stream_set_blocking($direct_stdin,0);
 
 init();
-$socket=initialize_socket();
 
 $antiflog=True;
 

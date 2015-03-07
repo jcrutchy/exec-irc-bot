@@ -29,6 +29,7 @@ function initialize_socket1()
     rawmsg("NICK ".NICK);
     rawmsg("USER ".USER_NAME." hostname servername :".FULL_NAME);
   }
+  echo $socket."\n";
   return $socket;
 }
 
@@ -344,9 +345,10 @@ function get_list_auth($items)
 
 function handle_errors($data)
 {
+  global $buckets;
   $msg=trim($data,"\n\r\0\x0B");
   $lmsg=strtolower($msg);
-  if ((DEBUG_CHAN<>"") and (strpos($lmsg,DEBUG_CHAN)===False))
+  if ((DEBUG_CHAN<>"") and (strpos($lmsg,DEBUG_CHAN)===False) and ($buckets[BUCKET_CONNECTION_ESTABLISHED]<>"0"))
   {
     # TODO: only output if occurs at the start of line
     if ((strpos($lmsg,"php parse error:")!==False) or (strpos($lmsg,"php warning:")!==False) or (strpos($lmsg,"php fatal error:")!==False) or (strpos($lmsg,"php notice:")!==False))
