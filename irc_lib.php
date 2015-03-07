@@ -2,6 +2,150 @@
 
 #####################################################################################################
 
+function initialize_socket()
+{
+  return initialize_socket1();
+}
+
+#####################################################################################################
+
+function initialize_socket1()
+{
+  if (IRC_PORT=="6697")
+  {
+    $socket=fsockopen("ssl://".IRC_HOST_CONNECT,IRC_PORT);
+  }
+  else
+  {
+    $socket=fsockopen(IRC_HOST_CONNECT,IRC_PORT);
+  }
+  if ($socket===False)
+  {
+    term_echo("ERROR CREATING IRC SOCKET");
+  }
+  else
+  {
+    stream_set_blocking($socket,0);
+    rawmsg("NICK ".NICK);
+    rawmsg("USER ".USER_NAME." hostname servername :".FULL_NAME);
+  }
+  return $socket;
+}
+
+#####################################################################################################
+
+function initialize_socket2()
+{
+/*if (file_exists(EXEC_SOCK_FILE)==True)
+{
+  $inode_check=
+  unlink(EXEC_SOCK_FILE);
+  $pid=getmypid();
+  $ip=gethostbyname(IRC_HOST_CONNECT);
+  $ip_parts=explode(".",$ip);
+  $ip_hex=dechex($ip_parts[3]).dechex($ip_parts[2]).dechex($ip_parts[1]).dechex($ip_parts[0]);
+  $port_hex=dechex(IRC_PORT);
+  $tcp=file_get_contents("/proc/$pid/net/tcp");
+  $fds=explode(PHP_EOL,$tcp);
+  for ($i=0;$i<count($fds);$i++)
+  {
+    $line=trim($fds[$i]);
+    echo "$line\n";
+    $parts=explode(" ",$line);
+    $remote=$parts[2];
+    if (($remote==strtoupper("$ip_hex:$port_hex")) and (count($parts)>9))
+    {
+      $inode=$parts[9];
+
+  $handle=opendir($path);
+  while (($fn=readdir($handle))!==False)
+  {
+    $full=$path.$fn;
+    if((is_dir($full)==False) and (substr($fn,0,strlen($prefix))==$prefix) and (substr($fn,strlen($fn)-strlen($suffix))==$suffix))
+    {
+      $templates[substr($fn,strlen($prefix),strlen($fn)-strlen($prefix)-strlen($suffix))]=trim(file_get_contents($full));
+    }
+  }
+  closedir($handle);
+
+echo fileinode("/proc/4261/fd/5");
+
+      $fd="/proc/$pid/fd/$inode";
+      if (file_exists($fd)==True)
+      {
+        #$socket=fsockopen("unix://$fd",0);
+        $socket=fopen($fd,"rw");
+        stream_set_blocking($socket,0);
+      }
+      else
+      {
+        die("SOCKET \"$fd\" NOT FOUND\n");
+      }
+      break;
+    }
+  }
+}
+else
+{
+  if (IRC_PORT=="6697")
+  {
+    $socket=fsockopen("ssl://".IRC_HOST_CONNECT,IRC_PORT);
+  }
+  else
+  {
+    $socket=fsockopen(IRC_HOST_CONNECT,IRC_PORT);
+  }
+  if ($socket===False)
+  {
+    term_echo("ERROR CREATING IRC SOCKET");
+  }
+  else
+  {
+    stream_set_blocking($socket,0);
+    rawmsg("NICK ".NICK);
+    rawmsg("USER ".USER_NAME." hostname servername :".FULL_NAME);
+  }
+}*/
+  return $socket;
+}
+
+#####################################################################################################
+
+function finalize_socket()
+{
+  finalize_socket1();
+}
+
+#####################################################################################################
+
+function finalize_socket1()
+{
+  global $socket;
+  rawmsg("NickServ LOGOUT");
+  rawmsg("QUIT :dafuq");
+  fclose($socket);
+}
+
+#####################################################################################################
+
+function finalize_socket2()
+{
+  global $socket;
+  if (defined("RESTART")==True)
+  {
+    file_put_contents(EXEC_SOCK_FILE,$socket);
+    pcntl_exec($_SERVER["_"],$argv);
+  }
+  else
+  {
+    rawmsg("NickServ LOGOUT");
+    rawmsg("QUIT :dafuq");
+    fclose($socket);
+  }
+}
+
+#####################################################################################################
+
 function initialize_buckets()
 {
   global $buckets;
@@ -1938,21 +2082,7 @@ function doquit()
     }
   }
   term_echo("QUITTING SCRIPT");
-  /*if (defined("RESTART")==True)
-  {
-    $fp=fopen(EXEC_SOCK_FILE,"wb");
-    fclose($fp);
-    pcntl_exec($_SERVER["_"],$argv);
-  }
-  else
-  {
-    rawmsg("NickServ LOGOUT");
-    rawmsg("QUIT :dafuq");
-    fclose($socket);
-  }*/
-  rawmsg("NickServ LOGOUT");
-  rawmsg("QUIT :dafuq");
-  fclose($socket);
+  finalize_socket();
   if (defined("RESTART")==True)
   {
     pcntl_exec($_SERVER["_"],$argv);

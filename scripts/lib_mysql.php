@@ -8,7 +8,7 @@ define("LOG_TABLE","irc_log");
 $pdo=new PDO("mysql:host=localhost","www",trim(file_get_contents("../pwd/mysql_www")));
 if ($pdo===False)
 {
-  die("ERROR CONNECTING TO DATABASE\n");
+  term_echo("ERROR CONNECTING TO DATABASE\n");
 }
 
 #####################################################################################################
@@ -38,7 +38,8 @@ function fetch_query($sql)
     {
       echo $err[2]."\n";
     }
-    die("SQL QUERY ERROR\n\n$sql\n");
+    term_echo("SQL QUERY ERROR\n\n$sql\n");
+    return False;
   }
   return $statement->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -51,7 +52,8 @@ function execute_prepare($sql,$params)
   $statement=$pdo->prepare($sql);
   if ($statement===False)
   {
-    die("SQL PREPARE ERROR\n\n$sql\n");
+    term_echo("SQL PREPARE ERROR\n\n$sql\n");
+    return;
   }
   foreach ($params as $key => $value)
   {
@@ -71,7 +73,7 @@ function execute_prepare($sql,$params)
     {
       echo $err[2]."\n";
     }
-    die("SQL EXECUTE ERROR\n\n$sql\n");
+    term_echo("SQL EXECUTE ERROR\n\n$sql\n");
   }
 }
 
@@ -83,7 +85,8 @@ function fetch_prepare($sql,$params)
   $statement=$pdo->prepare($sql);
   if ($statement===False)
   {
-    die("SQL PREPARE ERROR\n\n$sql\n");
+    term_echo("SQL PREPARE ERROR\n\n$sql\n");
+    return False;
   }
   foreach ($params as $key => $value)
   {
@@ -103,7 +106,8 @@ function fetch_prepare($sql,$params)
     {
       echo $err[2]."\n";
     }
-    die("SQL EXECUTE ERROR\n\n$sql\n");
+    term_echo("SQL EXECUTE ERROR\n\n$sql\n");
+    return False;
   }
   return $statement->fetchAll(PDO::FETCH_ASSOC);
 }

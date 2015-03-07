@@ -8,7 +8,7 @@ exec:~filth|30|2700|0|1|||||php scripts/filth.php %%trailing%% %%dest%% %%nick%%
 
 #####################################################################################################
 
-return;
+#return;
 
 require_once("lib.php");
 require_once("lib_mysql.php");
@@ -19,37 +19,40 @@ $nick=$argv[3];
 
 if ($trailing=="")
 {
-  # poke ciri with something random
-  $records=fetch_query("SELECT * FROM exec_irc_bot.irc_log WHERE ((destination='#') AND (server='irc.sylnt.us') AND (nick!='exec') AND (cmd='PRIVMSG') AND (`trailing` not like '%--%') AND (`trailing` not like '%++%') AND (`trailing` not like '%karma%') AND (`trailing` not like '=%') AND (`trailing` not like '!%') AND (`trailing` not like '$%') AND (`trailing` not like '~%') AND (`trailing` not like 'ACTION%'))");
-  $m=mt_rand(0,count($records));
-  $n=mt_rand(0,count($records));
-  $msg=$records[$m]["trailing"]." ".$records[$n]["trailing"];
-  $parts=explode(" ",$msg);
-  shuffle($parts);
-  $parts2=array();
-  for ($i=0;$i<count($parts);$i++)
+  $records=fetch_query("SELECT * FROM exec_irc_bot.irc_log WHERE ((destination='#') AND (nick!='irc.sylnt.us') AND (server='irc.sylnt.us') AND (nick!='exec') AND (cmd='PRIVMSG') AND (`trailing` not like '%--%') AND (`trailing` not like '%++%') AND (`trailing` not like '%karma%') AND (`trailing` not like '=%') AND (`trailing` not like '!%') AND (`trailing` not like '$%') AND (`trailing` not like '~%') AND (`trailing` not like 'ACTION%')) ORDER BY id");
+  $last=trim($records[count($records)-1]["trailing"]);
+  $last_parts=explode(" ",$last);
+  $k=mt_rand(1,min(10,count($last_parts)/2));
+  $i=0;
+  while ($i<=$k)
   {
-    if (strlen($parts[$i])>2)
+    $n=mt_rand(0,count($records)-2);
+    $msg=trim($records[$n]["trailing"]);
+    $msg_parts=explode(" ",$msg);
+    $msg_n=mt_rand(0,count($msg_parts)-1);
+    $replace=$msg_parts[$msg_n];
+    $L=strlen($replace);
+    if (($L<3) or ($L>10))
     {
-      $parts2[]=$parts[$i];
+      continue;
     }
+    $i++;
+    $last_n=mt_rand(0,count($last_parts)-1);
+    $last_parts[$last_n]=$replace;
   }
-  if (count($parts2)>1)
+  $last=implode(" ",$last_parts);
+  if ($dest=="")
   {
-    $msg="ciri: ".implode(" ",$parts2);
-    if ($dest=="")
-    {
-      pm("#",$msg);
-    }
-    elseif ($dest=="#")
-    {
-      privmsg($msg);
-    }
+    pm("#",$last);
+  }
+  elseif ($dest=="#")
+  {
+    privmsg($last);
   }
 }
 else
 {
-  # google search using $trailing
+  # google search using $trailing (maybe later)
 }
 
 #####################################################################################################

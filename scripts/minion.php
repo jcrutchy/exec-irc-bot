@@ -25,6 +25,7 @@ require_once("lib_buckets.php");
 require_once("users_lib.php");
 
 define("BOT_BUCKET","<<MINIONS>>");
+define("IRC_HOST","irc.sylnt.us");
 
 #refresh_minions();
 

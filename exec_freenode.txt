@@ -6,7 +6,8 @@ include ./scripts/sed.php
 include ./scripts/part.php
 include ./scripts/join.php
 include ./scripts/admin.php
-include ./scripts/about.php
+include ./scripts/admin.php
+include ./scripts/definitions.php
 include ./scripts/help.php
 include ./scripts/users.php
 include ./scripts/say.php
@@ -26,3 +27,5 @@ include ./scripts/link.php
 ~fortune|5|0|1|1|||||fortune -s
 
 ~suggest-exec|30|0|0|1|*||||php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
+
+~eval|20|0|1|0|@||#sylnt||{ eval %%trailing%% ; } 2>&1
