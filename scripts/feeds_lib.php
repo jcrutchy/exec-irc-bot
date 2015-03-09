@@ -2,81 +2,6 @@
 
 #####################################################################################################
 
-function get_new_items($feed_list)
-{
-  $results=array();
-  $past_feeds=array();
-  if (file_exists(PAST_FEED_FILE)==True)
-  {
-    $data=file_get_contents(PAST_FEED_FILE);
-    if ($data!==False)
-    {
-      $past_feeds=explode("\n",$data);
-    }
-  }
-  $current_feeds=array();
-  for ($i=0;$i<count($feed_list);$i++)
-  {
-    $feed=$feed_list[$i];
-    term_echo("processing ".$feed["name"]." ".$feed["type"]." feed @ \"".$feed["url"]."\"");
-    $response=wget($feed["host"],$feed["uri"],$feed["port"]);
-    $html=strip_headers($response);
-    $items=array();
-    if ($feed["type"]=="atom")
-    {
-      $items=parse_atom($html);
-    }
-    elseif ($feed["type"]=="rss")
-    {
-      $items=parse_rss($html);
-    }
-    if ($items===False)
-    {
-      term_echo("feed parse error");
-      continue;
-    }
-    for ($j=0;$j<count($items);$j++)
-    {
-      $item=$items[$j];
-      $current_feeds[]=$item["url"];
-      if (in_array($item["url"],$past_feeds)==False)
-      {
-        if ($j>0)
-        {
-          sleep(3);
-        }
-        $past_feeds[]=$item["url"];
-        $delim1="<![CDATA[";
-        $delim2="]]>";
-        if (strtoupper(substr($item["title"],0,strlen($delim1)))==$delim1)
-        {
-          $item["title"]=substr($item["title"],strlen($delim1),strlen($item["title"])-strlen($delim1)-strlen($delim2));
-        }
-        $item["title"]=str_replace("&apos;","'",$item["title"]);
-        $item["feed_name"]=$feed["name"];
-        $results[]=$item;
-        if (count($results)>=4)
-        {
-          break;
-        }
-      }
-    }
-  }
-  $data="";
-  for ($i=0;$i<count($current_feeds);$i++)
-  {
-    if ($data<>"")
-    {
-      $data=$data."\n";
-    }
-    $data=$data.$current_feeds[$i];
-  }
-  file_put_contents(PAST_FEED_FILE,$data,FILE_APPEND); # TODO: THE FEED FILE WRITE NEEDS TO BE MOVED OUT OF HERE TO feeds.php COS THIS IS RETARDED
-  return $results;
-}
-
-#####################################################################################################
-
 function parse_atom($html)
 {
   $parts=explode("<entry",$html);
@@ -93,9 +18,18 @@ function parse_atom($html)
     $entry["title"]=replace_ctrl_chars($entry["title"]," ");
     $entry["title"]=str_replace("  "," ",$entry["title"]);
     # <updated>2014-07-20T21:07:00+00:00</updated>
-    $url=extract_void_tag($parts[$i],"link href=");
+    # <link rel="alternate" type="text/html" href="http://wiki.soylentnews.org/wiki/User:LeonardAEBE"/>
+    $url=extract_void_tag($parts[$i],"link");
+    # rel="alternate" type="text/html" href="http://wiki.soylentnews.org/wiki/User:GeriGilson"
     $url_parts=explode(" ",$url);
-    $url=$url_parts[0];
+    $url="";
+    for ($j=0;$j<count($url_parts);$j++)
+    {
+      if (substr($url_parts[$j],0,6)=="href=\"")
+      {
+        $url=trim(substr($url_parts[$j],6,strlen($url_parts[$j])-7));
+      }
+    }
     $url=trim(strip_ctrl_chars($url),"\"");
     $url=str_replace("&amp;","&",$url);
     $entry["url"]=get_redirected_url($url);

@@ -2,6 +2,14 @@
 
 #####################################################################################################
 
+function initialize_irc_connection()
+{
+  rawmsg("NICK ".NICK);
+  rawmsg("USER ".USER_NAME." hostname servername :".FULL_NAME);
+}
+
+#####################################################################################################
+
 function initialize_socket()
 {
   return initialize_socket1();
@@ -22,12 +30,11 @@ function initialize_socket1()
   if ($socket===False)
   {
     term_echo("ERROR CREATING IRC SOCKET");
+    die();
   }
   else
   {
     stream_set_blocking($socket,0);
-    rawmsg("NICK ".NICK);
-    rawmsg("USER ".USER_NAME." hostname servername :".FULL_NAME);
   }
   echo $socket."\n";
   return $socket;
@@ -37,76 +44,72 @@ function initialize_socket1()
 
 function initialize_socket2()
 {
-/*if (file_exists(EXEC_SOCK_FILE)==True)
-{
-  $inode_check=
-  unlink(EXEC_SOCK_FILE);
-  $pid=getmypid();
-  $ip=gethostbyname(IRC_HOST_CONNECT);
-  $ip_parts=explode(".",$ip);
-  $ip_hex=dechex($ip_parts[3]).dechex($ip_parts[2]).dechex($ip_parts[1]).dechex($ip_parts[0]);
-  $port_hex=dechex(IRC_PORT);
-  $tcp=file_get_contents("/proc/$pid/net/tcp");
-  $fds=explode(PHP_EOL,$tcp);
-  for ($i=0;$i<count($fds);$i++)
+  if (file_exists(EXEC_SOCK_FILE)==True)
   {
-    $line=trim($fds[$i]);
-    echo "$line\n";
-    $parts=explode(" ",$line);
-    $remote=$parts[2];
-    if (($remote==strtoupper("$ip_hex:$port_hex")) and (count($parts)>9))
+    $inode_check=file_get_contents(EXEC_SOCK_FILE);
+    echo "SOCKET INDODE FROM FILE: $inode_check\n";
+    $pid=getmypid();
+    $ip=gethostbyname(IRC_HOST_CONNECT);
+    $ip_parts=explode(".",$ip);
+    $ip_hex=dechex($ip_parts[3]).dechex($ip_parts[2]).dechex($ip_parts[1]).dechex($ip_parts[0]);
+    $port_hex=dechex(IRC_PORT);
+    $tcp=file_get_contents("/proc/$pid/net/tcp");
+    $fds=explode(PHP_EOL,$tcp);
+    for ($i=0;$i<count($fds);$i++)
     {
-      $inode=$parts[9];
-
-  $handle=opendir($path);
-  while (($fn=readdir($handle))!==False)
-  {
-    $full=$path.$fn;
-    if((is_dir($full)==False) and (substr($fn,0,strlen($prefix))==$prefix) and (substr($fn,strlen($fn)-strlen($suffix))==$suffix))
-    {
-      $templates[substr($fn,strlen($prefix),strlen($fn)-strlen($prefix)-strlen($suffix))]=trim(file_get_contents($full));
-    }
-  }
-  closedir($handle);
-
-echo fileinode("/proc/4261/fd/5");
-
-      $fd="/proc/$pid/fd/$inode";
-      if (file_exists($fd)==True)
+      $line=trim($fds[$i]);
+      echo "$line\n";
+      $parts=explode(" ",$line);
+      for ($j=0;$j<count($parts);$j++)
       {
-        #$socket=fsockopen("unix://$fd",0);
-        $socket=fopen($fd,"rw");
+        if ($parts[$j]=="")
+        {
+          unset($parts[$j]);
+        }
+      }
+      $parts=array_values($parts);
+      $remote=$parts[2];
+      if (($remote==strtoupper("$ip_hex:$port_hex")) and (count($parts)>9))
+      {
+        $inode=$parts[9];
+        echo "SOCKET INDODE FROM PROC: $inode\n";
+        /*if ($inode<>$inode_check)
+        {
+          unlink(EXEC_SOCK_FILE);
+          die("ERROR: SOCKET INODE MISMATCH\n");
+        }*/
+        $fd="";
+        $path="/proc/$pid/fd";
+        $handle=opendir($path);
+        while (($fn=readdir($handle))!==False)
+        {
+          $full=$path."/".$fn;
+          if ((is_dir($full)==False) and ($fn<>".") and ($fn<>".."))
+          {
+            if (fileinode($full)==$inode)
+            {
+              $fd=$full;
+              break;
+            }
+          }
+        }
+        closedir($handle);
+        if ($fd=="")
+        {
+          unlink(EXEC_SOCK_FILE);
+          die("ERROR: SOCKET FILE DESCRIPTOR NOT FOUND\n");
+        }
+        $socket=fsockopen("unix://$fd",0);
+        #$socket=fopen($fd,"rw");
         stream_set_blocking($socket,0);
+        break;
       }
-      else
-      {
-        die("SOCKET \"$fd\" NOT FOUND\n");
-      }
-      break;
     }
   }
-}
-else
-{
-  if (IRC_PORT=="6697")
-  {
-    $socket=fsockopen("ssl://".IRC_HOST_CONNECT,IRC_PORT);
-  }
   else
   {
-    $socket=fsockopen(IRC_HOST_CONNECT,IRC_PORT);
+    $socket=initialize_socket1();
   }
-  if ($socket===False)
-  {
-    term_echo("ERROR CREATING IRC SOCKET");
-  }
-  else
-  {
-    stream_set_blocking($socket,0);
-    rawmsg("NICK ".NICK);
-    rawmsg("USER ".USER_NAME." hostname servername :".FULL_NAME);
-  }
-}*/
   return $socket;
 }
 
@@ -134,14 +137,11 @@ function finalize_socket2()
   global $socket;
   if (defined("RESTART")==True)
   {
-    file_put_contents(EXEC_SOCK_FILE,$socket);
-    pcntl_exec($_SERVER["_"],$argv);
+    file_put_contents(EXEC_SOCK_FILE,intval($socket));
   }
   else
   {
-    rawmsg("NickServ LOGOUT");
-    rawmsg("QUIT :dafuq");
-    fclose($socket);
+    finalize_socket1();
   }
 }
 
@@ -346,6 +346,10 @@ function get_list_auth($items)
 function handle_errors($data)
 {
   global $buckets;
+  if (isset($buckets[BUCKET_CONNECTION_ESTABLISHED])==False)
+  {
+    return;
+  }
   $msg=trim($data,"\n\r\0\x0B");
   $lmsg=strtolower($msg);
   if ((DEBUG_CHAN<>"") and (strpos($lmsg,DEBUG_CHAN)===False) and ($buckets[BUCKET_CONNECTION_ESTABLISHED]<>"0"))

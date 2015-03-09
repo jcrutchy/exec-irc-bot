@@ -67,7 +67,7 @@ switch (strtoupper($cmd))
     break;
   case "PRIVMSG":
     echo "/INTERNAL ~sed-internal PRIVMSG $trailing\n";
-    echo "/INTERNAL ~antispam ".$argv[1]."\n";
+    #echo "/INTERNAL ~antispam ".$argv[1]."\n";
     break;
   case "QUIT":
     break;

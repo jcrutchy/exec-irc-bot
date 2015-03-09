@@ -21,14 +21,14 @@ if (isset($argv[1])==False)
   define("BUCKETS_FILE","../data/buckets");
   define("IGNORE_FILE","../data/ignore");
   define("EXEC_FILE","exec.txt");
-  define("INIT_CHAN_LIST","#,#debug"); # comma delimited
+  define("INIT_CHAN_LIST","#exec,#debug"); # comma delimited
   define("IRC_HOST_CONNECT","irc.sylnt.us");
   define("IRC_HOST","irc.sylnt.us");
   define("IRC_PORT","6667");
   define("OPERATOR_ACCOUNT","crutchy");
   define("DEBUG_CHAN","#debug");
   define("NICKSERV_IDENTIFY_PROMPT","You have 60 seconds to identify to your nickname before it is changed.");
-  define("ADMIN_ACCOUNTS","chromas,juggs,Konomi,TheMightyBuzzard");
+  define("ADMIN_ACCOUNTS","chromas,juggs");
 }
 elseif (file_exists($argv[1])==True)
 {
@@ -224,6 +224,14 @@ $init=array();
 $startup=array();
 
 $socket=initialize_socket();
+if (file_exists(EXEC_SOCK_FILE)==True)
+{
+  unlink(EXEC_SOCK_FILE);
+}
+else
+{
+  initialize_irc_connection();
+}
 
 $exec_errors=array(); # stores exec load errors
 $exec_list=exec_load();
