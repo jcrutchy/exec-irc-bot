@@ -138,7 +138,7 @@ function load_feeds($data)
       continue;
     }
     $parts=explode("|",$line);
-    if (count($parts)<=3)
+    if (count($parts)<3)
     {
       continue;
     }

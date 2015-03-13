@@ -26,6 +26,9 @@ define("FEED_LIST_FILE","../data/feed_list.txt");
 define("FEED_HISTORY_FILE","../data/feed_history.txt");
 
 $feed_list=load_feeds_from_file(FEED_LIST_FILE);
+
+var_dump($feed_list);
+
 if ($feed_list===False)
 {
   term_echo("error loading feed list file");
