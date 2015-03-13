@@ -147,8 +147,8 @@ for ($i=0;$i<$item_count;$i++)
       $subject=extract_text($parts[$j],$subject_delim1,$subject_delim2);
       $subject=trim(strip_tags($subject));
       $subject=str_replace("  "," ",$subject);
-      $subject=html_entity_decode($subject,ENT_QUOTES,"UTF-8");
-      $subject=html_entity_decode($subject,ENT_QUOTES,"UTF-8");
+      $subject=html_decode($subject);
+      $subject=html_decode($subject);
       $comment_body=extract_text($parts[$j],"<div id=\"comment_body_$cid\">","</div>");
       $comment_body=replace_ctrl_chars($comment_body," ");
       $comment_body=str_replace("</p>"," ",$comment_body);
@@ -156,8 +156,8 @@ for ($i=0;$i<$item_count;$i++)
       $comment_body=str_replace("<br>"," ",$comment_body);
       $comment_body=trim(strip_tags($comment_body));
       $comment_body=str_replace("  "," ",$comment_body);
-      $comment_body=html_entity_decode($comment_body,ENT_QUOTES,"UTF-8");
-      $comment_body=html_entity_decode($comment_body,ENT_QUOTES,"UTF-8");
+      $comment_body=html_decode($comment_body);
+      $comment_body=html_decode($comment_body);
       $comment_body_len=strlen($comment_body);
       $max_comment_length=300;
       if (strlen($comment_body)>$max_comment_length)

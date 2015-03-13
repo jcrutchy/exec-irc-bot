@@ -44,8 +44,8 @@ $text=substr($text,$i);
 $text=replace_ctrl_chars($text," ");
 $text=trim(strip_tags($text));
 $text=str_replace("  "," ",$text);
-$text=html_entity_decode($text,ENT_QUOTES,"UTF-8");
-$text=html_entity_decode($text,ENT_QUOTES,"UTF-8");
+$text=html_decode($text);
+$text=html_decode($text);
 $text_len=strlen($text);
 $max_text_length=300;
 if (strlen($text)>$max_text_length)

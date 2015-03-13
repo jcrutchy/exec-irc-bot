@@ -87,8 +87,8 @@ if (($source_title===False) or ($source_title==""))
   return;
 }
 
-$source_title=html_entity_decode($source_title,ENT_QUOTES,"UTF-8");
-$source_title=html_entity_decode($source_title,ENT_QUOTES,"UTF-8");
+$source_title=html_decode($source_title);
+$source_title=html_decode($source_title);
 
 /*$source_body=extract_meta_content($source_html,"description");
 
@@ -195,8 +195,8 @@ if ($alias=="~filter")
   return;
 }
 
-$source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
-$source_body=html_entity_decode($source_body,ENT_QUOTES,"UTF-8");
+$source_body=html_decode($source_body);
+$source_body=html_decode($source_body);
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # the following code posts a submission to SoylentNews

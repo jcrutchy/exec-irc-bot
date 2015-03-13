@@ -148,21 +148,6 @@ function html_decode($text)
 
 #####################################################################################################
 
-function format_array($array,$format,$arr_delim=",")
-{
-  foreach ($array as $key => $value)
-  {
-    if (is_array($value)==True)
-    {
-      $value=implode($arr_delim,$value);
-    }
-    $format=str_replace($key,$value,$format);
-  }
-  return $format;
-}
-
-#####################################################################################################
-
 function bot_ignore_next()
 {
   set_bucket(BUCKET_IGNORE_NEXT,"1");

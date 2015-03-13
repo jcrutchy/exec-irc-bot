@@ -3,24 +3,53 @@
 #####################################################################################################
 
 /*
-#exec:~count|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#exec:~first|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#exec:~last|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#exec:~find-first|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#exec:~find-last|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~loggie-import|0|0|0|1|||||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################
 
 date_default_timezone_set("UTC");
 require_once("lib.php");
+require_once("lib_mysql.php");
 
 $trailing=trim($argv[1]);
 $nick=trim($argv[2]);
 $dest=strtolower($argv[3]);
 $alias=$argv[4];
 
-$uri="/".urlencode($dest)."/index.html";
+$response=wget("logs.sylnt.us","/",80);
+$html=strip_headers($response);
+$links=explode("<a href=\"",$html);
+array_shift($links);
+$channels=array();
+for ($i=0;$i<count($links);$i++)
+{
+  $parts=explode("\">",$links[$i]);
+  $uri="/".$parts[0];
+  array_shift($parts);
+  $name=$parts[0];
+  $parts=explode("</a>",$name);
+  $name=$parts[0];
+  $channels[$name]=$uri;
+}
+
+foreach ($channels as $name => $uri)
+{
+  import_channel($name,$uri);
+}
+
+#####################################################################################################
+
+function import_channel($name,$uri)
+{
+  $response=wget("logs.sylnt.us",$uri,80);
+  $html=strip_headers($response);
+  strip_all_tag($html,"head");
+}
+
+#####################################################################################################
+
+/*$uri="/".urlencode($dest)."/index.html";
 $html=wget("logs.sylnt.us",$uri,80);
 $html=strip_headers($html);
 
@@ -256,7 +285,7 @@ if ($trailing<>"")
         $lmsg=strtolower($privmsg2[$i]["msg"]);
         if (strpos($lmsg,$ltrailing)!==False)
         {
-          $msg=html_entity_decode($privmsg2[$i]["msg"],ENT_QUOTES,"UTF-8");
+          $msg=html_decode($privmsg2[$i]["msg"]);
           # http://logs.sylnt.us/%23soylent/2014-03-15.html#00:03:26
           # urlencode($dest);
           privmsg("last privmsg containing \"$trailing\" in $dest: [".$privmsg2[$i]["date"]." ".$privmsg2[$i]["time"]."] <".$privmsg2[$i]["nick"]."> ".$msg);
@@ -271,7 +300,7 @@ if ($trailing<>"")
         $lmsg=strtolower($privmsg2[$i]["msg"]);
         if (strpos($lmsg,$ltrailing)!==False)
         {
-          $msg=html_entity_decode($privmsg2[$i]["msg"],ENT_QUOTES,"UTF-8");
+          $msg=html_decode($privmsg2[$i]["msg"]);
           privmsg("first privmsg containing \"$trailing\" in $dest: [".$privmsg2[$i]["date"]." ".$privmsg2[$i]["time"]."] <".$privmsg2[$i]["nick"]."> ".$msg);
           break;
         }
@@ -289,7 +318,7 @@ else
   }
 }
 
-#term_echo("log line count = ".count($privmsg));
+#term_echo("log line count = ".count($privmsg));*/
 
 #####################################################################################################
 

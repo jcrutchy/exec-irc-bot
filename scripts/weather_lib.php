@@ -170,8 +170,8 @@ function process_weather(&$location,$nick)
   }
   $html=replace_ctrl_chars($html," ");
   $html=str_replace("  "," ",$html);
-  $html=html_entity_decode($html,ENT_QUOTES,"UTF-8");
-  $html=html_entity_decode($html,ENT_QUOTES,"UTF-8");
+  $html=html_decode($html);
+  $html=html_decode($html);
   $location=trim(strip_tags(extract_raw_tag($html,"h3")));
   if (substr($location,0,12)=="Weather for ")
   {

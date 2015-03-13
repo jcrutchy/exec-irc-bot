@@ -12,8 +12,8 @@ function parse_atom($html)
     $entry=array();
     $entry["type"]="atom_entry";
     $entry["title"]=extract_raw_tag($parts[$i],"title");
-    $entry["title"]=html_entity_decode($entry["title"],ENT_QUOTES,"UTF-8");
-    $entry["title"]=html_entity_decode($entry["title"],ENT_QUOTES,"UTF-8");
+    $entry["title"]=html_decode($entry["title"]);
+    $entry["title"]=html_decode($entry["title"]);
     $entry["title"]=strip_tags($entry["title"]);
     $entry["title"]=replace_ctrl_chars($entry["title"]," ");
     $entry["title"]=str_replace("  "," ",$entry["title"]);
@@ -55,8 +55,8 @@ function parse_rss($html)
     $item=array();
     $item["type"]="rss_item";
     $item["title"]=extract_raw_tag($parts[$i],"title");
-    $item["title"]=html_entity_decode($item["title"],ENT_QUOTES,"UTF-8");
-    $item["title"]=html_entity_decode($item["title"],ENT_QUOTES,"UTF-8");
+    $item["title"]=html_decode($item["title"]);
+    $item["title"]=html_decode($item["title"]);
     $item["title"]=strip_tags($item["title"]);
     $item["title"]=replace_ctrl_chars($item["title"]," ");
     $item["title"]=str_replace("  "," ",$item["title"]);
@@ -87,8 +87,8 @@ function parse_xml($html)
     $item=array();
     $item["type"]="xml_story";
     $item["title"]=extract_raw_tag($parts[$i],"title");
-    $item["title"]=html_entity_decode($item["title"],ENT_QUOTES,"UTF-8");
-    $item["title"]=html_entity_decode($item["title"],ENT_QUOTES,"UTF-8");
+    $item["title"]=html_decode($item["title"]);
+    $item["title"]=html_decode($item["title"]);
     $item["title"]=replace_ctrl_chars($item["title"]," ");
     $item["title"]=str_replace("  "," ",$item["title"]);
     $url=str_replace("&amp;","&",strip_ctrl_chars(extract_raw_tag($parts[$i],"url")));

@@ -155,25 +155,8 @@ switch ($cmd)
       {
         switch ($items["cmd"])
         {
-          #case "JOIN":
-          #case "PART":
-          #case "QUIT":
-          #case "NICK":
-          #case "KICK":
-          #case "TOPIC":
           case "PRIVMSG":
-          #case "MODE":
-          #case "NOTICE":
-            $msg="PRIVMSG $forward :*** $bot_nick@$server >> ".chr(3)."02".$items["nick"]." ".chr(3)."03".$items["cmd"];
-            if ($items["params"]<>"")
-            {
-              $msg=$msg." ".chr(3)."04".$items["params"];
-            }
-            if ($items["trailing"]<>"")
-            {
-              $msg=$msg.chr(3)." :".chr(3)."05".$items["trailing"];
-            }
-            echo "/IRC $msg\n";
+            echo "/IRC PRIVMSG $forward :".chr(3)."03".$items["nick"].chr(3)." [".chr(3)."02".$items["destination"].chr(3)."] ".chr(3)."05".$items["trailing"]."\n";
             break;
         }
       }
