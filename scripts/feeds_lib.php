@@ -138,7 +138,7 @@ function load_feeds($data)
       continue;
     }
     $parts=explode("|",$line);
-    if (count($parts)<>3)
+    if (count($parts)<=3)
     {
       continue;
     }
@@ -146,6 +146,11 @@ function load_feeds($data)
     $feed["type"]=strtolower(trim($parts[0]));
     $feed["name"]=trim($parts[1]);
     $feed["url"]=trim($parts[2]);
+    $feed["dest"]="";
+    if (isset($parts[3])==True)
+    {
+      $feed["dest"]=trim($parts[3]);
+    }
     $comp=parse_url($feed["url"]);
     $feed["host"]=$comp["host"];
     $feed["uri"]=$comp["path"];

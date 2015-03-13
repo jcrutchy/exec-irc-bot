@@ -102,6 +102,7 @@ for ($i=0;$i<count($feed_list);$i++)
       }
       $item["title"]=str_replace("&apos;","'",$item["title"]);
       $item["feed_name"]=$feed["name"];
+      $item["dest"]=$feed["dest"];
       $results[]=$item;
     }
   }
@@ -110,7 +111,14 @@ for ($i=count($results)-1;$i>=0;$i--)
 {
   $item=$results[$i];
   $msg=chr(2)."[".$item["feed_name"]."]".chr(2)." - ".chr(3)."03".$item["title"].chr(3)." - ".$item["url"];
-  echo "/IRC :".NICK_EXEC." PRIVMSG ".$feed_chan." :$msg\n";
+  if ($item["dest"]<>"")
+  {
+    echo "/IRC :".NICK_EXEC." PRIVMSG ".$item["dest"]." :$msg\n";
+  }
+  else
+  {
+    echo "/IRC :".NICK_EXEC." PRIVMSG ".$feed_chan." :$msg\n";
+  }
 }
 $data="";
 for ($i=0;$i<count($new_history);$i++)
