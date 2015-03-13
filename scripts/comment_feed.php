@@ -168,6 +168,7 @@ for ($i=0;$i<$item_count;$i++)
     array_shift($parts);
     for ($j=0;$j<count($parts);$j++)
     {
+      sleep(1);
       $n=strpos($parts[$j],"\"");
       if ($n===False)
       {

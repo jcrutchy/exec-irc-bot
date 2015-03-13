@@ -45,6 +45,7 @@ $actions=array(
   "slides"=>"to",
   "hurls"=>"at",
   "poops"=>"for",
+  "drops"=>"on",
   "blows"=>"at",
   "pours"=>"for",
   "flings"=>"at",

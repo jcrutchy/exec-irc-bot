@@ -158,8 +158,8 @@ define("TEMPLATE_PARAMS","params");
 define("TEMPLATE_TIMESTAMP","timestamp");
 
 define("THROTTLE_LOCKOUT_TIME",10); # sec
-define("ANTI_FLOOD_DELAY",0.6); # sec
-define("RAWMSG_TIME_COUNT",6); # messages to send without any delays
+define("ANTI_FLOOD_DELAY",0.7); # sec
+define("RAWMSG_TIME_COUNT",5); # messages to send without any delays
 
 $admin_accounts=explode(",",ADMIN_ACCOUNTS);
 
