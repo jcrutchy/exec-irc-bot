@@ -47,4 +47,4 @@ include test.php
 # http://kedar.nitty-witty.com/blog/how-to-get-stock-quote-on-linux-using-google-curl-grep-awk
 #~nyse|0|0|1|0|*||||{ code=%%trailing%% && curl --silent -X get "http://www.google.com/finance?q=nyse:$code" > /tmp/bgz && cat /tmp/bgz | grep -m1 -E 'span id="ref_' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' && sleep 2 && rm /tmp/bgz && echo "http://www.google.com/finance?q=nyse:$code" ; } 2>&1
 
-
+~first|0|0|1|0|*||||curl --silent -X get 'http://chromas.0x.no/s/soylent_log.php?op=first&nick=%%trailing%%&channel=%%dest%%'
