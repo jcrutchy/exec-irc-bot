@@ -27,11 +27,11 @@ $socket=@fsockopen(NOTIFY_HOST,NOTIFY_PORT,$errno,$errstr,5);
 
 if ($socket===False)
 {
-  notice($nick,"ERROR: UNABLE TO CONNECT TO NOTIFICATION SERVER");
+  output_message("ERROR: UNABLE TO CONNECT TO NOTIFICATION SERVER");
   return;
 }
 
-notice($nick,"CONNECTED TO NOTIFICATION SERVER");
+output_message("CONNECTED TO NOTIFICATION SERVER");
 
 while (True)
 {
@@ -41,7 +41,7 @@ while (True)
     $meta=stream_get_meta_data($socket);
     if ($meta["eof"]==True)
     {
-      notice($nick,"CONNECTION TERMINATED");
+      output_message("CONNECTION TERMINATED");
       return;
     }
     continue;
@@ -49,19 +49,19 @@ while (True)
   $data=trim($data);
   if (strpos($data,"quit-bot-relay")!==False)
   {
-    notice($nick,"quitting relay");
+    output_message("quitting relay");
     return;
   }
   $arr=@unserialize($data);
   if ($arr===False)
   {
-    notice($nick,$data);
+    output_message($data);
   }
   else
   {
     if ((isset($arr["data"])==True) and (isset($arr["username"])==True))
     {
-      notice($nick,"sent from ".$arr["username"].": ".$arr["data"]);
+      output_message("sent from ".$arr["username"].": ".$arr["data"]);
     }
     else
     {
@@ -137,6 +137,13 @@ function send_relay_response($request_id,$data)
   unset($params);
   $content=strip_headers($response);
   var_dump($content);
+}
+
+#####################################################################################################
+
+function output_message($msg)
+{
+  privmsg($msg);
 }
 
 #####################################################################################################
