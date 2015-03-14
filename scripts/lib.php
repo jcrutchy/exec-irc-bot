@@ -22,6 +22,30 @@ define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 
 #####################################################################################################
 
+function parse_parameters($text,$delim="=",$sep=",")
+{
+  # param 1 = fluff, and stuff, param 2 = fart, param 3 = butt
+  # "param 1"=>"fluff, and stuff","param 2"=>"fart","param 3"=>"butt"
+  $results=array();
+  $parts=explode($delim,$text);
+  $key=trim($parts[0]);
+  for ($i=1;$i<(count($parts)-1);$i++)
+  {
+    $subparts=explode($sep,$parts[$i]);
+    do
+    {
+      $next=trim(array_pop($subparts));
+    }
+    while (($next=="") and (count($subparts)>0));
+    $results[$key]=trim(implode($sep,$subparts));
+    $key=$next;
+  }
+  $results[$key]=trim(array_pop($parts));
+  return $results;
+}
+
+#####################################################################################################
+
 function load_settings($filename,$delim="=")
 {
   if (file_exists($filename)==False)

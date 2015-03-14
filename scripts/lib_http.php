@@ -297,11 +297,14 @@ function wget_ssl($host,$uri,$agent=ICEWEASEL_UA,$extra_headers="")
 
 #####################################################################################################
 
-function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout=20,$breakcode="",$chunksize=1024)
+function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout=20,$breakcode="",$chunksize=1024,$check_url=True)
 {
-  if (check_url($host.$uri)==False) # check url against blacklist
+  if ($check_url==True)
   {
-    return "";
+    if (check_url($host.$uri)==False) # check url against blacklist
+    {
+      return "";
+    }
   }
   $errno=0;
   $errstr="";
