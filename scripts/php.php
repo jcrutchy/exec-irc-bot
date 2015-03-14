@@ -39,7 +39,7 @@ if ($i===False)
 }
 $syntax=trim(strip_tags(substr($html,0,$i)));
 $syntax=str_replace("\n","",$syntax);
-$syntax=str_replace("  ","",$syntax);
+$syntax=html_decode(str_replace("  ","",$syntax));
 if (strlen($syntax)<500)
 {
   if ($syntax=="")
