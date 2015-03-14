@@ -7,6 +7,7 @@ exec:~op|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%%
 exec:~deop|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~voice|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~devoice|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~invite|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~kick|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~topic|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #exec:.kick|5|0|0|1|||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
@@ -46,6 +47,12 @@ switch ($alias)
     if ($target<>NICK_EXEC)
     {
       rawmsg("MODE $dest -v $target");
+    }
+    break;
+  case "~invite":
+    if ($trailing<>"")
+    {
+      rawmsg("INVITE $trailing :$dest");
     }
     break;
   /*case ".kick":

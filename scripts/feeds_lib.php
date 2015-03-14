@@ -54,6 +54,7 @@ function parse_rss($html)
   {
     $item=array();
     $item["type"]="rss_item";
+    # <title><![CDATA[ComputerWeekly]]></title>
     $item["title"]=extract_raw_tag($parts[$i],"title");
     $item["title"]=html_decode($item["title"]);
     $item["title"]=html_decode($item["title"]);

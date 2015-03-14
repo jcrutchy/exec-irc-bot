@@ -3,9 +3,9 @@
 #####################################################################################################
 
 /*
-exec:~feeds|500|0|0|1|crutchy||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~feeds-internal|500|900|0|1||INTERNAL|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~feeds-sources|5|0|0|1|||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~feeds|1000|0|0|1|crutchy||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~feeds-internal|500|1800|0|1||INTERNAL|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~feed-list|5|0|0|1|||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################
@@ -26,8 +26,6 @@ define("FEED_LIST_FILE","../data/feed_list.txt");
 define("FEED_HISTORY_FILE","../data/feed_history.txt");
 
 $feed_list=load_feeds_from_file(FEED_LIST_FILE);
-
-var_dump($feed_list);
 
 if ($feed_list===False)
 {
@@ -110,6 +108,12 @@ for ($i=0;$i<count($feed_list);$i++)
     }
   }
 }
+$data="";
+for ($i=0;$i<count($new_history);$i++)
+{
+  $data=$data.$new_history[$i].PHP_EOL;
+}
+file_put_contents(FEED_HISTORY_FILE,$data,FILE_APPEND);
 for ($i=count($results)-1;$i>=0;$i--)
 {
   $item=$results[$i];
@@ -123,12 +127,6 @@ for ($i=count($results)-1;$i>=0;$i--)
     echo "/IRC :".NICK_EXEC." PRIVMSG ".$feed_chan." :$msg\n";
   }
 }
-$data="";
-for ($i=0;$i<count($new_history);$i++)
-{
-  $data=$data.$new_history[$i].PHP_EOL;
-}
-file_put_contents(FEED_HISTORY_FILE,$data,FILE_APPEND);
 
 #####################################################################################################
 

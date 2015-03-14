@@ -63,6 +63,7 @@ $containers=array(
   "a socket",
   "a buzz saw",
   "a blagoblag",
+  "a DD cup",
   "a tinfoil hat",
   "an assfull",
   "a bucket",
