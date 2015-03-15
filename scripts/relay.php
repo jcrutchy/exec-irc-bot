@@ -55,6 +55,7 @@ while (True)
       elseif ($content<>"")
       {
         $content=unserialize($content);
+        output_message($content["request_uri"]);
         $data=get_bucket($content["data"]);
         $response_params=array();
         $response_params["exec_key"]=$key;
