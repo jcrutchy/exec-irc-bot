@@ -114,17 +114,18 @@ for ($i=0;$i<count($new_history);$i++)
   $data=$data.$new_history[$i].PHP_EOL;
 }
 file_put_contents(FEED_HISTORY_FILE,$data,FILE_APPEND);
+pm($feed_chan,chr(3)."08"."************");
 for ($i=count($results)-1;$i>=0;$i--)
 {
   $item=$results[$i];
   $msg=chr(2)."[".$item["feed_name"]."]".chr(2)." - ".chr(3)."03".$item["title"].chr(3)." - ".$item["url"];
   if ($item["dest"]<>"")
   {
-    echo "/IRC :".NICK_EXEC." PRIVMSG ".$item["dest"]." :$msg\n";
+    pm($item["dest"],$msg);
   }
   else
   {
-    echo "/IRC :".NICK_EXEC." PRIVMSG ".$feed_chan." :$msg\n";
+    pm($feed_chan,$msg);
   }
 }
 

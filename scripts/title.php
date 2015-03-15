@@ -75,14 +75,7 @@ if (strpos($filtered_url,$filtered_title)===False)
       return;
     }
   }
-  if (strpos($title,"119.18.0.66")===False)
-  {
-    privmsg(chr(3)."13".$title);
-  }
-  else
-  {
-    term_echo("bot host ip address exists in url");
-  }
+  privmsg(chr(3)."13".$title);
 }
 else
 {

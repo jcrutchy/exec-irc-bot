@@ -2,12 +2,49 @@
 
 #####################################################################################################
 
+# usage example: http://irciv.us.to/?exec&username=crutchy&token=test&data=fart
+
+#####################################################################################################
+
 define("FILENAME_PREFIX_REQUEST","request__");
 define("FILENAME_PREFIX_RESPONSE","response__");
 define("FILE_PATH_REQUESTS","/var/include/vhosts/irciv.us.to/relay/requests/");
 define("FILE_PATH_RESPONSES","/var/include/vhosts/irciv.us.to/relay/responses/");
 define("TOKENS_FILE","/var/include/vhosts/irciv.us.to/relay/tokens");
 define("CLIENT_TIMEOUT",60); # seconds
+
+if ((isset($_POST["exec_key"])==True) and (isset($_GET["request_id"])==True))
+{
+  check_exec_key();
+  $request_id=$_GET["request_id"];
+  if ($request_id=="")
+  {
+    # send list of available request id's
+    $out=array();
+    $handle=opendir(FILE_PATH_REQUESTS);
+    while (($fn=readdir($handle))!==False)
+    {
+      $full=FILE_PATH_REQUESTS."/".$fn;
+      if (substr($fn,0,strlen(FILENAME_PREFIX_REQUEST))==FILENAME_PREFIX_REQUEST)
+      {
+        $out[]=substr($fn,strlen(FILENAME_PREFIX_REQUEST));
+      }
+    }
+    echo serialize($out);
+  }
+  else
+  {
+    # send contents of specific request id
+    $request_filename=FILE_PATH_REQUESTS.FILENAME_PREFIX_REQUEST.$_GET["request_id"];
+    if (file_exists($request_filename)==False)
+    {
+      die("REQUEST FILE NOT FOUND: ".$_GET["request_id"]);
+    }
+    $content=file_get_contents($request_filename);
+    echo $content;
+  }
+  return;
+}
 
 if ((isset($_POST["exec_key"])==True) and (isset($_POST["request_id"])==True) and (isset($_POST["data"])==True))
 {
