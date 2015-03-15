@@ -32,7 +32,11 @@ while (True)
   $params["exec_key"]=$key;
   $response=wpost("irciv.us.to","/?exec&request_id",80,"",$params);
   $content=trim(strip_headers($response));
-  if ($content<>"")
+  if (strpos(strtoupper($content),"ERROR")!==False)
+  {
+    output_message($content);
+  }
+  elseif ($content<>"")
   {
     $request_ids=unserialize($content);
     for ($i=0;$i<count($request_ids);$i++)
@@ -42,15 +46,22 @@ while (True)
       $request_params["exec_key"]=$key;
       $response=wpost("irciv.us.to","/?exec&request_id=$id",80,"",$request_params);
       $content=trim(strip_headers($response));
-      $content=unserialize($content);
-      $data=get_bucket($content["data"]);
-      $response_params=array();
-      $response_params["exec_key"]=$key;
-      $response_params["request_id"]=$id;
-      $response_params["data"]=$data;
-      $response=wpost("irciv.us.to","/?exec",80,"",$response_params);
-      $content=trim(strip_headers($response));
-      output_message($content);
+      if (strpos(strtoupper($content),"ERROR")!==False)
+      {
+        output_message($content);
+      }
+      elseif ($content<>"")
+      {
+        $content=unserialize($content);
+        $data=get_bucket($content["data"]);
+        $response_params=array();
+        $response_params["exec_key"]=$key;
+        $response_params["request_id"]=$id;
+        $response_params["data"]=$data;
+        $response=wpost("irciv.us.to","/?exec",80,"",$response_params);
+        $content=trim(strip_headers($response));
+        output_message($content);
+      }
     }
   }
   sleep(10);
