@@ -71,7 +71,8 @@ if ((isset($_POST["exec_key"])==True) and (isset($_POST["request_id"])==True) an
   {
     die("BOT SCRIPT ERROR 03: RESPONSE FILE NOT FOUND");
   }
-  die("BOT SCRIPT SUCCESS: RESPONSE FILE CREATED");
+  $data=unserialize($data);
+  die("BOT SCRIPT SUCCESS: RESPONSE FILE CREATED: ".$data["request_uri"]);
 }
 
 $token=False;
