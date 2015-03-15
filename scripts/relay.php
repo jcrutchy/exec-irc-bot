@@ -31,29 +31,29 @@ while (True)
   $params=array();
   $params["exec_key"]=$key;
   $response=wpost("irciv.us.to","/?exec&request_id",80,"",$params);
-  $request_ids=unserialize(trim(strip_headers($response)));
-  for ($i=0;$i<count($request_ids);$i++)
+  $content=trim(strip_headers($response));
+  if ($content<>"")
   {
-    $id=$request_ids[$i];
-    $request_params=array();
-    $request_params["exec_key"]=$key;
-    $response=wpost("irciv.us.to","/?exec&request_id",80,"",$request_params);
-    $content=trim(strip_headers($response));
-
-    output_message(str_replace("\n"," ",$content));
-
-    $data="i farted";
-
-    $response_params=array();
-    $response_params["exec_key"]=$key;
-    $response_params["request_id"]=$id;
-    $response_params["data"]=$data;
-    $response=wpost("irciv.us.to","/?exec",80,"",$response_params);
-    $content=trim(strip_headers($response));
-    output_message($content);
-
+    $request_ids=unserialize($content);
+    for ($i=0;$i<count($request_ids);$i++)
+    {
+      $id=$request_ids[$i];
+      $request_params=array();
+      $request_params["exec_key"]=$key;
+      $response=wpost("irciv.us.to","/?exec&request_id=$id",80,"",$request_params);
+      $content=trim(strip_headers($response));
+      $content=unserialize($content);
+      $data=get_bucket($content["data"]);
+      $response_params=array();
+      $response_params["exec_key"]=$key;
+      $response_params["request_id"]=$id;
+      $response_params["data"]=$data;
+      $response=wpost("irciv.us.to","/?exec",80,"",$response_params);
+      $content=trim(strip_headers($response));
+      output_message($content);
+    }
   }
-  sleep(20);
+  sleep(10);
 }
 
 #####################################################################################################

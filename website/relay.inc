@@ -25,6 +25,12 @@ if ((isset($_POST["exec_key"])==True) and (isset($_GET["request_id"])==True))
     while (($fn=readdir($handle))!==False)
     {
       $full=FILE_PATH_REQUESTS."/".$fn;
+      $ft=filemtime($full);
+      if ((microtime(True)-$ft)>1)
+      {
+        unlink($full);
+        continue;
+      }
       if (substr($fn,0,strlen(FILENAME_PREFIX_REQUEST))==FILENAME_PREFIX_REQUEST)
       {
         $out[]=substr($fn,strlen(FILENAME_PREFIX_REQUEST));
@@ -35,10 +41,10 @@ if ((isset($_POST["exec_key"])==True) and (isset($_GET["request_id"])==True))
   else
   {
     # send contents of specific request id
-    $request_filename=FILE_PATH_REQUESTS.FILENAME_PREFIX_REQUEST.$_GET["request_id"];
+    $request_filename=FILE_PATH_REQUESTS.FILENAME_PREFIX_REQUEST.$request_id;
     if (file_exists($request_filename)==False)
     {
-      die("REQUEST FILE NOT FOUND: ".$_GET["request_id"]);
+      die("REQUEST FILE NOT FOUND: ".$request_id);
     }
     $content=file_get_contents($request_filename);
     echo $content;
