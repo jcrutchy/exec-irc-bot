@@ -32,6 +32,7 @@ while (True)
   $params["exec_key"]=$key;
   $response=wpost("irciv.us.to","/?exec&request_id",80,"",$params);
   $content=trim(strip_headers($response));
+  var_dump($content);
   if (strpos(strtoupper($content),"ERROR")!==False)
   {
     output_message($content);
@@ -46,6 +47,7 @@ while (True)
       $request_params["exec_key"]=$key;
       $response=wpost("irciv.us.to","/?exec&request_id=$id",80,"",$request_params);
       $content=trim(strip_headers($response));
+      var_dump($content);
       if (strpos(strtoupper($content),"ERROR")!==False)
       {
         output_message($content);

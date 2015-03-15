@@ -26,11 +26,11 @@ if ((isset($_POST["exec_key"])==True) and (isset($_GET["request_id"])==True))
     {
       $full=FILE_PATH_REQUESTS."/".$fn;
       $ft=filemtime($full);
-      if ((microtime(True)-$ft)>1)
+      /*if ((microtime(True)-$ft)>1)
       {
         unlink($full);
         continue;
-      }
+      }*/
       if (substr($fn,0,strlen(FILENAME_PREFIX_REQUEST))==FILENAME_PREFIX_REQUEST)
       {
         $out[]=substr($fn,strlen(FILENAME_PREFIX_REQUEST));
