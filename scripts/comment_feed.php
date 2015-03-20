@@ -16,12 +16,9 @@ startup:~join #comments
 # http://tmbvm.ddns.net/api.pl?m=user&op=get_nick&uid=18
 
 /*
-<crutchy> could make some funky settings out of this
-<crutchy> instead of privmsging a channel, it could notice any nick that registered to receive them
-<crutchy> and could even set a score threshold etc
-<crutchy> personalized SN comment feeds :D
-add comment topic setting
-filter by story (reset when story drops off atom), filter by user, filter by content/subject keyword, etc
+  add combinations of field/pattern
+  make it so you can filter all child comments in a thread
+  revive the comment submission script with ability to reply to a cid (get corresponding sid from comments file)
 */
 
 # TODO: highlight quotes different color
@@ -54,10 +51,28 @@ if ($alias=="~comments")
   $trailing=trim(implode(" ",$parts));
   switch ($action)
   {
-    case "feed":
+    case "test":
       if (users_get_account($nick)=="crutchy")
       {
-        break;
+        if (preg_match("~$trailing~","stuff")==1)
+        {
+          privmsg("1");
+        }
+        else
+        {
+          privmsg("not 1");
+        }
+      }
+      return;
+    case "filter-list":
+      foreach ($filters as $id => $filter)
+      {
+        $filter=unserialize(base64_decode($filter));
+        $id=$filter["id"];
+        $target=$filter["target"];
+        $field=$filter["field"];
+        $pattern=$filter["pattern"];
+        privmsg("  $id => target=$target field=$field pattern=\"$pattern\"");
       }
       return;
     case "filter-add":
@@ -70,6 +85,7 @@ if ($alias=="~comments")
       delete_empty_elements($parts);
       if (count($parts)<4)
       {
+        privmsg("  syntax: ~comments filter-add %id% %target% %field% %pattern%");
         return;
       }
       $id=$parts[0];
@@ -91,6 +107,11 @@ if ($alias=="~comments")
     case "filter-delete":
       # ~comments filter-delete %id%
       $id=trim($trailing);
+      if ($id=="")
+      {
+        privmsg("  syntax: ~comments filter-delete %id%");
+        return;
+      }
       if (isset($filters[$id])==True)
       {
         unset($filters[$id]);
@@ -358,11 +379,12 @@ function output($record,$msg)
     {
       return;
     }
+    var_dump($record);
     if ($record[$filter["field"]]==$filter["pattern"])
     {
       pm($filter["target"],$msg);
     }
-    elseif (preg_match("~".$filter["pattern"]."~",$record[$filter["field"]])==1)
+    elseif (preg_match("#".trim($filter["pattern"])."#",$record[$filter["field"]])==1)
     {
       pm($filter["target"],$msg);
     }

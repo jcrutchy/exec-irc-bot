@@ -26,6 +26,19 @@ if ($trailing=="")
   return;
 }
 
+if ($trailing=="debug on")
+{
+  set_bucket("chromas_irc_log_debug","on");
+  privmsg("  enabled debug pm");
+  return;
+}
+elseif ($trailing=="debug off")
+{
+  unset_bucket("chromas_irc_log_debug");
+  privmsg("  disabled debug pm");
+  return;
+}
+
 $params=parse_parameters($trailing,"="," ");
 
 var_dump($params);
@@ -44,6 +57,11 @@ if (isset($params["channel"])==False)
 $uri="/s/soylent_log.php?op=".$alias.$paramstr;
 
 var_dump($uri);
+
+if (get_bucket("chromas_irc_log_debug")=="on")
+{
+  pm("chromas",$uri);
+}
 
 $response=wget("chromas.0x.no",$uri,80,ICEWEASEL_UA,"",20,"",1024,False);
 $html=trim(strip_headers($response));
