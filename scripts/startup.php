@@ -14,6 +14,11 @@ require_once("lib.php");
 
 echo "################ BEGIN STARTUP ################\n";
 
+rawmsg("JOIN #");
+rawmsg("MODE #comments -o crutchy");
+rawmsg("MODE #github -o crutchy");
+rawmsg("MODE #feeds -o crutchy");
+
 echo "################# END STARTUP #################\n";
 
 #####################################################################################################

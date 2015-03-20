@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~meeting|60|0|0|1|||||php scripts/meeting.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
-init:~meeting register-events
+#exec:~meeting|60|0|0|1|||||php scripts/meeting.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
+#init:~meeting register-events
 */
 
 #####################################################################################################

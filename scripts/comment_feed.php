@@ -34,26 +34,23 @@ require_once("feeds_lib.php");
 define("COMMENTS_FEED_FILE","../data/comments_feed.txt");
 define("COMMENTS_CID_FILE","../data/comments_cid.txt");
 define("COMMENTS_TOP_FILE","../data/comments_top.txt");
-define("COMMENTS_DESTS_FILE","../data/comments_dests.txt");
+define("COMMENTS_FILTERS_FILE","../data/comments_filters.txt");
+
+define("MAIN_FEED_CHANNEL","#comments");
 
 $trailing=trim($argv[1]);
 $dest=strtolower(trim($argv[2]));
 $nick=strtolower(trim($argv[3]));
 $alias=strtolower(trim($argv[4]));
 
-$dests=load_settings(COMMENTS_DESTS_FILE);
+$filters=load_settings(COMMENTS_FILTERS_FILE," ");
 
 if ($alias=="~comments")
 {
   $parts=explode(" ",$trailing);
+  delete_empty_elements($parts);
   $action=strtolower($parts[0]);
   array_shift($parts);
-  $channel="";
-  if (isset($parts[0])==True)
-  {
-    $channel=strtolower($parts[0]);
-    array_shift($parts);
-  }
   $trailing=trim(implode(" ",$parts));
   switch ($action)
   {
@@ -63,29 +60,56 @@ if ($alias=="~comments")
         break;
       }
       return;
-    case "dest-add":
-
-      $dests=save_settings($dests,COMMENTS_DESTS_FILE);
-      return;
-    case "dest-delete":
-
-      $dests=save_settings($dests,COMMENTS_DESTS_FILE);
-      return;
-    case "dest-rename":
-
-      $dests=save_settings($dests,COMMENTS_DESTS_FILE);
-      return;
     case "filter-add":
-
-      $dests=save_settings($dests,COMMENTS_DESTS_FILE);
+      # ~comments filter-add %id% %target% %field% %pattern%
+      # %id% = unique name to identify filter
+      # %target% = channel or nick to send filtered comments to
+      # %field% = user|uid|score|score_num|subject|title|comment_body
+      # %pattern% = regexp pattern for use with preg_match
+      $parts=explode(" ",$trailing);
+      delete_empty_elements($parts);
+      if (count($parts)<4)
+      {
+        return;
+      }
+      $id=$parts[0];
+      $target=$parts[1];
+      $field=$parts[2];
+      array_shift($parts);
+      array_shift($parts);
+      array_shift($parts);
+      $pattern=trim(implode(" ",$parts));
+      $filter=array();
+      $filter["id"]=$id;
+      $filter["target"]=$target;
+      $filter["field"]=$field;
+      $filter["pattern"]=$pattern;
+      $filters[$id]=base64_encode(serialize($filter));
+      save_settings($filters,COMMENTS_FILTERS_FILE," ");
+      privmsg("  comments feed filter \"$id\" added [target = \"$target\", field=\"$field\", pattern=\"$pattern\"]");
       return;
     case "filter-delete":
-
-      $dests=save_settings($dests,COMMENTS_DESTS_FILE);
+      # ~comments filter-delete %id%
+      $id=trim($trailing);
+      if (isset($filters[$id])==True)
+      {
+        unset($filters[$id]);
+        save_settings($filters,COMMENTS_FILTERS_FILE," ");
+        privmsg("  comments feed filter \"$id\" deleted");
+      }
+      else
+      {
+        privmsg("  comments feed filter \"$id\" not found");
+      }
       return;
     default:
       return;
   }
+}
+
+foreach ($filters as $id => $filter)
+{
+  $filters[$id]=unserialize(base64_decode($filter));
 }
 
 $host="soylentnews.org";
@@ -93,7 +117,7 @@ $feed_uri="/index.xml";
 $port=80;
 
 $msg=chr(3)."08"."********** ".chr(3)."03".chr(2)."SOYLENTNEWS COMMENT FEED".chr(2).chr(3)."08"." **********";
-output($msg,True);
+pm(MAIN_FEED_CHANNEL,$msg);
 
 $last_cid=87400;
 if (file_exists(COMMENTS_CID_FILE)==True)
@@ -102,17 +126,12 @@ if (file_exists(COMMENTS_CID_FILE)==True)
 }
 
 $msg="last cid = $last_cid";
-output($msg,True);
-
-#$response=wget($host,"/index.atom",$port,ICEWEASEL_UA,"",60);
-#term_echo("*** comment_feed: downloaded atom feed");
+pm(MAIN_FEED_CHANNEL,$msg);
 
 $response=wget($host,$feed_uri,$port,ICEWEASEL_UA,"",60);
-term_echo("*** comment_feed: downloaded story feed");
 
 $html=strip_headers($response);
 
-#$items=parse_atom($html);
 $items=parse_xml($html);
 
 $topcomments=array();
@@ -124,10 +143,8 @@ if (file_exists(COMMENTS_TOP_FILE)==True)
 }
 
 $cids=array();
-#$item_count=count($items);
 $item_count=20;
 
-#term_echo("*** comment_feed: $item_count atom feed stories to check");
 term_echo("*** comment_feed: $item_count feed stories to check");
 
 $top_score_pub=0;
@@ -154,11 +171,6 @@ for ($i=0;$i<$item_count;$i++)
     term_echo("[$k/$item_count] $url");
     $response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
     $html=strip_headers($response);
-    /*$violated_url=check_copyright($html);
-    if ($violated_url!==False)
-    {
-      output("*** possible copyright violation of $violated_url at $url");
-    }*/
     $sid=extract_text($html,"<input type=\"hidden\" name=\"sid\" value=\"","\">");
     if ($sid===False)
     {
@@ -229,6 +241,16 @@ for ($i=0;$i<$item_count;$i++)
       $comment_body=str_replace("  "," ",$comment_body);
       $comment_body=html_decode($comment_body);
       $comment_body=html_decode($comment_body);
+
+      $record=array();
+      $record["user"]=$user;
+      $record["uid"]=$uid;
+      $record["score"]=$score;
+      $record["score_num"]=$score_num;
+      $record["subject"]=$subject;
+      $record["title"]=$title;
+      $record["comment_body"]=$comment_body;
+
       $comment_body_len=strlen($comment_body);
       $max_comment_length=300;
       if (strlen($comment_body)>$max_comment_length)
@@ -263,17 +285,12 @@ for ($i=0;$i<$item_count;$i++)
         $msg=clean_text($msg);
         $msg=chr(2).$msg.chr(2);
         file_put_contents(COMMENTS_TOP_FILE,$cid."\n",FILE_APPEND);
-        output($msg);
+        output(False,$msg);
         if ($top_score_pub==0)
         {
-          #pm("#soylent",chr(3)."score 5 comment: $user_uid ".chr(3)."02".$subject.chr(3)." - $title_output - ".chr(3)."04 $url");
           $top_score_pub=1;
         }
-        /*for ($k=0;$k<count($subscribers);$k++)
-        {
-          pm($subscribers[$k],chr(3)."08└─ ".$comment_body);
-        }*/
-        output(chr(3)."08└─".$comment_body);
+        output(False,chr(3)."08└─".$comment_body);
       }
       elseif ($cid>$last_cid)
       {
@@ -284,12 +301,8 @@ for ($i=0;$i<$item_count;$i++)
           $msg=$msg." ".chr(3)."(parent: $parent_url)";
         }
         $msg=clean_text($msg);
-        output($msg);
-        /*for ($k=0;$k<count($subscribers);$k++)
-        {
-          pm($subscribers[$k],chr(3)."08^ ".$comment_body);
-        }*/
-        output(chr(3)."08└─".$comment_body);
+        output($record,$msg);
+        output($record,chr(3)."08└─".$comment_body);
       }
     }
   }
@@ -307,25 +320,53 @@ for ($i=0;$i<count($cids);$i++)
 }
 file_put_contents(COMMENTS_CID_FILE,$new_last_cid);
 
-output("count new = $count_new",True);
-output("count top = $count_top",True);
+$msg="count new = $count_new";
+pm(MAIN_FEED_CHANNEL,$msg);
+$msg="count top = $count_top";
+pm(MAIN_FEED_CHANNEL,$msg);
 $msg=chr(3)."08"."********** ".chr(3)."03"."END FEED".chr(3)."08"." **********";
-output($msg,True);
+pm(MAIN_FEED_CHANNEL,$msg);
 
 #####################################################################################################
 
-function output($msg,$term=False)
+function output($record,$msg)
 {
-  #global $subscribers;
-  if ($term==True)
+  global $filters;
+  pm(MAIN_FEED_CHANNEL,$msg);
+  if ($record===False)
   {
-    term_echo($msg);
+    return;
   }
-  pm("#comments",$msg);
-  /*for ($i=0;$i<count($subscribers);$i++)
+  foreach ($filters as $id => $filter)
   {
-    pm($subscribers[$i],$msg);
-  }*/
+    # $filter["id"]
+    # $filter["target"]
+    # $filter["field"]
+    # $filter["pattern"]
+    # %id% = unique name to identify filter
+    # %target% = channel or nick to send filtered comments to
+    # %field% = user|uid|score|score_num|subject|title|comment_body
+    # %pattern% = regexp pattern for use with preg_match
+    # $record["user"]
+    # $record["uid"]
+    # $record["score"]
+    # $record["score_num"]
+    # $record["subject"]
+    # $record["title"]
+    # $record["comment_body"]
+    if (isset($record[$filter["field"]])==False)
+    {
+      return;
+    }
+    if ($record[$filter["field"]]==$filter["pattern"])
+    {
+      pm($filter["target"],$msg);
+    }
+    elseif (preg_match("~".$filter["pattern"]."~",$record[$filter["field"]])==1)
+    {
+      pm($filter["target"],$msg);
+    }
+  }
 }
 
 #####################################################################################################
