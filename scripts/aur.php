@@ -17,6 +17,7 @@ $alias=$argv[4];
 
 if ($trailing=="")
 {
+  privmsg(chr(3)."02syntax: ~aur <package_name>");
   return;
 }
 
@@ -29,16 +30,14 @@ $description=extract_meta_content($html,"description");
 
 if ($description===False)
 {
+  privmsg(chr(3)."02error: package not found");
   return;
 }
 
 /*$delim1="";
 $delim2="";
-
 $description=extract_text($html,$delim1,$delim2);
-
 $description=strip_tags($description);
-
 $description=clean_text($description);*/
 
 if ($description<>"")

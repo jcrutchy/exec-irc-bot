@@ -98,6 +98,7 @@ $list=array(
   "lfowles/drunken-bugfixes",
   "lfowles/jsonbot",
   "lfowles/tripping-robot",
+  "lfowles/shirokuma",
   "Lagg/userscripts",
   "Lagg/dotfiles",
   "Lagg/steamodd",
