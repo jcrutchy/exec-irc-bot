@@ -13,6 +13,8 @@
 #                                                                                                   #
 #####################################################################################################
 
+require_once("lib.php");
+
 $items=unserialize(base64_decode($argv[1]));
 
 $cmd=$items["cmd"];
@@ -68,6 +70,10 @@ switch (strtoupper($cmd))
   case "PRIVMSG":
     echo "/INTERNAL ~sed-internal PRIVMSG $trailing\n";
     #echo "/INTERNAL ~antispam ".$argv[1]."\n";
+    if ($trailing=="~💩")
+    {
+      pm_action($dest,"chucks a nasty sloppy dogshit at aqu4");
+    }
     break;
   case "QUIT":
     break;

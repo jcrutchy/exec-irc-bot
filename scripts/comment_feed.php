@@ -25,13 +25,16 @@ startup:~join #comments
 
 ini_set("display_errors","on");
 require_once("lib.php");
+require_once("lib_mysql.php");
 require_once("feeds_lib.php");
 #require_once("copyright_lib.php");
 
-define("COMMENTS_FEED_FILE","../data/comments_feed.txt");
+#define("COMMENTS_FEED_FILE","../data/comments_feed.txt");
 define("COMMENTS_CID_FILE","../data/comments_cid.txt");
 define("COMMENTS_TOP_FILE","../data/comments_top.txt");
 define("COMMENTS_FILTERS_FILE","../data/comments_filters.txt");
+
+define("COMMENTS_TABLE","sn_comments");
 
 define("MAIN_FEED_CHANNEL","#comments");
 
@@ -51,6 +54,12 @@ if ($alias=="~comments")
   $trailing=trim(implode(" ",$parts));
   switch ($action)
   {
+    case "feed":
+      if (users_get_account($nick)=="crutchy")
+      {
+        break;
+      }
+      return;
     case "test":
       if (users_get_account($nick)=="crutchy")
       {
@@ -70,9 +79,17 @@ if ($alias=="~comments")
         $filter=unserialize(base64_decode($filter));
         $id=$filter["id"];
         $target=$filter["target"];
-        $field=$filter["field"];
-        $pattern=$filter["pattern"];
-        privmsg("  $id => target=$target field=$field pattern=\"$pattern\"");
+        if (isset($filter["cid"])==False)
+        {
+          $field=$filter["field"];
+          $pattern=$filter["pattern"];
+          privmsg("  $id => target=$target field=$field pattern=\"$pattern\"");
+        }
+        else
+        {
+          $cid=$filter["cid"];
+          privmsg("  $id => target=$target cid=$cid");
+        }
       }
       return;
     case "filter-add":
@@ -83,26 +100,35 @@ if ($alias=="~comments")
       # %pattern% = regexp pattern for use with preg_match
       $parts=explode(" ",$trailing);
       delete_empty_elements($parts);
-      if (count($parts)<4)
+      if (count($parts)<3)
       {
         privmsg("  syntax: ~comments filter-add %id% %target% %field% %pattern%");
         return;
       }
       $id=$parts[0];
       $target=$parts[1];
-      $field=$parts[2];
-      array_shift($parts);
-      array_shift($parts);
-      array_shift($parts);
-      $pattern=trim(implode(" ",$parts));
       $filter=array();
       $filter["id"]=$id;
       $filter["target"]=$target;
-      $filter["field"]=$field;
-      $filter["pattern"]=$pattern;
+      if (count($parts)==3)
+      {
+        $cid=$parts[2];
+        $filter["cid"]=$cid;
+        privmsg("  comments feed filter ".chr(3)."04$id".chr(3)." added [target=$target, cid=$cid]");
+      }
+      else
+      {
+        $field=$parts[2];
+        array_shift($parts);
+        array_shift($parts);
+        array_shift($parts);
+        $pattern=trim(implode(" ",$parts));
+        $filter["field"]=$field;
+        $filter["pattern"]=$pattern;
+        privmsg("  comments feed filter ".chr(3)."04$id".chr(3)." added [target=$target, field=$field, pattern=\"$pattern\"]");
+      }
       $filters[$id]=base64_encode(serialize($filter));
       save_settings($filters,COMMENTS_FILTERS_FILE," ");
-      privmsg("  comments feed filter \"$id\" added [target = \"$target\", field=\"$field\", pattern=\"$pattern\"]");
       return;
     case "filter-delete":
       # ~comments filter-delete %id%
@@ -116,11 +142,11 @@ if ($alias=="~comments")
       {
         unset($filters[$id]);
         save_settings($filters,COMMENTS_FILTERS_FILE," ");
-        privmsg("  comments feed filter \"$id\" deleted");
+        privmsg("  comments feed filter ".chr(3)."04$id".chr(3)." deleted");
       }
       else
       {
-        privmsg("  comments feed filter \"$id\" not found");
+        privmsg("  comments feed filter ".chr(3)."04$id".chr(3)." not found");
       }
       return;
     default:
@@ -180,16 +206,16 @@ for ($i=0;$i<$item_count;$i++)
     continue;
   }
   sleep(5);
-  $url=$items[$i]["url"]."&threshold=-1&highlightthresh=-1&mode=flat&commentsort=0";
+  $story_url=$items[$i]["url"]."&threshold=-1&highlightthresh=-1&mode=flat&commentsort=0";
   $title=$items[$i]["title"];
   $title_output=chr(3)."06".$title.chr(3);
   $host="";
   $uri="";
   $port="";
-  if (get_host_and_uri($url,$host,$uri,$port)==True)
+  if (get_host_and_uri($story_url,$host,$uri,$port)==True)
   {
     $k=$i+1;
-    term_echo("[$k/$item_count] $url");
+    term_echo("[$k/$item_count] $story_url");
     $response=wget($host,$uri,$port,ICEWEASEL_UA,"",60);
     $html=strip_headers($response);
     $sid=extract_text($html,"<input type=\"hidden\" name=\"sid\" value=\"","\">");
@@ -262,7 +288,6 @@ for ($i=0;$i<$item_count;$i++)
       $comment_body=str_replace("  "," ",$comment_body);
       $comment_body=html_decode($comment_body);
       $comment_body=html_decode($comment_body);
-
       $record=array();
       $record["user"]=$user;
       $record["uid"]=$uid;
@@ -271,7 +296,12 @@ for ($i=0;$i<$item_count;$i++)
       $record["subject"]=$subject;
       $record["title"]=$title;
       $record["comment_body"]=$comment_body;
-
+      $record["cid"]=$cid;
+      $record["sid"]=$sid;
+      $record["url"]=$url;
+      $record["parent_cid"]=$pid;
+      $record["parent_url"]=$parent_url;
+      $record["story_url"]=$story_url;
       $comment_body_len=strlen($comment_body);
       $max_comment_length=300;
       if (strlen($comment_body)>$max_comment_length)
@@ -281,8 +311,9 @@ for ($i=0;$i<$item_count;$i++)
       if ($cid>$last_cid)
       {
         $cids[]=$cid;
-        $line="$cid\t$sid\t$user\t$uid\t$score\t$score_num\t$subject\t$title\t$url\t".time()."\t$pid\t$parent_url\t$comment_body_len\n";
-        file_put_contents(COMMENTS_FEED_FILE,$line,FILE_APPEND);
+        #$line="$cid\t$sid\t$user\t$uid\t$score\t$score_num\t$subject\t$title\t$url\t".time()."\t$pid\t$parent_url\t$comment_body_len\n";
+        #file_put_contents(COMMENTS_FEED_FILE,$line,FILE_APPEND);
+        sql_insert($record,COMMENTS_TABLE);
       }
       $user_uid=chr(3)."03".$user.chr(3);
       if ($uid>0)
@@ -323,7 +354,7 @@ for ($i=0;$i<$item_count;$i++)
         }
         $msg=clean_text($msg);
         output($record,$msg);
-        output($record,chr(3)."08└─".$comment_body);
+        output($record,chr(3)."08└─".$comment_body,False);
       }
     }
   }
@@ -350,7 +381,7 @@ pm(MAIN_FEED_CHANNEL,$msg);
 
 #####################################################################################################
 
-function output($record,$msg)
+function output($record,$msg,$show_filter=True)
 {
   global $filters;
   pm(MAIN_FEED_CHANNEL,$msg);
@@ -375,18 +406,49 @@ function output($record,$msg)
     # $record["subject"]
     # $record["title"]
     # $record["comment_body"]
-    if (isset($record[$filter["field"]])==False)
+    if (isset($filter["cid"])==True)
     {
-      return;
+      $filter_cid=trim($filter["cid"]);
+      $parent_cid=trim($record["cid"]);
+      do
+      {
+        $params=array("cid"=>$parent_cid);
+        $result=fetch_prepare("SELECT * FROM exec_irc_bot.sn_comments WHERE (cid=:cid)",$params);
+        if (count($result)<>1)
+        {
+          break;
+        }
+        $parent_cid=trim($result[0]["parent_cid"]);
+        if ($parent_cid==$filter_cid)
+        {
+          if ($show_filter==True)
+          {
+            $msg="[".$filter["id"]."] ".$msg;
+          }
+          pm($filter["target"],$msg);
+          break;
+        }
+      }
+      while ($parent_cid<>"");
     }
-    var_dump($record);
-    if ($record[$filter["field"]]==$filter["pattern"])
+    else
     {
-      pm($filter["target"],$msg);
-    }
-    elseif (preg_match("#".trim($filter["pattern"])."#",$record[$filter["field"]])==1)
-    {
-      pm($filter["target"],$msg);
+      if (isset($record[$filter["field"]])==False)
+      {
+        return;
+      }
+      if ($show_filter==True)
+      {
+        $msg="[".$filter["id"]."] ".$msg;
+      }
+      if ($record[$filter["field"]]==$filter["pattern"])
+      {
+        pm($filter["target"],$msg);
+      }
+      elseif (preg_match("#".trim($filter["pattern"])."#",$record[$filter["field"]])==1)
+      {
+        pm($filter["target"],$msg);
+      }
     }
   }
 }

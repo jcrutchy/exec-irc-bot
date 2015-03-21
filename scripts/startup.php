@@ -18,6 +18,8 @@ rawmsg("JOIN #");
 rawmsg("MODE #comments -o crutchy");
 rawmsg("MODE #github -o crutchy");
 rawmsg("MODE #feeds -o crutchy");
+rawmsg("MODE #freenode -o crutchy");
+echo "/INTERNAL ~freenode\n";
 
 echo "################# END STARTUP #################\n";
 

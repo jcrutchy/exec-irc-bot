@@ -370,10 +370,7 @@ function log_items($items)
   {
     return;
   }
-  $fieldnames=array_keys($items);
-  $placeholders=array_map("callback_prepare",$fieldnames);
-  $fieldnames=array_map("callback_quote",$fieldnames);
-  execute_prepare("INSERT INTO ".BOT_SCHEMA.".".LOG_TABLE." (".implode(",",$fieldnames).") VALUES (".implode(",",$placeholders).")",$items);
+  sql_insert($items,LOG_TABLE);
 }
 
 #####################################################################################################
