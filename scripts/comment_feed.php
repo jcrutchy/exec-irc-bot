@@ -17,8 +17,7 @@ startup:~join #comments
 
 /*
   add combinations of field/pattern
-  make it so you can filter all child comments in a thread
-  revive the comment submission script with ability to reply to a cid (get corresponding sid from comments file)
+  revive the comment submission script with ability to reply to a cid (get corresponding sid from mysql)
 */
 
 # TODO: highlight quotes different color
