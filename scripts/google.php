@@ -13,10 +13,6 @@ require_once("google_lib.php");
 
 $results=google_search($argv[1]);
 
-privmsg("test");
-
-return;
-
 if ($results!==False)
 {
   if (count($results)>0)

@@ -24,7 +24,7 @@
 <startup>|0|0|0|1|||||php scripts/startup.php
 
 # RESERVED ALIAS FOR LOGGING ITEMS
-<log>|10|0|0|1|||||php scripts/log.php %%trailing%% %%dest%% %%nick%% %%timestamp%%
+#<log>|10|0|0|1|||||php scripts/log.php %%trailing%% %%dest%% %%nick%% %%timestamp%%
 
 init ./scripts
 startup ./scripts
@@ -40,7 +40,7 @@ include test.php
 # FOLLOWING ALIAS PERMITS GENERIC SHELL COMMANDS IN IRC (ENABLE AT OWN RISK)
 #~eval|0|0|1|0|@||#soylent,#journals,#,#github,#civ||{ eval %%trailing%% ; } 2>&1
 
-#~deb|0|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
+~deb|0|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
 
 #~addr|0|0|1|0|*||||{ host '%%trailing%%' | head -1 ; } 2>&1
 

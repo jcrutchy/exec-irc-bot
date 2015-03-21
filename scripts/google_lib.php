@@ -4,8 +4,8 @@
 
 function google_search($query)
 {
-  $html=wget("www.google.com.au","/search?source=hp&q=".urlencode($query),80);
-  $html=strip_headers($html);
+  $response=wget("www.google.com.au","/search?source=hp&q=".urlencode($query),80);
+  $html=strip_headers($response);
   strip_all_tag($html,"head");
   strip_all_tag($html,"script");
   strip_all_tag($html,"style");
