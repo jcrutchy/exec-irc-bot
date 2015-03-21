@@ -28,6 +28,10 @@ function parse_parameters($text,$delim="=",$sep=",")
   # "param 1"=>"fluff, and stuff","param 2"=>"fart","param 3"=>"butt"
   $results=array();
   $parts=explode($delim,$text);
+  if (count($parts)==1)
+  {
+    return False;
+  }
   $key=trim($parts[0]);
   for ($i=1;$i<(count($parts)-1);$i++)
   {

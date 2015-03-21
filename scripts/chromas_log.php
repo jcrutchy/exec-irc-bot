@@ -18,15 +18,6 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=substr($argv[4],1);
 
-if ($trailing=="")
-{
-  $response=wget("chromas.0x.no","/s/soylent_log.php",80);
-  $html=trim(strip_headers($response));
-  $html=str_replace("\n"," ",$html);
-  privmsg(chr(3)."03".$html);
-  return;
-}
-
 if ($trailing=="debug on")
 {
   set_bucket("chromas_irc_log_debug","on");
@@ -42,7 +33,26 @@ elseif ($trailing=="debug off")
 
 $params=parse_parameters($trailing,"="," ");
 
-var_dump($params);
+if ($params!==False)
+{
+  foreach ($params as $key => $value)
+  {
+    if (strpos($key," ")!==False)
+    {
+      $params=False;
+      break;
+    }
+  }
+}
+
+if ($params===False)
+{
+  $response=wget("chromas.0x.no","/s/soylent_log.php",80);
+  $html=trim(strip_headers($response));
+  $html=str_replace("\n"," ",$html);
+  privmsg(chr(3)."03".$html);
+  return;
+}
 
 $paramstr="";
 foreach ($params as $key => $value)
@@ -62,6 +72,7 @@ var_dump($uri);
 if (get_bucket("chromas_irc_log_debug")=="on")
 {
   pm("chromas",$uri);
+  pm("crutchy",$uri);
 }
 
 $response=wget("chromas.0x.no",$uri,80,ICEWEASEL_UA,"",20,"",1024,False);
