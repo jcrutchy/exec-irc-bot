@@ -47,7 +47,7 @@ function map_recurse(&$translations,$pseudo_code,&$map)
   }
   foreach ($translations as $translation_key => $translation_value)
   {
-    $sub_map=map_single($pseudo_code,$translation_key,$translation_value);
+    $sub_map=map_translation($pseudo_code,$translation_key,$translation_value);
     if ($sub_map===False)
     {
       continue;
@@ -94,15 +94,15 @@ function ident_exists($str,$ident)
 
 #####################################################################################################
 
-function map_single($pseudo_code,$key,$value)
+function map_translation($pseudo_code,$key,$value)
 {
   # create a map for key >> value
   $map=array();
   $key_parts=explode(" ",$key);
+  $value_parts=explode(" ",$value);
   for ($i=0;$i<count($key_parts);$i++)
   {
     if (ident_exists($value,$key_parts[$i])==False)
-    #if (strpos($value,$key_parts[$i])===False)
     {
       $map[$key_parts[$i]]="";
     }

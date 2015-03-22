@@ -17,6 +17,7 @@ ini_set("display_errors","on");
 
 require_once("lib.php");
 require_once("soon_lib.php");
+require_once("soon_test.php");
 
 $trailing=$argv[1];
 $dest=$argv[2];
@@ -38,7 +39,8 @@ else
   # manually triggered
   $translations=load_translations();
   #var_dump($translations);
-  translate($translations,"hellox3");
+  #translate($translations,"hellox3");
+  run_tests();
   #privmsg($code);
   return;
 
