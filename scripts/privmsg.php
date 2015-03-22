@@ -23,6 +23,27 @@ if ($trailing=="register-events")
   return;
 }
 
+if (strtolower(substr($trailing,0,5))=="!isr ")
+{
+  $parts=explode(" ",$trailing);
+  delete_empty_elements($parts);
+  if (count($parts)<3)
+  {
+    privmsg(chr(3)."04In Soviet Russia, error causes YOU!");
+    return;
+  }
+  $x1=$parts[1];
+  if (strtolower(substr($x1,strlen($x1)-3))=="ing")
+  {
+    $x1=substr($x1,0,strlen($x1)-3)."e";
+  }
+  array_shift($parts);
+  array_shift($parts);
+  $x2=implode(" ",$parts);
+  privmsg(chr(3)."04In Soviet Russia, ".$x2." ".$x1."s YOU!");
+  return;
+}
+
 if ($trailing=="!stats")
 {
   privmsg("http://stats.sylnt.us/social/soylent/");

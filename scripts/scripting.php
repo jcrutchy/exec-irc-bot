@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-#exec:~x|120|0|0|1|@||||php scripts/scripting.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%params%% %%timestamp%%
-#init:~x register-events
+exec:~x|120|0|0|1|@||||php scripts/scripting.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%params%% %%timestamp%%
+init:~x register-events
 */
 
 #####################################################################################################

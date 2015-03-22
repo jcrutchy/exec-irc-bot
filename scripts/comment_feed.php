@@ -10,25 +10,18 @@ startup:~join #comments
 
 #####################################################################################################
 
-# http://tmbvm.ddns.net/api.pl?m=comment&op=latest
-# http://tmbvm.ddns.net/api.pl?m=comment&op=latest&since=27700
-# limited to 50 comments (absolute)
-# http://tmbvm.ddns.net/api.pl?m=user&op=get_nick&uid=18
-
 /*
+  TODO
+  highlight quotes different color
   add combinations of field/pattern
   revive the comment submission script with ability to reply to a cid (get corresponding sid from mysql)
 */
-
-# TODO: highlight quotes different color
 
 ini_set("display_errors","on");
 require_once("lib.php");
 require_once("lib_mysql.php");
 require_once("feeds_lib.php");
-#require_once("copyright_lib.php");
 
-#define("COMMENTS_FEED_FILE","../data/comments_feed.txt");
 define("COMMENTS_CID_FILE","../data/comments_cid.txt");
 define("COMMENTS_TOP_FILE","../data/comments_top.txt");
 define("COMMENTS_FILTERS_FILE","../data/comments_filters.txt");
@@ -48,6 +41,11 @@ if ($alias=="~comments")
 {
   $parts=explode(" ",$trailing);
   delete_empty_elements($parts);
+  if (count($parts)==0)
+  {
+    privmsg("  syntax: ~comments filter-add|filter-delete|filter-list");
+    return;
+  }
   $action=strtolower($parts[0]);
   array_shift($parts);
   $trailing=trim(implode(" ",$parts));
@@ -101,7 +99,8 @@ if ($alias=="~comments")
       delete_empty_elements($parts);
       if (count($parts)<3)
       {
-        privmsg("  syntax: ~comments filter-add %id% %target% %field% %pattern%");
+        privmsg("  syntax (1): ~comments filter-add %id% %target% %cid%");
+        privmsg("  syntax (2): ~comments filter-add %id% %target% %field% %pattern%");
         return;
       }
       $id=$parts[0];
@@ -118,6 +117,7 @@ if ($alias=="~comments")
       else
       {
         $field=$parts[2];
+        $fields=array("user","uid","score","score_num","subject","title","comment_body");
         array_shift($parts);
         array_shift($parts);
         array_shift($parts);
@@ -310,8 +310,6 @@ for ($i=0;$i<$item_count;$i++)
       if ($cid>$last_cid)
       {
         $cids[]=$cid;
-        #$line="$cid\t$sid\t$user\t$uid\t$score\t$score_num\t$subject\t$title\t$url\t".time()."\t$pid\t$parent_url\t$comment_body_len\n";
-        #file_put_contents(COMMENTS_FEED_FILE,$line,FILE_APPEND);
         sql_insert($record,COMMENTS_TABLE);
       }
       $user_uid=chr(3)."03".$user.chr(3);
