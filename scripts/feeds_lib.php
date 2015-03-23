@@ -55,7 +55,16 @@ function parse_rss($html)
     $item=array();
     $item["type"]="rss_item";
     # <title><![CDATA[ComputerWeekly]]></title>
+    # <title><![CDATA[ISIS hacking division publishes US servicemen ‘death list’]]></title>
     $item["title"]=extract_raw_tag($parts[$i],"title");
+    if ($item["title"]===False)
+    {
+      continue;
+    }
+    if (strtoupper(substr($item["title"],0,strlen("<![CDATA[")))=="<![CDATA[")
+    {
+      $item["title"]=substr($item["title"],strlen("<![CDATA["),strlen($item["title"])-strlen("<![CDATA[]]>"));
+    }
     $item["title"]=html_decode($item["title"]);
     $item["title"]=html_decode($item["title"]);
     $item["title"]=strip_tags($item["title"]);
@@ -67,7 +76,7 @@ function parse_rss($html)
     $url=str_replace("&amp;","&",strip_ctrl_chars(extract_raw_tag($parts[$i],"link")));
     $item["url"]=get_redirected_url($url);
     $item["timestamp"]=time();
-    if (($item["title"]===False) or ($item["url"]===False))
+    if ($item["url"]===False)
     {
       continue;
     }
