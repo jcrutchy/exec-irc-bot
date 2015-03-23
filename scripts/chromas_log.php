@@ -55,7 +55,7 @@ if ($params===False)
 }
 
 # chromas, 23 march '15
-if ($params['until'] == "")
+if (isset($params['until'])==False)
 {
   date_default_timezone_set('UTC');
   $params['until'] = strftime('%F %T', time()-5);
