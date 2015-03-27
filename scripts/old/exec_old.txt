@@ -1,0 +1,102 @@
+# alias|timeout(sec)|repeat(sec)|auto-privmsg(1|0)|empty-trailing-allowed(1|0)|account1,account2,etc(or-empty)|cmd
+# available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%exec%%, %%params%%
+# %%trailing%% excludes alias
+# aliases here must be all lower case letters
+
+# EXEC ON ALL LINES - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
+*|10|0|0|1||php scripts/cmd.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
+
+# EXEC BEFORE IRC CONNECTION - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
+<init>|10|0|0|1||php scripts/init.php
+
+# EXEC ON QUIT - ONLY ONE EXEC LINE ALLOWED SO ADD TO COMMAND USING &&
+<quit>|10|0|0|1||php scripts/quit.php
+
+# REQUIRE NICKSERV IDENTIFIED USER AUTHENTICATION (WHOIS)
+#~comment|30|0|0|1|crutchy|php scripts/sn.php %%trailing%% %%dest%% %%nick%%
+#~op|5|0|0|1|crutchy|php scripts/admin.php %%dest%%
+~say|2|0|1|0|crutchy,chromas,monopoly|php scripts/say.php %%trailing%% %%nick%%
+~bucket|5|0|0|1|crutchy|php scripts/bucket.php %%trailing%% %%nick%% %%dest%%
+#~wiki|20|0|0|0|crutchy|php scripts/wiki.php %%trailing%% %%dest%% %%nick%%
+#~ping|5|0|0|1|crutchy|php scripts/ping.php
+#~get-source|60|0|0|1|crutchy,chromas|php scripts/source_get.php %%trailing%%
+#~del-source|5|0|0|1|crutchy|php scripts/source_del.php %%trailing%%
+
+# called from other scripts via NOTICE cmd
+~sed|5|0|0|0||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%cmd%%
+#~funnel|5|0|0|0||php scripts/funnel.php %%cmd%% %%trailing%% %%data%% %%dest%% %%params%% %%nick%%
+#~grab|5|0|0|0||php scripts/grab.php %%trailing%% %%nick%%
+#~bucket_vars|5|0|0|0||php scripts/bucket_vars.php %%trailing%% %%dest%%
+#~stats|5|0|0|0||php scripts/stats.php %%trailing%% %%dest%% %%nick%% %%alias%%
+
+# timer scripts
+#~feeds_5714869245|10|30|0|1||php scripts/feeds.php %%trailing%% %%nick%% %%dest%%
+#~feed|600|1200|0|1|crutchy|php scripts/feeds.php %%trailing%% %%nick%% %%dest%%
+#~feed|500|1800|0|1|crutchy|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#~feed|100|120|0|1|crutchy|php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+
+# NON-TILDE ALIASES
+#rofl|5|0|1|1||fortune -s -o
+
+# GENERAL USAGE ALIASES
+#~karma|5|0|0|0|php scripts/comments.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#~feed-sources|5|0|0|1||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#~feed-add|5|0|0|1||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#~feed-del|5|0|0|1||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#~stats-lines|600|0|0|1||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#~stats-first|600|0|0|1||php scripts/logs-sylnt-us.php %%trailing%% %%nick%% %%dest%% %%alias%%
+# the following 'exec' alias is being called unintentionally during startup
+#exec|5|0|1|1||php scripts/about.php %%trailing%%
+#~bewbs|5|0|1|1||php scripts/bewbs.php
+~|5|0|1|1||php scripts/about.php %%trailing%%
+~cowsay|10|0|1|0||cowsay %%trailing%%
+~moo|10|0|1|1||apt-get moo
+~fortune|5|0|1|1||fortune -s
+~php|5|0|0|0||php scripts/php.php %%trailing%%
+#~con/con|10|0|1|1||php scripts/bsod.php
+~join|5|0|0|0||php scripts/join.php %%trailing%%
+~invite|5|0|0|0||php scripts/join.php %%trailing%%
+~part|5|0|0|1||php scripts/part.php %%dest%% %%trailing%%
+~isup|30|0|0|0||php scripts/isup.php %%trailing%%
+~time|30|0|0|0||php scripts/time.php %%trailing%%
+~rainbow|5|0|0|0||php scripts/rainbow.php %%trailing%%
+~translate|10|0|0|0||php scripts/translate.php %%trailing%% %%alias%%
+~translate-sl|10|0|0|0||php scripts/translate.php %%trailing%% %%alias%%
+#~bsod|10|0|1|1||php scripts/bsod.php
+#~snake|5|0|1|1||echo %%trailing%% | cowsay -f elephant-in-snake
+#~test|5|0|0|0||php scripts/test.php %%trailing%% %%dest%% %%nick%%
+~cowsay-fortune|5|0|1|1||sh cowsay-fortune.sh
+#~smile|5|0|1|0||php scripts/smile.php %%trailing%%
+#~uptime|5|0|1|1||uptime
+#~bad|5|0|1|1||fortune -s -o
+#~exec-up|5|0|0|1||php scripts/up.php %%start%%
+#~sylnt|10|0|1|1||php scripts/soylent.php
+#~recurse|5|0|0|1||php scripts/recurse.php
+#~tux|5|0|1|0||cowsay -f tux %%trailing%%
+#~greet|5|0|0|0||php scripts/greet.php %%trailing%% %%nick%% %%alias%%
+#~computer|5|0|0|0||php scripts/computer.php %%trailing%% %%dest%% %%nick%%
+
+~define|20|0|0|0||php scripts/definitions.php %%trailing%% %%alias%%
+~define-add|10|0|0|0||php scripts/definitions.php %%trailing%% %%alias%%
+~define-count|5|0|0|1||php scripts/definitions.php %%trailing%% %%alias%%
+~define-sources|5|0|0|1||php scripts/definitions.php %%trailing%% %%alias%%
+
+~weather|10|0|0|1||php scripts/weather.php %%alias%% %%trailing%%
+~weather-add|10|0|0|1||php scripts/weather.php %%alias%% %%trailing%%
+
+~help|5|0|0|0||php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
+~help-script|5|0|0|0||php scripts/help.php %%trailing%% %%dest%% %%nick%% %%alias%%
+
+#~civ|120|0|0|1||php scripts/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
+#~civ-admin|120|0|0|1|crutchy|php scripts/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%%
+#~civ-map|300|0|0|1|crutchy|php scripts/irciv_map.php %%nick%% %%trailing%% %%dest%%
+#~civ-save|5|1200|0|1||php scripts/irciv.php '<<SAVE>>'
+#~civ-todo|20|0|0|1||php scripts/irciv_todo.php %%nick%%
+
+# non-php scripts
+#~haskell|5|0|1|1||runhaskell scripts/haskell.hs
+#~perl|5|0|1|1||perl scripts/perl.pl
+#~fb|10|0|1|1||perl scripts/fb.pl (TheMightyBuzzard)
+
+# scripts by chromas
+~mackey|5|0|1|0||php /nas/server/git/chromas/mackey.php %%trailing%% %%nick%%

@@ -1,0 +1,393 @@
+<?php
+
+  $M=0.95;
+  $a=295; # m/s [Shevell]
+  $v_0=$M*$a; # km/s
+
+  $g_0=9.81; # m/s²
+  $Delta_v=9.2; # km/s
+
+  # hydrogen/flourine [Shevell]
+  $I_sp=385; # s
+  $v_e=3774; # m/s
+
+  $Delta_v0=$Delta_v-$v_0/1000; # km/s
+
+  $m_0_m_1_jet=exp($Delta_v0/($v_e/1000));
+  $m_0_m_1_nojet=exp($Delta_v/($v_e/1000));
+
+  $Payload=2000; # kg
+  $OEW=14000; # kg
+
+  $m_1_fraction_jet=1/$m_0_m_1_jet;
+  $m_1_fraction_nojet=1/$m_0_m_1_nojet;
+
+  $ZeroFuelWeight=$OEW+$Payload; # kg
+  $MTOW_jet=$m_0_m_1_jet*$ZeroFuelWeight; # kg
+  $MTOW_nojet=$m_0_m_1_nojet*$ZeroFuelWeight; # kg
+
+  $MTOW_reduction=$MTOW_nojet-$MTOW_jet; # kg
+
+?>
+
+<p><span style="font-size: 8pt"><i>Author: Jared Crutchfield<br>Modified: 11 December 2011</i></span></p>
+
+<p><b>Objectives...</b></p>
+
+<p>On establishment of an Australian national aerospace administration, making Earth orbit easily accessible must be a high priority.</p>
+
+<p>The first project of the administration should be the development of a cheap to operate, fully reusable, reliable, fast and safe shuttle system for transport of material and personnel payloads into Low Earth Orbit (LEO).</p>
+
+<p>The definition of cheap in this case should perhaps be under AUD$1,000 per kilogram of payload into LEO (operational costs only, so excluding recouperation of R&amp;D costs), and as the system is refined over time this figure should be reduced.</p>
+
+<p>The definition of reliable should be over 100 successful test flights of the first shuttle system within the first six months. That means at least four launches per week. Each shuttle should be designed to eventually fly as frequently as once (or more) per day everyday, which for a fleet of say 10 vehicles, is a significant daily payload to orbit capability (much higher than would be possible with expendable or refurbishable launch vehicles). For this to occur, extensive non-destructive inspection and testing procedures and equipment will need to be developed to ensure that a high level of safety is maintained.</p>
+
+<p>To begin with, one vehicle should be produced for extensive development and testing of the system (<a href="http://www.jerrypournelle.com/reports/jerryp/gettospace.html" target="_blank">Pournelle, J.E.</a>). This vehicle should be pushed to its limits so that future production models can be considered reliable and will not have to be modified at a later stage, leading to increased cost efficiency, even though the first shuttle may be unsuitable for service. Ten or so vehicles should be produced after testing to enable operations to begin.</p>
+
+<p><b>Concept...</b></p>
+
+<p>The objectives set out above imply that the method of launching the system vertically with rockets as with the Space Shuttle in the United States is not suitable. This is because of long preparation times required leading to low frequency of flights.</p>
+
+<p>To meet the objective of a frequency of four flights per week without spending significant financial resources on multiple launch facilities, a runway should be used to launch the system horizontally. Later when there is a fleet of shuttles, a complex of parallel runways would be constructed for simultaneous launches.</p>
+
+<p>The program should eventually include the development of shuttles specifically designed for passenger transport, with large windows for passengers to see out of as they are flying along.</p>
+
+<p>As the shuttle system is proven reliable, a production line should be established with large clean rooms where spacecraft can be mass-produced.</p>
+
+<p>An interesting SSTO concept is currently being developed by Britain's <!-- <a href="http://www.reactionengines.co.uk/" target="_blank"> -->Reaction Engines Limited (REL)<!-- </a> --> [Ref. 14].</p>
+
+<p><b>Features...</b></p>
+
+<p>Discuss why a lifting body (such as the space shuttle) requires less heat shielding than ballistic re-entry capsules.</p>
+<p>Blended Wing Body (BWB) - shape of the future for airliners</p>
+<p>- Noise<br>
+- Efficiency<br>
+- Payload capacity<br>
+- Safety</p>
+<p>Winglets - reduce heat build-up at wingtips and reduce induced drag</p>
+<p>Rounded nose to reduce heat generated at surface. Show supersonic equations to prove this.</p>
+<p>Carbon Aerogel Heat Shielding - or "feathering" effect used for SpaceShipOne</p>
+<p>Propulsion</p>
+<p>Turbojet engines to lift off from ground like ordinary aircraft. Uses air from atmosphere (instead of onboard oxidizer) - reducing takeoff weight (see below for proof)</p>
+<p>Scramjet could also possibly be used as an intermediate stage (but added structural weight). Scramjet not practical for SSTO.</p>
+<p>Linear aerospike rocket engines:</p>
+<p>- Good shape for incorporating into rear of BWB<br>
+- High efficiency (at all altitudes)</p>
+<p>Turbojets</p>
+<p>Propulsion Integration: To ensure that the engines operate as efficiently as possible, the air intakes should be located on the lower surface of the lifting body as the local velocity is smaller. This will allow the engine to operate at a higher flight speed as the airflow over the top surface will be faster and be affected by transonic flight before the lower surface. The boundary layer is also smaller on the lower surface.</p>
+<p>Rocket propellants: H<sub>2</sub>/O<sub>2</sub> (environmentally friendly combustion). Maybe methane or propane to counter operational problems of H<sub>2</sub>.</p>
+<p>Turbojet fuel: Jet A1 (kerosene) - is there a lighter alternative?</p>
+<p>Explain requirements of a vehicle to get to proper orbit, including altitude, velocity etc.</p>
+
+<p><b>Flight Profile...</b></p>
+
+<p>The International Space Station is in a LEO that varies from 319.6 km (199 mi) to 346.9 km (216 mi) above the Earth's surface [Ref. 5].</p>
+
+<p>Turbojets used to horizontally liftoff and fly to about Mach 2.5 [estimated based on Ref. 2, 3 and 9] and between 50,000 and 60,000 ft [Ref. 2], after which aerospike rockets start and the turbojet intakes retract. Rockets propel the craft to Low Earth Orbit. After re-entry and glide, the turbojet intakes are deployed into the airstream and the turbojet engines are started and small amount of remaining jet fuel is used for powered landing.</p>
+
+<p><b>Delta V...</b></p>
+
+<p>The required speed for low Earth orbit is approximately 7.5 km/s = Mach 25.4 in air at high altitudes [Ref. 4], although &Delta;v of 9.7 km/s required for LEO is also quoted [Ref. 1].</p>
+<p>A majority of artificial satellites are placed in LEO, where they travel at about 27,400 km/h (8 km/s) [Ref. 5].</p>
+<p>Atmospheric and gravity drag associated with launch typically adds 1.5 to 2.0 km/s to the &Delta;v required to reach normal LEO orbital velocity of around 7.8 km/s (17,448 mph) [Ref. 5].</p>
+<p>Planetary or lunar escape velocity is sometimes misunderstood to be the speed a powered vehicle (such as a rocket) must reach to leave orbit; however, this is not the case, as the quoted number is typically the escape velocity at the body's surface, and vehicles need never achieve that speed [Ref. 6].</p>
+
+<p>&Delta;v contribution from turbojet (assume maximum airspeed under turbojet power of Mach <?php echo sprintf("%.1f",$M); ?>):</p>
+
+<p>M = V / a [Ref. 4]</p>
+
+<p>Speed of sound (a) between altitudes of 11 and 20 km = 295 m/s [Ref. 8]</p>
+
+<p>&Delta;v = V = <?php echo sprintf("%.1f",$M); ?> &times; <?php echo sprintf("%.1f",$a); ?> = <?php echo sprintf("%.1f",$v_0); ?> m/s = <?php echo sprintf("%.3f",$v_0/1000); ?> km/s</p>
+
+<p><b>Lift, Drag, Thrust &amp; Weight...</b></p>
+
+<p>About 130 kN dry thrust per turbojet engine, which is lower than thrust for each engine used in Concorde and much lower than for SR-71A Blackbird, may be starting point [Ref. 2 and 3]. Thrust required must be calculated to achieve target speed at given weight.</p>
+
+<p>Supersonic aerodynamics vary from subsonic (compressibility can't be ignored). A reference such as John Anderson's <i>Modern Compressible Flow</i> would be useful here.</p>
+
+<p>L = lift force (N) = C<sub>L</sub> &times; 1/2 &times; &rho; &times; V&sup2; &times; S [Ref. 15]<br>
+D = drag force (N) = C<sub>D</sub> &times; 1/2 &times; &rho; &times; V&sup2; &times; S [Ref. 16]<br>
+C<sub>L</sub> = lift coefficient (dimensionless) = 1.2 (reasonable initial guess)<br>
+C<sub>D</sub> = drag coefficient (dimensionless) = C<sub>D,0</sub> + C<sub>D,i</sub> [Ref. 20 &amp; 22]<br>
+C<sub>D,0</sub> = zero-lift drag coefficient (dimensionless) [Ref. 20] = estimate interatively (depends on S) using Jan Roskam's <i>Methods for Estimating Drag Polars of Subsonic Airplanes</i><br>
+C<sub>D,i</sub> = induced drag coefficient (dimensionless) = C<sub>L</sub>&sup2; / (&pi; &times; e &times; AR) [Ref. 19]<br>
+e = Oswald efficiency (dimensionless) = 0.8 (typical estimate)<br>
+AR = aspect ratio (dimensionless) = b&sup2; / S [Ref. 21]<br>
+b = wing span (m)<br>
+&rho; = sea level air density = 1.225 kg/m&sup3; [Ref. 17 &amp; 18]<br>
+V = true airspeed = <?php echo sprintf("%.1f",$v_0); ?> m/s<br>
+S = wing reference area</p>
+
+<p><b>Rocket Equation...</b></p>
+
+<p>&Delta;v = v<sub>e</sub> &times; <i>ln</i>(m<sub>0</sub> / m<sub>1</sub>) [Ref. 1]</p>
+
+<p>Where:<br>
+&Delta;v = change in speed with no external forces acting<br>
+m0 = initial total mass including propellant<br>
+m1 = final total mass<br>
+v<sub>e</sub> = effective exhaust velocity</p>
+
+<p>v<sub>e</sub> = g<sub>0</sub> &times; I<sub>sp</sub> [Ref. 10]</p>
+
+<p>Where:<br>
+
+g<sub>0</sub> = acceleration due to gravity = <?php echo sprintf("%.2f",$g_0); ?> m/s&sup2;<br>
+I<sub>sp</sub> = specific impulse of rocket motor</p>
+
+<p>Table 17.1 on Page 363 of Ref. 23 specifies the following figures:</p>
+
+<table>
+<tr><td>fuel/oxidizer</td><td>I<sub>sp</sub></td><td>v<sub>e</sub></td></tr>
+<tr><td>kerosene/oxygen</td><td>285 sec</td><td>2788 m/s</td></tr>
+<tr><td>hydrogen/flourine</td><td>385 sec</td><td>3774 m/s</td></tr>
+<tr><td>hydrogen/oxygen</td><td>384 sec</td><td>3760 m/s</td></tr>
+</table>
+
+<!-- The XRS-2200 produces 204,420 lbf (909,300 N) thrust with an Isp of 339 seconds at sea level, and 266,230 lbf (1,184,300 N) thrust with an Isp of 436.5 seconds in a vacuum. [07/12/2011] URL: http://en.wikipedia.org/wiki/Aerospike_engine -->
+
+<p>Lets assume we're using hydrogen/flourine:<br>
+I<sub>sp</sub> = <?php echo sprintf("%.1f",$I_sp); ?> sec<br>
+v<sub>e</sub> = <?php echo sprintf("%.1f",$v_e); ?> m/s = <?php echo sprintf("%.3f",$v_e/1000); ?> km/s</p>
+
+<p>Assuming a required orbital velocity of <?php echo sprintf("%.1f",$Delta_v); ?> km/s:<br>
+<?php echo sprintf("%.1f",$Delta_v); ?> - <?php echo sprintf("%.3f",$v_0/1000); ?> = <?php echo sprintf("%.3f",$v_e/1000); ?> &times; <i>ln</i>(m<sub>0</sub> / m<sub>1</sub>)</p>
+
+<p>m<sub>0</sub> / m<sub>1</sub> = <i>e</i><sup>(<?php echo sprintf("%.1f",$Delta_v); ?> - <?php echo sprintf("%.3f",$v_0/1000); ?>) / <?php echo sprintf("%.3f",$v_e/1000); ?></sup> = <i>e</i><sup><?php echo sprintf("%.3f",$Delta_v0/($v_e/1000)); ?></sup> = <?php echo sprintf("%.3f",$m_0_m_1_jet); ?></p>
+
+<p>Assuming m<sub>0</sub> = 1 (100%), find m<sub>1</sub> as percentage by rearranging:<br>
+1 / m<sub>1</sub> = <?php echo sprintf("%.3f",$m_0_m_1_jet); ?><br>
+m<sub>1</sub> = 1 / <?php echo sprintf("%.3f",$m_0_m_1_jet); ?> = <?php echo sprintf("%.3f",$m_1_fraction_jet); ?> = <?php echo sprintf("%.1f",$m_1_fraction_jet*100); ?>%</p>
+
+<p>This means that <?php echo sprintf("%.1f",100-$m_1_fraction_jet*100); ?>% of the weight of the shuttle at rocket ignition must be propellants, with the other <?php echo sprintf("%.1f",$m_1_fraction_jet*100); ?>% being the shuttle operating empty weight, fuel for turbojet at landing, payload and crew.</p>
+
+<p>A suitable X project might be to get two pilots and some instrumentation weighing about <?php echo sprintf("%.0f",$Payload); ?> kg to LEO.</p>
+
+<p>To demonstrate the benefit of using turbojet propulsion to achieve Mach <?php echo sprintf("%.1f",$M); ?> prior to rocket ignition, the X project scenario will be compared with and without the relatively small boost in initial speed, assuming a realistic vehicle empty weight of <?php echo sprintf("%.0f",$OEW/1000); ?> tonne, based on the 170.6 tonne MTOW of the B-2 Spirit [Ref. 27]:</p>
+
+<table>
+<tr><td>&nbsp;</td><td><b>Rocket Only</b></td><td><b>Turbojet+Rocket</b></td><td><b>B-2</b></td><td><b>STS</b></td></tr>
+<tr><td>Specific impulse of rocket motor, I<sub>sp</sub> (hydrogen/flourine)</td><td><?php echo sprintf("%.1f",$I_sp); ?> sec</td><td><?php echo sprintf("%.1f",$I_sp); ?> sec</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>Effective exhaust velocity, v<sub>e</sub></td><td><?php echo sprintf("%.3f",$v_e/1000); ?> km/s</td><td><?php echo sprintf("%.3f",$v_e/1000); ?> km/s</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>Orbital speed required, &Delta;v</td><td><?php echo sprintf("%.1f",$Delta_v); ?> km/s</td><td><?php echo sprintf("%.1f",$Delta_v); ?> km/s</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>Speed of sound between 11 and 20 km, a</td><td><?php echo sprintf("%.1f",$a); ?> m/s</td><td><?php echo sprintf("%.1f",$a); ?> m/s</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>Mach number at turbojet shutdown, M</td><td>0.00</td><td><?php echo sprintf("%.2f",$M); ?></td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>Airspeed at turbojet shutdown, v<sub>0</sub></td><td>0.0 km/s</td><td><?php echo sprintf("%.3f",$v_0/1000); ?> km/s</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>Rocket motor &Delta;v</sub> required</td><td><?php echo sprintf("%.1f",$Delta_v); ?> km/s</td><td><?php echo sprintf("%.1f",$Delta_v0); ?> km/s</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>Mass fraction, m<sub>0</sub> / m<sub>1</sub></td><td><?php echo sprintf("%.3f",$m_0_m_1_nojet); ?></td><td><?php echo sprintf("%.3f",$m_0_m_1_jet); ?></td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>Zero fuel weight, m<sub>1</sub></td><td><?php echo sprintf("%.3f",$m_1_fraction_nojet*100); ?>%</td><td><?php echo sprintf("%.3f",$m_1_fraction_jet*100); ?>%</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>Payload</td><td><?php echo sprintf("%.1f",$Payload/1000); ?> tonne</td><td><?php echo sprintf("%.1f",$Payload/1000); ?> tonne</td><td><?php echo sprintf("%.0f",170.6-71.7-75.8); ?> tonne (75.8 tonne fuel)</td><td>24 tonne</td></tr>
+<tr><td>Operating empty weight of vehicle, OEW</td><td><?php echo sprintf("%.1f",$OEW/1000); ?> tonne</td><td style="color: red;"><b><?php echo sprintf("%.1f",$OEW/1000); ?> tonne</b></td><td style="color: red;"><b>71.7 tonne</b></td><td>78 tonne</td></tr>
+<tr><td>Zero fuel weight, m<sub>1</sub></td><td><?php echo sprintf("%.1f",$ZeroFuelWeight/1000); ?> tonne</td><td><?php echo sprintf("%.1f",$ZeroFuelWeight/1000); ?> tonne</td><td>&nbsp;</td><td><?php echo sprintf("%.0f",78+24); ?> tonne</td></tr>
+<tr><td>Gross liftoff weight/maximum takeoff weight (GLOW/MTOW), m<sub>0</sub></td><td><?php echo sprintf("%.1f",$MTOW_nojet/1000); ?> tonne</td><td><?php echo sprintf("%.1f",$MTOW_jet/1000); ?> tonne</td><td>170.6 tonne</td><td>2000 tonne</td></tr>
+<tr><td>Reduction in GLOW/MTOW from turbojet</td><td>&nbsp;</td><td><?php echo sprintf("%.1f",$MTOW_reduction/1000); ?> tonne</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>Rocket propellant weight</td><td><?php echo sprintf("%.1f",($MTOW_nojet-$ZeroFuelWeight)/1000); ?> tonne</td><td><?php echo sprintf("%.1f",($MTOW_jet-$ZeroFuelWeight)/1000); ?> tonne</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+</table>
+
+<p>For a <?php echo sprintf("%.0f",$OEW/1000); ?> tonne vehicle OEW, a GLOW/MTOW saving of <?php echo sprintf("%.0f",$MTOW_reduction/1000); ?> tonne (<?php echo sprintf("%.0f",$MTOW_reduction/$MTOW_nojet*100); ?>%) makes the additional weight of two airbreathing engines (2 &times; 3500 lb = <?php echo sprintf("%.1f",2*3500/2.20624/1000); ?> tonne based on the GE-F118 [Ref. 28]) worth considering. Particularly when differences in required launch infrastructure are taken into account (runway for turbojet-propelled takeoff versus launch pad and gantry for rocket takeoff).</p>
+
+<p>This leaves a maximum airframe weight of just <?php echo sprintf("%.1f",($OEW-2*3500/2.20624)/1000); ?> tonne to carry a <?php echo sprintf("%.1f",$MTOW_jet/1000); ?> tonne fully loaded
+SSTO shuttle off a runway.</p>
+
+<p><b><i>For the same MTOW and performance as a B-2, the OEW of the SSTO shuttle must be no more than <?php echo sprintf("%.0f",$OEW/1000/71.7*100); ?>% of the OEW of the B-2.</i></b></p>
+
+<p>The engineering challenge will be to create a light-weight vehicle structure and aerodynamic surfaces that can carry the required MTOW off the ground.</p>
+
+<p>In addition to the aircraft systems on the B-2, the final SSTO shuttle will require thermal protection (consider carbon aerogels and retractable intakes), rocket fuel tankage,
+reaction control, crew life support and environmental control, a crew airlock, payload manipulation, etc. Some novel solutions to various problems will be required. On the flip-side,
+the SSTO will not require stealth or weapons. The SSTO will also not require design to any certification standards (as an R&D project at least) and safety margins would likely be minimal.
+The first test craft could also be pilotless (reduced payload weight, no cockpit, no ejection seat, no displays, no life support, etc). Control systems should be as simple as possible
+(the B-2 has no vertical stabiliser for stealth reasons, but the SSTO shuttle could have one or more vertical stabilisers to simplify stability and control systems). If you rip out just
+the weapon and crew support systems from a B-2, you might end up with an OEW significantly less than 70 tonne without any further creative thinking.</p>
+<p>The SSTO shuttle won't require as much
+jet fuel as a B-2 (it will require a much more significant amount of rocket propellants), as the jets are only used during takeoff and landing (jet fuel should be considered as part of the
+payload weight of the SSTO shuttle). The rocket propellant weight required by the SSTO shuttle is only double the maximum fuel weight for a B-2, so designing tankage to carry it doesn't
+seem beyond possibility (the SSTO shuttle doesn't need a weapons bay, which might afford a bit of extra room for propellant).</p>
+
+<p>The empty weight of the STS orbiter is 78 tonne for a LEO payload capacity of 24 tonne [Ref. 13], resulting in a combined weight of 102 tonne. For comparison, using the same total weight for a SSTO shuttle, the takeoff weight of the SSTO shuttle would be 102 / <?php echo sprintf("%.3f",$m_1_fraction_jet); ?> = <?php echo sprintf("%.0f",102/$m_1_fraction_jet); ?> tonne. For the same shuttle weight, this is only <?php echo sprintf("%.0f",102/$m_1_fraction_jet/2000*100); ?>% of the 2000 tonne [Ref. 13] GLOW of the STS stack!</p>
+
+<p>Even based solely on the potential weight savings of reduced rocket propellant requirements (neglecting operational benefits of horizontal takeoff and powered horizontal landing, and reduced structural weight due to smaller propellant tankage requirements), the benefits of using airbreathing engines for SSTO cannot be ignored.</p>
+
+<p><b>Configuration...</b></p>
+
+<p>The feathering effect employed by <a href="http://en.wikipedia.org/wiki/SpaceShipOne" target="_blank">SpaceShipOne</a> is certainly a breakthrough and an inspiration, but may not be practical for regular shuttle services. The less moving parts exposed to the harsh elements of space the better (reliability, maintainability, etc).</p>
+
+<p>The author envisages the following configuration features:</p>
+<p>
+- blended wing body airframe<br>
+- tail-less design, or a V-tail<br>
+- twin turbojets with a retractable upper or lower surface intake<br>
+- annular aerospikes around the turbofan nozzles<br>
+- blended low aspect raked winglets<br>
+- simple elevons<br>
+- louvres inside the retractable intake assist in directing airflow into the airframe where the engine is located
+</p>
+
+<p>Figure 1 (below) shows a quick and dirty shuttle concept by the author from 2003, which gives some idea of how major systems might be placed in an airframe similar to the abovementioned configuration.
+There are a few unlabeled colours; the orange area is the cargo bay, the lime coloured area aft of the cargo bay is the retractable intake, and the navy coloured band aft of the intake is a cross-section adaptor, which changes from a rectangular section at the aft end of the retractable intake to a circular section at the fore end of the engine, and also deflects the airflow around an approximately thirty degree bend.
+Louvres inside the duct would assist in keeping uniform airflow across the change in both airflow direction and cross-section.</p>
+
+<p><img src="shuttle.jpg" alt="shuttle.jpg"><br><br>
+<i>Figure 1: A quick and dirty shuttle concept (September 2003).</i></p>
+
+<p>The engine exhaust of the F/A-37 "Talon" from the film "Stealth" offered the idea of simply clustering small rockets around two jet engine exhausts (mockup shown <a href="http://en.wikipedia.org/wiki/File:ASW_Fake_FA37_1.jpg" target="_blank">here</a>). However, this is most likely not as efficient as what the aerospike configuration could provide. The Talon utilised pulse detonation engines rather than rockets, but its not hard to imagine the similarities.</p>
+
+<p>Whether a retractable intake should be on the upper or lower surface depends on whether the benefit of slower local airflow over the lower surface exceeds the cost of more complex heat shielding around the intake.</p>
+
+<p><b>Proposed shuttle dimensions...</b></p>
+
+<p>Overall</p>
+
+<p>Length: 32000 mm<br>
+Height: 2500 mm<br>
+Width: 16000 mm</p>
+
+<p>Payload Bay</p>
+
+<p>Length: 4000 mm<br>
+Diameter: 2000 mm</p>
+
+<p>From Lower Surface To Bottom of Payload Bay: 400 mm<br>
+From Upper Surface to Top of Payload Bay: 100 mm</p>
+
+<p>From nose to front of payload bay: 8000 mm<br>
+From tail to rear of payload bay: 32000 - 6000 - 8000 = 18000 mm</p>
+
+<p>Dihedral tip height: 1000 mm</p>
+
+<p><b>The Jecket...</b></p>
+
+<p>Space transport is becoming increasingly important to space research, business, the telecommunications industry, and also has promise in the field of tourism. To benefit these areas, however, it needs to be reliable, cheap and safe.</p>
+
+<p>For these reasons, the rocket based launch systems of today’s space transport industry have passed their time. They are dangerous, expensive, and unreliable, and a great number of support and maintenance personnel are needed to keep them operational. NASA’s Space Shuttle for instance, costs American taxpayers on average about US$1.5 billion per flight [<?php InternalHyperlink("?page=links#ref10","Ref. 10"); ?>], and so far fourteen people have lost their lives in two accidents. The size of rocket based launch vehicles is also an issue. The Vehicle Assembly Building (VAB) at Cape Canaveral is among the largest buildings in the world.</p>
+
+<p>The jecket, derived from the words <b>je</b>t and ro<b>cket</b>, is an aerospace propulsion system combining a turbojet jet engine and a series of rockets. The jecket is intended to operate in two environmental configurations; atmospheric and space flight. There isn’t any magic in the device; it is simply an ordinary jet engine with a modified air intake and a few rockets attached to the back end.</p>
+
+<p>At the front is a retractable air intake. This is a box that can be adjusted to sit inside the line of the fuselage of the aero-spacecraft, or tilt down at an approximately thirty-degree angle to allow air to be sucked into it for operation of the turbojet engine. The intake is used solely for the turbojet, which is located in the middle of the whole assembly, behind the variable intake and a small section for directing air from the intake to the engine. A turbojet engine works by sucking in air at the front, compressing it, injecting fuel, igniting the mixture of fuel and air, and allowing a stream of hot gases to blow out the back as a result. Directly behind the exhaust of the turbojet, the engine changes shape from having a round cross-section to it being hexagonal. This is to accommodate six triangular plates that extend into the turbojet egine exhaust cavity to form a point (called a retractable nozzle), and at the base of each of these plates is a pair of relatively small rocket engines. There aren't any nozzles on the individual rockets as the outer wall of the exhaust cavity and the triangular plates comprise the nozzle. The tips of the triangular plates meet at the centre of the exhaust cavity to seal off the turbojet engine from the rocket exhaust. Using part of the turbojet engine exhaust cavity for the rocket nozzle saves valuable space, and therefore enables generation of comparatively greater thrust from the rockets.</p>
+
+<p>When the jecket is in its atmospheric configuration, the variable intake is extended down at an angle, protruding from the fuselage, to scoop air for the turbojet. The retractable nozzle for the rockets is open to let the hot turbojet exhaust gases stream out. For space flight, the intake is retracted for protection against the harsh environment of space, and the retractable nozzle is engaged to allow the rockets to operate. When the aero-spacecraft endures a fiery re-entry after a space flight, having the intake closed protects the turbojet engine.</p>
+
+<p>Having a jet engine and a series of rocket engines in the one unit enables a more aerodynamic, efficient, and versatile craft to be designed, as there is only one hole in the back and there is no need for separable components as with the current NASA Space Shuttle. Because the jecket enables its aero-spacecraft to take off horizontally and jet engines are more fuel-economical in the atmosphere than rockets, the jecket is cheaper, safer and more reliable. As less fuel is required, the jecket allows for a smaller craft to be designed.</p>
+
+<p>The cost savings would be significant by using jeckets instead of rocket based launch systems. No gantry systems or haulers would be necessary; only a runway, and instead of a VAB, all that would be needed is a hangar. The reduction in size of the supporting infrastructure would result in fewer personnel required to keep them operational.</p>
+
+<p>Space travel still has its uncertainties and things will always go wrong. This is why in the future, particularly as space tourism is introduced, and there are more manned flights to the moon, space rescue will become vital. Allowing an aero-spacecraft to take off like an ordinary jet would enable a relatively quick response time for rescue in space.</p>
+
+<p>The most significant hurdle for a jecket-based shuttle is the cost of development and testing. In time though, the jecket or something similar will become a reality.</p>
+
+<p>An aero-spacecraft utilising a jecket would be an ideal candidate for an X project as it doesn't require researching any new technologies (<a href="http://www.jerrypournelle.com/reports/jerryp/gettospace.html" target="_blank">this page</a> explains the X project concept).</p>
+
+<p>An alternative to using a hexagonal retractable nozzle that extends into the turbojet exhaust cavity, which would be mechanically complex, would be using the external surface of the turbojet engine exhaust as the nozzle surface of an <a href="http://en.wikipedia.org/wiki/Aerospike_engine#Variations" target="_blank">annular or toroidal aerospike</a> rocket.</p>
+
+<p><span style="font-size: 8pt"><i>This article was submitted by the author as a Victorian Certificate of Education (VCE) Common Assessment Task (CAT) in 1999, though it has been edited and added to since.</i></span></p>
+
+<p><b>Hybrid Space Shuttle Engines...</b></p>
+
+<p>By far the most significant obstacle to further development of human space exploration and habitation is Earth's atmosphere. Only the wealthiest nations have well established space programs, and even these require financial assistance from government either in whole or in large part.</p>
+
+<p>Success in the space industry has relied on military requirements of past and present superpower nations like the USSR/Russia, the USA and unions such as the EU.</p>
+
+<p>The idea of using air breathing engines and rockets in the same vehicle is not new, however air breathing engines are heavy and can only be used in the thin lowermost layer of Earth's atmosphere. They also take up a large amount of space compared to rockets, which increases supporting structure requirements.</p>
+
+<p>Air breathing engines also require intakes exposed to oncoming airflow. This poses a problem during re-entry, when the temperatures encountered reach up to two thousand degrees Celsius, which is above the melting point of many materials suitable for use inside a jet engine without resulting in an excessive weight penalty. The environmental conditions of space can also be degrading to materials used in air breathing engines.</p>
+
+<p>If conventional jet engines are to be used in any sort of vehicle capable of re-entering the atmosphere, the intakes for the engines need to be designed in such a way as to remove the engine from the harsh environmental conditions of space and atmospheric re-entry.</p>
+
+<p>There are most likely several feasible methods of protecting a jet engine while not operating in a space shuttle. One possibility is to keep the engines inside the fuselage of the vehicle, and employ retractable intakes. During the takeoff and landing phases of the mission profile, the intakes would open to scoop air for the jet engines, and during the phase following takeoff where there is insufficient oxygen to sustain combustion within the engines, they are shut down and the intakes are retracted until after re-entry. There are many issues that complicate this method. For example, the airflow into the engine must be clean and evenly distributed over the area of the entry to the compressor.</p>
+
+<p>Having intakes on the top surface may be another option. The re-entry angle may be such that much of the top surface is shielded from the extreme temperatures. A disadvantage of this approach is that the local airspeed is fractionally higher than on the lower surface when the engine is operating, which may limit its useful envelope slightly.</p>
+
+<p><b>The Australian Aerospace Administration X Program...</b></p>
+
+<p>The AAA-X Program will be similar to that of the United States that was so successful in the middle of last century</p>
+
+<p>The characteristics of the projects that the program will host include [Ref. 7]:</p>
+
+<p>- They won't have huge budgets.<br>
+- They won't attract big attention, so they won't be bait for bureaucratic sharks or large companies.<br>
+- They won't be profitable in the usual sense of the word.<br>
+- The payoff to a company or organisation from participation in an X project will be mostly intangible, such as prestige at least within the profession and some early technological advantages from having employed people who built and understood the new technologies identified or acquired by the project.<br>
+- Actual monetary gains will be small and often negative.<br>
+- The payoff to everyone will be technology and experience, and not much else. The projects won't result in operational vehicles. The vehicles produced won't fly missions and most won't carry payloads.<br>
+- The projects will have limited goals.<br>
+- Each project will be over with in a short time.<br>
+- They will not be intended for career building, and ideally there shouldn't be any career opportunities in X project management.<br>
+- Someone will do the project and get out.<br>
+- There won't be any empires to be built because the projects won't last long enough to allow it.<br>
+- The projects will be based in remote and generally unpleasant places, the locations being dull enough to encourage work, if only in the hope of getting projects over with to return to civilization.<br>
+- A typical project will focus on a needed technology.</p>
+
+<p>Following is a rough outline of what will be involved in an X project [Ref. 7]:</p>
+
+<p>1. The best vehicle possible will be designed given existing technology. There will be no stretches or reaches. New technology will not be sought after as we want to see what the best we have can do. This will help to identify what is needed next.<br>
+2. The vehicle will then be built. This vehicle will be flown to find out its capabilities. Those limits will then be tested and tested again. This vehicle will probably be destroyed in the testing process, but this doesn't have to always be the case.<br>
+3. Using what will be learnt from the first test vehicle, a second vehicle will be built and flown to its limits, and kept flying until there is no more to learn.<br>
+4. If the second vehicle can't be used, a third will then be constructed, a few token flights will be made, and it will then serve as an exhibit in the organisation's museum.</p>
+
+<p>The tail numbers of each of these vehicles will go something along the lines of the following:</p>
+
+<p>AX-1A, AX-1B, AX-1C</p>
+
+<p>From this process we will learn what we can do and what we need to know.</p>
+
+<p>The X projects will not have payloads or mission requirements. The purpose of the X program will be to learn how to make vehicles that do have payloads and can fulfil mission requirements. With required subsidiary production company infrastructure and resources already prepared in parallel, the administration can then initiate space shuttle production, with the sole customer being another subsidiary company established for shuttle operation. From then on further subsidiaries can be set up for freight and passenger services, space station construction, etc. However, cheap, regular, safe and reliable access to space is the cornerstone for building of a cooperative non-profit space empire.</p>
+
+<p><b>Cited References...</b></p>
+
+<p>1. Wikipedia, <i>Tsiolkovsky rocket equation</i> [Online, Accessed: 7 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Tsiolkovsky_rocket_equation" target="_blank">http://en.wikipedia.org/wiki/Tsiolkovsky_rocket_equation</a></p>
+
+<p>2. Wikipedia, <i>Concorde</i> [Online, Accessed: 7 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Concorde" target="_blank">http://en.wikipedia.org/wiki/Concorde</a></p>
+
+<p>3. Wikipedia, <i>Lockheed SR-71 Blackbird</i> [Online, Accessed: 7 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Lockheed_SR-71_Blackbird" target="_blank">http://en.wikipedia.org/wiki/Lockheed_SR-71_Blackbird</a></p>
+
+<p>4. Wikipedia, <i>Mach number</i> [Online, Accessed: 7 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Mach_number" target="_blank">http://en.wikipedia.org/wiki/Mach_number</a></p>
+
+<p>5. Wikipedia, <i>Low Earth orbit</i> [Online, Accessed: 7 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Low_Earth_orbit" target="_blank">http://en.wikipedia.org/wiki/Low_Earth_orbit</a></p>
+
+<p>6. Wikipedia, <i>Escape velocity</i> [Online, Accessed: 7 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Escape_velocity" target="_blank">http://en.wikipedia.org/wiki/Escape_velocity</a></p>
+
+<p>7. Pournelle, J.E. <i>HOW TO GET TO SPACE</i> [Online, Accessed 7 May 2011]. URL: <a href="http://www.jerrypournelle.com/reports/jerryp/gettospace.html" target="_blank">http://www.jerrypournelle.com/reports/jerryp/gettospace.html</a></p>
+
+<p>8. Wikipedia, <i>Speed of sound</i> [Online, Accessed: 7 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Speed_of_sound" target="_blank">http://en.wikipedia.org/wiki/Speed_of_sound</a></p>
+
+<p>9. Wikipedia, <i>Turbojet</i> [Online, Accessed: 7 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Turbojet" target="_blank">http://en.wikipedia.org/wiki/Turbojet</a></p>
+
+<p>10. Wikipedia, <i>Specific impulse</i> [Online, Accessed: 7 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Specific_impulse" target="_blank">http://en.wikipedia.org/wiki/Specific_impulse</a></p>
+
+<p>11. Wikipedia, <i>List of airliners by Maximum Takeoff Weight</i> [Online, Accessed: 7 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/List_of_airliners_by_Maximum_Takeoff_Weight" target="_blank">http://en.wikipedia.org/wiki/List_of_airliners_by_Maximum_Takeoff_Weight</a></p>
+
+<p>12. Airliners.net, <i>The Boeing 717</i> [Online, Accessed: 7 May 2011]. URL: <a href="http://www.airliners.net/aircraft-data/stats.main?id=111" target="_blank">http://www.airliners.net/aircraft-data/stats.main?id=111</a></p>
+
+<p>13. Wikipedia, <i>Space Shuttle</i> [Online, Accessed: 7 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Space_Shuttle" target="_blank">http://en.wikipedia.org/wiki/Space_Shuttle</a></p>
+
+<p>14. Wikipedia, <i>Reaction Engines Skylon</i> [Online, Accessed: 7 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Skylon_(spacecraft)" target="_blank">http://en.wikipedia.org/wiki/Skylon_(spacecraft)</a></p>
+
+<p>15. Wikipedia, <i>Lift (force)</i> [Online, Accessed: 8 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Lift_%28force%29" target="_blank">http://en.wikipedia.org/wiki/Lift_%28force%29</a></p>
+
+<p>16. Wikipedia, <i>Drag equation</i> [Online, Accessed: 8 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Drag_equation" target="_blank">http://en.wikipedia.org/wiki/Drag_equation</a></p>
+
+<p>17. Wikipedia, <i>Density of air</i> [Online, Accessed: 8 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Air_density" target="_blank">http://en.wikipedia.org/wiki/Air_density</a></p>
+
+<p>18. Wikipedia, <i>International Standard Atmosphere</i> [Online, Accessed: 8 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/International_Standard_Atmosphere" target="_blank">http://en.wikipedia.org/wiki/International_Standard_Atmosphere</a></p>
+
+<p>19. Wikipedia, <i>Lift-induced drag</i> [Online, Accessed: 8 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Lift-induced_drag" target="_blank">http://en.wikipedia.org/wiki/Lift-induced_drag</a></p>
+
+<p>20. Wikipedia, <i>Oswald efficiency number</i> [Online, Accessed: 8 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Oswald_efficiency_number" target="_blank">http://en.wikipedia.org/wiki/Oswald_efficiency_number</a></p>
+
+<p>21. Wikipedia, <i>Aspect ratio (wing)</i> [Online, Accessed: 8 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Aspect_ratio_%28wing%29" target="_blank">http://en.wikipedia.org/wiki/Aspect_ratio_%28wing%29</a></p>
+
+<p>22. Wikipedia, <i>Parasitic drag</i> [Online, Accessed: 8 May 2011]. URL: <a href="http://en.wikipedia.org/wiki/Form_drag" target="_blank">http://en.wikipedia.org/wiki/Form_drag</a></p>
+
+<p>23. R. S. Shevell, <i>Fundamentals of Flight</i>, 2<sup>nd</sup> Ed.</p>
+
+<p>24. Wikipedia, <i>Orbital speed</i> [Online, Accessed: 5 December 2011]. URL: <a href="http://en.wikipedia.org/wiki/Orbital_speed" target="_blank">http://en.wikipedia.org/wiki/Orbital_speed</a></p>
+
+<p>25. [Online, Accessed: 6 December 2011]. URL: http://www.jet-engine.net/miltfspec.html</p>
+
+<p>26. [Online, Accessed: 6 December 2011]. URL: http://www.jet-engine.net/civtfspec.html</p>
+
+<p>27. [Online, Accessed: 6 December 2011]. URL: http://en.wikipedia.org/wiki/B-2_spirit</p>
+
+<p>28. [Online, Accessed: 6 December 2011]. URL: http://en.wikipedia.org/wiki/General_Electric_F118</p>
+

@@ -1,0 +1,150 @@
+[[IRC:exec]]
+
+==join==
+join #channel (don't have to be channel op)
+
+==sed==
+~sed on|off<br />
+[nick[:|,|>|.] ]s/pattern/replace[/[g]] (similar to SedBot)
+
+==part==
+~part (bot leaves channel)
+
+==list==
+~list (lists available commands)
+
+==list-auth==
+~list-auth (lists available commands requiring NickServ account authorization)
+
+==define==
+~define term
+
+==define-add==
+~define-add term, meaning
+
+==define-count==
+~define-count
+
+==define-delete==
+~define-delete
+
+==define-list==
+~define-list
+
+==define-sources==
+~define-sources
+
+==isup==
+~isup host[:port] (checks connection, returns http status if found)
+
+==header==
+~header &lt;header&gt; &lt;url&gt;<br />
+returns value of header (if found)<br />
+fails silently if error occurs or header not found
+
+==rainbow==
+~rainbow text
+
+==translate==
+~translate tolang text (auto-detects source lang, eg: ~translate en prueba)
+
+==translate-sl==
+~translate-sl fromlang tolang text (eg: ~translate-sl es en prueba)
+
+==time==
+~time location
+
+==weather==
+
+Syntax:
+* ~weather location
+
+Examples:
+* ~weather JFK
+* ~weather vostok, aq
+* ~weather crutchy
+
+Related commands:
+* [[IRC:exec_aliases#weather-add|~weather-add]]
+* [[IRC:exec_aliases#time-add|~time-add]]
+
+Developers:
+* [[User:Crutchy|crutchy]]
+
+Sources:
+* https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/weather.php
+* https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/weather_lib.php
+
+==weather-add==
+
+Syntax: ~weather-add name location
+
+Developer(s): [[User:Crutchy|crutchy]]
+
+Source:
+* https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/weather.php
+* https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/weather_lib.php
+
+Related commands:
+* [[IRC:exec_aliases#weather|~weather]]
+* [[IRC:exec_aliases#time|~time]]
+* [[IRC:exec_aliases#time-add|~time-add]]
+* [[IRC:exec_aliases#location|~location]]
+
+Description:
+
+Enables storing a short name to refer to a longer location description when using the [[IRC:exec_aliases#weather|~weather]] or [[IRC:exec_aliases#time|~time]] commands.
+
+If a name already exists, setting it again will overwrite the existing named location.
+
+Names cannot be deleted at this stage.
+
+A few thousand ICAO and IATA/FAA airport codes have been imported into the codes file thanks to [["http://openflights.org/data.html"|OpenFlights]].
+
+
+<source lang="dot">
+<crutchy> ~weather-add crutchy melbourne australia
+<exec> code "crutchy" set for location "melbourne australia"
+</source>
+
+==queue==
+~queue (returns number of SN submissions in the queue)
+
+==lock==
+~lock alias (treats all lines entered as being prefixed with alias, channel-specific)
+
+==unlock==
+
+Syntax:
+* ~unlock
+
+Related commands:
+* ~lock
+
+Developers:
+* [[User:Crutchy|crutchy]]
+
+Sources:
+* https://github.com/crutchy-/exec-irc-bot/blob/master/irc_lib.php
+
+==location==
+~location code
+
+==count==
+~count <nick>
+
+==first==
+~first <nick>
+
+==last==
+~last <nick>
+
+==find-first==
+~find-first <text>
+
+==find-last==
+~find-last <text>
+
+[[Category:IRC]]
+[[Category:IRC:exec]]
+

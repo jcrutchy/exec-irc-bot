@@ -3,7 +3,7 @@
 #####################################################################################################
 
 /*
-exec:~comment|30|0|0|1|crutchy||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#exec:~comment|30|0|0|1|crutchy||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~verifier-nick-change|30|0|0|1||INTERNAL|||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~verifier-nick|30|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~funding|30|900|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
@@ -54,6 +54,7 @@ switch ($alias)
     }
     return;
   case "~comment":
+    return; # DISABLES ALIAS
     $host="soylentnews.org";
     $port=443;
     $subject="comment from $dest @ irc.sylnt.us";
@@ -208,6 +209,10 @@ switch ($alias)
     if ($count!==False)
     {
       privmsg("*** SN submission queue: $count - http://sylnt.us/queue");
+    }
+    else
+    {
+      privmsg("*** SN submission queue: plenty - http://sylnt.us/queue");
     }
     sn_logout();
     return;
