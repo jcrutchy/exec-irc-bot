@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CONFIG>
-  <Compiler Value="/usr/bin/fpc" Date="1397983219"/>
-  <Params Value=" -MObjFPC -Scghi -O1 -g -gl -vewnhi -Fi/nas/server/git/exec-irc-bot/lazarus/lib/x86_64-linux -Fu/nas/server/git/exec-irc-bot/lazarus/ -FU/nas/server/git/exec-irc-bot/lazarus/lib/x86_64-linux/ -l logparse.lpr"/>
-</CONFIG>
