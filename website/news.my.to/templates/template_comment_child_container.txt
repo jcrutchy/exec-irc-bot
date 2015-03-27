@@ -1,3 +1,0 @@
-<div class="comment_child_container">
-%%child%%
-</div>
