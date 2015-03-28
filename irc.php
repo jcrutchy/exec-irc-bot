@@ -51,7 +51,7 @@ elseif (file_exists($argv[1])==True)
 }
 else
 {
-  die("INVALID COMMAND LINE ARGUMENT");
+  die("INVALID COMMAND LINE ARGUMENT\n");
 }
 
 # TODO: ADD FLAG TO HAVE EXEC IGNORE ITSELF
