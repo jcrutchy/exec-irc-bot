@@ -10,7 +10,8 @@ exec:~title|30|0|0|0|||||php scripts/title.php %%trailing%%
 
 require_once("lib.php");
 $trailing=trim($argv[1]);
-$url=get_redirected_url($trailing);
+$url=$trailing;
+#$url=get_redirected_url($url);
 if ($url===False)
 {
   term_echo("get_redirected_url=false");
@@ -29,7 +30,7 @@ if (get_host_and_uri($url,$host,$uri,$port)==False)
 $breakcode="return ((strpos(strtolower(\$response),\"</title>\")!==False) or (strlen(\$response)>=10000));";
 $response=wget($host,$uri,$port,ICEWEASEL_UA,"",20,$breakcode,256);
 
-#var_dump($response);
+var_dump($response);
 term_echo("*** TITLE => response bytes: ".strlen($response));
 
 $html=strip_headers($response);
@@ -69,6 +70,8 @@ if (strpos($filtered_url,$filtered_title)===False)
   if ($i!==False)
   {
     $filtered_title=strtolower(filter_non_alpha_num(substr($title,0,$i)));
+    term_echo("*** filtered_title = $filtered_title");
+    term_echo("*** filtered_url   = $filtered_url");
     if (strpos($filtered_url,$filtered_title)!==False)
     {
       privmsg("portion of title left of \" | \" exists in url");
