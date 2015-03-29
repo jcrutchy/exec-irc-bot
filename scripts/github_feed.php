@@ -65,6 +65,7 @@ if ($alias=="~slashcode-issue")
 
 $list=array(
   "crutchy-/exec-irc-bot",
+  "crutchy-/ircd",
   "TheMightyBuzzard/slashcode",
   "TheMightyBuzzard/api-testing",
   "chromatos/pas",
