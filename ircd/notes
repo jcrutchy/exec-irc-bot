@@ -6,3 +6,12 @@ ircd to work as a relay between irc.sylnt.us and local
 
 if a local client (xchat or bot) says something, it appears as "<exec> localnick: msg" at irc.sylnt.us,
 and likewise if someone says something on irc.sylnt.us
+
+
+
+
+
+
+i'll try set up my little ircd script so that i can make 2 connections
+to it with xchat and have the server treat both as the same nick
+(using a connection hash for 2nd connection)

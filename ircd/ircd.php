@@ -8,8 +8,8 @@ sudo netstat -lptu
 sudo netstat -tulpn
 */
 
-define("LISTEN_ADDRESS","192.168.0.21");
-#define("LISTEN_ADDRESS","192.168.1.197");
+#define("LISTEN_ADDRESS","192.168.0.21");
+define("LISTEN_ADDRESS","192.168.1.197");
 define("LISTEN_PORT",6667);
 define("CLIENT_TIMEOUT",60); # seconds
 

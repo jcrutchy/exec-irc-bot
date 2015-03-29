@@ -7,7 +7,7 @@ function connection_index($client_index,$suppress_error=False)
   global $connections;
   foreach ($connections as $index => $data)
   {
-    if ($connections[$index]["client_index"]==$client_index)
+    if (in_array($client_index,$connections[$index]["client_index"])==True)
     {
       return $index;
     }

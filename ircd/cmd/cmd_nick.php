@@ -17,13 +17,15 @@ function cmd_nick($client_index,$items)
     }
     # TODO: CHANGE NICK
     $nicks[strtolower($nick)]=array();
-    $nicks[strtolower($nick)]["connection"]=&$connections[$connection_index];
-    $nicks[strtolower($nick)]["connection_index"]=$connection_index;
-    $addr=$nicks[strtolower($nick)]["connection"]["addr"];
+    $nicks[strtolower($nick)]["connection"][]=&$connections[$connection_index];
+    $nicks[strtolower($nick)]["connection_index"][]=$connection_index;
+    $addr=$connections[$connection_index]["addr"];
     do_reply($client_index,"*** NICK MESSAGE RECEIVED FROM $addr: $nick");
+    # output connection_hash
   }
   else
   {
+    # check for nick+connection_hash
     do_reply($client_index,"ERROR: NICK ALREADY EXISTS (NUMERIC 433)");
   }
 }
