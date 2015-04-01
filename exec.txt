@@ -38,7 +38,7 @@ include test.php
 ~openthepodbaydoors|5|0|1|1|||||fortune -s -o
 
 # FOLLOWING ALIAS PERMITS GENERIC SHELL COMMANDS IN IRC (ENABLE AT OWN RISK)
-#~eval|0|0|1|0|@||#soylent,#journals,#,#github,#civ||{ eval %%trailing%% ; } 2>&1
+~eval|0|0|1|0|@||#soylent,#journals,#,#github,#civ||{ eval %%trailing%% ; } 2>&1
 
 ~deb|0|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
 

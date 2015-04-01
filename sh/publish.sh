@@ -4,6 +4,6 @@
 # [alias]
 #  up = !bash sh/publish.sh
 
-bash /nas/server/git/exec-irc-bot/sh/push.sh
-bash /nas/server/git/exec-irc-bot/sh/sync.sh
+bash ./sh/push.sh
+bash ./sh/sync.sh
 exit 0

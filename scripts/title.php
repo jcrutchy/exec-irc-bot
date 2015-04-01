@@ -30,7 +30,7 @@ if (get_host_and_uri($url,$host,$uri,$port)==False)
 $breakcode="return ((strpos(strtolower(\$response),\"</title>\")!==False) or (strlen(\$response)>=10000));";
 $response=wget($host,$uri,$port,ICEWEASEL_UA,"",20,$breakcode,256);
 
-var_dump($response);
+#var_dump($response);
 term_echo("*** TITLE => response bytes: ".strlen($response));
 
 $html=strip_headers($response);
