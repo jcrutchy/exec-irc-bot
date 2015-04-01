@@ -77,16 +77,25 @@ function handle_privmsg($parts,&$channel_data)
   array_shift($parts);
   $trailing=trim(implode(" ",$parts));
   term_echo("*** activity: nick=$nick, channel=$channel, trailing=$trailing");
+  nethack_follow($nick,$channel,$trailing);
+}
 
-  if (($nick=="") and ($channel=="#freenode") and (strpos(strtolower($trailing),"rodney")!==False) and (strpos(strtolower($trailing),"nethack")!==False))
+#####################################################################################################
+
+function nethack_follow($nick,$channel,$trailing)
+{
+  $rodney="03Rodney [02#NetHack] 05";
+  $follow="NCommander";
+  if (($nick=="") and ($channel=="#freenode") and (substr($trailing,0,strlen($rodney))==$rodney))
   {
-    pm("#nethack",$trailing);
-    if (strpos(strtolower($trailing),"ncommander")!==False)
+    $msg=substr($trailing,strlen($rodney));
+    $out="[02#NetHack] 05".$msg;
+    pm("#nethack",$out);
+    if (substr($msg,0,strlen($follow))==$follow)
     {
-      pm("#Soylent",$trailing);
+      pm("#Soylent",$out);
     }
   }
-
 }
 
 #####################################################################################################
