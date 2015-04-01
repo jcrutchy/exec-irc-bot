@@ -78,6 +78,15 @@ function handle_privmsg($parts,&$channel_data)
   $trailing=trim(implode(" ",$parts));
   term_echo("*** activity: nick=$nick, channel=$channel, trailing=$trailing");
 
+  if (($nick=="") and ($channel=="#freenode") and (strpos(strtolower($trailing),"rodney")!==False) and (strpos(strtolower($trailing),"nethack")!==False))
+  {
+    pm("#nethack",$trailing);
+    if (strpos(strtolower($trailing),"ncommander")!==False)
+    {
+      pm("#Soylent",$trailing);
+    }
+  }
+
 }
 
 #####################################################################################################

@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~nethack|15|20|0|1|||||php scripts/nethack.php %%trailing%% %%dest%% %%nick%%
-startup:~join #nethack
+#exec:~nethack|15|20|0|1|||||php scripts/nethack.php %%trailing%% %%dest%% %%nick%%
+#startup:~join #nethack
 */
 
 #####################################################################################################
