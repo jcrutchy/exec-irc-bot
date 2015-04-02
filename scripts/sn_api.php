@@ -3,7 +3,7 @@
 #####################################################################################################
 
 /*
-exec:~api|20|0|0|1|*|PRIVMSG|#Soylent,#,#journals||php scripts/sn_api.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
+exec:~api|90|0|0|1|*|PRIVMSG|#Soylent,#,#journals||php scripts/sn_api.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
 */
 
 #####################################################################################################
@@ -70,7 +70,8 @@ array_shift($parts);
 $trailing=trim(implode(" ",$parts));
 
 $host="dev.soylentnews.org";
-$port=80;
+#$host="soylentnews.org";
+$port=443;
 
 switch ($op)
 {

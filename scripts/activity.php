@@ -84,11 +84,18 @@ function handle_privmsg($parts,&$channel_data)
 
 function nethack_follow($nick,$channel,$trailing)
 {
+  $action="ACTION";
   $rodney="03Rodney [02#NetHack] 05";
   $follow="NCommander";
   if (($nick=="") and ($channel=="#freenode") and (substr($trailing,0,strlen($rodney))==$rodney))
   {
     $msg=substr($trailing,strlen($rodney));
+    if (substr($msg,0,strlen($action))==$action)
+    {
+      $msg=substr($msg,strlen($action));
+      $msg=substr($msg,0,strlen($msg)-1);
+      $msg="-- ".$msg;
+    }
     $out="[02#NetHack] 05".$msg;
     pm("#nethack",$out);
     if (substr($msg,0,strlen($follow))==$follow)
