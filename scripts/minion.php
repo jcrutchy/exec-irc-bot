@@ -39,7 +39,7 @@ if ($alias=="~freenode")
   echo "/IRC :exec INTERNAL :~join #freenode\n";
   echo "/IRC :exec INTERNAL :~minion new sylnt irc.freenode.net 6667 #sylnt\n";
   sleep(30);
-  echo "/IRC :exec INTERNAL :~minion join sylnt #sylnt,##exec,#devuan,#devuan-dev\n";
+  echo "/IRC :exec INTERNAL :~minion join sylnt #sylnt,##exec,#devuan,#devuan-dev,#nethack\n";
   sleep(5);
   echo "/IRC :exec INTERNAL :~minion forward sylnt #freenode\n";
 }
