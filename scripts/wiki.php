@@ -73,6 +73,12 @@ if ($alias=="~wiki-privmsg")
     {
       $section=$params[1];
     }
+    $params=explode("#",$parts[0]);
+    if (count($params)==2)
+    {
+      $title=$params[0];
+      $section=$params[1];
+    }
     get_text($title,$section);
   }
   return;

@@ -61,6 +61,7 @@ $containers=array(
   "a bathtub",
   "a spoon",
   "a socket",
+  "a caravan",
   "a buzz saw",
   "a blagoblag",
   "a DD cup",
@@ -90,6 +91,7 @@ $beverages=array(
   "toilet water",
   "ciri poo",
   "bacon",
+  "dag",
   "Debian",
   "coffee++",
   "Soylent Green");
