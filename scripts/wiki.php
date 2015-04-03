@@ -28,29 +28,6 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 
-if ($alias=="~wiki-internal") # currently unused
-{
-  $parts=explode("||",$trailing);
-  if (count($parts)<>5)
-  {
-    return;
-  }
-  $title=$parts[0];
-  $section=$parts[1];
-  $text=$parts[2];
-  $msg_success=$parts[3];
-  $msg_error=$parts[4];
-  if (login()===True)
-  {
-    privmsg($msg_success);
-  }
-  else
-  {
-    privmsg($msg_error);
-  }
-  return;
-}
-
 if ($trailing=="register-events")
 {
   register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~wiki-privmsg %%trailing%%");
@@ -59,6 +36,12 @@ if ($trailing=="register-events")
 
 if ($alias=="~wiki-privmsg")
 {
+  $spamctl=".spamctl";
+  if (strtolower(substr($trailing,0,strlen($spamctl)))==$spamctl)
+  {
+    wiki_spamctl($nick,$trailing);
+    return;
+  }
   $delim1="[[";
   $delim2="]]";
   if (substr($trailing,0,strlen($delim1))==$delim1)
@@ -103,6 +86,7 @@ if ($alias=="~wiki-privmsg")
         $title=$params[0];
         $section=$params[1];
       }
+      $title=str_replace(" ","_",$title);
       $url="http://wiki.soylentnews.org/wiki/".urlencode($title);
       if ($section<>"")
       {

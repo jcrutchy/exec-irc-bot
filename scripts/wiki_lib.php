@@ -293,4 +293,81 @@ function wiki_privmsg($return,$msg)
 
 #####################################################################################################
 
+function wiki_spamctl($nick,$trailing)
+{
+  $account=users_get_account($nick);
+  $allowed=array("crutchy","chromas","mrcoolbp");
+  if (in_array($account,$allowed)==False)
+  {
+    privmsg("  error: not authorized");
+    return;
+  }
+  $title=trim(substr($trailing,strlen(".spamctl")));
+  if ($title=="")
+  {
+    privmsg("  syntax: .spamctl <page title>");
+    return;
+  }
+  if (strtolower(substr($title,0,4))=="http")
+  {
+
+  }
+  $text="(cleared by $nick from irc -- spamctl)";
+  if (login(True)==False)
+  {
+    privmsg("  login error");
+    return;
+  }
+  $cookieprefix=get_bucket("wiki_login_cookieprefix");
+  $sessionid=get_bucket("wiki_login_sessionid");
+  if (($cookieprefix=="") or ($sessionid==""))
+  {
+    privmsg("  not logged in");
+    return;
+  }
+  $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
+  $uri="/w/api.php?action=tokens&format=php";
+  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
+  $data=unserialize(strip_headers($response));
+  if (isset($data["tokens"]["edittoken"])==False)
+  {
+    privmsg("  error getting edittoken");
+    logout(True);
+    return;
+  }
+  $token=$data["tokens"]["edittoken"];
+  $uri="/w/api.php?action=edit";
+  $params=array(
+    "format"=>"php",
+    "title"=>$title,
+    "text"=>$text,
+    "contentformat"=>"text/x-wiki",
+    "contentmodel"=>"wikitext",
+    "bot"=>"",
+    "token"=>$token);
+  $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
+  $data=unserialize(strip_headers($response));
+  if (isset($data["error"])==True)
+  {
+    privmsg("  error: ".$data["error"]["code"]);
+  }
+  else
+  {
+    $msg=$data["edit"]["result"];
+    if ($data["edit"]["result"]=="Success")
+    {
+      if ((isset($data["edit"]["oldrevid"])==True) and (isset($data["edit"]["newrevid"])==True))
+      {
+        $msg=$msg.", oldrevid=".$data["edit"]["oldrevid"].", newrevid=".$data["edit"]["newrevid"];
+      }
+    }
+    privmsg("  $msg");
+    $title=str_replace(" ","_",$title);
+    privmsg("  http://wiki.soylentnews.org/wiki/".urlencode($title));
+  }
+  logout(True);
+}
+
+#####################################################################################################
+
 ?>

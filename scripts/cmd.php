@@ -158,11 +158,17 @@ function handle_macros($nick,$channel,$trailing)
       return;
     }
     $trigger=trim($parts[1]);
+    $reserved_triggers=array(".macro");
+    if (in_array($trigger,$reserved_triggers)==True)
+    {
+      privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" not permitted");
+      return;
+    }
     $chanlist=trim($parts[2]);
     if ($chanlist=="-")
     {
       unset($macros[$trigger]);
-      pm($channel,chr(3)."02"."  *** macro with trigger \"$trigger\" deleted");
+      privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" deleted");
     }
     elseif (count($parts)>3)
     {
@@ -170,11 +176,20 @@ function handle_macros($nick,$channel,$trailing)
       array_shift($parts);
       array_shift($parts);
       $command=implode(" ",$parts);
+      $reserved_commands=array("~eval");
+      for ($i=0;$i<count($reserved_commands);$i++)
+      {
+        if (strtolower(substr($command,0,strlen($reserved_commands[$i])))==strtolower($reserved_commands[$i]))
+        {
+          privmsg(chr(3)."02"."  *** macro with command \"$command\" not permitted");
+          return;
+        }
+      }
       $data=array();
       $data["chanlist"]=$chanlist;
       $data["command"]=$command;
       $macros[$trigger]=serialize($data);
-      pm($channel,chr(3)."02"."  *** macro with trigger \"$trigger\" and command template \"$command\" saved");
+      privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" and command template \"$command\" saved");
     }
     save_settings($macros,$macro_file,"=");
   }
@@ -194,7 +209,7 @@ function handle_macros($nick,$channel,$trailing)
             $command=str_replace("%%channel%%",$channel,$data["command"]);
             $command=str_replace("%%nick%%",$nick,$command);
             $command=str_replace("%%trailing%%",$trailing,$command);
-            echo "/IRC :".NICK_EXEC." INTERNAL $channel :".$command."\n";
+            echo "/IRC :".NICK_EXEC." INTERNAL $channel :$command\n";
           }
         }
         return;
