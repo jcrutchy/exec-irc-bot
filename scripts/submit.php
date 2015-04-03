@@ -90,7 +90,7 @@ if (($source_title===False) or ($source_title==""))
 $source_title=html_decode($source_title);
 $source_title=html_decode($source_title);
 
-/*$source_body=extract_meta_content($source_html,"description");
+$source_body=extract_meta_content($source_html,"description");
 
 if (($source_body===False) or ($source_body==""))
 {
@@ -100,9 +100,9 @@ if (($source_body===False) or ($source_body==""))
     privmsg("error: description meta content not found or empty");
     return;
   }
-}*/
+}
 
-$html=$source_html;
+/*$html=$source_html;
 
 $article=extract_raw_tag($html,"article");
 if ($article!==False)
@@ -144,17 +144,17 @@ for ($i=0;$i<count($html);$i++)
       }
     }
   }
-  /*if (filter($html[$i],"0123456789")<>"")
+  if (filter($html[$i],"0123456789")<>"")
   {
     continue;
-  }*/
+  }
   if (strlen($html[$i])>1)
   {
-    /*if ($html[$i][strlen($html[$i])-1]<>".")
+    if ($html[$i][strlen($html[$i])-1]<>".")
     {
       continue;
-    }*/
-    /*while (True)
+    }
+    while (True)
     {
       $j=strlen($html[$i])-1;
       if ($j<0)
@@ -167,7 +167,7 @@ for ($i=0;$i<count($html);$i++)
         break;
       }
       $html[$i]=substr($html[$i],0,$j);
-    }*/
+    }
   }
   if (strlen($html[$i])>100)
   {
@@ -207,10 +207,10 @@ if ($nick<>"crutchy")
 {
   privmsg("exec's submit script is borken. blame crutchy");
   return;
-}
+} */
 
 $host="dev.soylentnews.org";
-$port=80;
+$port=443;
 $uri="/submit.pl";
 $response=wget($host,$uri,$port,ICEWEASEL_UA);
 $html=strip_headers($response);

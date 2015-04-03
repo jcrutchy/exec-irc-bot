@@ -39,7 +39,7 @@ if ($alias=="~freenode")
   echo "/IRC :exec INTERNAL :~join #freenode\n";
   echo "/IRC :exec INTERNAL :~minion new sylnt irc.freenode.net 6667 #sylnt\n";
   sleep(30);
-  echo "/IRC :exec INTERNAL :~minion join sylnt #sylnt,##exec,#devuan,#devuan-dev,#nethack\n";
+  echo "/IRC :exec INTERNAL :~minion join sylnt #sylnt,##exec\n";
   sleep(5);
   echo "/IRC :exec INTERNAL :~minion forward sylnt #freenode\n";
 }
@@ -156,7 +156,12 @@ switch ($cmd)
         switch ($items["cmd"])
         {
           case "PRIVMSG":
-            echo "/IRC PRIVMSG $forward :".chr(3)."03".$items["nick"].chr(3)." [".chr(3)."02".$items["destination"].chr(3)."] ".chr(3)."05".$items["trailing"]."\n";
+            $msg=chr(3)."03".$items["nick"].chr(3)." [".chr(3)."02".$items["destination"].chr(3)."] ".chr(3)."05".$items["trailing"];
+            echo "/IRC PRIVMSG $forward :$msg\n";
+            break;
+          default:
+            $msg=$items["data"];
+            echo "/IRC PRIVMSG $forward :$msg\n";
             break;
         }
       }

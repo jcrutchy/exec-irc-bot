@@ -78,6 +78,8 @@ function handle_privmsg($parts,&$channel_data)
   $trailing=trim(implode(" ",$parts));
   term_echo("*** activity: nick=$nick, channel=$channel, trailing=$trailing");
   nethack_follow($nick,$channel,$trailing);
+  minion_talk($nick,$channel,$trailing);
+  handle_macros($nick,$channel,$trailing);
 }
 
 #####################################################################################################
@@ -94,13 +96,108 @@ function nethack_follow($nick,$channel,$trailing)
     {
       $msg=substr($msg,strlen($action));
       $msg=substr($msg,0,strlen($msg)-1);
-      $msg="-- ".$msg;
+      $msg="--".$msg;
     }
     $out="[02#NetHack] 05".$msg;
     pm("#nethack",$out);
     if (substr($msg,0,strlen($follow))==$follow)
     {
       pm("#Soylent",$out);
+    }
+  }
+}
+
+#####################################################################################################
+
+function minion_talk($nick,$channel,$trailing)
+{
+  if ($nick<>"")
+  {
+    $commands=array();
+    # #epoch > g'day subsentient
+    # ~minion raw sylnt :sylnt PRIVMSG #epoch :g'day subsentient
+    $params=explode(">",$trailing);
+    if (count($params)<2)
+    {
+      return;
+    }
+    $target=trim($params[0]);
+    if (substr($target,0,1)<>"#")
+    {
+      return;
+    }
+    array_shift($params);
+    $msg=trim(implode(">",$params));
+    if (strlen($msg)>0)
+    {
+      $commands[]="~minion raw sylnt :sylnt PRIVMSG $target :$msg";
+    }
+    if (count($commands)==1)
+    {
+      internal_macro($commands);
+    }
+  }
+}
+
+#####################################################################################################
+
+function handle_macros($nick,$channel,$trailing)
+{
+  # .macro <trigger> <command_template>
+  # .macro <trigger> -
+  if (($nick=="") or ($channel=="") or ($trailing==""))
+  {
+    return;
+  }
+  $macro_file=DATA_PATH."exec_macros.txt";
+  $macros=load_settings($macro_file,"=");
+  if ($macros===False)
+  {
+    $macros=array();
+  }
+  $parts=explode(" ",$trailing);
+  delete_empty_elements($parts);
+  if (count($parts)==0)
+  {
+    return;
+  }
+  if ((strtolower(trim($parts[0]))==".macro") and (count($parts)>2))
+  {
+    $account=users_get_account($nick);
+    $allowed=array("crutchy","chromas");
+    if (in_array($account,$allowed)==False)
+    {
+      return;
+    }
+    $trigger=trim($parts[1]);
+    array_shift($parts);
+    array_shift($parts);
+    $command=implode(" ",$parts);
+    if ($command=="-")
+    {
+      unset($macros[$trigger]);
+      pm($channel,chr(3)."02"."  *** macro with trigger \"$trigger\" deleted");
+    }
+    else
+    {
+      $macros[$trigger]=$command;
+      pm($channel,chr(3)."02"."  *** macro with trigger \"$trigger\" and command template \"$command\" saved");
+    }
+    save_settings($macros,$macro_file,"=");
+  }
+  else
+  {
+    foreach ($macros as $trigger => $command)
+    {
+      if (substr($trailing,0,strlen($trigger))==$trigger)
+      {
+        $trailing=substr($trailing,strlen($trigger));
+        $command=str_replace("%%channel%%",$channel,$command);
+        $command=str_replace("%%nick%%",$nick,$command);
+        $command=str_replace("%%trailing%%",$trailing,$command);
+        echo "/IRC :".NICK_EXEC." INTERNAL :".$command."\n";
+        return;
+      }
     }
   }
 }

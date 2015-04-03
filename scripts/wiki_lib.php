@@ -242,6 +242,11 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
   $text=replace_ctrl_chars($text," ");
   $text=html_decode($text);
   $text=clean_text($text);
+  $url="http://wiki.soylentnews.org/wiki/".urlencode($title);
+  if ($section<>"")
+  {
+    $url=$url."#$id";
+  }
   if ($return_lines_array==False)
   {
     $text=str_replace($br," ",$text);
@@ -252,11 +257,6 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
     }
     bot_ignore_next();
     wiki_privmsg($return,$text);
-    $url="http://wiki.soylentnews.org/wiki/".urlencode($title);
-    if ($section<>"")
-    {
-      $url=$url."#$id";
-    }
     wiki_privmsg($return,$url);
     $result=$text;
   }
@@ -272,6 +272,7 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
       }
     }
     delete_empty_elements($result);
+    $result[]=$url;
   }
   return $result;
 }

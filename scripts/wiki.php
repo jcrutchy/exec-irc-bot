@@ -59,9 +59,11 @@ if ($trailing=="register-events")
 
 if ($alias=="~wiki-privmsg")
 {
-  if (substr($trailing,0,2)=="[[")
+  $delim1="[[";
+  $delim2="]]";
+  if (substr($trailing,0,strlen($delim1))==$delim1)
   {
-    $parts=explode("]]",substr($trailing,2));
+    $parts=explode($delim2,substr($trailing,strlen($delim1)));
     if (count($parts)<>2)
     {
       return;
@@ -80,6 +82,38 @@ if ($alias=="~wiki-privmsg")
       $section=$params[1];
     }
     get_text($title,$section);
+  }
+  elseif ((strpos($trailing,$delim1)!==False) and (strpos($trailing,$delim2)!==False))
+  {
+    $i=strpos($trailing,$delim1);
+    $j=strpos($trailing,$delim2);
+    if ($i<$j)
+    {
+      $link=substr($trailing,$i+strlen($delim1),$j-$i-strlen($delim2));
+      $section="";
+      $params=explode("|",$link);
+      $title=$params[0];
+      if (count($params)==2)
+      {
+        $section=$params[1];
+      }
+      $params=explode("#",$link);
+      if (count($params)==2)
+      {
+        $title=$params[0];
+        $section=$params[1];
+      }
+      $url="http://wiki.soylentnews.org/wiki/".urlencode($title);
+      if ($section<>"")
+      {
+        $section=str_replace(" ","_",$section);
+        $section=str_replace("~",".7E",$section);
+        $section=str_replace("(",".28",$section);
+        $section=str_replace(")",".29",$section);
+        $url=$url."#$section";
+      }
+      privmsg(chr(3)."13".$url);
+    }
   }
   return;
 }
