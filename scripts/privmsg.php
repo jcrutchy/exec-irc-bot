@@ -79,6 +79,27 @@ if ($dest<>"crutchy")
   }
 }
 
+$hex2dec=".hex2dec";
+if (substr($ltrailing,0,strlen($hex2dec))==$hex2dec)
+{
+  $parts=explode(" ",$trailing);
+  delete_empty_elements($parts);
+  if (count($parts)==2)
+  {
+    privmsg("  ".hexdec(trim($parts[1])));
+  }
+}
+$dec2hex=".dec2hex";
+if (substr($ltrailing,0,strlen($dec2hex))==$dec2hex)
+{
+  $parts=explode(" ",$trailing);
+  delete_empty_elements($parts);
+  if (count($parts)==2)
+  {
+    privmsg("  ".dechex(trim($parts[1])));
+  }
+}
+
 #####################################################################################################
 
 ?>
