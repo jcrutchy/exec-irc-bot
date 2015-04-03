@@ -70,7 +70,7 @@ switch (strtoupper($cmd))
   case "PRIVMSG":
     echo "/INTERNAL ~sed-internal PRIVMSG $trailing\n";
     #echo "/INTERNAL ~antispam ".$argv[1]."\n";
-    if ($trailing=="~💩")
+    if ($trailing=="💩")
     {
       pm_action($dest,"chucks a nasty sloppy dogshit at aqu4");
     }
@@ -119,6 +119,88 @@ switch (strtoupper($cmd))
   case "322":
     # :irc.sylnt.us 322 crutchy # 8 :exec's home base and proving ground. testing of other bots and general chit chat welcome :-)
     break;
+}
+
+handle_macros($nick,$dest,$trailing);
+
+#####################################################################################################
+
+function handle_macros($nick,$channel,$trailing)
+{
+  if (($nick=="") or ($channel=="") or ($trailing==""))
+  {
+    return;
+  }
+  if ($trailing==".macro")
+  {
+    pm($channel,chr(3)."02"."  syntax to add: .macro <trigger> <chanlist> <command_template>");
+    pm($channel,chr(3)."02"."  syntax to delete: .macro <trigger> -");
+    pm($channel,chr(3)."02"."  <chanlist> is comma-separated or * for any");
+  }
+  $macro_file=DATA_PATH."exec_macros.txt";
+  $macros=load_settings($macro_file,"=");
+  if ($macros===False)
+  {
+    $macros=array();
+  }
+  $parts=explode(" ",$trailing);
+  delete_empty_elements($parts);
+  if (count($parts)==0)
+  {
+    return;
+  }
+  if ((strtolower(trim($parts[0]))==".macro") and (count($parts)>2))
+  {
+    $account=users_get_account($nick);
+    $allowed=array("crutchy","chromas");
+    if (in_array($account,$allowed)==False)
+    {
+      return;
+    }
+    $trigger=trim($parts[1]);
+    $chanlist=trim($parts[2]);
+    if ($chanlist=="-")
+    {
+      unset($macros[$trigger]);
+      pm($channel,chr(3)."02"."  *** macro with trigger \"$trigger\" deleted");
+    }
+    elseif (count($parts)>3)
+    {
+      array_shift($parts);
+      array_shift($parts);
+      array_shift($parts);
+      $command=implode(" ",$parts);
+      $data=array();
+      $data["chanlist"]=$chanlist;
+      $data["command"]=$command;
+      $macros[$trigger]=serialize($data);
+      pm($channel,chr(3)."02"."  *** macro with trigger \"$trigger\" and command template \"$command\" saved");
+    }
+    save_settings($macros,$macro_file,"=");
+  }
+  else
+  {
+    foreach ($macros as $trigger => $data)
+    {
+      if (substr($trailing,0,strlen($trigger))==$trigger)
+      {
+        $data=unserialize($data);
+        if (($data["chanlist"]=="*") or (in_array(strtolower($channel),explode(",",strtolower($data["chanlist"])))==True))
+        {
+          $account=users_get_account($nick);
+          if ($account<>"")
+          {
+            $trailing=substr($trailing,strlen($trigger));
+            $command=str_replace("%%channel%%",$channel,$data["command"]);
+            $command=str_replace("%%nick%%",$nick,$command);
+            $command=str_replace("%%trailing%%",$trailing,$command);
+            echo "/IRC :".NICK_EXEC." INTERNAL $channel :".$command."\n";
+          }
+        }
+        return;
+      }
+    }
+  }
 }
 
 #####################################################################################################
