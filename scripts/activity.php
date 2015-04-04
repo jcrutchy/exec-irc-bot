@@ -77,31 +77,39 @@ function handle_privmsg($parts,&$channel_data)
   array_shift($parts);
   $trailing=trim(implode(" ",$parts));
   term_echo("*** activity: nick=$nick, channel=$channel, trailing=$trailing");
-  nethack_follow($nick,$channel,$trailing);
+  nick_follow($nick,$channel,$trailing);
   minion_talk($nick,$channel,$trailing);
 }
 
 #####################################################################################################
 
-function nethack_follow($nick,$channel,$trailing)
+function nick_follow($nick,$channel,$trailing)
 {
+  $landing_channel="#freenode";
+  $freenode_follows=array("Rodney"=>array("from"=>"#NetHack","to"=>"#nethack"),"Gretell"=>array("from"=>"##crawl","to"=>"#crawl"),"Cheibriados"=>array("from"=>"##crawl","to"=>"#crawl"));
+  $highlight_follows=array("NCommander"=>array("from"=>"#NetHack","to"=>"#Soylent"));
   $action=chr(1)."ACTION";
-  $rodney=chr(3)."03Rodney".chr(3)." [".chr(3)."02#NetHack".chr(3)."] ".chr(3)."05";
-  $follow="NCommander";
-  if (($nick=="") and ($channel=="#freenode") and (substr($trailing,0,strlen($rodney))==$rodney))
+  foreach ($freenode_follows as $freenode_nick => $follow_channels)
   {
-    $msg=substr($trailing,strlen($rodney));
-    if (substr($msg,0,strlen($action))==$action)
+    $landing=chr(3)."03".$freenode_nick.chr(3)." [".chr(3)."02".$follow_channels["from"].chr(3)."] ".chr(3)."05";
+    if (($nick=="") and ($channel==$landing_channel) and (substr($trailing,0,strlen($landing))==$landing))
     {
-      $msg=substr($msg,strlen($action));
-      $msg=substr($msg,0,strlen($msg)-1);
-      $msg="--".$msg;
-    }
-    $out="[".chr(3)."02#NetHack".chr(3)."] ".chr(3)."05".$msg;
-    pm("#nethack",$out);
-    if (substr($msg,0,strlen($follow))==$follow)
-    {
-      pm("#Soylent",$out);
+      $msg=substr($trailing,strlen($landing));
+      if (substr($msg,0,strlen($action))==$action)
+      {
+        $msg=substr($msg,strlen($action));
+        $msg=substr($msg,0,strlen($msg)-1);
+        $msg="--".$msg;
+      }
+      $out="[".chr(3)."02".$follow_channels["from"].chr(3)."] ".chr(3)."05".$msg;
+      pm($follow_channels["to"],$out);
+      foreach ($highlight_follows as $keyword => $keyword_follow_channels)
+      {
+        if ((substr($msg,0,strlen($keyword))==$keyword) and ($keyword_follow_channels["from"]==$follow_channels["from"]))
+        {
+          pm($keyword_follow_channels["to"],$out);
+        }
+      }
     }
   }
 }
@@ -139,7 +147,7 @@ function minion_talk($nick,$channel,$trailing)
           foreach ($relays[$freenode_nick] as $freenode_channel => $data)
           {
             $rem=round(($data["timestamp"]+10*60-microtime(True))/60,0);
-            pm($channel,chr(3)."13  $freenode_nick: $freenode_channel > ".$data["channel"]." (unset in $rem minutes)");
+            pm($channel,chr(3)."13  $freenode_nick: $freenode_channel => ".$data["channel"]." (unset in $rem minutes)");
             $n++;
           }
         }
@@ -152,7 +160,7 @@ function minion_talk($nick,$channel,$trailing)
       $params=explode(">",$trailing);
       if (count($params)>=2)
       {
-        $freenode_channel=trim($params[0]);
+        $freenode_channel=strtolower(trim($params[0]));
         if (substr($freenode_channel,0,1)=="#")
         {
           array_shift($params);
