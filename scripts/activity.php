@@ -112,6 +112,12 @@ function minion_talk($nick,$channel,$trailing)
 {
   if ($nick<>"")
   {
+    $account=users_get_account($nick);
+    $allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs");
+    if (in_array($account,$allowed)==False)
+    {
+      return;
+    }
     $commands=array();
     # #epoch > g'day subsentient
     # ~minion raw sylnt :sylnt PRIVMSG #epoch :g'day subsentient
@@ -129,7 +135,7 @@ function minion_talk($nick,$channel,$trailing)
     $msg=trim(implode(">",$params));
     if (strlen($msg)>0)
     {
-      $commands[]="~minion raw sylnt :sylnt PRIVMSG $target :$msg";
+      $commands[]="~minion raw sylnt :sylnt PRIVMSG $target :<$nick> $msg";
     }
     if (count($commands)==1)
     {
