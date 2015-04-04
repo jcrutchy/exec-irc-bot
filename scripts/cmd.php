@@ -133,7 +133,7 @@ function handle_macros($nick,$channel,$trailing)
   }
   if ($trailing==".macro")
   {
-    pm($channel,chr(3)."02"."  syntax to add: .macro <trigger> <chanlist> <command_template>");
+    pm($channel,chr(3)."02"."  syntax to add: .macro <trigger> <chanlist> PRIVMSG|INTERNAL <command_template>");
     pm($channel,chr(3)."02"."  syntax to delete: .macro <trigger> -");
     pm($channel,chr(3)."02"."  <chanlist> is comma-separated or * for any");
   }

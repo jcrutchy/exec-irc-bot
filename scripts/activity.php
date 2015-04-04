@@ -105,7 +105,7 @@ function nick_follow($nick,$channel,$trailing)
       pm($follow_channels["to"],$out);
       foreach ($highlight_follows as $keyword => $keyword_follow_channels)
       {
-        if ((substr($msg,0,strlen($keyword))==$keyword) and ($keyword_follow_channels["from"]==$follow_channels["from"]))
+        if ((strpos(strtolower($msg),strtolower($keyword))!==False) and ($keyword_follow_channels["from"]==$follow_channels["from"]))
         {
           pm($keyword_follow_channels["to"],$out);
         }

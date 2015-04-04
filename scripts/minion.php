@@ -18,6 +18,8 @@ startup:~join #freenode
 ~minion raw sylnt :sylnt PART #debian
 */
 
+# .alljoins #epoch,#boxedfox,##crawl,#NetHack
+
 ini_set("display_errors","on");
 
 require_once("irc_lib.php");
