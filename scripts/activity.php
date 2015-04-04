@@ -114,13 +114,13 @@ function minion_talk($nick,$channel,$trailing)
   $relays=get_array_bucket($relays_bucket);
   # flush all outdated relays
   $save_bucket=False;
-  foreach ($relays as $freenode_nick => $source_channel_data)
+  foreach ($relays as $freenode_nick => $freenode_channels)
   {
-    foreach ($relays[$freenode_nick] as $source_channel => $timestamp)
+    foreach ($relays[$freenode_nick] as $freenode_channel => $data)
     {
-      if ((microtime(True)-$timestamp)>(10*60))
+      if ((microtime(True)-$data["timestamp"])>(10*60))
       {
-        unset($relays[$freenode_nick][$source_channel]);
+        unset($relays[$freenode_nick][$freenode_channel]);
         $save_bucket=True;
       }
     }
@@ -128,45 +128,45 @@ function minion_talk($nick,$channel,$trailing)
   if ($nick<>"")
   {
     $account=users_get_account($nick);
-    $allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs");
+    $allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs","TheMightyBuzzard");
     if (in_array($account,$allowed)==True)
     {
       if ($trailing==".relays")
       {
         $n=0;
-        foreach ($relays as $freenode_nick => $source_channel_data)
+        foreach ($relays as $freenode_nick => $freenode_channels)
         {
-          foreach ($relays[$freenode_nick] as $source_channel => $timestamp)
+          foreach ($relays[$freenode_nick] as $freenode_channel => $data)
           {
-            $rem=round(($timestamp+10*60-microtime(True))/60,0);
-            pm($channel,chr(3)."02  $freenode_nick => $source_channel (unset in $rem minutes)");
+            $rem=round(($data["timestamp"]+10*60-microtime(True))/60,0);
+            pm($channel,chr(3)."13  $freenode_nick: $freenode_channel > ".$data["channel"]." (unset in $rem minutes)");
             $n++;
           }
         }
         if ($n==0)
         {
-          pm($channel,chr(3)."02  no channel relays currently active");
+          pm($channel,chr(3)."13  no channel relays currently active");
         }
         return;
       }
       $params=explode(">",$trailing);
       if (count($params)>=2)
       {
-        $target=trim($params[0]);
-        if (substr($target,0,1)=="#")
+        $freenode_channel=trim($params[0]);
+        if (substr($freenode_channel,0,1)=="#")
         {
           array_shift($params);
           $msg=trim(implode(">",$params));
           if (strlen($msg)>0)
           {
-            $commands=array("~minion raw sylnt :sylnt PRIVMSG $target :<$nick> $msg");
+            $commands=array("~minion raw sylnt :sylnt PRIVMSG $freenode_channel :<$nick> $msg");
             internal_macro($commands);
             $parts=explode(",",$msg);
             $freenode_nick=strtolower(trim($parts[0]));
             if ((count($parts)>1) and (strpos($freenode_nick," ")===False))
             {
-              $relays[$freenode_nick][$channel]=microtime(True);
-              pm($channel,chr(3)."02  ten minute relay set for \"$freenode_nick\" in \"$target\" on freenode to \"$channel\" on this server");
+              $relays[$freenode_nick][$freenode_channel]=array("channel"=>$channel,"timestamp"=>microtime(True));
+              pm($channel,chr(3)."13  ten minute relay set for \"$freenode_nick\" in \"$freenode_channel\" on freenode to \"$channel\" on this server");
               $save_bucket=True;
             }
           }
@@ -177,14 +177,11 @@ function minion_talk($nick,$channel,$trailing)
   if ($channel=="#freenode")
   {
     $freenode_nick=extract_text($trailing,chr(3)."03",chr(3)." [",False);
-    if (isset($relays[strtolower($freenode_nick)])==True)
+    $freenode_channel=extract_text($trailing,chr(3)." [".chr(3)."02",chr(3)."] ".chr(3)."05",False);
+    if (isset($relays[strtolower($freenode_nick)][$freenode_channel])==True)
     {
-      $freenode_channel=extract_text($trailing,chr(3)." [".chr(3)."02",chr(3)."] ".chr(3)."05",False);
       $freenode_trailing=extract_text($trailing,chr(3)."] ".chr(3)."05",chr(3),True);
-      foreach ($relays[strtolower($freenode_nick)] as $source_channel => $timestamp)
-      {
-        pm($source_channel,chr(3)."03".$freenode_nick.chr(3)." [".chr(3)."02".$freenode_channel.chr(3)."] ".chr(3)."05".$freenode_trailing);
-      }
+      pm($relays[strtolower($freenode_nick)][$freenode_channel]["channel"],chr(3)."03".$freenode_nick.chr(3)." [".chr(3)."02".$freenode_channel.chr(3)."] ".chr(3)."05".$freenode_trailing);
     }
   }
   if ($save_bucket==True)
