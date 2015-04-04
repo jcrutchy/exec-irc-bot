@@ -170,10 +170,17 @@ function handle_macros($nick,$channel,$trailing)
       unset($macros[$trigger]);
       privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" deleted");
     }
-    elseif (count($parts)>3)
+    elseif (count($parts)>=5)
     {
       array_shift($parts);
       array_shift($parts);
+      array_shift($parts);
+      $cmd=strtoupper(trim($parts[0]));
+      if (($cmd<>"PRIVMSG") and ($cmd<>"INTERNAL"))
+      {
+        privmsg(chr(3)."02"."  *** error: invalid cmd (must be either INTERNAL or PRIVMSG)");
+        return;
+      }
       array_shift($parts);
       $command=implode(" ",$parts);
       $reserved_commands=array("~eval");
@@ -188,8 +195,9 @@ function handle_macros($nick,$channel,$trailing)
       $data=array();
       $data["chanlist"]=$chanlist;
       $data["command"]=$command;
+      $data["cmd"]=$cmd;
       $macros[$trigger]=serialize($data);
-      privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" and command template \"$command\" saved");
+      privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" and $cmd command template \"$command\" saved");
     }
     save_settings($macros,$macro_file,"=");
   }
@@ -205,11 +213,17 @@ function handle_macros($nick,$channel,$trailing)
           $account=users_get_account($nick);
           if ($account<>"")
           {
+            $cmd="INTERNAL";
+            if (isset($data["cmd"])==True)
+            {
+              $cmd=$data["cmd"];
+            }
             $trailing=substr($trailing,strlen($trigger));
+            # TODO: MAKE MORE TRAILING PARSING REPLACE ARGS
             $command=str_replace("%%channel%%",$channel,$data["command"]);
             $command=str_replace("%%nick%%",$nick,$command);
             $command=str_replace("%%trailing%%",$trailing,$command);
-            echo "/IRC :".NICK_EXEC." INTERNAL $channel :$command\n";
+            echo "/IRC :".NICK_EXEC." $cmd $channel :$command\n";
           }
         }
         return;

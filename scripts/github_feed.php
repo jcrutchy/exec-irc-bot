@@ -23,7 +23,12 @@ $alias=strtolower(trim($argv[4]));
 
 if ($alias=="~slashcode-issue")
 {
-  return; # <<<< disables alias
+  $account=users_get_account($nick);
+  $allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs","TheMightyBuzzard");
+  if (in_array($account,$allowed)==False)
+  {
+    return;
+  }
   $parts=explode(",",$trailing);
   $title=trim($parts[0]);
   array_shift($parts);
