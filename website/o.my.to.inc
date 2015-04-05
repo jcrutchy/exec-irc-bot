@@ -164,7 +164,7 @@ function get_next($last)
 
 function get_title($url)
 {
-  require_once("../scripts/lib_http.php");
+  require_once("/var/include/vhosts/irciv.us.to/inc/scripts/lib_http.php");
   $host="";
   $uri="";
   $port=80;
