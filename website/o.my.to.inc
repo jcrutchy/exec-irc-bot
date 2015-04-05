@@ -15,6 +15,10 @@
 define("URL_FILE",__DIR__."/../../data/omyto_urls.txt");
 define("HOME_FILE",__DIR__."/omyto_home.txt");
 
+define("VALID_UPPERCASE","ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+define("VALID_LOWERCASE","abcdefghijklmnopqrstuvwxyz");
+define("VALID_NUMERIC","0123456789");
+
 #####################################################################################################
 
 if (file_exists(URL_FILE)==False)
@@ -91,6 +95,19 @@ function load_urls()
 function shorten($url)
 {
   $urls=load_urls();
+  if (isset($_POST["mode"])==True)
+  {
+    if (strtolower(trim($_POST["mode"]))=="title")
+    {
+      $next=get_title($url);
+      if ($next!==False)
+      {
+        $urls[$next]=$url;
+        save_urls($urls);
+        return "http://o.my.to/$next";
+      }
+    }
+  }
   $last="zz";
   $n=count($urls);
   if ($n>0)
@@ -100,13 +117,20 @@ function shorten($url)
   }
   $next=get_next($last);
   $urls[$next]=$url;
+  save_urls($urls);
+  return "http://o.my.to/$next";
+}
+
+#####################################################################################################
+
+function save_urls(&$urls)
+{
   $data="";
   foreach ($urls as $id => $long)
   {
     $data=$data."$id|$long\n";
   }
   file_put_contents(URL_FILE,$data);
-  return "http://o.my.to/$next";
 }
 
 #####################################################################################################
@@ -134,6 +158,39 @@ function get_next($last)
     $next=$next.chr(ord($last[1])+1);
   }
   return $next;
+}
+
+#####################################################################################################
+
+function get_title($url)
+{
+  require_once("../scripts/lib_http.php");
+  $host="";
+  $uri="";
+  $port=80;
+  if (get_host_and_uri($url,$host,$uri,$port)==False)
+  {
+    return False;
+  }
+  $breakcode="return ((strpos(strtolower(\$response),\"</title>\")!==False) or (strlen(\$response)>=10000));";
+  $response=wget($host,$uri,$port,ICEWEASEL_UA,"",20,$breakcode,256);
+  $html=strip_headers($response);
+  $title=extract_raw_tag($html,"title");
+  $title=html_decode($title);
+  $title=html_decode($title);
+  $filtered_title=strtolower(filter_non_alpha_num($title));
+  if ($filtered_title=="")
+  {
+    return False;
+  }
+  return $title;
+}
+
+#####################################################################################################
+
+function filter_non_alpha_num($value)
+{
+  return filter($value,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC);
 }
 
 #####################################################################################################

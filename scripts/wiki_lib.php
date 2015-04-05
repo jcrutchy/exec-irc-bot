@@ -310,7 +310,7 @@ function wiki_spamctl($nick,$trailing)
   }
   if (strtolower(substr($title,0,4))=="http")
   {
-
+    # TODO: ACCEPT WIKI URLS
   }
   $text="(cleared by $nick from irc -- spamctl)";
   if (login(True)==False)

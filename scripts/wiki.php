@@ -64,7 +64,15 @@ if ($alias=="~wiki-privmsg")
       $title=$params[0];
       $section=$params[1];
     }
-    get_text($title,$section);
+    $result=get_text($title,$section,True,True);
+    if ($result!==False)
+    {
+      if (count($result)>=2)
+      {
+        privmsg(chr(3)."13".$result[0]);
+        privmsg(chr(3)."02".$result[count($result)-1]);
+      }
+    }
   }
   elseif ((strpos($trailing,$delim1)!==False) and (strpos($trailing,$delim2)!==False))
   {

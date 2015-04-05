@@ -19,6 +19,7 @@ include ./scripts/translate.php
 include ./scripts/rainbow.php
 include ./scripts/quit.php
 include ./scripts/link.php
+include ./scripts/ircd.php
 
 ~epoch-feed|280|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
@@ -28,4 +29,4 @@ include ./scripts/link.php
 
 ~suggest-exec|30|0|0|1|*||||php scripts/suggest.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
-~eval|20|0|1|0|@||#sylnt||{ eval %%trailing%% ; } 2>&1
+#~eval|20|0|1|0|@||#sylnt||{ eval %%trailing%% ; } 2>&1

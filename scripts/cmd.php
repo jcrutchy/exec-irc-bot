@@ -127,6 +127,8 @@ handle_macros($nick,$dest,$trailing);
 
 function handle_macros($nick,$channel,$trailing)
 {
+  $reserved_triggers=array(".macro",".macro-list");
+  $allowed=array("crutchy","chromas");
   if (($nick=="") or ($channel=="") or ($trailing==""))
   {
     return;
@@ -139,6 +141,19 @@ function handle_macros($nick,$channel,$trailing)
   }
   $macro_file=DATA_PATH."exec_macros.txt";
   $macros=load_settings($macro_file,"=");
+  if (($macros!==False) and ($trailing==".macro-list"))
+  {
+    foreach ($macros as $trigger => $data)
+    {
+      $data=unserialize($data);
+      $cmd="INTERNAL";
+      if (isset($data["cmd"])==True)
+      {
+        $cmd=$data["cmd"];
+      }
+      pm($channel,chr(3)."13"."  $trigger [".$data["chanlist"]."] $cmd ".$data["command"]);
+    }
+  }
   if ($macros===False)
   {
     $macros=array();
@@ -152,13 +167,11 @@ function handle_macros($nick,$channel,$trailing)
   if ((strtolower(trim($parts[0]))==".macro") and (count($parts)>2))
   {
     $account=users_get_account($nick);
-    $allowed=array("crutchy","chromas");
     if (in_array($account,$allowed)==False)
     {
       return;
     }
     $trigger=trim($parts[1]);
-    $reserved_triggers=array(".macro");
     if (in_array($trigger,$reserved_triggers)==True)
     {
       privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" not permitted");
@@ -218,7 +231,7 @@ function handle_macros($nick,$channel,$trailing)
             {
               $cmd=$data["cmd"];
             }
-            $trailing=substr($trailing,strlen($trigger));
+            $trailing=trim(substr($trailing,strlen($trigger)));
             # TODO: MAKE MORE TRAILING PARSING REPLACE ARGS
             $command=str_replace("%%channel%%",$channel,$data["command"]);
             $command=str_replace("%%nick%%",$nick,$command);
