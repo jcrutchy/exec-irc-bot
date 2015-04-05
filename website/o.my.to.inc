@@ -127,7 +127,8 @@ function shorten($url)
 function output_link($id)
 {
   $url="http://o.my.to/$id";
-  echo "<html><head><title>o.my.to</title></head><body><a href=\"$url\">$url</a></body></html>";
+  #echo "<html><head><title>o.my.to</title></head><body><a href=\"$url\">$url</a></body></html>";
+  echo $url;
 }
 
 #####################################################################################################
