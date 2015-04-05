@@ -11,7 +11,8 @@
 <div>
 <form action="/" method="POST">
 enter url to shorten: <input type="text" name="url" value="">
-<input type="submit" value="shorten">
+<input type="submit" value="shorten"><br>
+<input type="checkbox" name="mode" value="title">build from title<br>
 </form>
 </div>
 <p>shortener will output a url of the form http://o.my.to/%id%</p>
