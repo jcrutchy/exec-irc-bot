@@ -175,6 +175,7 @@ function get_next($last)
 function get_title($url)
 {
   require_once("/var/include/vhosts/irciv.us.to/inc/scripts/lib_http.php");
+  $url=get_redirected_url($from_url);
   $host="";
   $uri="";
   $port=80;
