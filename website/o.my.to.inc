@@ -191,6 +191,10 @@ function get_title($url)
   $title=html_decode($title);
   $title=strtolower(filter($title,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC." "));
   $title=str_replace(" ","_",$title);
+  while (strpos($title,"__")!==False)
+  {
+    $title=str_replace("__","_",$title);
+  }
   if ($title=="")
   {
     return False;
