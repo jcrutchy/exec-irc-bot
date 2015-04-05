@@ -169,13 +169,6 @@ function irc_unpause()
 
 #####################################################################################################
 
-function html_decode($text)
-{
-  return html_entity_decode($text,ENT_QUOTES,"UTF-8");
-}
-
-#####################################################################################################
-
 function bot_ignore_next()
 {
   set_bucket(BUCKET_IGNORE_NEXT,"1");

@@ -104,7 +104,8 @@ function shorten($url)
       {
         $urls[$next]=$url;
         save_urls($urls);
-        return "http://o.my.to/$next";
+        output_link($next);
+        return;
       }
     }
   }
@@ -118,7 +119,15 @@ function shorten($url)
   $next=get_next($last);
   $urls[$next]=$url;
   save_urls($urls);
-  return "http://o.my.to/$next";
+  output_link($next);
+}
+
+#####################################################################################################
+
+function output_link($id)
+{
+  $url="http://o.my.to/$id";
+  echo "<html><head><title>o.my.to</title></head><body><a href=\"$url\">$url</a></body></html>";
 }
 
 #####################################################################################################
@@ -178,8 +187,9 @@ function get_title($url)
   $title=extract_raw_tag($html,"title");
   $title=html_decode($title);
   $title=html_decode($title);
-  $filtered_title=strtolower(filter_non_alpha_num($title));
-  if ($filtered_title=="")
+  $title=strtolower(filter($title,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC." "));
+  $title=str_replace(" ","_",$title);
+  if ($title=="")
   {
     return False;
   }
@@ -188,9 +198,17 @@ function get_title($url)
 
 #####################################################################################################
 
-function filter_non_alpha_num($value)
+function filter($value,$valid_chars)
 {
-  return filter($value,VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC);
+  $result="";
+  for ($i=0;$i<strlen($value);$i++)
+  {
+    if (strpos($valid_chars,$value[$i])!==False)
+    {
+      $result=$result.$value[$i];
+    }
+  }
+  return $result;
 }
 
 #####################################################################################################
