@@ -86,22 +86,36 @@ function handle_privmsg($parts,&$channel_data)
 function nick_follow($nick,$channel,$trailing)
 {
   $landing_channel="#freenode";
-  $freenode_follows=array("Rodney"=>array("from"=>"#NetHack","to"=>"#nethack"),"Gretell"=>array("from"=>"##crawl","to"=>"#crawl"),"Cheibriados"=>array("from"=>"##crawl","to"=>"#crawl"));
+  $freenode_follows=array(
+    "Rodney"=>array("from"=>"#NetHack","to"=>"#nethack"),
+    "Gretell"=>array("from"=>"##crawl","to"=>"#crawl"),
+    "Cheibriados"=>array("from"=>"##crawl","to"=>"#crawl"),
+    "*"=>array("from"=>"#systemd","to"=>"#systemd"));
   $highlight_follows=array("NCommander"=>array("from"=>"#NetHack","to"=>"#Soylent"));
-  $action=chr(1)."ACTION";
   foreach ($freenode_follows as $freenode_nick => $follow_channels)
   {
-    $landing=chr(3)."03".$freenode_nick.chr(3)." [".chr(3)."02".$follow_channels["from"].chr(3)."] ".chr(3)."05";
-    if (($nick=="") and ($channel==$landing_channel) and (substr($trailing,0,strlen($landing))==$landing))
+    $landing=chr(3)." [".chr(3)."02".$follow_channels["from"].chr(3)."] ".chr(3)."05";
+    if ($freenode_nick<>"*")
     {
-      $msg=substr($trailing,strlen($landing));
-      if (substr($msg,0,strlen($action))==$action)
+      $landing=chr(3)."03".$freenode_nick.$landing_channel;
+      if (substr($trailing,0,strlen($landing))<>$landing)
       {
-        $msg=substr($msg,strlen($action));
-        $msg=substr($msg,0,strlen($msg)-1);
-        $msg="--".$msg;
+        continue;
       }
+      $msg=substr($trailing,strlen($landing));
       $out="[".chr(3)."02".$follow_channels["from"].chr(3)."] ".chr(3)."07".$msg;
+    }
+    else
+    {
+      if (strpos($trailing,$landing)===False)
+      {
+        continue;
+      }
+      $msg=$trailing;
+      $out=$trailing;
+    }
+    if (($nick=="") and ($channel==$landing_channel))
+    {
       pm($follow_channels["to"],$out);
       foreach ($highlight_follows as $keyword => $keyword_follow_channels)
       {

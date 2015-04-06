@@ -303,6 +303,13 @@ function wiki_spamctl($nick,$trailing)
     return;
   }
   $title=trim(substr($trailing,strlen(".spamctl")));
+  if ($title=="last")
+  {
+    $wikirc_last=get_bucket("last_wikirc_#wiki");
+    $delim1=chr(3)."14[[".chr(3)."07";
+    $delim2=chr(3)."14]]";
+    $title=extract_text_nofalse($wikirc_last,$delim1,$delim2);
+  }
   if ($title=="")
   {
     privmsg("  syntax: .spamctl <page title>");

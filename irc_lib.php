@@ -506,11 +506,26 @@ function write_out_buffer($buf)
 function write_out_bufffer_proc($handle,$buf,$type)
 {
   $data=array();
+  $data["command"]=$handle["command"];
+  $data["pid"]=$handle["pid"];
+  $data["alias"]=$handle["alias"];
+  $data["bucket_locks"]=$handle["bucket_locks"];
+  $data["template"]=$handle["template"];
+  $data["allow_empty"]=$handle["allow_empty"];
+  $data["timeout"]=$handle["timeout"];
+  $data["repeat"]=$handle["repeat"];
+  $data["auto_privmsg"]=$handle["auto_privmsg"];
+  $data["start"]=$handle["start"];
+  $data["nick"]=$handle["nick"];
+  $data["cmd"]=$handle["cmd"];
+  $data["destination"]=$handle["destination"];
+  $data["trailing"]=$handle["trailing"];
+  $data["items"]=$handle["items"];
+  $data["exec"]=$handle["exec"];
   $data["type"]=$type;
-  $data["handle"]=$handle;
   $data["buf"]=$buf;
   $data["time"]=microtime(True);
-  write_out_buffer(base64_encode(json_encode($data)));
+  write_out_buffer(json_encode($data));
 }
 
 #####################################################################################################
@@ -521,7 +536,7 @@ function write_out_bufffer_sock($buf)
   $data["type"]="socket";
   $data["buf"]=$buf;
   $data["time"]=microtime(True);
-  write_out_buffer(base64_encode(json_encode($data)));
+  write_out_buffer(json_encode($data));
 }
 
 #####################################################################################################
@@ -2403,7 +2418,8 @@ function process_scripts($items,$reserved="")
     "cmd"=>$items["cmd"],
     "destination"=>$items["destination"],
     "trailing"=>$trailing,
-    "items"=>$items_serialized);
+    "exec"=>$exec_list[$alias],
+    "items"=>$items);
   stream_set_blocking($pipes[1],0);
   stream_set_blocking($pipes[2],0);
 }
