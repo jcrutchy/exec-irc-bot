@@ -490,6 +490,18 @@ function free_bucket_locks($pid)
 
 #####################################################################################################
 
+function write_out_buffer($buf)
+{
+  global $out_buffer;
+  if (flock($out_buffer,LOCK_EX)==True)
+  {
+    fwrite($out_buffer,$buf);
+  }
+  flock($out_buffer,LOCK_UN);
+}
+
+#####################################################################################################
+
 function handle_stdout($handle)
 {
   global $exec_list;
@@ -517,6 +529,7 @@ function handle_stdout($handle)
   {
     return;
   }
+  write_out_buffer($buf);
   if (trim($buf)==DIRECTIVE_QUIT)
   {
     doquit();
@@ -713,6 +726,7 @@ function handle_stderr($handle)
   {
     return;
   }
+  write_out_buffer($buf);
   $msg=$buf;
   if (substr($msg,strlen($msg)-1)=="\n")
   {
@@ -987,6 +1001,7 @@ function handle_socket($socket)
   $data=fgets($socket);
   if ($data!==False)
   {
+    write_out_buffer($data);
     $antiflog=False;
     if (pingpong($data)==False)
     {
@@ -2072,6 +2087,7 @@ function doquit()
   global $handles;
   global $socket;
   global $argv;
+  global $out_buffer;
   sleep(3);
   $n=count($handles);
   for ($i=0;$i<$n;$i++)
@@ -2086,6 +2102,7 @@ function doquit()
   }
   term_echo("QUITTING SCRIPT");
   finalize_socket();
+  fclose($out_buffer);
   if (defined("RESTART")==True)
   {
     pcntl_exec($_SERVER["_"],$argv);

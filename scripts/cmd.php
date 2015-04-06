@@ -125,6 +125,8 @@ handle_macros($nick,$dest,$trailing);
 
 #####################################################################################################
 
+# TODO: doesn't seem to like: .macro .jeannie * privmsg https://www.youtube.com/watch?v=jf_YZl5Upr8
+
 function handle_macros($nick,$channel,$trailing)
 {
   $reserved_triggers=array(".macro",".macro-list");

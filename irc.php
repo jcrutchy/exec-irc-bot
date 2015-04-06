@@ -57,6 +57,7 @@ else
 # TODO: ADD FLAG TO HAVE EXEC IGNORE ITSELF
 
 define("EXEC_SOCK_FILE","../data/sock_".IRC_HOST_CONNECT);
+define("EXEC_OUTPUT_BUFFER_FILE","../data/exec_iface");
 
 define("EXEC_DELIM","|");
 define("EXEC_DIRECTIVE_DELIM"," ");
@@ -254,6 +255,23 @@ delete_empty_elements($ignore_list);
 
 $direct_stdin=fopen("php://stdin","r");
 stream_set_blocking($direct_stdin,0);
+
+if (file_exists(EXEC_OUTPUT_BUFFER_FILE)==True)
+{
+  unlink(EXEC_OUTPUT_BUFFER_FILE);
+}
+if (posix_mkfifo(EXEC_OUTPUT_BUFFER_FILE,0700)==False)
+{
+  term_echo("error creating output buffer file");
+  return;
+}
+$out_buffer=fopen(EXEC_OUTPUT_BUFFER_FILE,"a+");
+if ($out_buffer===False)
+{
+  term_echo("error opening output buffer file for writing");
+  return;
+}
+stream_set_blocking($out_buffer,0);
 
 init();
 
