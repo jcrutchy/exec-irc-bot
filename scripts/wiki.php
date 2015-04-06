@@ -42,6 +42,10 @@ if ($alias=="~wiki-privmsg")
     wiki_spamctl($nick,$trailing);
     return;
   }
+  if ($dest=="#wiki")
+  {
+    return;
+  }
   $delim1="[[";
   $delim2="]]";
   if (substr($trailing,0,strlen($delim1))==$delim1)

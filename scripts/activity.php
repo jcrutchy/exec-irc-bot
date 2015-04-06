@@ -101,7 +101,7 @@ function nick_follow($nick,$channel,$trailing)
         $msg=substr($msg,0,strlen($msg)-1);
         $msg="--".$msg;
       }
-      $out="[".chr(3)."02".$follow_channels["from"].chr(3)."] ".chr(3)."05".$msg;
+      $out="[".chr(3)."02".$follow_channels["from"].chr(3)."] ".chr(3)."07".$msg;
       pm($follow_channels["to"],$out);
       foreach ($highlight_follows as $keyword => $keyword_follow_channels)
       {

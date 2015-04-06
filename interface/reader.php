@@ -5,7 +5,7 @@
 $fp=fopen("../../data/exec_iface","r");
 while (($buf=fgets($fp))!==False)
 {
-  $buf=unserialize(base64_decode($buf));
+  $buf=json_decode(base64_decode($buf),True);
   echo $buf["buf"];
 }
 

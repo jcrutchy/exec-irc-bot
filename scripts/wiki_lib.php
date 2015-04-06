@@ -312,7 +312,7 @@ function wiki_spamctl($nick,$trailing)
   {
     # TODO: ACCEPT WIKI URLS
   }
-  $text="(cleared by $nick from irc -- spamctl)";
+  $text="{{spam}}";
   if (login(True)==False)
   {
     privmsg("  login error");

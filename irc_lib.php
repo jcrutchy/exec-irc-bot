@@ -510,7 +510,7 @@ function write_out_bufffer_proc($handle,$buf,$type)
   $data["handle"]=$handle;
   $data["buf"]=$buf;
   $data["time"]=microtime(True);
-  write_out_buffer(base64_encode(serialize($data)));
+  write_out_buffer(base64_encode(json_encode($data)));
 }
 
 #####################################################################################################
@@ -521,7 +521,7 @@ function write_out_bufffer_sock($buf)
   $data["type"]="socket";
   $data["buf"]=$buf;
   $data["time"]=microtime(True);
-  write_out_buffer(base64_encode(serialize($data)));
+  write_out_buffer(base64_encode(json_encode($data)));
 }
 
 #####################################################################################################
