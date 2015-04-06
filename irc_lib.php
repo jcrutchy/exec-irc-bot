@@ -492,12 +492,36 @@ function free_bucket_locks($pid)
 
 function write_out_buffer($buf)
 {
+  # use "cat exec_iface" to follow (tail -f no worka for some reason)
   global $out_buffer;
   if (flock($out_buffer,LOCK_EX)==True)
   {
-    fwrite($out_buffer,$buf);
+    fwrite($out_buffer,$buf."\n");
   }
   flock($out_buffer,LOCK_UN);
+}
+
+#####################################################################################################
+
+function write_out_bufffer_proc($handle,$buf,$type)
+{
+  $data=array();
+  $data["type"]=$type;
+  $data["handle"]=$handle;
+  $data["buf"]=$buf;
+  $data["time"]=microtime(True);
+  write_out_buffer(base64_encode(serialize($data)));
+}
+
+#####################################################################################################
+
+function write_out_bufffer_sock($buf)
+{
+  $data=array();
+  $data["type"]="socket";
+  $data["buf"]=$buf;
+  $data["time"]=microtime(True);
+  write_out_buffer(base64_encode(serialize($data)));
 }
 
 #####################################################################################################
@@ -529,7 +553,7 @@ function handle_stdout($handle)
   {
     return;
   }
-  write_out_buffer($buf);
+  write_out_bufffer_proc($handle,$buf,"stdout");
   if (trim($buf)==DIRECTIVE_QUIT)
   {
     doquit();
@@ -726,7 +750,7 @@ function handle_stderr($handle)
   {
     return;
   }
-  write_out_buffer($buf);
+  write_out_bufffer_proc($handle,$buf,"stderr");
   $msg=$buf;
   if (substr($msg,strlen($msg)-1)=="\n")
   {
@@ -1001,7 +1025,7 @@ function handle_socket($socket)
   $data=fgets($socket);
   if ($data!==False)
   {
-    write_out_buffer($data);
+    write_out_bufffer_sock($data);
     $antiflog=False;
     if (pingpong($data)==False)
     {
