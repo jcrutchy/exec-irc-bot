@@ -11,28 +11,34 @@ uses
   Forms,
   Dialogs,
   Sockets,
-  StdCtrls;
+  StdCtrls,
+  DateUtils,
+  uLkJSON;
 
 type
 
+  TClientThread = class;
+
   TFormMain = class(TForm)
     MemoTraffic: TMemo;
-    TcpClient1: TTcpClient;
+    Button1: TButton;
     procedure FormCreate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+  private
+    FThread: TClientThread;
+    procedure ThreadHandler(const S: string);
   end;
 
   TClientThread = class(TThread)
   private
-    FBuffer: TStrings;
-    FTarget: TStrings;
+    FBuffer: string;
+    FHandler: TGetStrProc;
   public
     constructor Create(CreateSuspended: Boolean);
     procedure Update;
     procedure Execute; override;
-    procedure Terminate;
   public
-    property Buffer: TStrings read FBuffer;
-    property Target: TStrings read FTarget write FTarget;
+    property Handler: TGetStrProc read FHandler write FHandler;
   end;
 
 var
@@ -48,7 +54,6 @@ constructor TClientThread.Create(CreateSuspended: Boolean);
 begin
   inherited;
   FreeOnTerminate := True;
-  FBuffer := TStringList.Create;
 end;
 
 procedure TClientThread.Execute;
@@ -58,7 +63,7 @@ begin
   try
     Client := TTcpClient.Create(nil);
     try
-      Client.RemoteHost := '192.168.1.57';
+      Client.RemoteHost := '192.168.1.58'; // exception raised and program hangs if address is inaccessible  >:-|
       Client.RemotePort := '50000';
       if Client.Connect = False then
       begin
@@ -67,8 +72,7 @@ begin
       end;
       while (Application.Terminated = False) and (Self.Terminated = False) and (Client.Connected = True) do
       begin
-        FBuffer.Clear;
-        FBuffer.Text := Client.Receiveln(#10);
+        FBuffer := Client.Receiveln(#10);
         Synchronize(Update);
       end;
     finally
@@ -80,28 +84,51 @@ begin
   end;
 end;
 
-procedure TClientThread.Terminate;
-begin
-  FBuffer.Free;
-  inherited;
-end;
-
 procedure TClientThread.Update;
 begin
-  FTarget.Clear;
-  FTarget.Text := FBuffer.Text;
+  if Assigned(FHandler) then
+    FHandler(FBuffer);
 end;
 
 { TFormMain }
 
 procedure TFormMain.FormCreate(Sender: TObject);
-var
-  Thread: TClientThread;
 begin
-  Thread := TClientThread.Create(True);
-  Thread.FreeOnTerminate := True;
-  Thread.Target := MemoTraffic.Lines;
-  Thread.Resume;
+  FThread := TClientThread.Create(True);
+  FThread.Handler := ThreadHandler;
+  FThread.Resume;
+end;
+
+procedure TFormMain.Button1Click(Sender: TObject);
+begin
+  FThread.Terminate;
+end;
+
+procedure TFormMain.ThreadHandler(const S: string);
+var
+  json: uLkJSON.TlkJSONobject;
+  msg_buf: string;
+  msg_type: string;
+  msg_time: Double;
+  msg_time_dt: TDateTime;
+  msg_time_str: string;
+begin
+  json := uLkJSON.TlkJSON.ParseText(S) as uLkJSON.TlkJSONobject;
+  msg_buf := json.getString('buf');
+  msg_type := json.getString('type');
+  msg_time := json.getDouble('time');
+  msg_time_dt := DateUtils.UnixToDateTime(Round(msg_time));
+  msg_time_str := SysUtils.FormatDateTime('yyyy-mm-dd hh:nn:ss', msg_time_dt);
+  if (msg_type = 'stdout') or (msg_type = 'stderr') then
+  begin
+
+  end
+  else
+  begin
+
+  end;
+  MemoTraffic.Lines.Text := ;
+  json.Free;
 end;
 
 end.

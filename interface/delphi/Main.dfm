@@ -1,6 +1,6 @@
 object FormMain: TFormMain
-  Left = 292
-  Top = 223
+  Left = 466
+  Top = 229
   Width = 709
   Height = 346
   Caption = 'FormMain'
@@ -21,8 +21,13 @@ object FormMain: TFormMain
     Height = 289
     TabOrder = 0
   end
-  object TcpClient1: TTcpClient
-    Left = 585
-    Top = 34
+  object Button1: TButton
+    Left = 560
+    Top = 116
+    Width = 75
+    Height = 25
+    Caption = 'Button1'
+    TabOrder = 1
+    OnClick = Button1Click
   end
 end
