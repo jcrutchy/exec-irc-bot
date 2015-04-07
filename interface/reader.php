@@ -4,7 +4,7 @@
 
 # ip -f inet addr
 
-define("LISTEN_ADDRESS","192.168.1.57");
+define("LISTEN_ADDRESS","192.168.1.58");
 define("BUFFER_FILE","../../data/exec_iface");
 define("LISTEN_PORT",50000);
 define("CLIENT_TIMEOUT",60); # seconds

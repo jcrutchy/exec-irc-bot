@@ -97,7 +97,7 @@ function nick_follow($nick,$channel,$trailing)
     $landing=chr(3)." [".chr(3)."02".$follow_channels["from"].chr(3)."] ".chr(3)."05";
     if ($freenode_nick<>"*")
     {
-      $landing=chr(3)."03".$freenode_nick.$landing_channel;
+      $landing=chr(3)."03".$freenode_nick.$landing;
       if (substr($trailing,0,strlen($landing))<>$landing)
       {
         continue;
