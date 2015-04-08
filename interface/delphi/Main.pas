@@ -109,6 +109,7 @@ procedure TFormMain.ThreadHandler(const S: string);
 var
   Msg: TExecMessage;
 begin
+  FMessages.Clear;
   Msg := FMessages.Add(S);
   if Msg <> nil then
     MemoTraffic.Lines.Text := SysUtils.Trim(Msg.msg_buf) + ' [' + Msg.msg_server + '] ' + SysUtils.IntToStr(Msg.msg_accounts.Count);

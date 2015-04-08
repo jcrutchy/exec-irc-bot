@@ -22,7 +22,6 @@ type
   TFormMain = class(TForm)
     MemoTraffic: TMemo;
     procedure FormCreate(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
     FThread: TClientThread;
