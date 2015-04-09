@@ -13,7 +13,7 @@ uses
   Sockets,
   StdCtrls,
   DateUtils,
-  uLkJSON;
+  Data;
 
 type
 
@@ -21,11 +21,11 @@ type
 
   TFormMain = class(TForm)
     MemoTraffic: TMemo;
-    Button1: TButton;
     procedure FormCreate(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     FThread: TClientThread;
+    FMessages: TExecMessages;
     procedure ThreadHandler(const S: string);
   end;
 
@@ -94,41 +94,27 @@ end;
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
+  FMessages := TExecMessages.Create;
   FThread := TClientThread.Create(True);
   FThread.Handler := ThreadHandler;
   FThread.Resume;
 end;
 
-procedure TFormMain.Button1Click(Sender: TObject);
+procedure TFormMain.FormDestroy(Sender: TObject);
 begin
-  FThread.Terminate;
+  FMessages.Free;
 end;
 
 procedure TFormMain.ThreadHandler(const S: string);
 var
-  json: uLkJSON.TlkJSONobject;
-  msg_buf: string;
-  msg_type: string;
-  msg_time: Double;
-  msg_time_dt: TDateTime;
-  msg_time_str: string;
+  Msg: TExecMessage;
 begin
-  json := uLkJSON.TlkJSON.ParseText(S) as uLkJSON.TlkJSONobject;
-  msg_buf := json.getString('buf');
-  msg_type := json.getString('type');
-  msg_time := json.getDouble('time');
-  msg_time_dt := DateUtils.UnixToDateTime(Round(msg_time));
-  msg_time_str := SysUtils.FormatDateTime('yyyy-mm-dd hh:nn:ss', msg_time_dt);
-  if (msg_type = 'stdout') or (msg_type = 'stderr') then
-  begin
-
-  end
-  else
-  begin
-
-  end;
-  MemoTraffic.Lines.Text := '';
-  json.Free;
+  FMessages.Clear;
+  Msg := FMessages.Add(S);
+  if Msg <> nil then
+    MemoTraffic.Lines.Text := SysUtils.Trim(Msg.msg_buf) + ' [' + Msg.msg_server + '] ' + SysUtils.IntToStr(Msg.msg_accounts.Count);
+  // Fmsg_time_dt := DateUtils.UnixToDateTime(Round(msg_time));
+  // Fmsg_time_str := SysUtils.FormatDateTime('yyyy-mm-dd hh:nn:ss', msg_time_dt);
 end;
 
 end.
