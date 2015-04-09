@@ -10,6 +10,7 @@ uses
   Controls,
   Forms,
   Dialogs,
+  ExtCtrls,
   uLkJSON;
 
 type
@@ -99,6 +100,22 @@ type
     property Items[const Index: Integer]: TExecMessage read GetItem; default;
   end;
 
+  TProcessPanel = class(TCustomPanel)
+  private
+    
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+  TMonitorPanel = class(TCustomPanel)
+  private
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
 implementation
 
 { TExecMessage }
@@ -134,8 +151,6 @@ begin
     Fmsg_buf := json_obj.getString('buf');
     Fmsg_type := json_obj.getString('type');
     Fmsg_time := json_obj.getDouble('time');
-    Fmsg_time_dt := DateUtils.UnixToDateTime(Round(msg_time));
-    Fmsg_time_str := SysUtils.FormatDateTime('yyyy-mm-dd hh:nn:ss', msg_time_dt);
     if (Fmsg_type = 'stdout') or (Fmsg_type = 'stderr') then
     begin
       Fmsg_command := json_obj.getString('command');
@@ -224,6 +239,34 @@ end;
 function TExecMessages.GetItem(const Index: Integer): TExecMessage;
 begin
   Result := FItems[Index];
+end;
+
+{ TProcessPanel }
+
+constructor TProcessPanel.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+destructor TProcessPanel.Destroy;
+begin
+
+  inherited;
+end;
+
+{ TMonitorPanel }
+
+constructor TMonitorPanel.Create(AOwner: TComponent);
+begin
+  inherited;
+
+end;
+
+destructor TMonitorPanel.Destroy;
+begin
+
+  inherited;
 end;
 
 end.

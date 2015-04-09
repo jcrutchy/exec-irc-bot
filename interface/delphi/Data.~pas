@@ -10,6 +10,7 @@ uses
   Controls,
   Forms,
   Dialogs,
+  ExtCtrls,
   uLkJSON;
 
 type
@@ -99,6 +100,22 @@ type
     property Items[const Index: Integer]: TExecMessage read GetItem; default;
   end;
 
+  TProcessPanel = class(TCustomPanel)
+  private
+    
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
+  TMonitorPanel = class(TCustomPanel)
+  private
+
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+  end;
+
 implementation
 
 { TExecMessage }
@@ -129,13 +146,11 @@ var
 begin
   Result := True;
   try
-    json := uLkJSON.TlkJSON.ParseText(S);
+    json := uLkJSON.TlkJSON.ParseText(Data);
     json_obj := uLkJSON.TlkJSONobject(json);
     Fmsg_buf := json_obj.getString('buf');
     Fmsg_type := json_obj.getString('type');
     Fmsg_time := json_obj.getDouble('time');
-    Fmsg_time_dt := DateUtils.UnixToDateTime(Round(msg_time));
-    Fmsg_time_str := SysUtils.FormatDateTime('yyyy-mm-dd hh:nn:ss', msg_time_dt);
     if (Fmsg_type = 'stdout') or (Fmsg_type = 'stderr') then
     begin
       Fmsg_command := json_obj.getString('command');
