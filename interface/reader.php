@@ -2,10 +2,25 @@
 
 #####################################################################################################
 
+/*
+exec:~reader|0|0|0|1|@||||php interface/reader.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
+#startup:~reader start
+*/
+
+#####################################################################################################
+
 # ip -f inet addr
 
+require_once(__DIR__."/../scripts/lib.php");
+
+/*$trailing=$argv[1];
+$dest=$argv[2];
+$nick=$argv[3];
+$alias=$argv[4];
+$cmd=$argv[5];*/
+
 define("LISTEN_ADDRESS","192.168.1.58");
-define("BUFFER_FILE","../../data/exec_iface");
+define("BUFFER_FILE",__DIR__."/../../data/exec_iface");
 define("LISTEN_PORT",50000);
 define("CLIENT_TIMEOUT",60); # seconds
 
@@ -54,8 +69,8 @@ while (True)
   if (stream_select($read,$write,$except,0)>=1)
   {
     $data=fgets($buffer);
-    $array=json_decode($data,True);
-    echo $array["buf"];
+    #$array=json_decode($data,True);
+    #echo $array["buf"];
     foreach ($clients as $send_client)
     {
       if ($send_client<>$server)
@@ -160,7 +175,10 @@ function on_disconnect($client_index)
 function on_msg($client_index,$data)
 {
   global $clients;
-  # do stuff
+  # "/READER_EXEC"
+  # "/READER_BUCKETS"
+  # "/READER_HANDLES"
+  echo $data;
 }
 
 #####################################################################################################

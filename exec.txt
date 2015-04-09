@@ -30,6 +30,7 @@ init ./scripts
 startup ./scripts
 
 include ./scripts
+include ./interface/reader.php
 include test.php
 
 ~cowsay|10|0|1|0|||||cowsay %%trailing%%
@@ -42,11 +43,8 @@ include test.php
 
 ~deb|0|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
 
-#~addr|0|0|1|0|*||||{ host '%%trailing%%' | head -1 ; } 2>&1
+~addr|0|0|1|0|*||||{ host '%%trailing%%' | head -1 ; } 2>&1
 
 # http://kedar.nitty-witty.com/blog/how-to-get-stock-quote-on-linux-using-google-curl-grep-awk
-#~nyse|0|0|1|0|*||||{ code=%%trailing%% && curl --silent -X get "http://www.google.com/finance?q=nyse:$code" > /tmp/bgz && cat /tmp/bgz | grep -m1 -E 'span id="ref_' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' && sleep 2 && rm /tmp/bgz && echo "http://www.google.com/finance?q=nyse:$code" ; } 2>&1
-
-# superseded by scripts/chromas_log.php
-#~first|0|0|1|0|*||||curl --silent -X get 'http://chromas.0x.no/s/soylent_log.php?op=first&%%trailing%%&channel=%%dest%%'
-#~last|0|0|1|0|*||||curl --silent -X get 'http://chromas.0x.no/s/soylent_log.php?op=last&%%trailing%%&channel=%%dest%%'
+# todo: test with single quotes around %%trailing%% to prevent shell code injection
+~nyse|0|0|1|0|*||||{ code='%%trailing%%' && curl --silent -X get "http://www.google.com/finance?q=nyse:$code" > /tmp/bgz && cat /tmp/bgz | grep -m1 -E 'span id="ref_' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' && sleep 2 && rm /tmp/bgz && echo "http://www.google.com/finance?q=nyse:$code" ; } 2>&1

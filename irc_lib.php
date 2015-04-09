@@ -541,6 +541,40 @@ function write_out_bufffer_sock($buf)
 
 #####################################################################################################
 
+function handle_reader_stdout_command($handle,$prefix,$trailing)
+{
+  global $exec_list;
+  global $buckets;
+  global $handles;
+  switch ($prefix)
+  {
+    case PREFIX_READER_EXEC:
+      $data=array();
+      $data["type"]="exec_list";
+      $data["buf"]=$exec_list;
+      $data["time"]=microtime(True);
+      write_out_buffer(json_encode($data));      
+      return;
+    case PREFIX_READER_BUCKETS:
+      $data=array();
+      $data["type"]="buckets";
+      $data["buf"]=$buckets;
+      $data["time"]=microtime(True);
+      write_out_buffer(json_encode($data));
+      return;
+    case PREFIX_READER_HANDLES:
+      $data=array();
+      $data["type"]="handles";
+      $data["buf"]=$handles;
+      $data["time"]=microtime(True);
+      $data=@json_encode($data);
+      write_out_buffer($data);
+      return;          
+  }
+}
+
+#####################################################################################################
+
 function handle_stdout($handle)
 {
   global $exec_list;
@@ -730,6 +764,15 @@ function handle_stdout($handle)
       {
         case PREFIX_BUCKET_LIST:
           handle_buckets(CMD_BUCKET_LIST."\n",$handle);
+          return;
+        case PREFIX_READER_EXEC:
+          handle_reader_stdout_command($handle,PREFIX_READER_EXEC,"");
+          return;
+        case PREFIX_READER_BUCKETS:
+          handle_reader_stdout_command($handle,PREFIX_READER_BUCKETS,"");
+          return;
+        case PREFIX_READER_HANDLES:
+          handle_reader_stdout_command($handle,PREFIX_READER_HANDLES,"");
           return;
       }
     }
@@ -2420,6 +2463,7 @@ function process_scripts($items,$reserved="")
     "trailing"=>$trailing,
     "exec"=>$exec_list[$alias],
     "items"=>$items);
+  write_out_bufffer_proc($handles[count($handles)-1],$template,"exec");
   stream_set_blocking($pipes[1],0);
   stream_set_blocking($pipes[2],0);
 }
