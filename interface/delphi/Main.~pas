@@ -52,12 +52,10 @@ type
     ProgressBar1: TProgressBar;
     Memo1: TMemo;
     procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure Button2Click(Sender: TObject);
   private
     FThread: TClientThread;
-    FMessages: TExecMessages;
     FMaxTraffic: Integer;
     FTraffic: Integer;
     FTrafficPercent: Integer;
@@ -126,17 +124,8 @@ begin
 end;
 
 procedure TClientThread.Send(const Msg: string);
-var
-  SendClient: TClientSocket;
 begin
-  ShowMessage(Msg);
-  SendClient := TClientSocket.Create(nil);
-  SendClient.Address := '192.168.1.58';
-  SendClient.Port := 50000;
-  SendClient.Open;
-  if SendClient.Active then
-    SendClient.Socket.SendText(Msg + CRLF);
-  SendClient.Free;
+  FClient.Sendln(Msg + CRLF, CRLF);
 end;
 
 procedure TClientThread.Update;
@@ -159,34 +148,29 @@ end;
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  FMessages := TExecMessages.Create;
   FThread := TClientThread.Create(True);
   FThread.Handler := ThreadHandler;
   FThread.Resume;
   Timer1.Enabled := True;
 end;
 
-procedure TFormMain.FormDestroy(Sender: TObject);
-begin
-  FMessages.Free;
-end;
-
 procedure TFormMain.ThreadHandler(const S: string);
 var
-  Msg: TExecMessage;
+  Msg: TExecParameterArray;
 begin
-  FMessages.Clear;
-  Msg := FMessages.Add(S);
-  if Msg <> nil then
-  begin
-    Inc(FTraffic);
-    StatusBar1.Panels[3].Text := SysUtils.Trim(Msg.msg_buf) + ' [' + Msg.msg_server + '] ' + SysUtils.IntToStr(Msg.msg_accounts.Count);
-    while Memo1.Lines.Count > 100 do
-      Memo1.Lines.Delete(0);
-    Memo1.Lines.Add(StatusBar1.Panels[3].Text);
+  Msg := TExecParameterArray.Create;
+  try
+    if Msg.Parse(S) then
+    begin
+      Inc(FTraffic);
+      StatusBar1.Panels[3].Text := Msg.Serialized;
+      while Memo1.Lines.Count > 100 do
+        Memo1.Lines.Delete(0);
+      Memo1.Lines.Add(Msg.Serialized);
+    end;
+  finally
+    Msg.Free;
   end;
-  // Fmsg_time_dt := DateUtils.UnixToDateTime(Round(msg_time));
-  // Fmsg_time_str := SysUtils.FormatDateTime('yyyy-mm-dd hh:nn:ss', msg_time_dt);
 end;
 
 procedure TFormMain.Timer1Timer(Sender: TObject);

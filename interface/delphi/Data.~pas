@@ -11,234 +11,244 @@ uses
   Forms,
   Dialogs,
   ExtCtrls,
-  uLkJSON;
+  Utils;
 
 type
 
-  TExecMessage = class(TObject)
+  TSerializedArray = class;
+
+  TSerialized = class(TObject)
   private
-    Fmsg_buf: string;
-    Fmsg_type: string;
-    Fmsg_time: Double;
-    Fmsg_command: string;
-    Fmsg_pid: Integer;
-    Fmsg_alias: string;
-    Fmsg_template: string;
-    Fmsg_allow_empty: string;
-    Fmsg_timeout: string;
-    Fmsg_repeat: string;
-    Fmsg_auto_privmsg: string;
-    Fmsg_start: Double;
-    Fmsg_nick: string;
-    Fmsg_cmd: string;
-    Fmsg_destination: string;
-    Fmsg_trailing: string;
-    Fmsg_server: string;
-    Fmsg_data: string;
-    Fmsg_prefix: string;
-    Fmsg_params: string;
-    Fmsg_user: string;
-    Fmsg_hostname: string;
-    Fmsg_accounts_wildcard: string;
-    Fmsg_exec_line: string;
-    Fmsg_file: string;
-    Fmsg_bucket_locks: Classes.TStrings;
-    Fmsg_accounts: Classes.TStrings;
-    Fmsg_cmds: Classes.TStrings;
-    Fmsg_dests: Classes.TStrings;
+    FSerialized: string;
+    FDataType: Char;
+    FIntegerData: Integer;
+    FDoubleData: Double;
+    FStringData: string;
+    FBooleanData: Boolean;
+    FArrayData: TSerializedArray;
+  private
+    function ParseIntegerData(const Data: string): Boolean;
+    function ParseDoubleData(const Data: string): Boolean;
+    function ParseStringData(const Data: string): Boolean;
+    function ParseBooleanData(const Data: string): Boolean;
+    function ParseArrayData(const Data: string): Boolean;
   public
     constructor Create;
     destructor Destroy; override;
   public
-    function Load(const Data: string): Boolean;
+    function Parse(const Serialized: string): Boolean;
   public
-    property msg_buf: string read Fmsg_buf;
-    property msg_type: string read Fmsg_type;
-    property msg_time: Double read Fmsg_time;
-    property msg_command: string read Fmsg_command;
-    property msg_pid: Integer read Fmsg_pid;
-    property msg_alias: string read Fmsg_alias;
-    property msg_template: string read Fmsg_template;
-    property msg_allow_empty: string read Fmsg_allow_empty;
-    property msg_timeout: string read Fmsg_timeout;
-    property msg_repeat: string read Fmsg_repeat;
-    property msg_auto_privmsg: string read Fmsg_auto_privmsg;
-    property msg_start: Double read Fmsg_start;
-    property msg_nick: string read Fmsg_nick;
-    property msg_cmd: string read Fmsg_cmd;
-    property msg_destination: string read Fmsg_destination;
-    property msg_trailing: string read Fmsg_trailing;
-    property msg_server: string read Fmsg_server;
-    property msg_data: string read Fmsg_data;
-    property msg_prefix: string read Fmsg_prefix;
-    property msg_params: string read Fmsg_params;
-    property msg_user: string read Fmsg_user;
-    property msg_hostname: string read Fmsg_hostname;
-    property msg_accounts_wildcard: string read Fmsg_accounts_wildcard;
-    property msg_exec_line: string read Fmsg_exec_line;
-    property msg_file: string read Fmsg_file;
-    property msg_bucket_locks: Classes.TStrings read Fmsg_bucket_locks;
-    property msg_accounts: Classes.TStrings read Fmsg_accounts;
-    property msg_cmds: Classes.TStrings read Fmsg_cmds;
-    property msg_dests: Classes.TStrings read Fmsg_dests;
+    property Serialized: string read FSerialized;
+    property DataType: Char read FDataType;
+  public
+    property IntegerData: Integer read FIntegerData;
+    property DoubleData: Double read FDoubleData;
+    property StringData: string read FStringData;
+    property BooleanData: Boolean read FBooleanData;
+    property ArrayData: TSerializedArray read FArrayData;
   end;
 
-  TExecMessages = class(TObject)
+  TSerializedArray = class(TObject)
   private
-    FItems: Classes.TList;
+    FSerialized: string;
+    FItems: Classes.TStrings;
   private
     function GetCount: Integer;
-    function GetItem(const Index: Integer): TExecMessage;
+    function GetValue(const Key: string): TSerialized;
   public
     constructor Create;
     destructor Destroy; override;
   public
-    function Add(const S: string): TExecMessage;
     procedure Clear;
+    function IndexOf(const Key: string): Integer;
+    function Parse(const Serialized: string): Boolean;
   public
+    property Serialized: string read FSerialized;
     property Count: Integer read GetCount;
-    property Items[const Index: Integer]: TExecMessage read GetItem; default;
-  end;
-
-  TProcessPanel = class(TCustomPanel)
-  private
-    
-  public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-  end;
-
-  TMonitorPanel = class(TCustomPanel)
-  private
-
-  public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
+    property Items: Classes.TStrings read FItems;
+    property Values[const Key: string]: TSerialized read GetValue;
   end;
 
 implementation
 
-{ TExecMessage }
+{ TSerialized }
 
-constructor TExecMessage.Create;
+constructor TSerialized.Create;
 begin
-  Fmsg_bucket_locks := Classes.TStringList.Create;
-  Fmsg_accounts := Classes.TStringList.Create;
-  Fmsg_cmds := Classes.TStringList.Create;
-  Fmsg_dests := Classes.TStringList.Create;
+  FArrayData := TSerializedArray.Create;
 end;
 
-destructor TExecMessage.Destroy;
+destructor TSerialized.Destroy;
 begin
-  Fmsg_bucket_locks.Free;
-  Fmsg_accounts.Free;
-  Fmsg_cmds.Free;
-  Fmsg_dests.Free;
+  FArrayData.Free;
   inherited;
 end;
 
-function TExecMessage.Load(const Data: string): Boolean;
+function TSerialized.Parse(const Serialized: string): Boolean;
 var
-  i: Integer;
-  item: uLkJSON.TlkJSONobject;
-  json: uLkJSON.TlkJSONbase;
-  json_obj: uLkJSON.TlkJSONobject;
+  S: string;
 begin
+  Result := False;
+  FIntegerData := 0;
+  FDoubleData := 0.0;
+  FStringData := '';
+  FBooleanData := False;
+  FArrayData.Clear;
+  if Length(Serialized) < 3 then
+    Exit;
+  if Serialized[2] <> ':' then
+    Exit;
+  S := Copy(Serialized, 3, Length(Serialized) - 2);
+  case Serialized[1] of
+    'a':
+      if ParseArrayData(Serialized) = False then
+        Exit;
+    'b':
+      if ParseBooleanData(S) = False then
+        Exit;
+    'd':
+      if ParseDoubleData(S) = False then
+        Exit;
+    'i':
+      if ParseIntegerData(S) = False then
+        Exit;
+    's':
+      if ParseStringData(S) = False then
+        Exit;
+  else
+    Exit;
+  end;
+  FSerialized := Serialized;
+  FDataType := Serialized[1];
   Result := True;
-  try
-    json := uLkJSON.TlkJSON.ParseText(Data);
-    json_obj := uLkJSON.TlkJSONobject(json);
-    Fmsg_buf := json_obj.getString('buf');
-    Fmsg_type := json_obj.getString('type');
-    Fmsg_time := json_obj.getDouble('time');
-    if (Fmsg_type = 'stdout') or (Fmsg_type = 'stderr') then
+end;
+
+function TSerialized.ParseArrayData(const Data: string): Boolean;
+begin
+  Result := FArrayData.Parse(Data);
+end;
+
+function TSerialized.ParseBooleanData(const Data: string): Boolean;
+begin
+  Result := False;
+  if Data = '1' then
+  begin
+    FBooleanData := True;
+    Result := True;
+  end
+  else
+    if Data = '0' then
     begin
-      Fmsg_command := json_obj.getString('command');
-      Fmsg_pid := json_obj.getInt('pid');
-      Fmsg_alias := json_obj.getString('alias');
-      Fmsg_template := json_obj.getString('template');
-      Fmsg_allow_empty := json_obj.getString('allow_empty');
-      Fmsg_timeout := json_obj.getString('timeout');
-      Fmsg_repeat := json_obj.getString('repeat');
-      Fmsg_auto_privmsg := json_obj.getString('auto_privmsg');
-      Fmsg_start := json_obj.getDouble('start');
-      Fmsg_nick := json_obj.getString('nick');
-      Fmsg_cmd := json_obj.getString('cmd');
-      Fmsg_destination := json_obj.getString('destination');
-      Fmsg_trailing := json_obj.getString('trailing');
-      Fmsg_server := json.Field['items'].Field['server'].Value;
-      Fmsg_data := json.Field['items'].Field['data'].Value;
-      Fmsg_prefix := json.Field['items'].Field['prefix'].Value;
-      Fmsg_params := json.Field['items'].Field['params'].Value;
-      Fmsg_user := json.Field['items'].Field['user'].Value;
-      Fmsg_hostname := json.Field['items'].Field['hostname'].Value;
-      Fmsg_accounts_wildcard := json.Field['exec'].Field['accounts_wildcard'].Value;
-      Fmsg_exec_line := json.Field['exec'].Field['line'].Value;
-      Fmsg_file := json.Field['exec'].Field['file'].Value;
-      item := uLkJSON.TlkJSONobject(json.Field['exec'].Field['accounts']);
-      for i := 0 to item.Count - 1 do
-        Fmsg_accounts.Add(item.Child[i].Value);
-      item := uLkJSON.TlkJSONobject(json.Field['exec'].Field['cmds']);
-      for i := 0 to item.Count - 1 do
-        Fmsg_cmds.Add(item.Child[i].Value);
-      item := uLkJSON.TlkJSONobject(json.Field['exec'].Field['dests']);
-      for i := 0 to item.Count - 1 do
-        Fmsg_dests.Add(item.Child[i].Value);
-      item := uLkJSON.TlkJSONobject(json.Field['exec'].Field['bucket_locks']);
-      for i := 0 to item.Count - 1 do
-        Fmsg_bucket_locks.Add(item.Child[i].Value);
+      FBooleanData := False;
+      Result := True;
     end;
-    json.Free;
+end;
+
+function TSerialized.ParseDoubleData(const Data: string): Boolean;
+begin
+  try
+    FDoubleData := SysUtils.StrToFloat(Data);
+    Result := True;
   except
+    FDoubleData := 0.0;
     Result := False;
   end;
 end;
 
-{ TExecMessages }
-
-function TExecMessages.Add(const S: string): TExecMessage;
-var
-  Msg: TExecMessage;
+function TSerialized.ParseIntegerData(const Data: string): Boolean;
 begin
-  Msg := TExecMessage.Create;
-  if Msg.Load(S) then
-    Result := Msg
-  else
-  begin
-    Msg.Free;
-    Result := nil;
+  try
+    FIntegerData := SysUtils.StrToInt(Data);
+    Result := True;
+  except
+    FIntegerData := 0;
+    Result := False;
   end;
 end;
 
-procedure TExecMessages.Clear;
+function TSerialized.ParseStringData(const Data: string): Boolean;
+var
+  i: Integer;
+  L: Integer;
+begin
+  FStringData := ExtractSerialzedString(Data);
+  Result := False;
+  i := Pos(':', Data);
+  if i <= 0 then
+    Exit;
+  try
+    L := SysUtils.StrToInt(Copy(Data, 1, i - 1));
+  except
+    Exit;
+  end;
+  if Length(Data) < (i + 2) then
+    Exit;
+  FStringData := Copy(Data, i + 2, L);
+  Result := True;
+end;
+
+{ TSerializedArray }
+
+procedure TSerializedArray.Clear;
 var
   i: Integer;
 begin
   for i := 0 to Count - 1 do
-    Items[i].Free;
+    FItems.Objects[i].Free;
   FItems.Clear;
 end;
 
-constructor TExecMessages.Create;
+constructor TSerializedArray.Create;
 begin
-  FItems := Classes.TList.Create;
+  FItems := Classes.TStringList.Create;
 end;
 
-destructor TExecMessages.Destroy;
+destructor TSerializedArray.Destroy;
 begin
   Clear;
   FItems.Free;
   inherited;
 end;
 
-function TExecMessages.GetCount: Integer;
+function TSerializedArray.GetCount: Integer;
 begin
   Result := FItems.Count;
 end;
 
-function TExecMessages.GetItem(const Index: Integer): TExecMessage;
+function TSerializedArray.GetValue(const Key: string): TSerialized;
+var
+  i: Integer;
 begin
-  Result := FItems[Index];
+  i := IndexOf(Key);
+  if i >= 0 then
+    Result := TSerialized(FItems.Objects[i])
+  else
+    Result := nil;
+end;
+
+function TSerializedArray.IndexOf(const Key: string): Integer;
+var
+  i: Integer;
+begin
+  for i := 0 to Count - 1 do
+    if FItems[i] = Key then
+    begin
+      Result := i;
+      Exit;
+    end;
+  Result := -1;
+end;
+
+function TSerializedArray.Parse(const Serialized: string): Boolean;
+var
+  S: string;
+begin
+  FSerialized := Serialized;
+  Result := False;
+  // Serialized = 'a:1:{s:6:"server";s:12:"irc.sylnt.us";}'
+  S := Serialized;
+  Delete(S, 1, 2);
+  // Serialized = '1:{s:6:"server";s:12:"irc.sylnt.us";}'
 end;
 
 end.

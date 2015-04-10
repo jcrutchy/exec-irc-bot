@@ -1,0 +1,110 @@
+a:4:{
+  s:4:"type";
+  s:6:"stdout";
+  s:3:"buf";
+  s:25:"/BUCKET_GET channel_data";
+  s:6:"handle";
+  a:20:{
+    s:7:"process";
+    i:0;
+    s:7:"command";
+    s:135:"php scripts/activity.php 'exec' 'event-privmsg TheMightyBuzzard #Soylent does it go to 11?' '' '1428667231.3726' '~activity' 'INTERNAL'";
+    s:3:"pid";
+    i:22071;
+    s:10:"pipe_stdin";
+    i:0;
+    s:11:"pipe_stdout";
+    i:0;
+    s:11:"pipe_stderr";
+    i:0;
+    s:5:"alias";
+    s:9:"~activity";
+    s:12:"bucket_locks";
+    a:0:{
+    }
+    s:8:"template";
+    s:83:"php scripts/activity.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%";
+    s:11:"allow_empty";
+    s:1:"1";
+    s:7:"timeout";
+    s:2:"60";
+    s:6:"repeat";
+    s:1:"0";
+    s:12:"auto_privmsg";
+    s:1:"0";
+    s:5:"start";
+    d:1428668276.948612;
+    s:4:"nick";
+    s:4:"exec";
+    s:3:"cmd";
+    s:8:"INTERNAL";
+    s:11:"destination";
+    s:0:"";
+    s:8:"trailing";
+    s:57:"event-privmsg TheMightyBuzzard #Soylent does it go to 11?";
+    s:4:"exec";
+    a:14:{
+      s:5:"alias";
+      s:9:"~activity";
+      s:7:"timeout";
+      s:2:"60";
+      s:6:"repeat";
+      s:1:"0";
+      s:4:"auto";
+      s:1:"0";
+      s:5:"empty";
+      s:1:"1";
+      s:8:"accounts";
+      a:0:{
+      }
+      s:17:"accounts_wildcard";
+      s:0:"";
+      s:4:"cmds";
+      a:0:{
+      }
+      s:5:"dests";
+      a:0:{
+      }
+      s:12:"bucket_locks";
+      a:0:{
+      }
+      s:3:"cmd";
+      s:83:"php scripts/activity.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%";
+      s:5:"saved";
+      b:1;
+      s:4:"line";
+      s:106:"~activity|60|0|0|1|||||php scripts/activity.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%";
+      s:4:"file";
+      s:49:"/home/jared/git/exec-irc-bot/scripts/activity.php";
+    }
+    s:5:"items";
+    a:12:{
+      s:6:"server";
+      s:12:"irc.sylnt.us";
+      s:9:"microtime";
+      d:1428668276.9484241;
+      s:4:"time";
+      s:19:"2015-04-10 12:17:56";
+      s:4:"data";
+      s:83:":exec INTERNAL :~activity event-privmsg TheMightyBuzzard #Soylent does it go to 11?";
+      s:6:"prefix";
+      s:4:"exec";
+      s:6:"params";
+      s:0:"";
+      s:8:"trailing";
+      s:67:"~activity event-privmsg TheMightyBuzzard #Soylent does it go to 11?";
+      s:4:"nick";
+      s:4:"exec";
+      s:4:"user";
+      s:0:"";
+      s:8:"hostname";
+      s:0:"";
+      s:11:"destination";
+      s:0:"";
+      s:3:"cmd";
+      s:8:"INTERNAL";
+    }
+  }
+  s:4:"time";
+  d:1428668277.5065761;
+}

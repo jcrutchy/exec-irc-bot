@@ -12,7 +12,6 @@ object FormMain: TFormMain
   Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
-  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 14
   object PageControl1: TPageControl
