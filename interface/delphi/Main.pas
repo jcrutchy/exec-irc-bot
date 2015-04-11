@@ -51,9 +51,11 @@ type
     Timer1: TTimer;
     ProgressBar1: TProgressBar;
     Memo1: TMemo;
+    Button3: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
   private
     FThread: TClientThread;
     FMaxTraffic: Integer;
@@ -96,6 +98,11 @@ begin
 end;
 
 procedure TClientThread.Execute;
+var
+  Buf: array[1..10000] of Byte;
+  S: string;
+  i: Integer;
+  L: Integer;
 begin
   try
     FClient := TTcpClient.Create(nil);
@@ -111,7 +118,13 @@ begin
       end;
       while (Application.Terminated = False) and (Self.Terminated = False) and (FClient.Connected = True) do
       begin
-        FBuffer := FClient.Receiveln(#10);
+        for i := 1 to SizeOf(Buf) do
+          Buf[i] := 0;
+        L := FClient.ReceiveBuf(Buf[1], SizeOf(Buf));
+        S := '';
+        for i := 1 to L do
+          S := S + Char(Buf[i]);
+        FBuffer := S;
         Synchronize(Update);
       end;
     finally
@@ -163,11 +176,13 @@ begin
     if Msg.Parse(S) then
     begin
       Inc(FTraffic);
-      StatusBar1.Panels[3].Text := Msg.Serialized;
+      StatusBar1.Panels[3].Text := SysUtils.IntToStr(Msg.ArrayData.Count);
       while Memo1.Lines.Count > 100 do
         Memo1.Lines.Delete(0);
       Memo1.Lines.Add(Msg.Serialized);
-    end;
+    end
+    else
+      StatusBar1.Panels[3].Text := 'DATA PARSE ERROR';
   finally
     Msg.Free;
   end;
@@ -205,6 +220,11 @@ begin
   else
     msg := ':exec INTERNAL :' + LabeledEditAliasesTrailing.Text;
   FThread.Send(msg);
+end;
+
+procedure TFormMain.Button3Click(Sender: TObject);
+begin
+  FThread.Terminate;
 end;
 
 end.

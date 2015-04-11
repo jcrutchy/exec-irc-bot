@@ -14,6 +14,7 @@ uses
   StrUtils;
 
 function ExtractSerialzedString(const S: string; var Ret: string): Boolean;
+function SerialzedStringLength(const S: string): Integer;
 
 implementation
 
@@ -35,7 +36,7 @@ begin
   except
     Exit;
   end;
-  if Length(Data) < (i + 2) then
+  if Length(S) < (i + 2) then
     Exit;
   Ret := Copy(S, i + 2, L);
   Result := True;

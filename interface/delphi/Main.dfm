@@ -19,7 +19,7 @@ object FormMain: TFormMain
     Top = 0
     Width = 701
     Height = 321
-    ActivePage = TabSheet3
+    ActivePage = TabSheet6
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
@@ -202,6 +202,15 @@ object FormMain: TFormMain
         ScrollBars = ssBoth
         TabOrder = 0
         WordWrap = False
+      end
+      object Button3: TButton
+        Left = 572
+        Top = 43
+        Width = 81
+        Height = 25
+        Caption = 'DISCONNECT'
+        TabOrder = 1
+        OnClick = Button3Click
       end
     end
   end

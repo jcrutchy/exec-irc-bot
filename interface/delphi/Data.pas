@@ -27,15 +27,16 @@ type
     FBooleanData: Boolean;
     FArrayData: TSerializedArray;
   private
-    function ParseIntegerData(const Data: string): Boolean;
-    function ParseDoubleData(const Data: string): Boolean;
-    function ParseStringData(const Data: string): Boolean;
-    function ParseBooleanData(const Data: string): Boolean;
-    function ParseArrayData(const Data: string): Boolean;
+    function ParseIntegerData(const Data: string; var Len: Integer): Boolean;
+    function ParseDoubleData(const Data: string; var Len: Integer): Boolean;
+    function ParseStringData(const Data: string; var Len: Integer): Boolean;
+    function ParseBooleanData(const Data: string; var Len: Integer): Boolean;
+    function ParseArrayData(const Data: string; var Len: Integer): Boolean;
   public
     constructor Create;
     destructor Destroy; override;
   public
+    function ArrayParse(var Serialized: string): Boolean;
     function Parse(const Serialized: string): Boolean;
   public
     property Serialized: string read FSerialized;
@@ -62,6 +63,7 @@ type
     procedure Clear;
     function IndexOf(const Key: string): Integer;
     function Parse(const Serialized: string): Boolean;
+    function ParseCount(const Serialized: string): Integer;
   public
     property Serialized: string read FSerialized;
     property Count: Integer read GetCount;
@@ -71,7 +73,53 @@ type
 
 implementation
 
+uses
+  Main;
+
 { TSerialized }
+
+function TSerialized.ArrayParse(var Serialized: string): Boolean;
+var
+  S: string;
+  L: Integer;
+begin
+  Result := False;
+  FIntegerData := 0;
+  FDoubleData := 0.0;
+  FStringData := '';
+  FBooleanData := False;
+  FArrayData.Clear;
+  if Length(Serialized) < 3 then
+    Exit;
+  if Serialized[2] <> ':' then
+    Exit;
+  S := Copy(Serialized, 3, Length(Serialized) - 2);
+  L := -1;
+  case Serialized[1] of
+    'a':
+      if ParseArrayData(Serialized, L) = False then
+        Exit;
+    'b':
+      if ParseBooleanData(S, L) = False then
+        Exit;
+    'd':
+      if ParseDoubleData(S, L) = False then
+        Exit;
+    'i':
+      if ParseIntegerData(S, L) = False then
+        Exit;
+    's':
+      if ParseStringData(S, L) = False then
+        Exit;
+  else
+    Exit;
+  end;
+  FSerialized := Serialized;
+  FDataType := Serialized[1];
+  if L >= 0 then
+    Delete(Serialized, 1, L);
+  Result := True;
+end;
 
 constructor TSerialized.Create;
 begin
@@ -88,48 +136,19 @@ function TSerialized.Parse(const Serialized: string): Boolean;
 var
   S: string;
 begin
-  Result := False;
-  FIntegerData := 0;
-  FDoubleData := 0.0;
-  FStringData := '';
-  FBooleanData := False;
-  FArrayData.Clear;
-  if Length(Serialized) < 3 then
-    Exit;
-  if Serialized[2] <> ':' then
-    Exit;
-  S := Copy(Serialized, 3, Length(Serialized) - 2);
-  case Serialized[1] of
-    'a':
-      if ParseArrayData(Serialized) = False then
-        Exit;
-    'b':
-      if ParseBooleanData(S) = False then
-        Exit;
-    'd':
-      if ParseDoubleData(S) = False then
-        Exit;
-    'i':
-      if ParseIntegerData(S) = False then
-        Exit;
-    's':
-      if ParseStringData(S) = False then
-        Exit;
-  else
-    Exit;
-  end;
-  FSerialized := Serialized;
-  FDataType := Serialized[1];
-  Result := True;
+  S := Serialized;
+  Result := ArrayParse(S);
 end;
 
-function TSerialized.ParseArrayData(const Data: string): Boolean;
+function TSerialized.ParseArrayData(const Data: string; var Len: Integer): Boolean;
 begin
-  Result := FArrayData.Parse(Data);
+  Len := FArrayData.ParseCount(Data);
+  Result := Len <> -1;
 end;
 
-function TSerialized.ParseBooleanData(const Data: string): Boolean;
+function TSerialized.ParseBooleanData(const Data: string; var Len: Integer): Boolean;
 begin
+  Len := 1;
   Result := False;
   if Data = '1' then
   begin
@@ -144,10 +163,18 @@ begin
     end;
 end;
 
-function TSerialized.ParseDoubleData(const Data: string): Boolean;
+function TSerialized.ParseDoubleData(const Data: string; var Len: Integer): Boolean;
+var
+  S: string;
+  i: Integer;
 begin
+  S := Data;
+  i := Pos(';', S);
+  if i > 0 then
+    S := Copy(S, 1, i - 1);
+  Len := Length(S);
   try
-    FDoubleData := SysUtils.StrToFloat(Data);
+    FDoubleData := SysUtils.StrToFloat(S);
     Result := True;
   except
     FDoubleData := 0.0;
@@ -155,10 +182,18 @@ begin
   end;
 end;
 
-function TSerialized.ParseIntegerData(const Data: string): Boolean;
+function TSerialized.ParseIntegerData(const Data: string; var Len: Integer): Boolean;
+var
+  S: string;
+  i: Integer;
 begin
+  S := Data;
+  i := Pos(';', S);
+  if i > 0 then
+    S := Copy(S, 1, i - 1);
+  Len := Length(S);
   try
-    FIntegerData := SysUtils.StrToInt(Data);
+    FIntegerData := SysUtils.StrToInt(S);
     Result := True;
   except
     FIntegerData := 0;
@@ -166,9 +201,10 @@ begin
   end;
 end;
 
-function TSerialized.ParseStringData(const Data: string): Boolean;
+function TSerialized.ParseStringData(const Data: string; var Len: Integer): Boolean;
 begin
   Result := ExtractSerialzedString(Data, FStringData);
+  Len := Length(SysUtils.IntToStr(Length(FStringData))) + 3 + Length(FStringData);
 end;
 
 { TSerializedArray }
@@ -224,15 +260,76 @@ begin
 end;
 
 function TSerializedArray.Parse(const Serialized: string): Boolean;
+begin
+  Result := ParseCount(Serialized) <> -1;
+end;
+
+function TSerializedArray.ParseCount(const Serialized: string): Integer;
 var
   S: string;
+  n: Integer;
+  i: Integer;
+  L: Integer;
+  Children: TList;
+  Child: TSerialized;
 begin
   FSerialized := Serialized;
-  Result := False;
-  // Serialized = 'a:1:{s:6:"server";s:12:"irc.sylnt.us";}'
+  Result := -1;
   S := Serialized;
   Delete(S, 1, 2);
-  // Serialized = '1:{s:6:"server";s:12:"irc.sylnt.us";}'
+  i := Pos(':', S);
+  if i <= 0 then
+    Exit;
+  try
+    n := SysUtils.StrToInt(Copy(S, 1, i - 1)); // number of elements in the array
+  except
+    Exit;
+  end;
+  Delete(S, 1, i);
+  if Length(S) < 2 then
+    Exit;
+  if (S[1] <> '{') or (S[Length(S)] <> '}') then
+    Exit;
+  Delete(S, 1, 1);
+  Delete(S, Length(S), 1);
+  Children := TList.Create;
+  try
+    for i := 1 to n * 2 do
+    begin
+      Child := TSerialized.Create;
+      L := 0;
+      if Child.ParseArrayData(S, L) = False then
+      begin
+        Child.Free;
+        Exit;
+      end
+      else
+      begin
+        Children.Add(Child);
+        if S[1] = ';' then
+          Delete(S, 1, 1)
+        else
+          Exit;
+      end;
+    end;
+    for i := 1 to n do
+    begin
+      case TSerialized(Children[i * 2 - 1]).DataType of
+        's': FItems.AddObject(TSerialized(Children[i * 2 - 1]).StringData, TSerialized(Children[i * 2]));
+        'i': FItems.AddObject(SysUtils.IntToStr(TSerialized(Children[i * 2 - 1]).IntegerData), TSerialized(Children[i * 2]));
+      else
+        Exit;
+      end;
+    end;
+    for i := 1 to n do
+      TSerialized(Children[i * 2 - 1]).Free;
+    Result := Length(Serialized) - Length(S);
+  finally
+    if Result = -1 then
+      for i := 0 to Children.Count - 1 do
+        TSerialized(Children[i]).Free;
+    Children.Free;
+  end;
 end;
 
 end.
