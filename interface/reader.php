@@ -11,7 +11,7 @@ exec:~reader|0|0|0|1|@||||php interface/reader.php %%trailing%% %%dest%% %%nick%
 
 # ip -f inet addr
 
-require_once(__DIR__."/../scripts/lib.php");
+#require_once(__DIR__."/../scripts/lib.php");
 
 /*$trailing=$argv[1];
 $dest=$argv[2];
@@ -23,6 +23,7 @@ define("LISTEN_ADDRESS","192.168.1.58");
 define("BUFFER_FILE",__DIR__."/../../data/exec_iface");
 define("LISTEN_PORT",50000);
 define("CLIENT_TIMEOUT",60); # seconds
+define("MAX_DATA_LEN",1024);
 
 error_reporting(E_ALL);
 set_time_limit(0);

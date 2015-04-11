@@ -496,7 +496,7 @@ function write_out_buffer($buf)
   global $out_buffer;
   if (flock($out_buffer,LOCK_EX)==True)
   {
-    fwrite($out_buffer,$buf."\n");
+    fwrite($out_buffer,serialize($buf)."\n");
   }
   flock($out_buffer,LOCK_UN);
 }
@@ -506,26 +506,11 @@ function write_out_buffer($buf)
 function write_out_bufffer_proc($handle,$buf,$type)
 {
   $data=array();
-  $data["command"]=$handle["command"];
-  $data["pid"]=$handle["pid"];
-  $data["alias"]=$handle["alias"];
-  $data["bucket_locks"]=$handle["bucket_locks"];
-  $data["template"]=$handle["template"];
-  $data["allow_empty"]=$handle["allow_empty"];
-  $data["timeout"]=$handle["timeout"];
-  $data["repeat"]=$handle["repeat"];
-  $data["auto_privmsg"]=$handle["auto_privmsg"];
-  $data["start"]=$handle["start"];
-  $data["nick"]=$handle["nick"];
-  $data["cmd"]=$handle["cmd"];
-  $data["destination"]=$handle["destination"];
-  $data["trailing"]=$handle["trailing"];
-  $data["items"]=$handle["items"];
-  $data["exec"]=$handle["exec"];
   $data["type"]=$type;
   $data["buf"]=$buf;
+  $data["handle"]=$handle;
   $data["time"]=microtime(True);
-  write_out_buffer(json_encode($data));
+  write_out_buffer($data);
 }
 
 #####################################################################################################
@@ -536,7 +521,7 @@ function write_out_bufffer_sock($buf)
   $data["type"]="socket";
   $data["buf"]=$buf;
   $data["time"]=microtime(True);
-  write_out_buffer(json_encode($data));
+  write_out_buffer($data);
 }
 
 #####################################################################################################
@@ -553,21 +538,20 @@ function handle_reader_stdout_command($handle,$prefix,$trailing)
       $data["type"]="exec_list";
       $data["buf"]=$exec_list;
       $data["time"]=microtime(True);
-      write_out_buffer(json_encode($data));      
+      write_out_buffer($data);      
       return;
     case PREFIX_READER_BUCKETS:
       $data=array();
       $data["type"]="buckets";
       $data["buf"]=$buckets;
       $data["time"]=microtime(True);
-      write_out_buffer(json_encode($data));
+      write_out_buffer($data);
       return;
     case PREFIX_READER_HANDLES:
       $data=array();
       $data["type"]="handles";
       $data["buf"]=$handles;
       $data["time"]=microtime(True);
-      $data=@json_encode($data);
       write_out_buffer($data);
       return;          
   }
