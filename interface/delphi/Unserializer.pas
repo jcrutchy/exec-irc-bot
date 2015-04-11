@@ -1,4 +1,4 @@
-unit Data;
+unit Unserializer;
 
 interface
 
@@ -71,10 +71,68 @@ type
     property Values[const Key: string]: TSerialized read GetValue; default;
   end;
 
+procedure RunUnserializeTests;
+
 implementation
 
-uses
-  Main;
+const
+  ERROR_MESSAGE: string = 'ERROR: ClassName=%s Method=%s Serialized=%s';
+
+procedure RunUnserializeTests;
+var
+  Msg: TSerialized;
+  S: string;
+  Passed: Boolean;
+begin
+  Passed := True;
+  Msg := TSerialized.Create;
+  S := 'a:3:{s:6:"server";s:12:"irc.sylnt.us";s:9:"microtime";d:1428721291.088635;s:4:"nick";s:4:"exec";}';
+  if Msg.Parse(S) then
+  begin
+    if Msg.ArrayData.Count <> 3 then
+      Passed := False;
+    if Msg.ArrayData['server'] = nil then
+      Passed := False
+    else
+      if Msg.ArrayData['server'].StringData <> 'irc.sylnt.us' then
+        Passed := False;
+  end
+  else
+    Passed := False;
+  S := 'a:0:{}';
+  if Msg.Parse(S) then
+  begin
+    if Msg.ArrayData.Count <> 0 then
+      Passed := False;
+  end
+  else
+    Passed := False;
+  S := 'a:14:{s:5:"alias";s:9:"~activity";s:7:"timeout";s:2:"60";s:6:"repeat";s:1:"0";s:4:"auto";s:1:"0";s:5:"empty";s:1:"1";s:8:"accounts";a:0:{}s:17:"accounts_wildcard";s:0:"";s:4:"cmds";a:0:{}s:5:"dests";a:0:{}s:12:"bucket_locks";a:0:{}s:3:"cmd";s:83:"php scr' + 'ipts/activity.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%";s:5:"saved";b:1;s:4:"line";s:106:"~activity|60|0|0|1|||||php scripts/activity.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%";s:4:"file";s:49:"/ho' + 'me/jared/git/exec-irc-bot/scripts/activity.php";}';
+  if Msg.Parse(S) then
+  begin
+    if Msg.ArrayData.Count <> 14 then
+      Passed := False;
+  end
+  else
+  begin
+    ShowMessage('Test failed: ' + Msg.Serialized);
+    Passed := False;
+  end;
+  S := 'a:1:{s:4:"type";a:1:{s:7:"process";i:10;}}';
+  if Msg.Parse(S) then
+  begin
+    if Msg.ArrayData.Count <> 1 then
+      Passed := False;
+  end
+  else
+  begin
+    ShowMessage('Test failed: ' + Msg.Serialized);
+    Passed := False;
+  end;
+  Msg.Free;
+  if Passed then
+    ShowMessage('Tests passed!');
+end;
 
 { TSerialized }
 
@@ -84,6 +142,7 @@ var
   L: Integer;
 begin
   Result := False;
+  FSerialized := '';
   FIntegerData := 0;
   FDoubleData := 0.0;
   FStringData := '';
@@ -144,6 +203,8 @@ function TSerialized.ParseArrayData(const Data: string; var Len: Integer): Boole
 begin
   Len := FArrayData.ParseCount(Data);
   Result := Len <> -1;
+  if Result = False then
+    FSerialized := SysUtils.Format(ERROR_MESSAGE, [Self.ClassName, 'ParseArrayData', FSerialized]);
 end;
 
 function TSerialized.ParseBooleanData(const Data: string; var Len: Integer): Boolean;
@@ -161,6 +222,8 @@ begin
       FBooleanData := False;
       Result := True;
     end;
+  if Result = False then
+    FSerialized := SysUtils.Format(ERROR_MESSAGE, [Self.ClassName, 'ParseBooleanData', FSerialized]);
 end;
 
 function TSerialized.ParseDoubleData(const Data: string; var Len: Integer): Boolean;
@@ -180,6 +243,8 @@ begin
     FDoubleData := 0.0;
     Result := False;
   end;
+  if Result = False then
+    FSerialized := SysUtils.Format(ERROR_MESSAGE, [Self.ClassName, 'ParseDoubleData', FSerialized]);
 end;
 
 function TSerialized.ParseIntegerData(const Data: string; var Len: Integer): Boolean;
@@ -199,12 +264,16 @@ begin
     FIntegerData := 0;
     Result := False;
   end;
+  if Result = False then
+    FSerialized := SysUtils.Format(ERROR_MESSAGE, [Self.ClassName, 'ParseIntegerData', FSerialized]);
 end;
 
 function TSerialized.ParseStringData(const Data: string; var Len: Integer): Boolean;
 begin
   Result := ExtractSerialzedString(Data, FStringData);
   Len := Length(SysUtils.IntToStr(Length(FStringData))) + 3 + Length(FStringData);
+  if Result = False then
+    FSerialized := SysUtils.Format(ERROR_MESSAGE, [Self.ClassName, 'ParseStringData', FSerialized]);
 end;
 
 { TSerializedArray }
@@ -269,7 +338,6 @@ var
   S: string;
   n: Integer;
   i: Integer;
-  L: Integer;
   Children: TList;
   Child: TSerialized;
 begin
@@ -305,10 +373,11 @@ begin
       else
       begin
         Children.Add(Child);
-        if S[1] = ';' then
-          Delete(S, 1, 1)
-        else
-          Exit;
+        if (Child.DataType <> 'a') or (S <> '') then
+          if S[1] = ';' then
+            Delete(S, 1, 1)
+          else
+            Exit;
       end;
     end;
     for i := 0 to n - 1 do

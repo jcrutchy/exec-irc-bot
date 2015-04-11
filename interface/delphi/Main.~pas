@@ -52,12 +52,12 @@ type
     ProgressBar1: TProgressBar;
     Memo1: TMemo;
     Button3: TButton;
-    Button4: TButton;
+    ButtonRunTests: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
-    procedure Button4Click(Sender: TObject);
+    procedure ButtonRunTestsClick(Sender: TObject);
   private
     FThread: TClientThread;
     FMaxTraffic: Integer;
@@ -111,7 +111,7 @@ begin
     FClient.OnError := ClientError;
     FClient.OnSend := ClientSend;
     try
-      FClient.RemoteHost := '192.168.1.58'; // exception raised and program hangs if address is inaccessible  >:-|
+      FClient.RemoteHost := '192.168.1.25';
       FClient.RemotePort := '50000';
       if FClient.Connect = False then
       begin
@@ -172,6 +172,7 @@ end;
 procedure TFormMain.ThreadHandler(const S: string);
 var
   Msg: TSerialized;
+  Tmp: string;
 begin
   Msg := TSerialized.Create;
   try
@@ -180,14 +181,15 @@ begin
     Inc(FTraffic, Length(S));
     if Msg.Parse(S) then
     begin
-      Memo1.Lines.Add(SysUtils.IntToStr(Msg.ArrayData.Count));
-      StatusBar1.Panels[3].Text := SysUtils.IntToStr(Msg.ArrayData.Count);
+      Tmp := Trim(Msg.ArrayData['buf'].StringData);
+      Memo1.Lines.Add(Tmp);
+      StatusBar1.Panels[3].Text := Tmp;
     end
     else
     begin
       //Tmp := SysUtils.StringReplace(Tmp, #10, ' ', [rfReplaceAll]);
-      Memo1.Lines.Add(Trim(Msg.ArrayData['buf'].StringData));
-      StatusBar1.Panels[3].Text := 'DATA PARSE ERROR';
+      Memo1.Lines.Add(IntToStr(Length(S)));
+      StatusBar1.Panels[3].Text := Msg.Serialized;
     end;
   finally
     Msg.Free;
@@ -233,18 +235,9 @@ begin
   FThread.Terminate;
 end;
 
-procedure TFormMain.Button4Click(Sender: TObject);
-var
-  Msg: TSerialized;
-  S: string;
+procedure TFormMain.ButtonRunTestsClick(Sender: TObject);
 begin
-  Msg := TSerialized.Create;
-  S := 'a:3:{s:6:"server";s:12:"irc.sylnt.us";s:9:"microtime";d:1428721291.088635;s:4:"nick";s:4:"exec";}';
-  if Msg.Parse(S) then
-    ShowMessage(IntToStr(Msg.ArrayData.Count))
-  else
-    ShowMessage('error');
-  Msg.Free;
+  RunUnserializeTests;
 end;
 
 end.

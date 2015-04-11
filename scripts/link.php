@@ -12,6 +12,8 @@ exec:~!|10|0|0|1|*||||php scripts/link.php %%trailing%% %%dest%% %%nick%% %%alia
 
 require_once("lib.php");
 
+# TODO: do something similar to the github feed; output 6 and then make the last item something like "25 more not shown"
+
 $trailing=trim($argv[1]);
 $dest=$argv[2];
 $nick=$argv[3];

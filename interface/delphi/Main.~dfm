@@ -212,14 +212,14 @@ object FormMain: TFormMain
         TabOrder = 1
         OnClick = Button3Click
       end
-      object Button4: TButton
-        Left = 195
-        Top = 78
+      object ButtonRunTests: TButton
+        Left = 576
+        Top = 80
         Width = 75
         Height = 25
-        Caption = 'Button4'
+        Caption = 'RUN TESTS'
         TabOrder = 2
-        OnClick = Button4Click
+        OnClick = ButtonRunTestsClick
       end
     end
   end
