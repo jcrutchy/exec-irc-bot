@@ -23,7 +23,7 @@ define("LISTEN_ADDRESS","192.168.1.58");
 define("BUFFER_FILE",__DIR__."/../../data/exec_iface");
 define("LISTEN_PORT",50000);
 define("CLIENT_TIMEOUT",60); # seconds
-define("MAX_DATA_LEN",1024);
+define("MAX_DATA_LEN",10000);
 
 error_reporting(E_ALL);
 set_time_limit(0);
@@ -76,7 +76,7 @@ while (True)
     {
       if ($send_client<>$server)
       {
-        $written=@socket_write($send_client,$data);
+        $written=@socket_write($send_client,$data.chr(0));
         if ($written===False)
         {
           $client_index=array_search($send_client,$clients);

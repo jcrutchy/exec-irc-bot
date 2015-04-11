@@ -61,6 +61,14 @@ if (isset($params['until'])==False)
   $params['until'] = strftime('%F %T', time()-5);
 }
 
+if (isset($params["channel"])==True)
+{
+  if ((substr($params["channel"],1,1)<>"#") and (substr($params["channel"],1,1)<>"&"))
+  {
+    $params["channel"]="#".$params["channel"];
+  }
+}
+
 $paramstr="";
 foreach ($params as $key => $value)
 {
