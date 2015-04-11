@@ -14,7 +14,7 @@ uses
   StrUtils;
 
 function ExtractSerialzedString(const S: string; var Ret: string): Boolean;
-function SerialzedStringLength(const S: string): Integer;
+function StrReplace(const From: string; const To: string; const Subject: string): string;
 
 implementation
 
@@ -40,6 +40,25 @@ begin
     Exit;
   Ret := Copy(S, i + 2, L);
   Result := True;
+end;
+
+function StrReplace(const FromStr: string; const ToStr: string; const Subject: string): string;
+var
+  i: Integer;
+  S: string;
+begin
+  if FromStr = ToStr then
+  begin
+    Result := Subject;
+    Exit;
+  end;
+  repeat
+    i := Pos(From, Subject);
+    if i > 0 then
+    begin
+
+    end;
+  until i = -1;
 end;
 
 end.

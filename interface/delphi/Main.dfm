@@ -212,6 +212,15 @@ object FormMain: TFormMain
         TabOrder = 1
         OnClick = Button3Click
       end
+      object Button4: TButton
+        Left = 195
+        Top = 78
+        Width = 75
+        Height = 25
+        Caption = 'Button4'
+        TabOrder = 2
+        OnClick = Button4Click
+      end
     end
   end
   object StatusBar1: TStatusBar
@@ -221,13 +230,13 @@ object FormMain: TFormMain
     Height = 19
     Panels = <
       item
-        Width = 50
-      end
-      item
         Width = 70
       end
       item
-        Width = 50
+        Width = 90
+      end
+      item
+        Width = 60
       end
       item
         Width = 500

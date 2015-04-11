@@ -1,3 +1,9 @@
+a:4:{s:4:"type";s:6:"stdout";s:3:"buf";s:29:"/BUCKET_GET MINION_CMD_sylnt";s:6:"handle";a:20:{s:7:"process";i:0;s:7:"command";s:83:"php scripts/minion.php 'new sylnt irc.freenode.net 6667 #sylnt' '' 'exec' '~minion'";s:3:"pid";i:10702;s:10:"pipe_stdin";i:0;s:11:"pipe_stdout";i:0;s:11:"pipe_stderr";i:0;s:5:"alias";s:7:"~minion";s:12:"bucket_locks";a:1:{i:0;s:11:"<<MINIONS>>";}s:8:"template";s:63:"php scripts/minion.php %%trailing%% %%dest%% %%nick%% %%alias%%";s:11:"allow_empty";s:1:"1";s:7:"timeout";s:1:"0";s:6:"repeat";s:1:"0";s:12:"auto_privmsg";s:1:"0";s:5:"start";d:1428721291.088738;s:4:"nick";s:4:"exec";s:3:"cmd";s:8:"INTERNAL";s:11:"destination";s:0:"";s:8:"trailing";s:38:"new sylnt irc.freenode.net 6667 #sylnt";s:4:"exec";a:14:{s:5:"alias";s:7:"~minion";s:7:"timeout";s:1:"0";s:6:"repeat";s:1:"0";s:4:"auto";s:1:"0";s:5:"empty";s:1:"1";s:8:"accounts";a:2:{i:0;s:7:"crutchy";i:1;s:4:"exec";}s:17:"accounts_wildcard";s:0:"";s:4:"cmds";a:0:{}s:5:"dests";a:0:{}s:12:"bucket_locks";a:1:{i:0;s:11:"<<MINIONS>>";}s:3:"cmd";s:63:"php scripts/minion.php %%trailing%% %%dest%% %%nick%% %%alias%%";s:5:"saved";b:1;s:4:"line";s:101:"~minion|0|0|0|1|crutchy|||<<MINIONS>>|php scripts/minion.php %%trailing%% %%dest%% %%nick%% %%alias%%";s:4:"file";s:47:"/home/jared/git/exec-irc-bot/scripts/minion.php";}s:5:"items";a:12:{s:6:"server";s:12:"irc.sylnt.us";s:9:"microtime";d:1428721291.088635;s:4:"time";s:19:"2015-04-11 03:01:31";s:4:"data";s:62:":exec INTERNAL :~minion new sylnt irc.freenode.net 6667 #sylnt";s:6:"prefix";s:4:"exec";s:6:"params";s:0:"";s:8:"trailing";s:46:"~minion new sylnt irc.freenode.net 6667 #sylnt";s:4:"nick";s:4:"exec";s:4:"user";s:0:"";s:8:"hostname";s:0:"";s:11:"destination";s:0:"";s:3:"cmd";s:8:"INTERNAL";}}s:4:"time";d:1428740265.5377631;}
+
+
+
+
+
 a:4:{
   s:4:"type";
   s:6:"stdout";

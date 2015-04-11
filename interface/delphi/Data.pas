@@ -68,7 +68,7 @@ type
     property Serialized: string read FSerialized;
     property Count: Integer read GetCount;
     property Items: Classes.TStrings read FItems;
-    property Values[const Key: string]: TSerialized read GetValue;
+    property Values[const Key: string]: TSerialized read GetValue; default;
   end;
 
 implementation
@@ -117,7 +117,7 @@ begin
   FSerialized := Serialized;
   FDataType := Serialized[1];
   if L >= 0 then
-    Delete(Serialized, 1, L);
+    Delete(Serialized, 1, L + 2);
   Result := True;
 end;
 
@@ -269,7 +269,6 @@ var
   S: string;
   n: Integer;
   i: Integer;
-  L: Integer;
   Children: TList;
   Child: TSerialized;
 begin
@@ -297,8 +296,7 @@ begin
     for i := 1 to n * 2 do
     begin
       Child := TSerialized.Create;
-      L := 0;
-      if Child.ParseArrayData(S, L) = False then
+      if Child.ArrayParse(S) = False then
       begin
         Child.Free;
         Exit;
@@ -312,22 +310,23 @@ begin
           Exit;
       end;
     end;
-    for i := 1 to n do
+    for i := 0 to n - 1 do
     begin
-      case TSerialized(Children[i * 2 - 1]).DataType of
-        's': FItems.AddObject(TSerialized(Children[i * 2 - 1]).StringData, TSerialized(Children[i * 2]));
-        'i': FItems.AddObject(SysUtils.IntToStr(TSerialized(Children[i * 2 - 1]).IntegerData), TSerialized(Children[i * 2]));
+      case TSerialized(Children[i * 2]).DataType of
+        's': FItems.AddObject(TSerialized(Children[i * 2]).StringData, TSerialized(Children[i * 2 + 1]));
+        'i': FItems.AddObject(SysUtils.IntToStr(TSerialized(Children[i * 2]).IntegerData), TSerialized(Children[i * 2 + 1]));
       else
         Exit;
       end;
     end;
-    for i := 1 to n do
-      TSerialized(Children[i * 2 - 1]).Free;
+    for i := 0 to n - 1 do
+      TSerialized(Children[i * 2]).Free;
     Result := Length(Serialized) - Length(S);
   finally
     if Result = -1 then
       for i := 0 to Children.Count - 1 do
-        TSerialized(Children[i]).Free;
+        if Assigned(Children[i]) then
+          TSerialized(Children[i]).Free;
     Children.Free;
   end;
 end;

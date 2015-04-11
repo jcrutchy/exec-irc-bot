@@ -52,10 +52,12 @@ type
     ProgressBar1: TProgressBar;
     Memo1: TMemo;
     Button3: TButton;
+    Button4: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
   private
     FThread: TClientThread;
     FMaxTraffic: Integer;
@@ -170,19 +172,25 @@ end;
 procedure TFormMain.ThreadHandler(const S: string);
 var
   Msg: TSerialized;
+  Tmp: string;
 begin
   Msg := TSerialized.Create;
   try
+    while Memo1.Lines.Count > 100 do
+      Memo1.Lines.Delete(0);
+    Inc(FTraffic, Length(S));
     if Msg.Parse(S) then
     begin
-      Inc(FTraffic);
-      StatusBar1.Panels[3].Text := SysUtils.IntToStr(Msg.ArrayData.Count);
-      while Memo1.Lines.Count > 100 do
-        Memo1.Lines.Delete(0);
-      Memo1.Lines.Add(Msg.Serialized);
+      Tmp := Trim(Msg.ArrayData['buf'].StringData);
+      Memo1.Lines.Add(Tmp);
+      StatusBar1.Panels[3].Text := Tmp;
     end
     else
+    begin
+      //Tmp := SysUtils.StringReplace(Tmp, #10, ' ', [rfReplaceAll]);
+      Memo1.Lines.Add(IntToStr(Length(S)));
       StatusBar1.Panels[3].Text := 'DATA PARSE ERROR';
+    end;
   finally
     Msg.Free;
   end;
@@ -195,8 +203,8 @@ begin
   F := Round(1000 / Timer1.Interval);
   if FTraffic > FMaxTraffic then
     FMaxTraffic := FTraffic;
-  StatusBar1.Panels[0].Text := IntToStr(FTraffic) + '/sec';
-  StatusBar1.Panels[1].Text := IntToStr(FMaxTraffic) + '/sec max';
+  StatusBar1.Panels[0].Text := Format('%.1f', [FTraffic / 1024]) + ' kb/s';
+  StatusBar1.Panels[1].Text := Format('%.1f', [FMaxTraffic / 1024]) + ' kb/s max';
   if FMaxTraffic = 0 then
     FTrafficPercent := 0
   else
@@ -225,6 +233,20 @@ end;
 procedure TFormMain.Button3Click(Sender: TObject);
 begin
   FThread.Terminate;
+end;
+
+procedure TFormMain.Button4Click(Sender: TObject);
+var
+  Msg: TSerialized;
+  S: string;
+begin
+  Msg := TSerialized.Create;
+  S := 'a:3:{s:6:"server";s:12:"irc.sylnt.us";s:9:"microtime";d:1428721291.088635;s:4:"nick";s:4:"exec";}';
+  if Msg.Parse(S) then
+    ShowMessage(IntToStr(Msg.ArrayData.Count))
+  else
+    ShowMessage('error');
+  Msg.Free;
 end;
 
 end.
