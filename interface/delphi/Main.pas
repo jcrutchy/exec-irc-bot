@@ -103,16 +103,15 @@ end;
 procedure TClientThread.Execute;
 var
   Buf: Char;
-  t: Cardinal;
 const
-  TERMINATOR: string = #0#0#0#0#0#0#0#0#0#0;
+  TERMINATOR: string = #13#10;
 begin
   try
     FClient := TTcpClient.Create(nil);
     FClient.OnError := ClientError;
     FClient.OnSend := ClientSend;
     try
-      FClient.RemoteHost := '192.168.1.25';
+      FClient.RemoteHost := '192.168.1.22';
       FClient.RemotePort := '50000';
       if FClient.Connect = False then
       begin
@@ -124,13 +123,10 @@ begin
       begin
         FClient.ReceiveBuf(Buf, 1);
         FBuffer := FBuffer + Buf;
-        if Copy(FBuffer, Length(FBuffer) - Length(TERMINATOR), Length(TERMINATOR)) = TERMINATOR then
+        if Copy(FBuffer, Length(FBuffer) - Length(TERMINATOR) + 1, Length(TERMINATOR)) = TERMINATOR then
         begin
           Synchronize(Update);
           FBuffer := '';
-          t := GetTickCount;
-          while GetTickCount - t < 3000 do
-            Application.ProcessMessages;
         end;
       end;
     finally
@@ -173,7 +169,7 @@ begin
   Timer1.Enabled := True;
 end;
 
-{procedure TFormMain.ThreadHandler(const S: string);
+procedure TFormMain.ThreadHandler(const S: string);
 var
   Msg: TSerialized;
   Tmp: string;
@@ -190,6 +186,8 @@ begin
     if Msg.Parse(S) then
     begin
       Tmp := Trim(Msg.ArrayData['buf'].StringData);
+      if Msg['type'].StringData = 'stdout' then
+        Tmp := Msg['handle']['alias'].StringData;
       Memo1.Lines.Add(Tmp);
       StatusBar1.Panels[3].Text := Tmp;
     end
@@ -201,13 +199,6 @@ begin
   finally
     Msg.Free;
   end;
-end;}
-
-procedure TFormMain.ThreadHandler(const S: string);
-begin
-  Memo1.Lines.Text := S;
-  StatusBar1.Panels[3].Text := IntToStr(Length(S));
-  StrToFile(ExtractFilePath(ParamStr(0)) + 'tests\test001.txt', S);
 end;
 
 procedure TFormMain.Timer1Timer(Sender: TObject);
