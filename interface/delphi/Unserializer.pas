@@ -32,6 +32,7 @@ type
     function ParseStringData(const Data: string; var Len: Integer): Boolean;
     function ParseBooleanData(const Data: string; var Len: Integer): Boolean;
     function ParseArrayData(const Data: string; var Len: Integer): Boolean;
+    function GetArrayValue(const Key: string): TSerialized;
   public
     constructor Create;
     destructor Destroy; override;
@@ -47,6 +48,7 @@ type
     property StringData: string read FStringData;
     property BooleanData: Boolean read FBooleanData;
     property ArrayData: TSerializedArray read FArrayData;
+    property ArrayValues[const Key: string]: TSerialized read GetArrayValue; default;
   end;
 
   TSerializedArray = class(TObject)
@@ -240,6 +242,11 @@ destructor TSerialized.Destroy;
 begin
   FArrayData.Free;
   inherited;
+end;
+
+function TSerialized.GetArrayValue(const Key: string): TSerialized;
+begin
+  Result := FArrayData[Key];
 end;
 
 function TSerialized.Parse(const Serialized: string): Boolean;
