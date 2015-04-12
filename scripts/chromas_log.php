@@ -61,13 +61,18 @@ if (isset($params['until'])==False)
   $params['until'] = strftime('%F %T', time()-5);
 }
 
-if (isset($params["channel"])==True)
+/*if (isset($params["channel"])==True)
 {
   if ((substr($params["channel"],0,1)<>"#") and (substr($params["channel"],0,1)<>"&"))
   {
     $params["channel"]="#".$params["channel"];
   }
-}
+}*/
+
+/*if (isset($params["message"])==True)
+{
+  $params["message"]=preg_quote($params["message"]);
+}*/
 
 $paramstr="";
 foreach ($params as $key => $value)
@@ -86,8 +91,8 @@ var_dump($uri);
 
 if (get_bucket("chromas_irc_log_debug")=="on")
 {
-  pm("chromas",$uri);
-  pm("crutchy",$uri);
+  pm("chromas","http://chromas.0x.no".$uri);
+  pm("crutchy","http://chromas.0x.no".$uri);
 }
 
 $response=wget("chromas.0x.no",$uri,80,ICEWEASEL_UA,"",20,"",1024,False);
