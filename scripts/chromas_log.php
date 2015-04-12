@@ -63,7 +63,7 @@ if (isset($params['until'])==False)
 
 if (isset($params["channel"])==True)
 {
-  if ((substr($params["channel"],1,1)<>"#") and (substr($params["channel"],1,1)<>"&"))
+  if ((substr($params["channel"],0,1)<>"#") and (substr($params["channel"],0,1)<>"&"))
   {
     $params["channel"]="#".$params["channel"];
   }

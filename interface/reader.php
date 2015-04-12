@@ -19,7 +19,7 @@ $nick=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];*/
 
-define("LISTEN_ADDRESS","192.168.1.58");
+define("LISTEN_ADDRESS","192.168.1.25");
 define("BUFFER_FILE",__DIR__."/../../data/exec_iface");
 define("LISTEN_PORT",50000);
 define("CLIENT_TIMEOUT",60); # seconds
@@ -76,7 +76,7 @@ while (True)
     {
       if ($send_client<>$server)
       {
-        $written=@socket_write($send_client,$data.chr(0));
+        $written=@socket_write($send_client,$data.str_repeat(chr(0),10));
         if ($written===False)
         {
           $client_index=array_search($send_client,$clients);
