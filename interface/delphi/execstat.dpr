@@ -10,6 +10,7 @@ uses
 
 begin
   Application.Initialize;
+  Application.Title := 'execstat';
   Application.CreateForm(TFormMain, FormMain);
   Application.Run;
 end.

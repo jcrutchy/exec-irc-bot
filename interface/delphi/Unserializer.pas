@@ -84,7 +84,6 @@ procedure RunUnserializeTests;
 var
   Msg: TSerialized;
   S: string;
-  FileName: string;
   Passed: Boolean;
 begin
   Passed := True;
@@ -165,23 +164,6 @@ begin
     ShowMessage('Test failed: ' + Msg.Serialized);
     Passed := False;
   end;
-  FileName := ExtractFilePath(ParamStr(0)) + 'tests\test001.txt';
-  if Utils.FileToStr(FileName, S) = False then
-  begin
-    ShowMessage('Error loading test data from file "' + FileName + '".');
-    Passed := False;
-  end
-  else
-    if Msg.Parse(S) then
-    begin
-      if Msg.ArrayData.Count <> 14 then
-        Passed := False;
-    end
-    else
-    begin
-      ShowMessage('Test failed: ' + Msg.Serialized);
-      Passed := False;
-    end;
   Msg.Free;
   if Passed then
     ShowMessage('Tests passed!');

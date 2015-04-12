@@ -1,20 +1,21 @@
 [Closed Files]
-File_0=SourceModule,'C:\Users\Jared\Documents\Delphi Library 2011\from_the_internet\uLkJSON.pas',0,1,1083,37,1104,0,0
-File_1=SourceModule,'c:\program files (x86)\borland\delphi7\source\vcl\Controls.pas',0,1,1345,10,1362,0,0
-File_2=SourceModule,'c:\program files (x86)\borland\delphi7\source\vcl\ExtCtrls.pas',0,1,256,16,265,0,0
-File_3=SourceModule,'C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Utils.pas',0,1,1,4,18,0,0
-File_4=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\system.pas',0,1,1,1,18,0,0
-File_5=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\classes.pas',0,1,69,35,90,0,0
-File_6=SourceModule,'c:\program files (x86)\borland\delphi7\source\Internet\sockets.pas',0,1,137,1,142,0,0
-File_7=SourceModule,'C:\Users\Jared\Documents\GitHub\ircd\delphi\Main.pas',0,1,29,20,32,1,0
-File_8=SourceModule,'C:\Users\Jared\Documents\git\edr-backup\SourceTree.pas',0,1,122,65,131,0,0
-File_9=SourceModule,'C:\Users\Jared\Documents\git\edr-backup\BackupConsts.pas',0,1,1,12,4,0,0
+File_0=SourceModule,'C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Data.pas',0,1,81,20,88,0,0
+File_1=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\sysutils.pas',0,1,14872,35,14890,0,0
+File_2=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\StrUtils.pas',0,1,479,1,505,0,0
+File_3=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\Sys\system.pas',0,1,1,1,18,0,0
+File_4=SourceModule,'C:\Users\Jared\Documents\Delphi Library 2011\from_the_internet\uLkJSON.pas',0,1,1083,1,1109,0,0
+File_5=SourceModule,'c:\program files (x86)\borland\delphi7\source\vcl\Controls.pas',0,1,1345,10,1362,0,0
+File_6=SourceModule,'c:\program files (x86)\borland\delphi7\source\vcl\ExtCtrls.pas',0,1,256,16,265,0,0
+File_7=SourceModule,'c:\program files (x86)\borland\delphi7\source\rtl\common\classes.pas',0,1,69,35,90,0,0
+File_8=SourceModule,'c:\program files (x86)\borland\delphi7\source\Internet\sockets.pas',0,1,137,1,142,0,0
+File_9=SourceModule,'C:\Users\Jared\Documents\GitHub\ircd\delphi\Main.pas',0,1,29,20,32,1,0
 
 [Modules]
 Module0=C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Main.pas
-Module1=C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Data.pas
-Module2=C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\execstat.dpr
-Count=3
+Module1=C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\execstat.dpr
+Module2=C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Unserializer.pas
+Module3=C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Utils.pas
+Count=4
 EditWindowCount=1
 
 [C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Main.pas]
@@ -22,12 +23,17 @@ ModuleType=SourceModule
 FormState=1
 FormOnTop=0
 
-[C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Data.pas]
+[C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\execstat.dpr]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
-[C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\execstat.dpr]
+[C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Unserializer.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Utils.pas]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
@@ -37,57 +43,83 @@ FormState=0
 FormOnTop=0
 
 [EditWindow0]
-ViewCount=3
-CurrentView=1
+ViewCount=4
+CurrentView=0
 View0=0
 View1=1
 View2=2
+View3=3
 CodeExplorer=CodeExplorer@EditWindow0
 MessageView=MessageView@EditWindow0
 Create=1
 Visible=1
 State=2
-Left=1888
-Top=28
-Width=926
-Height=485
-MaxLeft=-1
-MaxTop=-179
-MaxWidth=1928
-MaxHeight=1088
-ClientWidth=1920
-ClientHeight=1061
-LeftPanelSize=140
+Left=88
+Top=0
+Width=304
+Height=740
+MaxLeft=-4
+MaxTop=97
+MaxWidth=1374
+MaxHeight=647
+ClientWidth=1366
+ClientHeight=620
+LeftPanelSize=210
 LeftPanelClients=CodeExplorer@EditWindow0
 LeftPanelData=000004000000000000000000000000000000000000000000000100000000000000000C000000436F64654578706C6F726572FFFFFFFF
 RightPanelSize=0
-BottomPanelSize=85
-BottomPanelClients=MessageView@EditWindow0
-BottomPanelData=00000400000000008007000000000000025500000000000000010000000000000000000000000100000000800700000B0000004D65737361676556696577FFFFFFFF
+BottomPanelSize=0
+BottomPanelClients=MessageView@EditWindow0,WatchWindow
+BottomPanelData=00000400020000000B0000004D657373616765566965770B000000576174636857696E646F777A000000000000000156050000000000000100000000640000000B000000576174636857696E646F7701000000027A00000000000000020000000000000000000000000200000000560500000B0000004D65737361676556696577FFFFFFFF
 
 [View0]
-Module=C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\execstat.dpr
-CursorX=9
-CursorY=7
-TopLine=1
+Module=C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Main.pas
+CursorX=46
+CursorY=192
+TopLine=171
 LeftCol=1
 
 [View1]
-Module=C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Main.pas
-CursorX=26
-CursorY=112
-TopLine=103
+Module=C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\execstat.dpr
+CursorX=32
+CursorY=6
+TopLine=1
 LeftCol=1
 
 [View2]
-Module=C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Data.pas
-CursorX=22
-CursorY=272
-TopLine=248
+Module=C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Unserializer.pas
+CursorX=5
+CursorY=238
+TopLine=34
+LeftCol=1
+
+[View3]
+Module=C:\Users\Jared\Documents\GitHub\exec-irc-bot\interface\delphi\Utils.pas
+CursorX=8
+CursorY=84
+TopLine=71
 LeftCol=1
 
 [Watches]
 Count=0
+
+[WatchWindow]
+WatchColumnWidth=100
+WatchShowColumnHeaders=1
+Create=1
+Visible=0
+State=0
+Left=12
+Top=0
+Width=1354
+Height=96
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=1354
+ClientHeight=96
+TBDockHeight=96
+LRDockWidth=426
+Dockable=1
 
 [Breakpoints]
 Count=0
@@ -146,17 +178,17 @@ State=0
 Left=1
 Top=102
 Width=221
-Height=621
+Height=605
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=213
-ClientHeight=597
+ClientHeight=581
 TBDockHeight=381
 LRDockWidth=190
 Dockable=1
 SplitPos=85
 ArrangeBy=Name
-SelectedItem=Caption
+SelectedItem=PopupMenu
 ExpandedItems=
 HiddenCategories=
 
@@ -182,29 +214,29 @@ Visible=1
 State=0
 Left=0
 Top=12
-Width=140
-Height=961
+Width=210
+Height=608
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=140
-ClientHeight=961
+ClientWidth=210
+ClientHeight=608
 TBDockHeight=305
-LRDockWidth=140
+LRDockWidth=210
 Dockable=1
 
 [MessageView@EditWindow0]
 Create=1
-Visible=1
+Visible=0
 State=0
 Left=12
 Top=0
-Width=1908
-Height=85
+Width=1354
+Height=122
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=1908
-ClientHeight=85
-TBDockHeight=85
+ClientWidth=1354
+ClientHeight=122
+TBDockHeight=122
 LRDockWidth=443
 Dockable=1
 

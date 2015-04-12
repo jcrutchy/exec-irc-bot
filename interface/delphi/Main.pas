@@ -28,23 +28,14 @@ type
     PageControl1: TPageControl;
     TabSheet1: TTabSheet;
     TabSheet2: TTabSheet;
-    Panel1: TPanel;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
-    Button1: TButton;
-    ListBox1: TListBox;
-    TreeView1: TTreeView;
-    Splitter1: TSplitter;
+    ListBoxBuckets: TListBox;
     TabSheet3: TTabSheet;
     TabSheet4: TTabSheet;
     TabSheet5: TTabSheet;
-    ListBox2: TListBox;
+    ListBoxExec: TListBox;
     Splitter2: TSplitter;
     Panel2: TPanel;
-    Button2: TButton;
+    ButtonSend: TButton;
     LabeledEditAliasesTrailing: TLabeledEdit;
     LabeledEditAliasesDest: TLabeledEdit;
     TabSheet6: TTabSheet;
@@ -54,11 +45,14 @@ type
     Memo1: TMemo;
     Button3: TButton;
     ButtonRunTests: TButton;
+    ListBoxAliases: TListBox;
+    Timer2: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    procedure ButtonSendClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure ButtonRunTestsClick(Sender: TObject);
+    procedure Timer2Timer(Sender: TObject);
   private
     FThread: TClientThread;
     FMaxTraffic: Integer;
@@ -151,12 +145,12 @@ end;
 
 procedure TClientThread.ClientError(Sender: TObject; SocketError: Integer);
 begin
-  FBuffer := SysUtils.IntToStr(SocketError);
+
 end;
 
 procedure TClientThread.ClientSend(Sender: TObject; Buf: PAnsiChar; var DataLen: Integer);
 begin
-  FBuffer := 'MESSAGE SENT: ' + Buf;
+
 end;
 
 { TFormMain }
@@ -167,33 +161,40 @@ begin
   FThread.Handler := ThreadHandler;
   FThread.Resume;
   Timer1.Enabled := True;
+  Timer2.Enabled := True;
 end;
 
 procedure TFormMain.ThreadHandler(const S: string);
 var
   Msg: TSerialized;
-  Tmp: string;
-  FileName: string;
+  i: Integer;
 begin
   Msg := TSerialized.Create;
   try
     while Memo1.Lines.Count > 100 do
       Memo1.Lines.Delete(0);
-    FileName := ExtractFilePath(ParamStr(0)) + 'tests\test001.txt';
-    StrToFile(FileName, S);
-    Tmp := S;
     Inc(FTraffic, Length(S));
     if Msg.Parse(S) then
     begin
-      Tmp := Trim(Msg.ArrayData['buf'].StringData);
-      if Msg['type'].StringData = 'stdout' then
-        Tmp := Msg['handle']['alias'].StringData;
-      Memo1.Lines.Add(Tmp);
-      StatusBar1.Panels[3].Text := Tmp;
+      Memo1.Lines.Add(Msg.ArrayData['buf'].StringData);
+      StatusBar1.Panels[3].Text := Msg.ArrayData['buf'].StringData;
+      if Msg['type'].StringData = 'handles' then
+      begin
+        ListBoxAliases.Clear;
+        for i := 0 to Msg['buf'].ArrayData.Count - 1 do
+          ListBoxAliases.Items.Add(Msg['buf'][IntToStr(i)]['alias'].StringData);
+      end;
+      if Msg['type'].StringData = 'exec_list' then
+      begin
+        Memo1.Lines.Text := S;
+        ListBoxExec.Items.Assign(Msg['buf'].ArrayData.Items);
+      end;
+      if Msg['type'].StringData = 'buckets' then
+        ListBoxBuckets.Items.Assign(Msg['buf'].ArrayData.Items);
     end
     else
     begin
-      Memo1.Lines.Add(IntToStr(Length(Tmp)));
+      //Memo1.Lines.Add(S);
       StatusBar1.Panels[3].Text := Msg.Serialized;
     end;
   finally
@@ -224,7 +225,7 @@ begin
     FTraffic := 0;
 end;
 
-procedure TFormMain.Button2Click(Sender: TObject);
+procedure TFormMain.ButtonSendClick(Sender: TObject);
 var
   msg: string;
 begin
@@ -243,6 +244,13 @@ end;
 procedure TFormMain.ButtonRunTestsClick(Sender: TObject);
 begin
   RunUnserializeTests;
+end;
+
+procedure TFormMain.Timer2Timer(Sender: TObject);
+begin
+  FThread.Send('/READER_HANDLES');
+  FThread.Send('/READER_EXEC');
+  FThread.Send('/READER_BUCKETS');
 end;
 
 end.
