@@ -199,9 +199,8 @@ object FormMain: TFormMain
         Align = alClient
         Color = clBtnFace
         ReadOnly = True
-        ScrollBars = ssBoth
+        ScrollBars = ssVertical
         TabOrder = 0
-        WordWrap = False
       end
       object Button3: TButton
         Left = 572

@@ -1,0 +1,1 @@
+a:4:{s:4:"type";s:6:"stdout";s:3:"buf";s:29:"/BUCKET_GET MINION_CMD_sylnt

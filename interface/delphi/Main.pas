@@ -17,7 +17,8 @@ uses
   ComCtrls,
   Grids,
   ExtCtrls,
-  ScktComp;
+  ScktComp,
+  Utils;
 
 type
 
@@ -101,10 +102,10 @@ end;
 
 procedure TClientThread.Execute;
 var
-  Buf: array[1..10000] of Byte;
-  S: string;
-  i: Integer;
-  L: Integer;
+  Buf: Char;
+  t: Cardinal;
+const
+  TERMINATOR: string = #0#0#0#0#0#0#0#0#0#0;
 begin
   try
     FClient := TTcpClient.Create(nil);
@@ -118,16 +119,19 @@ begin
         ShowMessage('Unable to connect to remote host.');
         Exit;
       end;
+      FBuffer := '';
       while (Application.Terminated = False) and (Self.Terminated = False) and (FClient.Connected = True) do
       begin
-        for i := 1 to SizeOf(Buf) do
-          Buf[i] := 0;
-        L := FClient.ReceiveBuf(Buf[1], SizeOf(Buf));
-        S := '';
-        for i := 1 to L do
-          S := S + Char(Buf[i]);
-        FBuffer := S;
-        Synchronize(Update);
+        FClient.ReceiveBuf(Buf, 1);
+        FBuffer := FBuffer + Buf;
+        if Copy(FBuffer, Length(FBuffer) - Length(TERMINATOR), Length(TERMINATOR)) = TERMINATOR then
+        begin
+          Synchronize(Update);
+          FBuffer := '';
+          t := GetTickCount;
+          while GetTickCount - t < 3000 do
+            Application.ProcessMessages;
+        end;
       end;
     finally
       FClient.Free;
@@ -169,15 +173,19 @@ begin
   Timer1.Enabled := True;
 end;
 
-procedure TFormMain.ThreadHandler(const S: string);
+{procedure TFormMain.ThreadHandler(const S: string);
 var
   Msg: TSerialized;
   Tmp: string;
+  FileName: string;
 begin
   Msg := TSerialized.Create;
   try
     while Memo1.Lines.Count > 100 do
       Memo1.Lines.Delete(0);
+    FileName := ExtractFilePath(ParamStr(0)) + 'tests\test001.txt';
+    StrToFile(FileName, S);
+    Tmp := S;
     Inc(FTraffic, Length(S));
     if Msg.Parse(S) then
     begin
@@ -187,13 +195,19 @@ begin
     end
     else
     begin
-      //Tmp := SysUtils.StringReplace(Tmp, #10, ' ', [rfReplaceAll]);
-      Memo1.Lines.Add(IntToStr(Length(S)));
+      Memo1.Lines.Add(IntToStr(Length(Tmp)));
       StatusBar1.Panels[3].Text := Msg.Serialized;
     end;
   finally
     Msg.Free;
   end;
+end;}
+
+procedure TFormMain.ThreadHandler(const S: string);
+begin
+  Memo1.Lines.Text := S;
+  StatusBar1.Panels[3].Text := IntToStr(Length(S));
+  StrToFile(ExtractFilePath(ParamStr(0)) + 'tests\test001.txt', S);
 end;
 
 procedure TFormMain.Timer1Timer(Sender: TObject);

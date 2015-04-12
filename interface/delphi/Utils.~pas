@@ -14,7 +14,8 @@ uses
   StrUtils;
 
 function ExtractSerialzedString(const S: string; var Ret: string): Boolean;
-function StrReplace(const From: string; const To: string; const Subject: string): string;
+function FileToStr(const FileName: string; var S: string): Boolean; // FileName must be fully qualified
+function StrToFile(const FileName: string; const S: string): Boolean; // FileName must be fully qualified & path must exist
 
 implementation
 
@@ -38,27 +39,59 @@ begin
   end;
   if Length(S) < (i + 2) then
     Exit;
+  if (Copy(S, i + 1, 1) <> '"') or (Copy(S, i + 2 + L, 1) <> '"') then
+  begin     
+    //ShowMessage('Error: ' + Copy(S, i + 2 + L, 1));
+    Exit;
+  end;
   Ret := Copy(S, i + 2, L);
   Result := True;
 end;
 
-function StrReplace(const FromStr: string; const ToStr: string; const Subject: string): string;
+function FileToStr(const FileName: string; var S: string): Boolean; // FileName must be fully qualified
 var
+  F: Classes.TFileStream;
+  Buffer: array[1..1024] of Char;
+  Temp: string;
   i: Integer;
-  S: string;
 begin
-  if FromStr = ToStr then
+  Result := False;
+  S := '';
+  if SysUtils.FileExists(FileName) then
+    try
+      F := Classes.TFileStream.Create(FileName, fmOpenRead + fmShareDenyNone);
+      F.Seek(0, soFromBeginning);
+      repeat
+        i := F.Read(Buffer, SizeOf(Buffer));
+        Temp := Copy(Buffer, 1, i);
+        S := S + Temp;
+      until Length(Temp) = 0;
+      F.Free;
+      Result := True;
+    except
+      Result := False;
+    end;
+end;
+
+function StrToFile(const FileName: string; const S: string): Boolean; // FileName must be fully qualified & path must exist
+var
+  Path: string;
+  F: Classes.TStrings;
+begin
+  Path := ExtractFilePath(FileName);
+  if not SysUtils.DirectoryExists(Path) then
   begin
-    Result := Subject;
+    Result := False;
     Exit;
   end;
-  repeat
-    i := Pos(From, Subject);
-    if i > 0 then
-    begin
-
-    end;
-  until i = -1;
+  F := Classes.TStringList.Create;
+  F.Text := S;
+  try
+    F.SaveToFile(FileName);
+    Result := True;
+  except
+    Result := False;
+  end;
 end;
 
 end.

@@ -63,7 +63,7 @@ type
     procedure Clear;
     function IndexOf(const Key: string): Integer;
     function Parse(const Serialized: string): Boolean;
-    function ParseCount(const Serialized: string): Integer;
+    function ParseLength(const Serialized: string): Integer;
   public
     property Serialized: string read FSerialized;
     property Count: Integer read GetCount;
@@ -82,6 +82,7 @@ procedure RunUnserializeTests;
 var
   Msg: TSerialized;
   S: string;
+  FileName: string;
   Passed: Boolean;
 begin
   Passed := True;
@@ -107,17 +108,6 @@ begin
   end
   else
     Passed := False;
-  S := 'a:14:{s:5:"alias";s:9:"~activity";s:7:"timeout";s:2:"60";s:6:"repeat";s:1:"0";s:4:"auto";s:1:"0";s:5:"empty";s:1:"1";s:8:"accounts";a:0:{}s:17:"accounts_wildcard";s:0:"";s:4:"cmds";a:0:{}s:5:"dests";a:0:{}s:12:"bucket_locks";a:0:{}s:3:"cmd";s:83:"php scr' + 'ipts/activity.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%";s:5:"saved";b:1;s:4:"line";s:106:"~activity|60|0|0|1|||||php scripts/activity.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%";s:4:"file";s:49:"/ho' + 'me/jared/git/exec-irc-bot/scripts/activity.php";}';
-  if Msg.Parse(S) then
-  begin
-    if Msg.ArrayData.Count <> 14 then
-      Passed := False;
-  end
-  else
-  begin
-    ShowMessage('Test failed: ' + Msg.Serialized);
-    Passed := False;
-  end;
   S := 'a:1:{s:4:"type";a:1:{s:7:"process";i:10;}}';
   if Msg.Parse(S) then
   begin
@@ -129,6 +119,67 @@ begin
     ShowMessage('Test failed: ' + Msg.Serialized);
     Passed := False;
   end;
+  S := 'a:2:{s:3:"foo";a:0:{}s:3:"bar";i:3;}';
+  if Msg.Parse(S) then
+  begin
+    if Msg.ArrayData.Count <> 2 then
+      Passed := False;
+  end
+  else
+  begin
+    ShowMessage('Test failed: ' + Msg.Serialized);
+    Passed := False;
+  end;
+  S := 'a:1:{s:3:"foo";b:1;}';
+  if Msg.Parse(S) then
+  begin
+    if Msg.ArrayData.Count <> 1 then
+      Passed := False;
+  end
+  else
+  begin
+    ShowMessage('Test failed: ' + Msg.Serialized);
+    Passed := False;
+  end;
+  S := 'a:1:{s:10:"0123456789";b:1;}';
+  if Msg.Parse(S) then
+  begin
+    if Msg.ArrayData.Count <> 1 then
+      Passed := False;
+  end
+  else
+  begin
+    ShowMessage('Test failed: ' + Msg.Serialized);
+    Passed := False;
+  end;
+  S := 'a:1:{s:28:"/BUCKET_GET MINION_CMD_sylnt";s:6:"handle";}';
+  if Msg.Parse(S) then
+  begin
+    if Msg.ArrayData.Count <> 1 then
+      Passed := False;
+  end
+  else
+  begin
+    ShowMessage('Test failed: ' + Msg.Serialized);
+    Passed := False;
+  end;
+  FileName := ExtractFilePath(ParamStr(0)) + 'tests\test001.txt';
+  if Utils.FileToStr(FileName, S) = False then
+  begin
+    ShowMessage('Error loading test data from file "' + FileName + '".');
+    Passed := False;
+  end
+  else
+    if Msg.Parse(S) then
+    begin
+      if Msg.ArrayData.Count <> 14 then
+        Passed := False;
+    end
+    else
+    begin
+      ShowMessage('Test failed: ' + Msg.Serialized);
+      Passed := False;
+    end;
   Msg.Free;
   if Passed then
     ShowMessage('Tests passed!');
@@ -201,7 +252,7 @@ end;
 
 function TSerialized.ParseArrayData(const Data: string; var Len: Integer): Boolean;
 begin
-  Len := FArrayData.ParseCount(Data);
+  Len := FArrayData.ParseLength(Data);
   Result := Len <> -1;
   if Result = False then
     FSerialized := SysUtils.Format(ERROR_MESSAGE, [Self.ClassName, 'ParseArrayData', FSerialized]);
@@ -211,17 +262,18 @@ function TSerialized.ParseBooleanData(const Data: string; var Len: Integer): Boo
 begin
   Len := 1;
   Result := False;
-  if Data = '1' then
-  begin
-    FBooleanData := True;
-    Result := True;
-  end
-  else
-    if Data = '0' then
+  if Data <> '' then
+    if Data[1] = '1' then
     begin
-      FBooleanData := False;
+      FBooleanData := True;
       Result := True;
-    end;
+    end
+    else
+      if Data[1] = '0' then
+      begin
+        FBooleanData := False;
+        Result := True;
+      end;
   if Result = False then
     FSerialized := SysUtils.Format(ERROR_MESSAGE, [Self.ClassName, 'ParseBooleanData', FSerialized]);
 end;
@@ -270,7 +322,7 @@ end;
 
 function TSerialized.ParseStringData(const Data: string; var Len: Integer): Boolean;
 begin
-  Result := ExtractSerialzedString(Data, FStringData);
+  Result := Utils.ExtractSerialzedString(Data, FStringData);
   Len := Length(SysUtils.IntToStr(Length(FStringData))) + 3 + Length(FStringData);
   if Result = False then
     FSerialized := SysUtils.Format(ERROR_MESSAGE, [Self.ClassName, 'ParseStringData', FSerialized]);
@@ -330,10 +382,10 @@ end;
 
 function TSerializedArray.Parse(const Serialized: string): Boolean;
 begin
-  Result := ParseCount(Serialized) <> -1;
+  Result := ParseLength(Serialized) <> -1;
 end;
 
-function TSerializedArray.ParseCount(const Serialized: string): Integer;
+function TSerializedArray.ParseLength(const Serialized: string): Integer;
 var
   S: string;
   n: Integer;
@@ -356,10 +408,9 @@ begin
   Delete(S, 1, i);
   if Length(S) < 2 then
     Exit;
-  if (S[1] <> '{') or (S[Length(S)] <> '}') then
+  if S[1] <> '{' then
     Exit;
   Delete(S, 1, 1);
-  Delete(S, Length(S), 1);
   Children := TList.Create;
   try
     for i := 1 to n * 2 do
@@ -373,7 +424,7 @@ begin
       else
       begin
         Children.Add(Child);
-        if (Child.DataType <> 'a') or (S <> '') then
+        if (Child.DataType <> 'a') and (S <> '') then
           if S[1] = ';' then
             Delete(S, 1, 1)
           else
@@ -389,13 +440,22 @@ begin
         Exit;
       end;
     end;
-    for i := 0 to n - 1 do
-      TSerialized(Children[i * 2]).Free;
-    Result := Length(Serialized) - Length(S);
+    if Length(S) < 1 then
+      Exit;
+    if S[1] <> '}' then
+      Exit;
+    Delete(S, 1, 1);
+    Result := Length(Serialized) - Length(S) - 2;
   finally
     if Result = -1 then
+    begin
       for i := 0 to Children.Count - 1 do
-        if Assigned(Children[i]) then
+        TSerialized(Children[i]).Free;
+      FItems.Clear;
+    end
+    else
+      for i := 0 to Children.Count - 1 do
+        if i mod 2 = 0 then
           TSerialized(Children[i]).Free;
     Children.Free;
   end;
