@@ -19,7 +19,8 @@ $nick=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];*/
 
-define("LISTEN_ADDRESS","192.168.1.25");
+#define("LISTEN_ADDRESS","192.168.1.25");
+define("LISTEN_ADDRESS","192.168.1.22");
 define("BUFFER_FILE",__DIR__."/../../data/exec_iface");
 define("LISTEN_PORT",50000);
 define("CLIENT_TIMEOUT",60); # seconds
@@ -70,20 +71,33 @@ while (True)
   if (stream_select($read,$write,$except,0)>=1)
   {
     $data=fgets($buffer);
-    #$array=json_decode($data,True);
-    #echo $array["buf"];
     foreach ($clients as $send_client)
     {
       if ($send_client<>$server)
       {
-        $written=@socket_write($send_client,$data.str_repeat(chr(0),10));
-        if ($written===False)
+        $msg=$data.chr(13).chr(10);
+        $msg_len=strlen($msg);
+        while (True)
         {
-          $client_index=array_search($send_client,$clients);
-          on_disconnect($client_index);
-          socket_close($send_client);
-          unset($clients[$client_index]);
-          echo "client disconnected\n";
+          $written=socket_write($send_client,$msg,$msg_len);
+          if ($written===False)
+          {
+            $client_index=array_search($send_client,$clients);
+            on_disconnect($client_index);
+            socket_close($send_client);
+            unset($clients[$client_index]);
+            echo "client disconnected\n";
+            break;
+          }
+          if ($written<$msg_len)
+          {
+            $msg=substr($msg,$written);
+            $msg_len=$msg_len-$written;
+          }
+          else
+          {
+            break;
+          }
         }
       }
     }

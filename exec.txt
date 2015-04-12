@@ -26,25 +26,25 @@
 # RESERVED ALIAS FOR LOGGING ITEMS
 #<log>|10|0|0|1|||||php scripts/log.php %%trailing%% %%dest%% %%nick%% %%timestamp%%
 
-init ./scripts
-startup ./scripts
+#init ./scripts
+#startup ./scripts
 
 include ./scripts
-include ./interface/reader.php
-include test.php
+#include ./interface/reader.php
+#include test.php
 
-~cowsay|10|0|1|0|||||cowsay %%trailing%%
-~moo|10|0|1|1|||||apt-get moo
-~fortune|5|0|1|1|||||fortune -s
-~openthepodbaydoors|5|0|1|1|||||fortune -s -o
+#~cowsay|10|0|1|0|||||cowsay %%trailing%%
+#~moo|10|0|1|1|||||apt-get moo
+#~fortune|5|0|1|1|||||fortune -s
+#~openthepodbaydoors|5|0|1|1|||||fortune -s -o
 
 # FOLLOWING ALIAS PERMITS GENERIC SHELL COMMANDS IN IRC (ENABLE AT OWN RISK)
-~eval|0|0|1|0|@||#soylent,#journals,#test||{ eval %%trailing%% ; } 2>&1
+#~eval|0|0|1|0|@||#soylent,#journals,#test||{ eval %%trailing%% ; } 2>&1
 
-~deb|0|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
+#~deb|0|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
 
-~addr|0|0|1|0|*||||{ host '%%trailing%%' | head -1 ; } 2>&1
+#~addr|0|0|1|0|*||||{ host '%%trailing%%' | head -1 ; } 2>&1
 
 # http://kedar.nitty-witty.com/blog/how-to-get-stock-quote-on-linux-using-google-curl-grep-awk
 # todo: test with single quotes around %%trailing%% to prevent shell code injection
-~nyse|0|0|1|0|*||||{ code='%%trailing%%' && curl --silent -X get "http://www.google.com/finance?q=nyse:$code" > /tmp/bgz && cat /tmp/bgz | grep -m1 -E 'span id="ref_' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' && sleep 2 && rm /tmp/bgz && echo "http://www.google.com/finance?q=nyse:$code" ; } 2>&1
+#~nyse|0|0|1|0|*||||{ code='%%trailing%%' && curl --silent -X get "http://www.google.com/finance?q=nyse:$code" > /tmp/bgz && cat /tmp/bgz | grep -m1 -E 'span id="ref_' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' && sleep 2 && rm /tmp/bgz && echo "http://www.google.com/finance?q=nyse:$code" ; } 2>&1

@@ -496,6 +496,8 @@ function write_out_buffer($buf)
   global $out_buffer;
   if (flock($out_buffer,LOCK_EX)==True)
   {
+    $buf=str_replace(chr(13),"",$buf);
+    $buf=str_replace(chr(10),"",$buf);
     fwrite($out_buffer,serialize($buf)."\n");
   }
   flock($out_buffer,LOCK_UN);
