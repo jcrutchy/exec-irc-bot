@@ -103,11 +103,16 @@ if ($html=="")
   return;
 }
 
-$lines=explode("\n",$html);
+$lines=explode("\n",trim($html));
 
-$msg=trim($lines[0]);
-
-privmsg(chr(3)."03".$msg);
+for ($i=0;$i<count($lines);$i++)
+{
+  $msg=trim($lines[$i]);
+  if ($msg<>"")
+  {
+    privmsg(chr(3)."03".$msg);
+  }
+}
 
 #####################################################################################################
 

@@ -505,7 +505,7 @@ function write_out_buffer($buf)
 
 #####################################################################################################
 
-function write_out_bufffer_proc($handle,$buf,$type)
+function write_out_buffer_proc($handle,$buf,$type)
 {
   $data=array();
   $data["type"]=$type;
@@ -517,7 +517,7 @@ function write_out_bufffer_proc($handle,$buf,$type)
 
 #####################################################################################################
 
-function write_out_bufffer_sock($buf)
+function write_out_buffer_sock($buf)
 {
   $data=array();
   $data["type"]="socket";
@@ -535,26 +535,35 @@ function handle_reader_stdout_command($handle,$prefix,$trailing)
   global $handles;
   switch ($prefix)
   {
-    case PREFIX_READER_EXEC:
-      $data=array();
-      $data["type"]="exec_list";
-      $data["buf"]=$exec_list;
-      $data["time"]=microtime(True);
-      write_out_buffer($data);      
+    case PREFIX_READER_EXEC_LIST:
+      foreach ($exec_list as $alias => $data)
+      {
+        $data=array();
+        $data["type"]="alias";
+        $data["buf"]=$data;
+        $data["time"]=microtime(True);
+        write_out_buffer($data);   
+      }   
       return;
     case PREFIX_READER_BUCKETS:
-      $data=array();
-      $data["type"]="buckets";
-      $data["buf"]=$buckets;
-      $data["time"]=microtime(True);
-      write_out_buffer($data);
+      foreach ($buckets as $index => $value)
+      {
+        $data=array();
+        $data["type"]="bucket";
+        $data["buf"]=$value;
+        $data["time"]=microtime(True);
+        write_out_buffer($data);
+      }
       return;
     case PREFIX_READER_HANDLES:
-      $data=array();
-      $data["type"]="handles";
-      $data["buf"]=$handles;
-      $data["time"]=microtime(True);
-      write_out_buffer($data);
+      foreach ($handles as $index => $data)
+      {
+        $data=array();
+        $data["type"]="handle";
+        $data["buf"]=$handles[$index];
+        $data["time"]=microtime(True);
+        write_out_buffer($data);
+      }
       return;          
   }
 }
@@ -588,7 +597,7 @@ function handle_stdout($handle)
   {
     return;
   }
-  write_out_bufffer_proc($handle,$buf,"stdout");
+  write_out_buffer_proc($handle,$buf,"stdout");
   if (trim($buf)==DIRECTIVE_QUIT)
   {
     doquit();
@@ -751,8 +760,8 @@ function handle_stdout($handle)
         case PREFIX_BUCKET_LIST:
           handle_buckets(CMD_BUCKET_LIST."\n",$handle);
           return;
-        case PREFIX_READER_EXEC:
-          handle_reader_stdout_command($handle,PREFIX_READER_EXEC,"");
+        case PREFIX_READER_EXEC_LIST:
+          handle_reader_stdout_command($handle,PREFIX_READER_EXEC_LIST,"");
           return;
         case PREFIX_READER_BUCKETS:
           handle_reader_stdout_command($handle,PREFIX_READER_BUCKETS,"");
@@ -794,7 +803,7 @@ function handle_stderr($handle)
   {
     return;
   }
-  write_out_bufffer_proc($handle,$buf,"stderr");
+  write_out_buffer_proc($handle,$buf,"stderr");
   $msg=$buf;
   if (substr($msg,strlen($msg)-1)=="\n")
   {
@@ -1069,7 +1078,7 @@ function handle_socket($socket)
   $data=fgets($socket);
   if ($data!==False)
   {
-    write_out_bufffer_sock($data);
+    write_out_buffer_sock($data);
     $antiflog=False;
     if (pingpong($data)==False)
     {
@@ -2449,7 +2458,7 @@ function process_scripts($items,$reserved="")
     "trailing"=>$trailing,
     "exec"=>$exec_list[$alias],
     "items"=>$items);
-  write_out_bufffer_proc($handles[count($handles)-1],$template,"exec");
+  write_out_buffer_proc($handles[count($handles)-1],$template,"exec");
   stream_set_blocking($pipes[1],0);
   stream_set_blocking($pipes[2],0);
 }

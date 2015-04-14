@@ -80,7 +80,7 @@ if ($alias=="~wiki-privmsg")
   }
   elseif ((strpos($trailing,$delim1)!==False) and (strpos($trailing,$delim2)!==False))
   {
-    $i=strpos($trailing,$delim1);
+    /*$i=strpos($trailing,$delim1);
     $j=strpos($trailing,$delim2);
     if ($i<$j)
     {
@@ -109,7 +109,7 @@ if ($alias=="~wiki-privmsg")
         $url=$url."#$section";
       }
       privmsg(chr(3)."13".$url);
-    }
+    }*/
   }
   return;
 }

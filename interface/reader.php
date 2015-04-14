@@ -141,7 +141,7 @@ while (True)
     {
       continue;
     }
-    echo "message received: $data\n";
+    #echo "message received: $data\n";
     if (($data=="quit") or ($data=="shutdown"))
     {
       echo "$data received\n";
@@ -190,10 +190,10 @@ function on_disconnect($client_index)
 function on_msg($client_index,$data)
 {
   global $clients;
-  # "/READER_EXEC"
+  # "/READER_EXEC_LIST"
   # "/READER_BUCKETS"
   # "/READER_HANDLES"
-  echo $data;
+  echo "$data\n";
 }
 
 #####################################################################################################
