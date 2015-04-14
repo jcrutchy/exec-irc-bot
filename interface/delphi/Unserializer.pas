@@ -85,10 +85,11 @@ var
   Msg: TSerialized;
   S: string;
   Passed: Boolean;
+  FileName: string;
 begin
   Passed := True;
   Msg := TSerialized.Create;
-  S := 'a:3:{s:6:"server";s:12:"irc.sylnt.us";s:9:"microtime";d:1428721291.088635;s:4:"nick";s:4:"exec";}';
+  (*S := 'a:3:{s:6:"server";s:12:"irc.sylnt.us";s:9:"microtime";d:1428721291.088635;s:4:"nick";s:4:"exec";}';
   if Msg.Parse(S) then
   begin
     if Msg.ArrayData.Count <> 3 then
@@ -163,7 +164,25 @@ begin
   begin
     ShowMessage('Test failed: ' + Msg.Serialized);
     Passed := False;
-  end;
+  end;*)
+
+  FileName := ExtractFilePath(ParamStr(0)) + 'tests\test001.txt';
+  if FileToStr(FileName, S) = False then
+  begin
+    ShowMessage('Test failed: ' + S);
+    Passed := False;
+  end
+  else
+    if Msg.Parse(S) then             // TODO: TRYING TO GET THIS TEST TO WORK - MESSAGES GETTING MIXED TOGETHER. MAYBE DUE TO LENGTH OF EXEC_LIST MESSAGES. TRY HAVE BOT BREAK UP INTO SUBARRAYS & SEE IF IT HELPS (THOUGH SEEMS HACKISH) ????
+    begin
+
+    end
+    else
+    begin
+      ShowMessage('Test failed: ' + S);
+      Passed := False;
+    end;
+
   Msg.Free;
   if Passed then
     ShowMessage('Tests passed!');
@@ -392,6 +411,7 @@ begin
   try
     n := SysUtils.StrToInt(Copy(S, 1, i - 1)); // number of elements in the array
   except
+    StrToFile(ExtractFilePath(ParamStr(0)) + 'debug.txt', S);
     Exit;
   end;
   Delete(S, 1, i);

@@ -36,6 +36,7 @@ begin
   try
     L := SysUtils.StrToInt(Copy(S, 1, i - 1));
   except
+    StrToFile(ExtractFilePath(ParamStr(0)) + 'debug.txt', S);
     Exit;
   end;
   if Length(S) < (i + 2) then

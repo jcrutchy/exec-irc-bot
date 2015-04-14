@@ -19,7 +19,7 @@ object FormMain: TFormMain
     Top = 0
     Width = 701
     Height = 321
-    ActivePage = TabSheet3
+    ActivePage = TabSheet6
     Align = alClient
     TabOrder = 0
     object TabSheet1: TTabSheet
@@ -148,6 +148,15 @@ object FormMain: TFormMain
         TabOrder = 2
         OnClick = ButtonRunTestsClick
       end
+      object Button1: TButton
+        Left = 558
+        Top = 123
+        Width = 75
+        Height = 25
+        Caption = 'Button1'
+        TabOrder = 3
+        OnClick = Button1Click
+      end
     end
   end
   object StatusBar1: TStatusBar
@@ -164,6 +173,9 @@ object FormMain: TFormMain
       end
       item
         Width = 60
+      end
+      item
+        Width = 50
       end
       item
         Width = 500
@@ -188,7 +200,6 @@ object FormMain: TFormMain
   object Timer2: TTimer
     Enabled = False
     Interval = 3000
-    OnTimer = Timer2Timer
     Left = 642
     Top = 94
   end

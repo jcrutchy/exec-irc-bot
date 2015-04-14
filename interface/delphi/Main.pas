@@ -47,18 +47,20 @@ type
     ButtonRunTests: TButton;
     ListBoxAliases: TListBox;
     Timer2: TTimer;
+    Button1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure ButtonSendClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure ButtonRunTestsClick(Sender: TObject);
-    procedure Timer2Timer(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     FThread: TClientThread;
     FMaxTraffic: Integer;
     FTraffic: Integer;
     FTrafficPercent: Integer;
     FTrafficCount: Integer;
+    FErrorCount: Integer;
     procedure ThreadHandler(const S: string);
   end;
 
@@ -134,7 +136,9 @@ end;
 
 procedure TClientThread.Send(const Msg: string);
 begin
-  FClient.Sendln(Msg + CRLF, CRLF);
+  if Assigned(FClient) then
+    if FClient.Connected then
+      FClient.Sendln(Msg);
 end;
 
 procedure TClientThread.Update;
@@ -161,41 +165,48 @@ begin
   FThread.Handler := ThreadHandler;
   FThread.Resume;
   Timer1.Enabled := True;
-  Timer2.Enabled := True;
 end;
 
 procedure TFormMain.ThreadHandler(const S: string);
 var
   Msg: TSerialized;
-  i: Integer;
 begin
   Msg := TSerialized.Create;
   try
-    while Memo1.Lines.Count > 100 do
-      Memo1.Lines.Delete(0);
+    {while Memo1.Lines.Count > 100 do
+      Memo1.Lines.Delete(0);}
     Inc(FTraffic, Length(S));
     if Msg.Parse(S) then
     begin
-      Memo1.Lines.Add(Msg.ArrayData['buf'].StringData);
-      StatusBar1.Panels[3].Text := Msg.ArrayData['buf'].StringData;
-      if Msg['type'].StringData = 'handles' then
+      //Memo1.Lines.Add(Msg.ArrayData['buf'].StringData);
+      StatusBar1.Panels[4].Text := Msg.ArrayData['buf'].StringData;
+      if Msg['type'].StringData = 'handle' then
       begin
-        ListBoxAliases.Clear;
-        for i := 0 to Msg['buf'].ArrayData.Count - 1 do
-          ListBoxAliases.Items.Add(Msg['buf'][IntToStr(i)]['alias'].StringData);
+        // triggers in response to /READER_HANDLES command
+        Memo1.Lines.Add(S);
       end;
-      if Msg['type'].StringData = 'exec_list' then
+      if Msg['type'].StringData = 'alias' then
       begin
-        Memo1.Lines.Text := S;
-        ListBoxExec.Items.Assign(Msg['buf'].ArrayData.Items);
+        // triggers in response to /READER_EXEC_LIST command
+        Memo1.Lines.Add(S);
       end;
-      if Msg['type'].StringData = 'buckets' then
-        ListBoxBuckets.Items.Assign(Msg['buf'].ArrayData.Items);
+      if Msg['type'].StringData = 'bucket' then
+      begin
+        // triggers in response to /READER_BUCKETS command
+        Memo1.Lines.Add(S);
+      end;
+      if Msg['type'].StringData = 'exec' then
+      begin
+        // triggers when a process is started
+        Memo1.Lines.Add(S);
+      end;
     end
     else
     begin
-      //Memo1.Lines.Add(S);
-      StatusBar1.Panels[3].Text := Msg.Serialized;
+      Memo1.Lines.Add(S);
+      StatusBar1.Panels[4].Text := Msg.Serialized;
+      FErrorCount := FErrorCount + 1;
+      StatusBar1.Panels[3].Text := IntToStr(FErrorCount);
     end;
   finally
     Msg.Free;
@@ -246,11 +257,14 @@ begin
   RunUnserializeTests;
 end;
 
-procedure TFormMain.Timer2Timer(Sender: TObject);
+procedure TFormMain.Button1Click(Sender: TObject);
 begin
-  FThread.Send('/READER_HANDLES');
-  FThread.Send('/READER_EXEC');
-  FThread.Send('/READER_BUCKETS');
+  if Assigned(FThread) then
+  begin
+    FThread.Send('/READER_HANDLES');
+    FThread.Send('/READER_EXEC_LIST');
+    FThread.Send('/READER_BUCKETS');
+  end;
 end;
 
 end.
