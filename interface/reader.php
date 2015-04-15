@@ -79,7 +79,7 @@ while (True)
         $msg_len=strlen($msg);
         while (True)
         {
-          $written=socket_write($send_client,$msg,$msg_len);
+          $written=@socket_write($send_client,$msg,$msg_len);
           if ($written===False)
           {
             $client_index=array_search($send_client,$clients);

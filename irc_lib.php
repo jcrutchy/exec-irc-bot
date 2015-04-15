@@ -434,6 +434,7 @@ function handle_process($handle)
   }
   if ($flag==True)
   {
+    write_out_buffer_proc($handle,"","proc_end");
     free_bucket_locks($handle["pid"]);
     fclose($handle["pipe_stdin"]);
     fclose($handle["pipe_stdout"]);
@@ -449,6 +450,7 @@ function handle_process($handle)
   {
     if ((microtime(True)-$handle["start"])>$handle["timeout"])
     {
+      write_out_buffer_proc($handle,"","proc_timeout");
       free_bucket_locks($handle["pid"]);
       kill_process($handle);
       term_echo("process timed out: ".$handle["command"]);
@@ -457,7 +459,7 @@ function handle_process($handle)
       {
         privmsg($handle["destination"],$handle["nick"],$msg);
       }
-      privmsg("",OPERATOR_ACCOUNT,$msg);
+      privmsg(OPERATOR_ACCOUNT,"",$msg);
       return False;
     }
   }
@@ -517,6 +519,30 @@ function write_out_buffer_proc($handle,$buf,$type)
 
 #####################################################################################################
 
+function write_out_buffer_command($items,$command)
+{
+  $data=array();
+  $data["type"]="command";
+  $data["buf"]=$command;
+  $data["items"]=$items;
+  $data["time"]=microtime(True);
+  write_out_buffer($data);
+}
+
+#####################################################################################################
+
+function write_out_buffer_data($items)
+{
+  $data=array();
+  $data["type"]="data";
+  $data["buf"]=$items["trailing"];
+  $data["items"]=$items;
+  $data["time"]=microtime(True);
+  write_out_buffer($data);
+}
+
+#####################################################################################################
+
 function write_out_buffer_sock($buf)
 {
   $data=array();
@@ -528,7 +554,7 @@ function write_out_buffer_sock($buf)
 
 #####################################################################################################
 
-function handle_reader_stdout_command($handle,$prefix,$trailing)
+function handle_reader_stdout_command($handle,$prefix)
 {
   global $exec_list;
   global $buckets;
@@ -539,7 +565,7 @@ function handle_reader_stdout_command($handle,$prefix,$trailing)
       foreach ($exec_list as $alias => $data)
       {
         $data=array();
-        $data["type"]="alias";
+        $data["type"]="reader_exec_list";
         $data["buf"]=$data;
         $data["time"]=microtime(True);
         write_out_buffer($data);   
@@ -549,8 +575,9 @@ function handle_reader_stdout_command($handle,$prefix,$trailing)
       foreach ($buckets as $index => $value)
       {
         $data=array();
-        $data["type"]="bucket";
+        $data["type"]="reader_buckets";
         $data["buf"]=$value;
+        $data["index"]=$index;
         $data["time"]=microtime(True);
         write_out_buffer($data);
       }
@@ -559,7 +586,7 @@ function handle_reader_stdout_command($handle,$prefix,$trailing)
       foreach ($handles as $index => $data)
       {
         $data=array();
-        $data["type"]="handle";
+        $data["type"]="reader_handles";
         $data["buf"]=$handles[$index];
         $data["time"]=microtime(True);
         write_out_buffer($data);
@@ -761,13 +788,13 @@ function handle_stdout($handle)
           handle_buckets(CMD_BUCKET_LIST."\n",$handle);
           return;
         case PREFIX_READER_EXEC_LIST:
-          handle_reader_stdout_command($handle,PREFIX_READER_EXEC_LIST,"");
+          handle_reader_stdout_command($handle,PREFIX_READER_EXEC_LIST);
           return;
         case PREFIX_READER_BUCKETS:
-          handle_reader_stdout_command($handle,PREFIX_READER_BUCKETS,"");
+          handle_reader_stdout_command($handle,PREFIX_READER_BUCKETS);
           return;
         case PREFIX_READER_HANDLES:
-          handle_reader_stdout_command($handle,PREFIX_READER_HANDLES,"");
+          handle_reader_stdout_command($handle,PREFIX_READER_HANDLES);
           return;
       }
     }
@@ -1613,6 +1640,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
   $items=parse_data($data);
   if ($items!==False)
   {
+    write_out_buffer_data($items);
     if ($items["destination"]==DEBUG_CHAN)
     {
       return;
@@ -1671,24 +1699,28 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
       case ALIAS_ADMIN_QUIT:
         if (count($args)==1)
         {
+          write_out_buffer_command($items,"quit");
           process_scripts($items,ALIAS_QUIT);
         }
         break;
       case ALIAS_ADMIN_PS:
         if (count($args)==1)
         {
+          write_out_buffer_command($items,"ps");
           ps($items);
         }
         break;
       case ALIAS_ADMIN_KILL:
         if (count($args)==2)
         {
+          write_out_buffer_command($items,"kill");
           kill($items,$args[1]);
         }
         break;
       case ALIAS_ADMIN_KILLALL:
         if (count($args)==1)
         {
+          write_out_buffer_command($items,"killall");
           killall($items);
         }
         break;
@@ -1697,6 +1729,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         {
           if (count($args)==1)
           {
+            write_out_buffer_command($items,"list");
             get_list($items);
           }
         }
@@ -1706,6 +1739,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         {
           if (count($args)==1)
           {
+            write_out_buffer_command($items,"listauth");
             get_list_auth($items);
           }
         }
@@ -1715,6 +1749,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         {
           if (count($args)==2)
           {
+            write_out_buffer_command($items,"lock");
             $alias_locks[$items["nick"]][$items["destination"]]=$args[1];
             privmsg($items["destination"],$items["nick"],"alias \"".$args[1]."\" locked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
           }
@@ -1727,6 +1762,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
       case ALIAS_UNLOCK:
         if ((check_nick($items,$alias)==True) and (isset($alias_locks[$items["nick"]][$items["destination"]])==True))
         {
+          write_out_buffer_command($items,"unlock");
           privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]][$items["destination"]]."\" unlocked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
           unset($alias_locks[$items["nick"]][$items["destination"]]);
         }
@@ -1734,6 +1770,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
       case ALIAS_ADMIN_DEST_OVERRIDE:
         if (count($args)==2)
         {
+          write_out_buffer_command($items,"dest_override");
           privmsg($items["destination"],$items["nick"],"destination override \"".$args[1]."\" set for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
           $dest_overrides[$items["nick"]][$items["destination"]]=$args[1];
         }
@@ -1745,6 +1782,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
       case ALIAS_ADMIN_DEST_CLEAR:
         if (isset($dest_overrides[$items["nick"]][$items["destination"]])==True)
         {
+          write_out_buffer_command($items,"dest_clear");
           $override=$dest_overrides[$items["nick"]][$items["destination"]];
           unset($dest_overrides[$items["nick"]][$items["destination"]]);
           privmsg($items["destination"],$items["nick"],"destination override \"$override\" cleared for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
@@ -1755,6 +1793,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         {
           if (in_array($args[1],$ignore_list)==False)
           {
+            write_out_buffer_command($items,"ignore");
             privmsg($items["destination"],$items["nick"],NICK." set to ignore ".$args[1]);
             $ignore_list[]=$args[1];
             if (file_put_contents(IGNORE_FILE,implode("\n",$ignore_list))===False)
@@ -1776,6 +1815,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
             $i=array_search($args[1],$ignore_list);
             if ($i!==False)
             {
+              write_out_buffer_command($items,"unignore");
               privmsg($items["destination"],$items["nick"],NICK." set to listen to ".$args[1]);
               unset($ignore_list[$i]);
               $ignore_list=array_values($ignore_list);
@@ -1798,6 +1838,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
       case ALIAS_ADMIN_LIST_IGNORE:
         if (count($ignore_list)>0)
         {
+          write_out_buffer_command($items,"ignorelist");
           privmsg($items["destination"],$items["nick"],NICK." ignore list: ".implode(", ",$ignore_list));
         }
         else
@@ -1815,6 +1856,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
           }
           else
           {
+            write_out_buffer_command($items,"rehash");
             process_exec_inits();
             process_exec_startups();
             $users=get_users();
@@ -1829,30 +1871,35 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
       case ALIAS_ADMIN_BUCKETS_DUMP:
         if (count($args)==1)
         {
+          write_out_buffer_command($items,"buckets_dump");
           buckets_dump($items);
         }
         break;
       case ALIAS_ADMIN_BUCKETS_SAVE:
         if (count($args)==1)
         {
+          write_out_buffer_command($items,"buckets_save");
           buckets_save($items);
         }
         break;
       case ALIAS_ADMIN_BUCKETS_LOAD:
         if (count($args)==1)
         {
+          write_out_buffer_command($items,"buckets_load");
           buckets_load($items);
         }
         break;
       case ALIAS_ADMIN_BUCKETS_FLUSH:
         if (count($args)==1)
         {
+          write_out_buffer_command($items,"buckets_flush");
           buckets_flush($items);
         }
         break;
       case ALIAS_ADMIN_BUCKETS_LIST:
         if (count($args)==1)
         {
+          write_out_buffer_command($items,"buckets_list");
           buckets_list($items);
         }
         break;
@@ -1866,6 +1913,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
       case ALIAS_ADMIN_RESTART:
         if (count($args)==1)
         {
+          write_out_buffer_command($items,"restart");
           define("RESTART",True);
           process_scripts($items,ALIAS_QUIT);
         }
@@ -1895,6 +1943,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
           $n=count($exec_errors);
           if ($n>0)
           {
+            write_out_buffer_command($items,"exec_load_errors");
             privmsg($items["destination"],$items["nick"],"exec load errors:");
             $i=0;
             foreach ($exec_errors as $filename => $messages)
@@ -2458,7 +2507,7 @@ function process_scripts($items,$reserved="")
     "trailing"=>$trailing,
     "exec"=>$exec_list[$alias],
     "items"=>$items);
-  write_out_buffer_proc($handles[count($handles)-1],$template,"exec");
+  write_out_buffer_proc($handles[count($handles)-1],"","proc_start");
   stream_set_blocking($pipes[1],0);
   stream_set_blocking($pipes[2],0);
 }
@@ -2723,6 +2772,7 @@ function kill($items,$pid)
 
 function kill_process($handle)
 {
+  write_out_buffer_proc($handle,"","proc_kill");
   $lines=explode("\n",shell_exec("ps -aF"));
   kill_recurse($handle["pid"],$lines);
   proc_close($handle["process"]);
