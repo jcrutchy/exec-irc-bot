@@ -18,36 +18,35 @@ uses
   Grids,
   ExtCtrls,
   ScktComp,
-  Utils;
+  Utils, Menus;
 
 type
 
   TClientThread = class;
 
   TFormMain = class(TForm)
-    PageControl1: TPageControl;
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
-    ListBoxBuckets: TListBox;
-    TabSheet3: TTabSheet;
-    TabSheet4: TTabSheet;
-    TabSheet5: TTabSheet;
-    ListBoxExec: TListBox;
-    Splitter2: TSplitter;
-    Panel2: TPanel;
-    ButtonSend: TButton;
-    LabeledEditAliasesTrailing: TLabeledEdit;
-    LabeledEditAliasesDest: TLabeledEdit;
-    TabSheet6: TTabSheet;
     StatusBar1: TStatusBar;
     Timer1: TTimer;
     ProgressBar1: TProgressBar;
-    Memo1: TMemo;
+    LabelMessage: TLabel;
+    MemoTraffic: TMemo;
+    Panel1: TPanel;
+    MainMenu: TMainMenu;
+    MenuFile: TMenuItem;
+    MenuItemExit: TMenuItem;
+    ListBoxBuckets: TListBox;
+    ListBoxAliases: TListBox;
+    ListBoxHandles: TListBox;
+    Panel2: TPanel;
+    LabeledEditAliasesDest: TLabeledEdit;
+    LabeledEditAliasesTrailing: TLabeledEdit;
+    ButtonSend: TButton;
     Button3: TButton;
     ButtonRunTests: TButton;
-    ListBoxAliases: TListBox;
-    Timer2: TTimer;
     Button1: TButton;
+    Splitter1: TSplitter;
+    Splitter2: TSplitter;
+    Splitter3: TSplitter;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure ButtonSendClick(Sender: TObject);
@@ -61,6 +60,9 @@ type
     FTrafficPercent: Integer;
     FTrafficCount: Integer;
     FErrorCount: Integer;
+    FMessageCount: Integer;
+    FByteCount: Integer;
+    FStartTime: Cardinal;
     procedure ThreadHandler(const S: string);
   end;
 
@@ -161,6 +163,7 @@ end;
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
+  FStartTime := GetTickCount;
   FThread := TClientThread.Create(True);
   FThread.Handler := ThreadHandler;
   FThread.Resume;
@@ -170,43 +173,102 @@ end;
 procedure TFormMain.ThreadHandler(const S: string);
 var
   Msg: TSerialized;
+  i: Integer;
 begin
   Msg := TSerialized.Create;
   try
     {while Memo1.Lines.Count > 100 do
       Memo1.Lines.Delete(0);}
     Inc(FTraffic, Length(S));
+    Inc(FByteCount, Length(S));
+    Inc(FMessageCount);
+    StatusBar1.Panels[4].Text := IntToStr(FMessageCount) + ' messages';
+    StatusBar1.Panels[5].Text := Format('%.1f', [FByteCount / 1024]) + ' kb';
+    StatusBar1.Panels[6].Text := Format('%.1f', [(GetTickCount - FStartTime) / 1000]) + ' sec';
     if Msg.Parse(S) then
     begin
-      //Memo1.Lines.Add(Msg.ArrayData['buf'].StringData);
-      StatusBar1.Panels[4].Text := Msg.ArrayData['buf'].StringData;
-      if Msg['type'].StringData = 'handle' then
-      begin
-        // triggers in response to /READER_HANDLES command
-        Memo1.Lines.Add(S);
-      end;
-      if Msg['type'].StringData = 'alias' then
-      begin
-        // triggers in response to /READER_EXEC_LIST command
-        Memo1.Lines.Add(S);
-      end;
-      if Msg['type'].StringData = 'bucket' then
-      begin
-        // triggers in response to /READER_BUCKETS command
-        Memo1.Lines.Add(S);
-      end;
-      if Msg['type'].StringData = 'exec' then
-      begin
-        // triggers when a process is started
-        Memo1.Lines.Add(S);
+      try
+        LabelMessage.Caption := Msg.ArrayData['buf'].StringData;
+        if Msg['type'].StringData = 'reader_handles' then
+        begin
+          // triggers in response to /READER_HANDLES command
+          MemoTraffic.Lines.Add('READER_HANDLES: [' + Msg['buf']['alias'].StringData + '] '+ Msg['buf']['command'].StringData);
+          i := ListBoxHandles.Items.IndexOf(Msg['buf']['alias'].StringData + ' [' + IntToStr(Msg['buf']['pid'].IntegerData) + ']');
+          if i < 0 then
+            ListBoxHandles.Items.Add(Msg['buf']['alias'].StringData + ' [' + IntToStr(Msg['buf']['pid'].IntegerData) + ']');
+        end;
+        if Msg['type'].StringData = 'reader_exec_list' then
+        begin
+          // triggers in response to /READER_EXEC_LIST command
+          MemoTraffic.Lines.Add('READER_EXEC_LIST: [' + Msg['buf']['alias'].StringData + '] '+ Msg['handle']['command'].StringData);
+          i := ListBoxAliases.Items.IndexOf(Msg['buf']['alias'].StringData);
+          if i < 0 then
+            ListBoxHandles.Items.Add(Msg['buf']['alias'].StringData);
+        end;
+        if Msg['type'].StringData = 'reader_buckets' then
+        begin
+          // triggers in response to /READER_BUCKETS command
+          MemoTraffic.Lines.Add('READER_BUCKETS: ' + Msg['index'].StringData + ' => '+ Msg['buf'].StringData);
+          i := ListBoxBuckets.Items.IndexOf(Msg['index'].StringData);
+          if i < 0 then
+            ListBoxBuckets.Items.Add(Msg['index'].StringData);
+        end;
+        if Msg['type'].StringData = 'socket' then
+        begin
+          // triggers when a socket message is received
+          MemoTraffic.Lines.Add('SOCKET: ' + Msg['buf'].StringData);
+        end;
+        if Msg['type'].StringData = 'proc_timeout' then
+        begin
+          // triggers when a process times out
+          MemoTraffic.Lines.Add('PROC_TIMEOUT: [' + Msg['handle']['alias'].StringData + '] '+ Msg['handle']['command'].StringData);
+          i := ListBoxHandles.Items.IndexOf(Msg['handle']['alias'].StringData + ' [' + IntToStr(Msg['handle']['pid'].IntegerData) + ']');
+          if i >= 0 then
+            ListBoxHandles.Items.Delete(i);
+        end;
+        if Msg['type'].StringData = 'data' then
+        begin
+          // triggers after message is parsed into items
+          MemoTraffic.Lines.Add('DATA: ' + Msg['items']['nick'].StringData + ' [' + Msg['items']['destination'].StringData + '] ' + Msg['items']['trailing'].StringData);
+        end;
+        if Msg['type'].StringData = 'command' then
+        begin
+          // triggers on internal commands, such as quit, rehash, etc
+        end;
+        if Msg['type'].StringData = 'proc_start' then
+        begin
+          // triggers when a process is started
+          MemoTraffic.Lines.Add('PROC_START: [' + Msg['handle']['alias'].StringData + '] '+ Msg['handle']['command'].StringData);
+          ListBoxHandles.Items.Add(Msg['handle']['alias'].StringData + ' [' + IntToStr(Msg['handle']['pid'].IntegerData) + ']');
+        end;
+        if Msg['type'].StringData = 'proc_end' then
+        begin
+          // triggers when process terminates normally
+          MemoTraffic.Lines.Add('PROC_END: [' + Msg['handle']['alias'].StringData + '] '+ Msg['handle']['command'].StringData);
+          i := ListBoxHandles.Items.IndexOf(Msg['handle']['alias'].StringData + ' [' + IntToStr(Msg['handle']['pid'].IntegerData) + ']');
+          if i >= 0 then
+            ListBoxHandles.Items.Delete(i);
+        end;
+        if Msg['type'].StringData = 'proc_kill' then
+        begin
+          // triggers when process is killed
+          MemoTraffic.Lines.Add('PROC_KILL: [' + Msg['handle']['alias'].StringData + '] '+ Msg['handle']['command'].StringData);
+          i := ListBoxHandles.Items.IndexOf(Msg['handle']['alias'].StringData + ' [' + IntToStr(Msg['handle']['pid'].IntegerData) + ']');
+          if i >= 0 then
+            ListBoxHandles.Items.Delete(i);
+        end;
+      except
+        MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE ACCESS ERROR - START *******');
+        MemoTraffic.Lines.Add(S);
+        MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE ACCESS ERROR - FINISH *******');
       end;
     end
     else
     begin
-      Memo1.Lines.Add(S);
-      StatusBar1.Panels[4].Text := Msg.Serialized;
+      MemoTraffic.Lines.Add(S);
+      LabelMessage.Caption := Msg.Serialized;
       FErrorCount := FErrorCount + 1;
-      StatusBar1.Panels[3].Text := IntToStr(FErrorCount);
+      StatusBar1.Panels[3].Text := IntToStr(FErrorCount) + ' errors';
     end;
   finally
     Msg.Free;

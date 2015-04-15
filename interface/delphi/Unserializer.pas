@@ -312,18 +312,26 @@ var
   S: string;
   i: Integer;
 begin
+  Result := True;
   S := Data;
   i := Pos(';', S);
   if i > 0 then
     S := Copy(S, 1, i - 1);
   Len := Length(S);
-  try
-    FIntegerData := SysUtils.StrToInt(S);
-    Result := True;
-  except
-    FIntegerData := 0;
-    Result := False;
-  end;
+  for i := 1 to Len do
+    case S[i] of
+      '0'..'9': ;
+    else
+      Result := False;
+      Break;
+    end;
+  if Result then
+    try
+      FIntegerData := SysUtils.StrToInt(S);
+    except
+      Result := False;
+      FIntegerData := 0;
+    end;
   if Result = False then
     FSerialized := SysUtils.Format(ERROR_MESSAGE, [Self.ClassName, 'ParseIntegerData', FSerialized]);
 end;
