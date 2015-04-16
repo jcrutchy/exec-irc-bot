@@ -9,6 +9,7 @@ uses
   Graphics,
   Controls,
   Forms,
+  ComCtrls,
   Dialogs,
   ExtCtrls,
   Utils;
@@ -39,6 +40,8 @@ type
   public
     function ArrayParse(var Serialized: string): Boolean;
     function Parse(const Serialized: string): Boolean;
+    function FillTreeView(const TreeView: TTreeView; const Parent: TTreeNode = nil): Boolean;
+    function DataAsString: string;
   public
     property Serialized: string read FSerialized;
     property DataType: Char read FDataType;
@@ -182,7 +185,7 @@ begin
       ShowMessage('Test failed: ' + S);
       Passed := False;
     end;
-
+    
   Msg.Free;
   if Passed then
     ShowMessage('Tests passed!');
@@ -239,10 +242,36 @@ begin
   FArrayData := TSerializedArray.Create;
 end;
 
+function TSerialized.DataAsString: string;
+begin
+  Result := '';
+  case FDataType of
+    'b':
+      if FBooleanData then
+        Result := 'True'
+      else
+        Result := 'False';
+    'd': Result := FloatToStr(FDoubleData);
+    'i': Result := IntToStr(FIntegerData);
+    's': Result := FStringData;
+  end;
+end;
+
 destructor TSerialized.Destroy;
 begin
   FArrayData.Free;
   inherited;
+end;
+
+function TSerialized.FillTreeView(const TreeView: TTreeView; const Parent: TTreeNode = nil): Boolean;
+var
+  N: TTreeNode;
+  i: Integer;
+begin
+  N := TreeView.Items.AddChildObject(Parent, DataAsString, Self);
+  for i := 0 to FArrayData.Count - 1 do
+    TSerialized(FArrayData.Items.Objects[i]).FillTreeView(TreeView, N);
+  Result := True;
 end;
 
 function TSerialized.GetArrayValue(const Key: string): TSerialized;

@@ -24,7 +24,7 @@ object FormMain: TFormMain
   end
   object Splitter1: TSplitter
     Left = 0
-    Top = 154
+    Top = 251
     Width = 792
     Height = 3
     Cursor = crVSplit
@@ -72,9 +72,9 @@ object FormMain: TFormMain
   end
   object MemoTraffic: TMemo
     Left = 0
-    Top = 157
+    Top = 254
     Width = 792
-    Height = 144
+    Height = 97
     Align = alClient
     Color = clBtnFace
     ReadOnly = True
@@ -86,21 +86,28 @@ object FormMain: TFormMain
     Left = 0
     Top = 0
     Width = 792
-    Height = 154
+    Height = 251
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 3
     object Splitter2: TSplitter
       Left = 142
       Top = 0
-      Height = 154
+      Height = 251
       AutoSnap = False
       MinSize = 100
     end
     object Splitter3: TSplitter
       Left = 272
       Top = 0
-      Height = 154
+      Height = 251
+      AutoSnap = False
+      MinSize = 100
+    end
+    object Splitter4: TSplitter
+      Left = 427
+      Top = 0
+      Height = 251
       AutoSnap = False
       MinSize = 100
     end
@@ -108,41 +115,53 @@ object FormMain: TFormMain
       Left = 0
       Top = 0
       Width = 142
-      Height = 154
+      Height = 251
       Align = alLeft
       ItemHeight = 14
       TabOrder = 0
+      OnClick = ListBoxBucketsClick
     end
     object ListBoxAliases: TListBox
       Left = 145
       Top = 0
       Width = 127
-      Height = 154
+      Height = 251
       Align = alLeft
       ItemHeight = 14
       TabOrder = 1
+      OnClick = ListBoxAliasesClick
     end
     object ListBoxHandles: TListBox
       Left = 275
       Top = 0
       Width = 152
-      Height = 154
+      Height = 251
       Align = alLeft
       ItemHeight = 14
       TabOrder = 2
+      OnClick = ListBoxHandlesClick
+    end
+    object TreeViewData: TTreeView
+      Left = 430
+      Top = 0
+      Width = 362
+      Height = 251
+      Align = alClient
+      Indent = 19
+      TabOrder = 3
     end
   end
   object Panel2: TPanel
     Left = 0
-    Top = 301
+    Top = 351
     Width = 792
-    Height = 104
+    Height = 54
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 4
     object LabeledEditAliasesDest: TLabeledEdit
-      Left = 15
-      Top = 62
+      Left = 5
+      Top = 20
       Width = 157
       Height = 22
       EditLabel.Width = 147
@@ -152,8 +171,8 @@ object FormMain: TFormMain
       Text = '#journals'
     end
     object LabeledEditAliasesTrailing: TLabeledEdit
-      Left = 185
-      Top = 62
+      Left = 175
+      Top = 20
       Width = 270
       Height = 22
       EditLabel.Width = 56
@@ -163,8 +182,8 @@ object FormMain: TFormMain
       Text = '~say execstat test'
     end
     object ButtonSend: TButton
-      Left = 471
-      Top = 59
+      Left = 449
+      Top = 18
       Width = 75
       Height = 25
       Caption = 'Send'
@@ -172,8 +191,8 @@ object FormMain: TFormMain
       OnClick = ButtonSendClick
     end
     object Button3: TButton
-      Left = 614
-      Top = 29
+      Left = 530
+      Top = 18
       Width = 81
       Height = 25
       Caption = 'DISCONNECT'
@@ -181,39 +200,46 @@ object FormMain: TFormMain
       OnClick = Button3Click
     end
     object ButtonRunTests: TButton
-      Left = 682
-      Top = 66
+      Left = 615
+      Top = 18
       Width = 75
       Height = 25
       Caption = 'RUN TESTS'
       TabOrder = 4
       OnClick = ButtonRunTestsClick
     end
-    object Button1: TButton
-      Left = 592
-      Top = 65
-      Width = 75
+    object ButtonAliasesBuckets: TButton
+      Left = 696
+      Top = 18
+      Width = 95
       Height = 25
-      Caption = 'Button1'
+      Caption = 'UPDATE LISTS'
       TabOrder = 5
-      OnClick = Button1Click
+      OnClick = ButtonAliasesBucketsClick
     end
   end
-  object Timer1: TTimer
+  object TimerStatus: TTimer
     Enabled = False
     Interval = 50
-    OnTimer = Timer1Timer
-    Left = 742
-    Top = 11
+    OnTimer = TimerStatusTimer
+    Left = 238
+    Top = 186
   end
   object MainMenu: TMainMenu
-    Left = 688
-    Top = 22
+    Left = 160
+    Top = 189
     object MenuFile: TMenuItem
       Caption = '&File'
       object MenuItemExit: TMenuItem
         Caption = 'E&xit'
       end
     end
+  end
+  object TimerUpdateHandles: TTimer
+    Enabled = False
+    Interval = 3000
+    OnTimer = TimerUpdateHandlesTimer
+    Left = 56
+    Top = 184
   end
 end

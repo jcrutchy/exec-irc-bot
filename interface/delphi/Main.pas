@@ -18,7 +18,8 @@ uses
   Grids,
   ExtCtrls,
   ScktComp,
-  Utils, Menus;
+  Utils,
+  Menus;
 
 type
 
@@ -26,7 +27,7 @@ type
 
   TFormMain = class(TForm)
     StatusBar1: TStatusBar;
-    Timer1: TTimer;
+    TimerStatus: TTimer;
     ProgressBar1: TProgressBar;
     LabelMessage: TLabel;
     MemoTraffic: TMemo;
@@ -43,16 +44,23 @@ type
     ButtonSend: TButton;
     Button3: TButton;
     ButtonRunTests: TButton;
-    Button1: TButton;
+    ButtonAliasesBuckets: TButton;
     Splitter1: TSplitter;
     Splitter2: TSplitter;
     Splitter3: TSplitter;
+    TimerUpdateHandles: TTimer;
+    Splitter4: TSplitter;
+    TreeViewData: TTreeView;
     procedure FormCreate(Sender: TObject);
-    procedure Timer1Timer(Sender: TObject);
+    procedure TimerStatusTimer(Sender: TObject);
     procedure ButtonSendClick(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure ButtonRunTestsClick(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    procedure ButtonAliasesBucketsClick(Sender: TObject);
+    procedure TimerUpdateHandlesTimer(Sender: TObject);
+    procedure ListBoxHandlesClick(Sender: TObject);
+    procedure ListBoxBucketsClick(Sender: TObject);
+    procedure ListBoxAliasesClick(Sender: TObject);
   private
     FThread: TClientThread;
     FMaxTraffic: Integer;
@@ -63,6 +71,7 @@ type
     FMessageCount: Integer;
     FByteCount: Integer;
     FStartTime: Cardinal;
+    FSelectedHandle: string;
     procedure ThreadHandler(const S: string);
   end;
 
@@ -167,13 +176,15 @@ begin
   FThread := TClientThread.Create(True);
   FThread.Handler := ThreadHandler;
   FThread.Resume;
-  Timer1.Enabled := True;
+  TimerStatus.Enabled := True;
+  TimerUpdateHandles.Enabled := True;
 end;
 
 procedure TFormMain.ThreadHandler(const S: string);
 var
   Msg: TSerialized;
   i: Integer;
+  Tmp: string;
 begin
   Msg := TSerialized.Create;
   try
@@ -192,44 +203,56 @@ begin
         if Msg['type'].StringData = 'reader_handles' then
         begin
           // triggers in response to /READER_HANDLES command
-          MemoTraffic.Lines.Add('READER_HANDLES: [' + Msg['buf']['alias'].StringData + '] '+ Msg['buf']['command'].StringData);
-          i := ListBoxHandles.Items.IndexOf(Msg['buf']['alias'].StringData + ' [' + IntToStr(Msg['buf']['pid'].IntegerData) + ']');
+          LabelMessage.Caption := 'READER_HANDLES: [' + Msg['buf']['alias'].StringData + '] '+ Msg['buf']['command'].StringData;
+          MemoTraffic.Lines.Add(LabelMessage.Caption);
+          Tmp := Msg['buf']['alias'].StringData + ' [' + IntToStr(Msg['buf']['pid'].IntegerData) + ']';
+          i := ListBoxHandles.Items.IndexOf(Tmp);
           if i < 0 then
-            ListBoxHandles.Items.Add(Msg['buf']['alias'].StringData + ' [' + IntToStr(Msg['buf']['pid'].IntegerData) + ']');
+          begin
+            ListBoxHandles.Items.AddObject(Tmp, Msg);
+            if FSelectedHandle = Tmp then
+            begin
+              ListBoxHandles.Selected[ListBoxHandles.Items.Count - 1] := True;
+              ListBoxHandlesClick(nil);
+            end;
+            Exit;
+          end;
         end;
         if Msg['type'].StringData = 'reader_exec_list' then
         begin
           // triggers in response to /READER_EXEC_LIST command
-          MemoTraffic.Lines.Add('READER_EXEC_LIST: [' + Msg['buf']['alias'].StringData + '] '+ Msg['handle']['command'].StringData);
+          LabelMessage.Caption := 'READER_EXEC_LIST: [' + Msg['buf']['alias'].StringData + '] '+ Msg['buf']['cmd'].StringData;
+          MemoTraffic.Lines.Add(LabelMessage.Caption);
           i := ListBoxAliases.Items.IndexOf(Msg['buf']['alias'].StringData);
           if i < 0 then
-            ListBoxHandles.Items.Add(Msg['buf']['alias'].StringData);
+          begin
+            ListBoxAliases.Items.AddObject(Msg['buf']['alias'].StringData, Msg);
+            Exit;
+          end;
         end;
         if Msg['type'].StringData = 'reader_buckets' then
         begin
           // triggers in response to /READER_BUCKETS command
-          MemoTraffic.Lines.Add('READER_BUCKETS: ' + Msg['index'].StringData + ' => '+ Msg['buf'].StringData);
+          LabelMessage.Caption := 'READER_BUCKETS: ' + Msg['index'].StringData + ' => '+ Msg['buf'].StringData;
+          MemoTraffic.Lines.Add(LabelMessage.Caption);
           i := ListBoxBuckets.Items.IndexOf(Msg['index'].StringData);
           if i < 0 then
-            ListBoxBuckets.Items.Add(Msg['index'].StringData);
+          begin
+            ListBoxBuckets.Items.AddObject(Msg['index'].StringData, Msg);
+            Exit;
+          end;
         end;
         if Msg['type'].StringData = 'socket' then
         begin
           // triggers when a socket message is received
-          MemoTraffic.Lines.Add('SOCKET: ' + Msg['buf'].StringData);
-        end;
-        if Msg['type'].StringData = 'proc_timeout' then
-        begin
-          // triggers when a process times out
-          MemoTraffic.Lines.Add('PROC_TIMEOUT: [' + Msg['handle']['alias'].StringData + '] '+ Msg['handle']['command'].StringData);
-          i := ListBoxHandles.Items.IndexOf(Msg['handle']['alias'].StringData + ' [' + IntToStr(Msg['handle']['pid'].IntegerData) + ']');
-          if i >= 0 then
-            ListBoxHandles.Items.Delete(i);
+          LabelMessage.Caption := 'SOCKET: ' + Msg['buf'].StringData;
+          MemoTraffic.Lines.Add(LabelMessage.Caption);
         end;
         if Msg['type'].StringData = 'data' then
         begin
           // triggers after message is parsed into items
-          MemoTraffic.Lines.Add('DATA: ' + Msg['items']['nick'].StringData + ' [' + Msg['items']['destination'].StringData + '] ' + Msg['items']['trailing'].StringData);
+          LabelMessage.Caption := 'DATA: ' + Msg['items']['nick'].StringData + ' [' + Msg['items']['destination'].StringData + '] ' + Msg['items']['trailing'].StringData;
+          MemoTraffic.Lines.Add(LabelMessage.Caption);
         end;
         if Msg['type'].StringData = 'command' then
         begin
@@ -238,48 +261,87 @@ begin
         if Msg['type'].StringData = 'proc_start' then
         begin
           // triggers when a process is started
-          MemoTraffic.Lines.Add('PROC_START: [' + Msg['handle']['alias'].StringData + '] '+ Msg['handle']['command'].StringData);
-          ListBoxHandles.Items.Add(Msg['handle']['alias'].StringData + ' [' + IntToStr(Msg['handle']['pid'].IntegerData) + ']');
+          LabelMessage.Caption := 'PROC_START: [' + Msg['handle']['alias'].StringData + '] '+ Msg['handle']['command'].StringData;
+          MemoTraffic.Lines.Add(LabelMessage.Caption);
+          Tmp := Msg['handle']['alias'].StringData + ' [' + IntToStr(Msg['handle']['pid'].IntegerData) + ']';
+          ListBoxHandles.Items.AddObject(Tmp, Msg);
+          if FSelectedHandle = Tmp then
+          begin
+            ListBoxHandles.Selected[ListBoxHandles.Items.Count - 1] := True;
+            ListBoxHandlesClick(nil);
+          end;
+          Exit;
         end;
         if Msg['type'].StringData = 'proc_end' then
         begin
           // triggers when process terminates normally
-          MemoTraffic.Lines.Add('PROC_END: [' + Msg['handle']['alias'].StringData + '] '+ Msg['handle']['command'].StringData);
+          LabelMessage.Caption := 'PROC_END: [' + Msg['handle']['alias'].StringData + '] '+ Msg['handle']['command'].StringData;
+          MemoTraffic.Lines.Add(LabelMessage.Caption);
           i := ListBoxHandles.Items.IndexOf(Msg['handle']['alias'].StringData + ' [' + IntToStr(Msg['handle']['pid'].IntegerData) + ']');
           if i >= 0 then
+          begin
+            ListBoxHandles.Items.Objects[i].Free;
             ListBoxHandles.Items.Delete(i);
+          end;
+        end;
+        if Msg['type'].StringData = 'proc_timeout' then
+        begin
+          // triggers when a process times out
+          LabelMessage.Caption := 'PROC_TIMEOUT: [' + Msg['handle']['alias'].StringData + '] '+ Msg['handle']['command'].StringData;
+          MemoTraffic.Lines.Add(LabelMessage.Caption);
+          i := ListBoxHandles.Items.IndexOf(Msg['handle']['alias'].StringData + ' [' + IntToStr(Msg['handle']['pid'].IntegerData) + ']');
+          if i >= 0 then
+          begin
+            ListBoxHandles.Items.Objects[i].Free;
+            ListBoxHandles.Items.Delete(i);
+          end;
         end;
         if Msg['type'].StringData = 'proc_kill' then
         begin
           // triggers when process is killed
-          MemoTraffic.Lines.Add('PROC_KILL: [' + Msg['handle']['alias'].StringData + '] '+ Msg['handle']['command'].StringData);
+          LabelMessage.Caption := 'PROC_KILL: [' + Msg['handle']['alias'].StringData + '] '+ Msg['handle']['command'].StringData;
+          MemoTraffic.Lines.Add(LabelMessage.Caption);
           i := ListBoxHandles.Items.IndexOf(Msg['handle']['alias'].StringData + ' [' + IntToStr(Msg['handle']['pid'].IntegerData) + ']');
           if i >= 0 then
+          begin
+            ListBoxHandles.Items.Objects[i].Free;
             ListBoxHandles.Items.Delete(i);
+          end;
         end;
       except
-        MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE ACCESS ERROR - START *******');
+        MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE ACCESS EXCEPTION - START *******');
         MemoTraffic.Lines.Add(S);
-        MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE ACCESS ERROR - FINISH *******');
+        MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE ACCESS EXCEPTION - FINISH *******');
+        LabelMessage.Caption := Msg.Serialized;
+        FErrorCount := FErrorCount + 1;
+        StatusBar1.Panels[3].Text := IntToStr(FErrorCount) + ' errors';
       end;
     end
     else
     begin
+      MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE PARSE ERROR - START *******');
       MemoTraffic.Lines.Add(S);
+      MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE PARSE ERROR - FINISH *******');
       LabelMessage.Caption := Msg.Serialized;
       FErrorCount := FErrorCount + 1;
       StatusBar1.Panels[3].Text := IntToStr(FErrorCount) + ' errors';
     end;
-  finally
-    Msg.Free;
+  except
+    MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE PARSE EXCEPTION - START *******');
+    MemoTraffic.Lines.Add(S);
+    MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE PARSE EXCEPTION - FINISH *******');
+    LabelMessage.Caption := Msg.Serialized;
+    FErrorCount := FErrorCount + 1;
+    StatusBar1.Panels[3].Text := IntToStr(FErrorCount) + ' errors';
   end;
+  Msg.Free;
 end;
 
-procedure TFormMain.Timer1Timer(Sender: TObject);
+procedure TFormMain.TimerStatusTimer(Sender: TObject);
 var
   F: Integer;
 begin
-  F := Round(1000 / Timer1.Interval);
+  F := Round(1000 / TimerStatus.Interval);
   if FTraffic > FMaxTraffic then
     FMaxTraffic := FTraffic;
   StatusBar1.Panels[0].Text := Format('%.1f', [FTraffic / 1024]) + ' kb/s';
@@ -319,14 +381,79 @@ begin
   RunUnserializeTests;
 end;
 
-procedure TFormMain.Button1Click(Sender: TObject);
+procedure TFormMain.ButtonAliasesBucketsClick(Sender: TObject);
+var
+  t: Cardinal;
 begin
   if Assigned(FThread) then
   begin
-    FThread.Send('/READER_HANDLES');
     FThread.Send('/READER_EXEC_LIST');
+    t := GetTickCount;
+    while (GetTickCount - t) >= 1000 do
+      Application.ProcessMessages;
     FThread.Send('/READER_BUCKETS');
   end;
+end;
+
+procedure TFormMain.TimerUpdateHandlesTimer(Sender: TObject);
+begin
+  if ListBoxHandles.Items.IndexOf(FSelectedHandle) = -1 then
+    FSelectedHandle := '';
+  ListBoxHandles.Clear;
+  if Assigned(FThread) then
+  begin
+    FThread.Send('/READER_HANDLES');
+    if ListBoxBuckets.Count = 0 then
+      FThread.Send('/READER_BUCKETS');
+    if ListBoxAliases.Count = 0 then
+      FThread.Send('/READER_EXEC_LIST');
+  end;
+end;
+
+procedure TFormMain.ListBoxHandlesClick(Sender: TObject);
+begin
+  if ListBoxHandles.ItemIndex >= 0 then
+  begin
+    if ListBoxHandles.Items[ListBoxHandles.ItemIndex] <> FSelectedHandle then
+    begin
+      FSelectedHandle := ListBoxHandles.Items[ListBoxHandles.ItemIndex];
+      TreeViewData.Items.Clear;
+      TSerialized(ListBoxHandles.Items.Objects[ListBoxHandles.ItemIndex]).FillTreeView(TreeViewData);
+      TreeViewData.FullExpand;
+      // deselect alias and bucket
+    end;
+  end
+  else
+  begin
+    FSelectedHandle := '';
+    TreeViewData.Items.Clear;
+  end;
+end;
+
+procedure TFormMain.ListBoxBucketsClick(Sender: TObject);
+begin
+  if ListBoxBuckets.ItemIndex >= 0 then
+  begin
+    TreeViewData.Items.Clear;
+    TSerialized(ListBoxBuckets.Items.Objects[ListBoxBuckets.ItemIndex]).FillTreeView(TreeViewData);
+    TreeViewData.FullExpand;
+    // deselect handle and alias
+  end
+  else
+    TreeViewData.Items.Clear;
+end;
+
+procedure TFormMain.ListBoxAliasesClick(Sender: TObject);
+begin
+  if ListBoxAliases.ItemIndex >= 0 then
+  begin
+    TreeViewData.Items.Clear;
+    TSerialized(ListBoxAliases.Items.Objects[ListBoxAliases.ItemIndex]).FillTreeView(TreeViewData);
+    TreeViewData.FullExpand;
+    // deselect handle and bucket
+  end
+  else
+    TreeViewData.Items.Clear;
 end;
 
 end.
