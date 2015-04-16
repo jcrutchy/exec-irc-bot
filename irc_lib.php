@@ -562,11 +562,11 @@ function handle_reader_stdout_command($handle,$prefix)
   switch ($prefix)
   {
     case PREFIX_READER_EXEC_LIST:
-      foreach ($exec_list as $alias => $data)
+      foreach ($exec_list as $alias => $exec_data)
       {
         $data=array();
         $data["type"]="reader_exec_list";
-        $data["buf"]=$data;
+        $data["buf"]=$exec_data;
         $data["time"]=microtime(True);
         write_out_buffer($data);   
       }   
