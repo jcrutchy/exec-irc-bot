@@ -3,7 +3,7 @@
 #####################################################################################################
 
 /*
-exec:~api|90|0|0|1|*|PRIVMSG|#Soylent,#,#journals||php scripts/sn_api.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
+exec:~api|90|0|0|1|*|PRIVMSG|#dev,#Soylent,#,#journals||php scripts/sn_api.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
 */
 
 #####################################################################################################

@@ -2,6 +2,8 @@
 
 #####################################################################################################
 
+# TODO: PRIVMSG EVENTS APPEAR IN CHANNEL WITH ANY ALIAS LOCK
+
 require_once("irc_lib.php");
 require_once("scripts/lib_mysql.php");
 

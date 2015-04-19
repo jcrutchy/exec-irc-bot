@@ -138,7 +138,7 @@ switch ($alias)
     # http://soylentnews.org/comments.pl?threshold=-1&highlightthresh=-1&mode=improvedthreaded&commentsort=0&sid=1007&op=Reply
     # extract: <input type="hidden" name="formkey" value="cKh9Qyqsho">
     $uri="/comments.pl?threshold=-1&highlightthresh=-1&mode=improvedthreaded&commentsort=0&sid=$sid&op=Reply";
-    $extra_headers["Cookie"]=$cookie_user;
+    $extra_headers["Cookie"]=$cookie_user; # TODO: $cookie_user not defined
     $response=wget($host,$uri,$port,ICEWEASEL_UA,$extra_headers);
     $delim="<input type=\"hidden\" name=\"formkey\" value=\"";
     $i=strpos($response,$delim);
