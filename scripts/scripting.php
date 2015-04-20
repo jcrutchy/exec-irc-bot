@@ -211,6 +211,7 @@ switch ($action)
     }
     break;
   case "code": # outputs lines of code for currently open script
+    # TODO: $script_name contains serialized array
     # ~x code
     if ($script_name<>"")
     {

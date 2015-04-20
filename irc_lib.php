@@ -2423,6 +2423,11 @@ function process_scripts($items,$reserved="")
   }
   if (isset($exec_list[$alias])==False)
   {
+    # handle piped commands here
+    $piped_commands=explode("|",$trailing);
+    # need to look at way of mapping stdout handle of one process directly to stdin of another
+    # try using proc_open descriptorspec argument
+    # http://php.net/manual/en/function.proc-open.php
     return;
   }
   if (count($exec_list[$alias]["cmds"])>0)

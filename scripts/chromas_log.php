@@ -104,9 +104,15 @@ if ($html=="")
 }
 
 $lines=explode("\n",trim($html));
-
+$cutoff_index=4;
 for ($i=0;$i<count($lines);$i++)
 {
+  if ($i>$cutoff_index)
+  {
+    $n=count($lines)-$cutoff_index-1;
+    privmsg(chr(3)."03$n records not shown - refer to http://chromas.0x.no$uri");
+    break;
+  }
   $msg=trim($lines[$i]);
   if ($msg<>"")
   {

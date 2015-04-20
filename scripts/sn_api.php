@@ -21,8 +21,45 @@ if ($trailing=="")
   privmsg("  http://wiki.soylentnews.org/wiki/ApiDocs");
   return;
 }
+$params=parse_parameters($trailing,"="," ");
+if ($params!==False)
+{
+  foreach ($params as $key => $value)
+  {
+    if (strpos($key," ")!==False)
+    {
+      $params=False;
+      break;
+    }
+  }
+}
+if ($params===False)
+{
+  privmsg("  http://wiki.soylentnews.org/wiki/ApiDocs");
+  return;
+}
+$paramstr="";
+foreach ($params as $key => $value)
+{
+  if ($paramstr<>"")
+  {
+    $paramstr=$paramstr."&";
+  }
+  $paramstr=$paramstr.urlencode($key)."=".urlencode($value);
+}
+$uri="/api.pl?".$paramstr;
+$host="dev.soylentnews.org";
+$port=443;
+$response=wget($host,$uri,$port,ICEWEASEL_UA,"",20,"",1024,False);
+$content=trim(strip_headers($response));
+if ($content=="")
+{
+  privmsg("  no data returned");
+  return;
+}
+privmsg(chr(3)."02".substr($content,0,400));
 
-$uid_tests=array(
+/*$uid_tests=array(
   "crutchy"=>"179",
   ""=>False,
   "chromas"=>"34",
@@ -158,7 +195,7 @@ switch ($op)
     }
     privmsg("  tests successful!");
     break;
-}
+}*/
 
 #####################################################################################################
 
