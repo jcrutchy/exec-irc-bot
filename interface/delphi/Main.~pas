@@ -30,7 +30,6 @@ type
     TimerStatus: TTimer;
     ProgressBar1: TProgressBar;
     LabelMessage: TLabel;
-    MemoTraffic: TMemo;
     Panel1: TPanel;
     MainMenu: TMainMenu;
     MenuFile: TMenuItem;
@@ -51,6 +50,13 @@ type
     TimerUpdateHandles: TTimer;
     Splitter4: TSplitter;
     TreeViewData: TTreeView;
+    Panel3: TPanel;
+    MemoTraffic: TMemo;
+    Splitter5: TSplitter;
+    Panel4: TPanel;
+    MemoAliasTraffic: TMemo;
+    LabeledEditAlias: TLabeledEdit;
+    ButtonAliasTrafficClear: TButton;
     procedure FormCreate(Sender: TObject);
     procedure TimerStatusTimer(Sender: TObject);
     procedure ButtonSendClick(Sender: TObject);
@@ -61,6 +67,7 @@ type
     procedure ListBoxHandlesClick(Sender: TObject);
     procedure ListBoxBucketsClick(Sender: TObject);
     procedure ListBoxAliasesClick(Sender: TObject);
+    procedure ButtonAliasTrafficClearClick(Sender: TObject);
   private
     FThread: TClientThread;
     FMaxTraffic: Integer;
@@ -308,6 +315,20 @@ begin
             ListBoxHandles.Items.Delete(i);
           end;
         end;
+        if Msg['type'].StringData = 'stdout' then
+        begin
+          LabelMessage.Caption := 'STDOUT: [' + Msg['handle']['alias'].StringData + '] '+ Trim(Msg['buf'].StringData);
+          MemoTraffic.Lines.Add(LabelMessage.Caption);
+          if Msg['handle']['alias'].StringData = LabeledEditAlias.Text then
+            MemoAliasTraffic.Lines.Add(Trim(Msg['buf'].StringData));
+        end;
+        if Msg['type'].StringData = 'stderr' then
+        begin
+          LabelMessage.Caption := 'STDERR: [' + Msg['handle']['alias'].StringData + '] '+ Trim(Msg['buf'].StringData);
+          MemoTraffic.Lines.Add(LabelMessage.Caption);
+          if Msg['handle']['alias'].StringData = LabeledEditAlias.Text then
+            MemoAliasTraffic.Lines.Add(Trim(Msg['buf'].StringData));
+        end;
       except
         MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE ACCESS EXCEPTION - START *******');
         MemoTraffic.Lines.Add(S);
@@ -454,6 +475,11 @@ begin
   end
   else
     TreeViewData.Items.Clear;
+end;
+
+procedure TFormMain.ButtonAliasTrafficClearClick(Sender: TObject);
+begin
+  MemoAliasTraffic.Clear;
 end;
 
 end.

@@ -24,7 +24,7 @@ object FormMain: TFormMain
   end
   object Splitter1: TSplitter
     Left = 0
-    Top = 251
+    Top = 159
     Width = 792
     Height = 3
     Cursor = crVSplit
@@ -70,44 +70,32 @@ object FormMain: TFormMain
     Step = 1
     TabOrder = 1
   end
-  object MemoTraffic: TMemo
-    Left = 0
-    Top = 254
-    Width = 792
-    Height = 97
-    Align = alClient
-    Color = clBtnFace
-    ReadOnly = True
-    ScrollBars = ssBoth
-    TabOrder = 2
-    WordWrap = False
-  end
   object Panel1: TPanel
     Left = 0
     Top = 0
     Width = 792
-    Height = 251
+    Height = 159
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 3
+    TabOrder = 2
     object Splitter2: TSplitter
       Left = 142
       Top = 0
-      Height = 251
+      Height = 159
       AutoSnap = False
       MinSize = 100
     end
     object Splitter3: TSplitter
       Left = 272
       Top = 0
-      Height = 251
+      Height = 159
       AutoSnap = False
       MinSize = 100
     end
     object Splitter4: TSplitter
       Left = 427
       Top = 0
-      Height = 251
+      Height = 159
       AutoSnap = False
       MinSize = 100
     end
@@ -115,7 +103,7 @@ object FormMain: TFormMain
       Left = 0
       Top = 0
       Width = 142
-      Height = 251
+      Height = 159
       Align = alLeft
       ItemHeight = 14
       TabOrder = 0
@@ -125,7 +113,7 @@ object FormMain: TFormMain
       Left = 145
       Top = 0
       Width = 127
-      Height = 251
+      Height = 159
       Align = alLeft
       ItemHeight = 14
       TabOrder = 1
@@ -135,7 +123,7 @@ object FormMain: TFormMain
       Left = 275
       Top = 0
       Width = 152
-      Height = 251
+      Height = 159
       Align = alLeft
       ItemHeight = 14
       TabOrder = 2
@@ -145,7 +133,7 @@ object FormMain: TFormMain
       Left = 430
       Top = 0
       Width = 362
-      Height = 251
+      Height = 159
       Align = alClient
       Indent = 19
       TabOrder = 3
@@ -153,12 +141,12 @@ object FormMain: TFormMain
   end
   object Panel2: TPanel
     Left = 0
-    Top = 351
+    Top = 354
     Width = 792
-    Height = 54
+    Height = 51
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 4
+    TabOrder = 3
     object LabeledEditAliasesDest: TLabeledEdit
       Left = 5
       Top = 20
@@ -216,6 +204,77 @@ object FormMain: TFormMain
       Caption = 'UPDATE LISTS'
       TabOrder = 5
       OnClick = ButtonAliasesBucketsClick
+    end
+  end
+  object Panel3: TPanel
+    Left = 0
+    Top = 162
+    Width = 792
+    Height = 192
+    Align = alClient
+    BevelOuter = bvNone
+    TabOrder = 4
+    object Splitter5: TSplitter
+      Left = 351
+      Top = 0
+      Height = 192
+      AutoSnap = False
+      MinSize = 100
+    end
+    object MemoTraffic: TMemo
+      Left = 0
+      Top = 0
+      Width = 351
+      Height = 192
+      Align = alLeft
+      Color = clBtnFace
+      ReadOnly = True
+      ScrollBars = ssBoth
+      TabOrder = 0
+      WordWrap = False
+    end
+    object Panel4: TPanel
+      Left = 354
+      Top = 0
+      Width = 438
+      Height = 192
+      Align = alClient
+      BevelOuter = bvNone
+      TabOrder = 1
+      object MemoAliasTraffic: TMemo
+        Left = 0
+        Top = 33
+        Width = 438
+        Height = 159
+        Align = alBottom
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        Color = clBtnFace
+        ReadOnly = True
+        ScrollBars = ssBoth
+        TabOrder = 0
+        WordWrap = False
+      end
+      object LabeledEditAlias: TLabeledEdit
+        Left = 46
+        Top = 5
+        Width = 117
+        Height = 22
+        EditLabel.Width = 35
+        EditLabel.Height = 14
+        EditLabel.Caption = 'alias'
+        LabelPosition = lpLeft
+        TabOrder = 1
+        Text = '~slash-test'
+      end
+      object ButtonAliasTrafficClear: TButton
+        Left = 172
+        Top = 4
+        Width = 75
+        Height = 25
+        Caption = 'Clear'
+        TabOrder = 2
+        OnClick = ButtonAliasTrafficClearClick
+      end
     end
   end
   object TimerStatus: TTimer
