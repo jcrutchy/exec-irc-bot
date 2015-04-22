@@ -3,12 +3,13 @@
 #####################################################################################################
 
 /*
-exec:~slash-test|90|0|0|1|crutchy,Bytram||#dev||php scripts/slash_test.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~slash-test|90|0|0|1|crutchy,Bytram||#dev,#test||php scripts/slash_test.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################
 
 $passed=True;
+require_once("lib.php");
 require_once("sn_lib.php");
 
 run_all_tests();
@@ -22,8 +23,8 @@ if ($passed==True)
 
 function run_all_tests()
 {
-  #comment_test();
-  submit_test();
+  comment_test();
+  #submit_test();
 }
 
 #####################################################################################################
@@ -33,9 +34,9 @@ function comment_test()
   global $passed;
   $subject="test subject";
   $comment_body="test comment body";
-  $article_sid=sn_get_sid(""); # sd-key-sid
+  $sid="15/04/17/1849229"; # sd-key-sid
   $parent_cid="";
-  if (sn_comment($subject,$comment_body,$article_sid,$parent_cid)===False)
+  if (sn_comment($subject,$comment_body,$sid,$parent_cid)===False)
   {
     privmsg("comment test failed (1)");
     $passed=False;

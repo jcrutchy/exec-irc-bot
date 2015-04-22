@@ -24,6 +24,11 @@ switch ($alias)
 {
   case "~weather-prefs":
     # TODO: registered nick personalised settings (units, default location, private msg, formatting, etc)
+    if ($trailing=="")
+    {
+      privmsg("syntax: ~weather-prefs unit metric|imperial|both");
+      return;
+    }
     $parts=explode(" ",$trailing);
     delete_empty_elements($parts);
     $pref=$parts[0];

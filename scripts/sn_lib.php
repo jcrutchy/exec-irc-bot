@@ -17,8 +17,10 @@ function sn_login()
   $params["returnto"]="";
   $params["op"]="userlogin";
   $params["login_temp"]="yes";
-  $params["unickname"]="exec";
-  $params["upasswd"]=trim(file_get_contents("../pwd/exec"));
+  #$params["unickname"]="exec";
+  $params["unickname"]="crutchy";
+  #$params["upasswd"]=trim(file_get_contents("../pwd/exec"));
+  $params["upasswd"]=trim(file_get_contents("../pwd/crutchy_sn"));
   $params["userlogin"]="Log in";
   $response=wpost($host,$uri,$port,$agent,$params);
   $cookies=exec_get_cookies($response);
@@ -34,6 +36,7 @@ function sn_login()
   }
   if ($login_cookie=="")
   {
+    term_echo("slash-test error: login failure");
     sn_logout();
   }
   $parts=explode(";",$login_cookie);
@@ -59,9 +62,10 @@ function sn_logout()
 function sn_comment($subject,$comment_body,$sd_key_sid,$parent_cid="")
 {
   $article_sid=sn_get_sid($sd_key_sid);
+  privmsg("article_sid = ".$article_sid);
   if ($article_sid===False)
   {
-    privmsg("error getting article sid");
+    privmsg("slash-test error: sn_get_sid returned false");
     return False;
   }
   return sn_comment_sid($subject,$comment_body,$article_sid,$parent_cid);
@@ -88,17 +92,21 @@ function sn_comment_sid($subject,$comment_body,$article_sid,$parent_cid="")
   $extra_headers["Cookie"]=sn_login();
   if ($extra_headers["Cookie"]=="")
   {
+    term_echo("slash-test error: login failure (2)");
     return False;
   }
   $response=wget($host,$uri,$port,ICEWEASEL_UA,$extra_headers);
+  $html=strip_headers($response);
   $delim1="<input type=\"hidden\" name=\"formkey\" value=\"";
   $delim2="\">";
-  $kormkey=extract_text($response,$delim1,$delim2);
+  $formkey=extract_text($html,$delim1,$delim2);
   if ($formkey===False)
   {
+    term_echo("slash-test error: unable to get formkey");
     sn_logout();
     return False;
   }
+  var_dump($formkey);
   $uri="/comments.pl";
   $params["sid"]=$article_sid;
   $params["mode"]="improvedthreaded";
@@ -108,7 +116,7 @@ function sn_comment_sid($subject,$comment_body,$article_sid,$parent_cid="")
   $params["formkey"]=$formkey;
   $params["postersubj"]=$subject;
   $params["postercomment"]=$comment_body;
-  $params["nobonus_present"]="1";
+  #$params["nobonus_present"]="1";
   #$params["nobonus"]="";
   $params["postanon_present"]="1";
   #$params["postanon"]="";
@@ -116,24 +124,25 @@ function sn_comment_sid($subject,$comment_body,$article_sid,$parent_cid="")
   $params["op"]="Submit";
   sleep(8);
   $response=wpost($host,$uri,$port,ICEWEASEL_UA,$params,$extra_headers);
+  $html=strip_headers($response);
   $delim="start template: ID 104";
   $result=False;
-  if (strpos($response,$delim)!==False)
+  if (strpos($html,$delim)!==False)
   {
     privmsg("SoylentNews requires you to wait between each successful posting of a comment to allow everyone a fair chance at posting.");
   }
   $delim="start template: ID 274";
-  if (strpos($response,$delim)!==False)
+  if (strpos($html,$delim)!==False)
   {
     privmsg("This exact comment has already been posted. Try to be more original.");
   }
   $delim="start template: ID 180";
-  if (strpos($response,$delim)!==False)
+  if (strpos($html,$delim)!==False)
   {
     privmsg("Comment submitted successfully. There will be a delay before the comment becomes part of the static page.");
     $result=True;
   }
-  #term_echo($response);
+  var_dump($html);
   sn_logout();
   return $result;
 }
@@ -148,7 +157,7 @@ function sn_get_sid($sd_key_sid)
   $response=wget($host,$uri,$port);
   $delim1="<input type=\"hidden\" name=\"sid\" value=\"";
   $delim2="\">";
-  $sid=extract_text($response,$delim1,$delim2);
+  return extract_text($response,$delim1,$delim2);
 }
 
 #####################################################################################################
