@@ -401,4 +401,57 @@ function filter_non_alpha_num($value)
 
 #####################################################################################################
 
+function devutils__CopyDirectoryFiles($SourceDirectory,$TargetDirectory,&$Content)
+{
+  $Content="<p>SourceDirectory=\"".htmlspecialchars($SourceDirectory)."\"";
+  $Content=$Content."<br>\nTargetDirectory=\"".htmlspecialchars($TargetDirectory)."\"</p>\n";
+  if ((file_exists($SourceDirectory)===True) and (file_exists($TargetDirectory)===True) and (is_dir($SourceDirectory)===True) and (is_dir($TargetDirectory)===True))
+  {
+    $SourceDirectoryHandle=opendir($SourceDirectory);
+    $success_count=0;
+    $failure_count=0;
+    $Content=$Content."<table>\n";
+    $Content=$Content."<tr><td><b>File</b></td><td><b>Status</b></td></tr>\n";
+    while(($SourceFile=readdir($SourceDirectoryHandle))!==False)
+    {
+      $FullSourceFileName=$SourceDirectory."/".$SourceFile;
+      $FullTargetFileName=$TargetDirectory."/".$SourceFile;
+      if(($SourceFile!=".") and ($SourceFile!="..") and (is_dir($FullSourceFileName)===False))
+      {
+        $Content=$Content."<tr>\n";
+        $Content=$Content."<td>".$SourceFile."</td>";
+        if (copy($FullSourceFileName,$FullTargetFileName)===True)
+        {
+          $success_count=$success_count+1;
+          $Content=$Content."<td><span style=\"color: green;\">SUCCESS</span></td>";
+        }
+        else
+        {
+          $failure_count=$failure_count+1;
+          $Content=$Content."<td><span style=\"color: red;\">FAILURE</span></td>";
+        }
+        $Content=$Content."</tr>\n";
+      }
+    }
+    closedir($SourceDirectoryHandle);
+    $Content=$Content."</table>\n";
+    $Content=$Content."<p>Succesfully copied $success_count files. Failed to copy $failure_count files.</p>\n";
+    if ($failure_count>0)
+    {
+      return False;
+    }
+    else
+    {
+      return True;
+    }
+  }
+  else
+  {
+    $Content=$Content."<p>Source and/or target directory not found.</p>\n";
+    return False;
+  }
+}
+
+#####################################################################################################
+
 ?>

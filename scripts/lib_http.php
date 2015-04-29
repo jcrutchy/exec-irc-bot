@@ -15,7 +15,7 @@ function authorization_header_value($uname,$passwd,$prefix)
 
 #####################################################################################################
 
-function shorten_url($url)
+function shorten_url($url,$mode="title")
 {
   if ($url=="")
   {
@@ -23,7 +23,10 @@ function shorten_url($url)
   }
   $params=array();
   $params["url"]=$url;
-  $params["mode"]="title";
+  if ($mode<>"")
+  {
+    $params["mode"]=$mode; # optional
+  }
   $response=wpost("o.my.to","/","80",ICEWEASEL_UA,$params,"",30);
   $short_url=trim(strip_headers($response));
   if ($short_url<>"")

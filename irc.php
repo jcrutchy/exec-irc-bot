@@ -3,7 +3,7 @@
 #####################################################################################################
 
 # TODO: PRIVMSG EVENTS APPEAR IN CHANNEL WITH ANY ALIAS LOCK
-# TODO: PIPED SCRIPTS => ~alias1 trailing | ~alias2 trailing | ~alias3 trailing (stdout of left pipes to stdin of right)
+# TODO: PIPED SCRIPTS => ~alias1 trailing | ~alias2 trailing | ~alias3 trailing (stdout of left pipes to shellarg of right)
 
 require_once("irc_lib.php");
 require_once("scripts/lib_mysql.php");

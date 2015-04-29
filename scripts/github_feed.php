@@ -24,7 +24,7 @@ $alias=strtolower(trim($argv[4]));
 if ($alias=="~slashcode-issue")
 {
   $account=users_get_account($nick);
-  $allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs","TheMightyBuzzard");
+  $allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs","TheMightyBuzzard","paulej72");
   if (in_array($account,$allowed)==False)
   {
     return;
@@ -83,7 +83,7 @@ $list=array(
   "Subsentient/substrings",
   "SoylentNews/slashcode",
   "SoylentNews/slashcode_vm",
-  "SoylentNews/SoylentCode",
+  "SoylentNews/rehash",
   "cosurgi/trunk",
   "dimkr/LoginKit",
   "paulej72/slashcode",
@@ -114,6 +114,8 @@ $list=array(
   "Lagg/steam-tracker",
   "Lagg/steam-swissapiknife");
 
+sort($list,SORT_STRING);
+
 if ($alias=="~epoch-feed")
 {
   $list=array("Subsentient/epoch");
@@ -126,16 +128,30 @@ else
   define("FEED_CHAN","#github");
 }
 
-sort($list);
+sort($list,SORT_STRING+SORT_FLAG_CASE);
 
 define("TIME_LIMIT_SEC",600); # 10 mins
 define("CREATE_TIME_FORMAT","Y-m-d H:i:s ");
 
 if ($alias=="~github-list")
 {
+  $gh_users=array();
   for ($i=0;$i<count($list);$i++)
   {
-    notice($nick,$list[$i]);
+    $a=explode("/",$list[$i]);
+    $gh_username=$a[0];
+    $gh_repo=$a[1];
+    if (isset($gh_users[$a[0]])==False)
+    {
+      $gh_users[$gh_username]=array();
+    }
+    $gh_users[$gh_username][]=$gh_repo;
+  }
+  ksort($gh_users,SORT_STRING+SORT_FLAG_CASE);
+  foreach ($gh_users as $gh_username => $gh_repos)
+  {
+    sort($gh_repos,SORT_STRING+SORT_FLAG_CASE);
+    privmsg(chr(3)."03".$gh_username." => ".implode(", ",$gh_repos));
   }
   return;
 }
