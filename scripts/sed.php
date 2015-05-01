@@ -160,9 +160,8 @@ function shell_sed($trailing,$nick,$dest,$delim="/")
     {
       privmsg("<$nick> <$sed_nick> $result");
     }
-    return True;
   }
-  return False;
+  return True;
 }
 
 #####################################################################################################
