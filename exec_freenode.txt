@@ -1,4 +1,4 @@
-#*|10|0|0|1|||||php scripts/cmd.php %%items%%
+*|10|0|0|1|||||php scripts/cmd.php %%items%%
 <quit>|10|0|0|1|||||php scripts/quit.php
 
 #include ./scripts/php.php
