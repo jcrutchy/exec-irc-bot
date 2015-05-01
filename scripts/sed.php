@@ -45,12 +45,9 @@ switch ($flag)
     # bot parted channel
     return;
   case 7:
-    for ($i=0;$i<count($delims);$i++)
+    if (shell_sed($msg,$nick,$dest)==True)
     {
-      if (shell_sed($msg,$nick,$dest,$delims[$i])==True)
-      {
-        return;
-      }
+      return;
     }
     break;
   case 8:
@@ -65,52 +62,42 @@ set_bucket("last_".strtolower($nick)."_".strtolower($dest),$msg);
 
 #####################################################################################################
 
-function shell_sed($trailing,$nick,$dest,$delim="/")
+function shell_sed($trailing,$nick,$dest)
 {
-  # [nick[:|,|>|.] ]s/pattern/replace[/[param]]
-  $trailing=str_replace("\\\\","\nB\n",$trailing);
-  $trailing=str_replace("\/","\nF\n",$trailing);
-  $parts=explode($delim,$trailing);
-  if (count($parts)<3)
+  # [nick[:|,|>|.] ]sed_cmd
+  global $delims;
+  $trailing=trim($trailing);
+  if (trim($trailing)=="")
   {
     return False;
   }
-  $start=ltrim($parts[0]);
-  if (trim($start)=="")
-  {
-    return False;
-  }
-  $start_arr=explode(" ",$start);
+  $parts=explode(" ",$trailing);
   $sed_nick="";
-  if (count($start_arr)==1)
+  if (count($parts)>1)
   {
-    if (strtolower($start_arr[0])<>"s")
+    $sed_nick=$parts[0];
+    if (strpos(":,>.",substr($sed_nick,strlen($sed_nick)-1))!==False)
     {
-      return False;
+      $sed_nick=substr($sed_nick,0,strlen($sed_nick)-1);
     }
-  }
-  elseif (count($start_arr)==2)
-  {
-    if (strtolower($start_arr[1])=="s")
-    {
-      $sed_nick=$start_arr[0];
-      if (strpos(":,>.",substr($sed_nick,strlen($sed_nick)-1))!==False)
-      {
-        $sed_nick=substr($sed_nick,0,strlen($sed_nick)-1);
-      }
-    }
-    else
-    {
-      return False;
-    }
-  }
-  else
-  {
-    return False;
+    array_shift($parts);
   }
   if ($sed_nick=="")
   {
     $sed_nick=$nick;
+  }
+  $sed_cmd=implode(" ",$parts);
+  if (strlen($sed_cmd)<5)
+  {
+    return False;
+  }
+  if (strtolower($sed_cmd[0])<>"s")
+  {
+    return False;
+  }
+  if (in_array($sed_cmd[1],$delims)==False)
+  {
+    return False;
   }
   $index="last_".strtolower($sed_nick)."_".strtolower($dest);
   $last=get_bucket($index);
@@ -123,30 +110,27 @@ function shell_sed($trailing,$nick,$dest,$delim="/")
   {
     $last=trim(substr($last,strlen($action_delim)),chr(1));
   }
-  $pattern=$parts[1];
-  if ($pattern=="")
+  $command="echo ".escapeshellarg($last)." | sed -e ".escapeshellarg($sed_cmd);
+  $cwd=NULL;
+  $env=NULL;
+  $descriptorspec=array(0=>array("pipe","r"),1=>array("pipe","w"),2=>array("pipe","w"));
+  $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
+  $result=trim(stream_get_contents($pipes[1]));
+  $result_lines=explode("\n",$result);
+  if (count($result_lines)>1)
   {
     return False;
   }
-  $replace=$parts[2];
-  $param="";
-  if (isset($parts[3])==True)
+  fclose($pipes[1]);
+  $stderr=trim(stream_get_contents($pipes[2]));
+  fclose($pipes[2]);
+  proc_close($process);
+  if ($stderr<>"")
   {
-    $param=$parts[3];
+    term_echo($stderr);
+    return True;
   }
-  $pattern=str_replace("\nB\n","\\",$pattern);
-  $replace=str_replace("\nB\n","\\",$replace);
-  $pattern=str_replace("\nF\n","/",$pattern);
-  $replace=str_replace("\nF\n","/",$replace);
-  $pattern=str_replace("\\\\","\nDB\n",$pattern);
-  $pattern=str_replace("/","\/",$pattern);
-  $pattern=str_replace("\nDB\n","\\\\",$pattern);
-  term_echo("*** SED: NICK: $nick");
-  term_echo("*** SED: SUBJECT: $last");
-  term_echo("*** SED: PATTERN: $pattern");
-  term_echo("*** SED: REPLACE: $replace");
-  $result=trim(shell_exec("echo ".escapeshellarg($last)." | sed -e ".escapeshellarg("s/$pattern/$replace/$param")));
-  if ($result==$last)
+  if (($result==$last) or ($result==$sed_cmd))
   {
     $result="";
   }

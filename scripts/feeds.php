@@ -115,7 +115,6 @@ for ($i=0;$i<count($new_history);$i++)
   $data=$data.$new_history[$i].PHP_EOL;
 }
 file_put_contents(FEED_HISTORY_FILE,$data,FILE_APPEND);
-pm($feed_chan,chr(3)."08"."************");
 for ($i=count($results)-1;$i>=0;$i--)
 {
   $item=$results[$i];
@@ -129,6 +128,7 @@ for ($i=count($results)-1;$i>=0;$i--)
     pm($feed_chan,$msg);
   }
 }
+pm($feed_chan,chr(3)."08"."************");
 
 #####################################################################################################
 
