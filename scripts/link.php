@@ -63,21 +63,7 @@ if (count($parts)>=2)
 }
 else
 {
-  if (isset($list[$trailing])==True)
-  {
-    $value=$list[$trailing];
-    privmsg("  └─ $trailing => $value");
-    return;
-  }
-  # TODO: ALLOW USE OF PCRE DELIMITERS & MODIFIERS
-  # http://php.net/manual/en/reference.pcre.pattern.syntax.php
-  # http://php.net/manual/en/reference.pcre.pattern.modifiers.php
-  /*if ((substr($trailing,0,1)<>substr($trailing,strlen($trailing)-1,1)) or (strlen($trailing)==1))
-  {
-    $trailing="~".$trailing."~";
-  }*/
-  $trailing="~".$trailing."~";
-  $results=array_merge(preg_match_keys($trailing,$list),preg_match_values($trailing,$list));
+  $results=array_merge(match_keys($trailing,$list),match_values($trailing,$list));
   $n=count($results);
   if ($n>0)
   {
@@ -116,11 +102,17 @@ function max_key_len($array)
 
 #####################################################################################################
 
-function preg_match_keys($pattern,$subject)
+function match_keys($query,$subject)
 {
   $result=array();
   foreach ($subject as $key => $value)
   {
+    if (strpos(strtolower($key),strtolower($query))!==False)
+    {
+      $result[$key]=$value;
+      continue;
+    }
+    $pattern="~".$query."~";
     if (preg_match($pattern,$key)==1)
     {
       $result[$key]=$value;
@@ -131,11 +123,17 @@ function preg_match_keys($pattern,$subject)
 
 #####################################################################################################
 
-function preg_match_values($pattern,$subject)
+function match_values($query,$subject)
 {
   $result=array();
   foreach ($subject as $key => $value)
   {
+    if (strpos(strtolower($value),strtolower($query))!==False)
+    {
+      $result[$key]=$value;
+      continue;
+    }
+    $pattern="~".$query."~";
     if (preg_match($pattern,$value)==1)
     {
       $result[$key]=$value;

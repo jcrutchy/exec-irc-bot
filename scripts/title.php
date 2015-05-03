@@ -11,7 +11,7 @@ exec:~title|30|0|0|0|||||php scripts/title.php %%trailing%%
 require_once("lib.php");
 $trailing=trim($argv[1]);
 $url=$trailing;
-#$url=get_redirected_url($url);
+$url=get_redirected_url($url);
 if ($url===False)
 {
   term_echo("get_redirected_url=false");
