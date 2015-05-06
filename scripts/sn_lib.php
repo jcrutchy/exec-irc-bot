@@ -62,7 +62,7 @@ function sn_logout()
 function sn_comment($subject,$comment_body,$sd_key_sid,$parent_cid="")
 {
   $article_sid=sn_get_sid($sd_key_sid);
-  privmsg("article_sid = ".$article_sid);
+  #privmsg("article_sid = ".$article_sid);
   if ($article_sid===False)
   {
     privmsg("slash-test error: sn_get_sid returned false");
@@ -131,18 +131,25 @@ function sn_comment_sid($subject,$comment_body,$article_sid,$parent_cid="")
   {
     privmsg("SoylentNews requires you to wait between each successful posting of a comment to allow everyone a fair chance at posting.");
   }
-  $delim="start template: ID 274";
+  $delim="This exact comment has already been posted.";
   if (strpos($html,$delim)!==False)
   {
     privmsg("This exact comment has already been posted. Try to be more original.");
   }
-  $delim="start template: ID 180";
+  $delim="Comment Submitted. There will be a delay before the comment becomes part of the static page.";
   if (strpos($html,$delim)!==False)
   {
-    privmsg("Comment submitted successfully. There will be a delay before the comment becomes part of the static page.");
-    $result=True;
+    $result=array();
+    $delim1="<input type=\"hidden\" name=\"sid\" value=\"";
+    $delim2="\">";
+    $result["sid"]=extract_text($html,$delim1,$delim2);
+    $delim1="<input type=\"hidden\" name=\"cid\" value=\"";
+    $result["cid"]=extract_text($html,$delim1,$delim2);
+    $delim1="<input type=\"hidden\" name=\"pid\" value=\"";
+    $result["pid"]=extract_text($html,$delim1,$delim2); # if pid=cid, then comment is at root level
+    privmsg("  comment submitted successfully => https://".$host."/comments.pl?sid=".$result["sid"]."&cid=".$result["cid"]);
   }
-  var_dump($html);
+  #var_dump($html);
   sn_logout();
   return $result;
 }

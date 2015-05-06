@@ -23,8 +23,84 @@ if ($passed==True)
 
 function run_all_tests()
 {
-  comment_test();
+  global $passed;
+  #comment_test();
   #submit_test();
+  $sid="15/05/06/1252256"; # sd-key-sid of testing article
+  $parser=xml_parser_create();
+  $path=__DIR__."/slash_tests";
+  $filenames=glob($path."/*");
+  $test_results=array();
+  for ($i=0;$i<count($filenames);$i++)
+  {
+    $filename=$filenames[$i];
+    $basename=basename($filename);
+    privmsg("processing test comment defined in \"".$basename."\"");
+    $data=file_get_contents($filename);
+    $values=array();
+    $index=array();
+    $result=xml_parse_into_struct($parser,$data,$values,$index);
+    if ($result==1)
+    {
+      if (isset($index["SUBJECT"])==False)
+      {
+        if (count($index["SUBJECT"])<>1)
+        {
+          privmsg("test comment defined in \"".$basename."\" contains no subject (1)");
+          $passed=False;
+          break;
+        }
+        if (isset($values[$index["SUBJECT"][0]]["value"])==False)
+        {
+          privmsg("test comment defined in \"".$basename."\" contains no subject (2)");
+          $passed=False;
+          break;
+        }
+      }
+      if (isset($index["BODY"])==False)
+      {
+        if (count($index["BODY"])<>1)
+        {
+          privmsg("test comment defined in \"".$basename."\" contains no body (1)");
+          $passed=False;
+          break;
+        }
+        if (isset($values[$index["BODY"][0]]["value"])==False)
+        {
+          privmsg("test comment defined in \"".$basename."\" contains no body (2)");
+          $passed=False;
+          break;
+        }
+      }
+      $subject=$values[$index["SUBJECT"][0]]["value"];
+      $comment_body=$values[$index["BODY"][0]]["value"];
+      $parent_cid="";
+      if (isset($index["PARENT"])==True)
+      {
+        if (count($index["PARENT"])==1)
+        {
+          if (isset($values[$index["PARENT"][0]]["value"])==True)
+          {
+            $parent_cid=$values[$index["PARENT"][0]]["value"];
+          }
+        }
+      }
+      $test_results[$basename]=sn_comment($subject,$comment_body,$sid,$parent_cid);
+      if ($test_results[$basename]===False)
+      {
+        privmsg("error submitting test comment defined in \"".$basename."\"");
+        $passed=False;
+        break;
+      }
+    }
+    else
+    {
+      privmsg("error parsing xml in \"".$basename."\"");
+      $passed=False;
+      break;
+    }
+  }
+  xml_parser_free($parser);
 }
 
 #####################################################################################################

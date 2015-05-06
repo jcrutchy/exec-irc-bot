@@ -130,6 +130,44 @@ handle_macros($nick,$dest,$trailing);
 function handle_macros($nick,$channel,$trailing)
 {
   $reserved_triggers=array(".macro",".macro-list");
+  $reserved_commands=array(
+    "~restart-internal",
+    "~q",
+    "~ps",
+    "~kill",
+    "~killall",
+    "~restart",
+    "~rehash",
+    "~dest-override",
+    "~dest-clear",
+    "~ignore",
+    "~unignore",
+    "~ignore-list",
+    "~buckets-dump",
+    "~eval",
+    "~say",
+    "~bucket",
+    "~buckets-save",
+    "~buckets-load",
+    "~buckets-flush",
+    "~buckets-list",
+    "~exec-conflicts",
+    "~exec-list",
+    "~exec-timers",
+    "~exec-errors",
+    "~op",
+    "~deop",
+    "~voice",
+    "~devoice",
+    "~invite",
+    "~kick",
+    "~topic",
+    "~exec-add",
+    "~exec-del",
+    "~exec-save",
+    "<init>",
+    "<quit>",
+    "<startup>");
   $allowed=array("crutchy","chromas");
   if (($nick=="") or ($channel=="") or ($trailing==""))
   {
@@ -198,7 +236,6 @@ function handle_macros($nick,$channel,$trailing)
       }
       array_shift($parts);
       $command=implode(" ",$parts);
-      $reserved_commands=array("~eval");
       for ($i=0;$i<count($reserved_commands);$i++)
       {
         if (strtolower(substr($command,0,strlen($reserved_commands[$i])))==strtolower($reserved_commands[$i]))
