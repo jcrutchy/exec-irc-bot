@@ -3,7 +3,7 @@
 #####################################################################################################
 
 /*
-exec:~slash-test|90|0|0|1|crutchy,Bytram||#dev,#test||php scripts/slash_test.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~slash-test|500|0|0|1|crutchy,Bytram||#dev,#test||php scripts/slash_test.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################
@@ -26,8 +26,7 @@ function run_all_tests()
   global $passed;
   #comment_test();
   #submit_test();
-  $sid="15/05/06/1252256"; # sd-key-sid of testing article
-  $parser=xml_parser_create();
+  $sid="15/05/08/0149218"; # sd-key-sid of testing article
   $path=__DIR__."/slash_tests";
   $filenames=glob($path."/*");
   $test_results=array();
@@ -35,99 +34,86 @@ function run_all_tests()
   {
     if ($i>0)
     {
-      sleep(8);
+      sleep(120);
     }
     $filename=$filenames[$i];
     $basename=basename($filename);
     privmsg("*** processing test comment defined in \"".$basename."\"");
     $data=file_get_contents($filename);
-    $values=array();
-    $index=array();
-    $result=xml_parse_into_struct($parser,$data,$values,$index);
-    if ($result==1)
+    if ($data!==False)
     {
-      var_dump($values);
-      $subject_in=xml_element($index,$values,"SUBJECT_IN",$basename);
-      $body_in=xml_element($index,$values,"BODY_IN",$basename);
-      $subject_out=xml_element($index,$values,"SUBJECT_OUT",$basename);
-      $body_out=xml_element($index,$values,"BODY_OUT",$basename);
-      if (($subject_in===False) or ($body_in===False) or ($subject_out===False) or ($body_out===False))
+      $keys=array("parent","subject_in","body_in","subject_out","body_out");
+      $result=parse_data($keys,$data);
+      if ($result===False)
       {
+        privmsg("  error parsing data in \"".$basename."\"");
+        $passed=False;
         break;
       }
       $parent_cid="";
-      if (isset($index["PARENT"])==True)
+      if ($result["parent"]<>"")
       {
-        if (count($index["PARENT"])==1)
+        if (isset($test_results[$result["parent"]]["cid"])==True)
         {
-          if (isset($values[$index["PARENT"][0]]["value"])==True)
-          {
-            $parent_cid=$values[$index["PARENT"][0]]["value"];
-          }
+          $parent_cid=$test_results[$result["parent"]]["cid"];
         }
       }
-      /*var_dump($subject_in);
-      var_dump($body_in);
-      var_dump($subject_out);
-      var_dump($body_out);
-      var_dump($parent_cid);*/
-      /*$test_results[$basename]=sn_comment($subject_in,$body_in,$sid,$parent_cid);
+      $test_results[$basename]=sn_comment($result["subject_in"],$result["body_in"],$sid,$parent_cid);
       if ($test_results[$basename]===False)
       {
         privmsg("  error submitting test comment defined in \"".$basename."\"");
         $passed=False;
         break;
       }
-      if ($test_results[$basename]["subject"]<>$subject_out)
+      if ($test_results[$basename]["subject"]<>$result["subject_out"])
       {
         privmsg("  subject mismatch for test comment defined in \"".$basename."\"");
         $passed=False;
         break;
       }
-      if ($test_results[$basename]["body"]<>$body_out)
+      if ($test_results[$basename]["body"]<>$result["body_out"])
       {
         privmsg("  body mismatch for test comment defined in \"".$basename."\"");
         $passed=False;
         break;
-      }*/
+      }
     }
     else
     {
-      privmsg("  error parsing xml in \"".$basename."\"");
+      privmsg("  error reading \"".$basename."\"");
       $passed=False;
       break;
     }
   }
-  xml_parser_free($parser);
 }
 
 #####################################################################################################
 
-function xml_element($index,$values,$element,$basename)
+function parse_data($keys,$data,$suffix="=")
 {
-  global $passed;
-  if (isset($index[$element])==True)
+  $result=array();
+  $n=count($keys)-1;
+  if ($n<0)
   {
-    /*if (count($index[$element])<>1)
-    {
-      privmsg("  test comment defined in \"".$basename."\" contains non-unique xml \"".$element."\" index");
-      $passed=False;
-      return False;
-    }*/
-    if (isset($values[$index[$element][0]]["value"])==False)
-    {
-      privmsg("  test comment defined in \"".$basename."\" contains no xml \"".$element."\" value");
-      $passed=False;
-      return False;
-    }
-    return $values[$index[$element][0]]["value"];
-  }
-  else
-  {
-    privmsg("  test comment defined in \"".$basename."\" contains no xml \"".$element."\" index");
-    $passed=False;
     return False;
   }
+  for ($i=0;$i<$n;$i++)
+  {
+    $delim1=$keys[$i].$suffix;
+    $delim2=$keys[$i+1].$suffix;
+    $result[$keys[$i]]=extract_text($data,$delim1,$delim2);
+    if ($result[$keys[$i]]===False)
+    {
+      return False;
+    }
+  }
+  $delim=$keys[$n].$suffix;
+  $result[$keys[$n]]=extract_text($data,$delim,"",True);
+  if ($result[$keys[$n]]===False)
+  {
+    return False;
+  }
+  return $result;
 }
 
 #####################################################################################################

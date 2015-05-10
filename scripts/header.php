@@ -54,7 +54,7 @@ function get_header($host,$uri,$port,$header,$url)
   $header_value=exec_get_header($response,$header,False);
   if ($header_value<>"")
   {
-    privmsg("$header header for $url = $header_value");
+    privmsg("  $header header for $url = $header_value");
   }
 }
 
@@ -69,7 +69,7 @@ function get_header_login($host,$uri,$port,$header,$url)
   $header_value=exec_get_header($response,$header,False);
   if ($header_value<>"")
   {
-    privmsg("$header header for $url = $header_value");
+    privmsg("  $header header for $url = $header_value");
   }
 }
 

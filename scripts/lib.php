@@ -314,18 +314,15 @@ function extract_text($text,$delim1,$delim2,$delim2opt=False)
     return False;
   }
   $text=substr($text,$i+strlen($delim1));
+  if ($delim2opt==True)
+  {
+    return trim($text);
+  }
   $i=strpos($text,$delim2);
   if ($i===False)
   {
-    if ($delim2opt==True)
-    {
-      return trim($text);
-    }
-    else
-    {
-      #term_echo("*** lib.php->extract_text: required delim2 not found");
-      return False;
-    }
+    #term_echo("*** lib.php->extract_text: required delim2 not found");
+    return False;
   }
   $text=substr($text,0,$i);
   return trim($text);
