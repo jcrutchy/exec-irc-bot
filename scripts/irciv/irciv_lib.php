@@ -1085,7 +1085,7 @@ function unfog($account,$x,$y,$range)
 
 #####################################################################################################
 
-function status($account)
+function status($account,$params="")
 {
   global $player_data;
   global $map_data;
@@ -1099,28 +1099,117 @@ function status($account)
   {
     $public=True;
   }
-  $i=$player_data[$account]["active"];
-  $unit=$player_data[$account]["units"][$i];
-  $index=$unit["index"];
-  $type=$unit["type"];
-  $health=$unit["health"];
-  $x=$unit["x"];
-  $y=$unit["y"];
-  $n=count($player_data[$account]["units"]);
-  if (isset($player_data[$account]["status_messages"])==True)
+  if ($params<>"")
   {
-    $unique_messages=array_count_values($player_data[$account]["status_messages"]);
-    foreach ($unique_messages as $msg => $count)
+    $params=explode(" ",$params);
+    if (count($params)<>2)
     {
-      if ($count>1)
-      {
-        $msg=$msg." (x$count)";
-      }
-      status_msg($dest." $account => $msg",$public);
+      status_msg("syntax: [~civ] status [x y]",$public);
+      return;
     }
-    unset($player_data[$account]["status_messages"]);
+    $x=$params[0];
+    $y=$params[1];
+    if ((exec_is_integer($x)==False) or (exec_is_integer($y)==False))
+    {
+      status_msg("error: coordinates must be two positive integers",$public);
+      return;
+    }
+    if (($x<0) or ($x>=$map_data["cols"]) or ($y<0) or ($y>=$map_data["rows"]))
+    {
+      status_msg("error: coordinate $x,$y is outside the map",$public);
+      return;
+    }
+    $terrain=$map_data["coords"][map_coord($map_data["cols"],$x,$y)];
+    if (is_fogged($account,$x,$y)==True)
+    {
+      status_msg("coordinate $x,$y is fogged",$public);
+      return;
+    }
+    $owner="";
+    $units=array();
+    foreach ($player_data as $player => $data)
+    {
+      for ($i=0;$i<count($player_data[$player]["units"]);$i++)
+      {
+        $unit=$player_data[$player]["units"][$i];
+        if (($unit["x"]==$x) and ($unit["y"]==$y))
+        {
+          if ($owner=="")
+          {
+            $owner=$player;
+          }
+          elseif ($owner<>$player)
+          {
+            status_msg("error: multiple players have assets at $x,$y",$public);
+            return;
+          }
+          $units[]=$unit;
+        }
+      }
+    }
+    $cities=array();
+    foreach ($player_data as $player => $data)
+    {
+      for ($i=0;$i<count($player_data[$player]["cities"]);$i++)
+      {
+        $city=$player_data[$player]["cities"][$i];
+        if (($city["x"]==$x) and ($city["y"]==$y))
+        {
+          if ($owner=="")
+          {
+            $owner=$player;
+          }
+          elseif ($owner<>$player)
+          {
+            status_msg("error: multiple players have assets at $x,$y",$public);
+            return;
+          }
+          $cities[]=$city;
+        }
+      }
+    }
+    if ((count($cities)==0) and (count($units)==0))
+    {
+      status_msg("coordinate $x,$y ($terrain) is currently unoccupied",$public);
+      return;
+    }
+    if (count($cities)>1)
+    {
+      status_msg("error: multiple cities at $x,$y",$public);
+      return;
+    }
+    status_msg("status for coordinate $x,$y ($terrain): occupied by $owner",$public);
+    if (count($cities)>0)
+    {
+      status_msg("city: ".$cities[0]["name"],$public);
+    }
+    status_msg("units: ".count($units),$public);
   }
-  status_msg($dest." $account => $index/$n, $type, +$health, ($x,$y)",$public);
+  else
+  {
+    $i=$player_data[$account]["active"];
+    $unit=$player_data[$account]["units"][$i];
+    $index=$unit["index"];
+    $type=$unit["type"];
+    $health=$unit["health"];
+    $x=$unit["x"];
+    $y=$unit["y"];
+    $n=count($player_data[$account]["units"]);
+    if (isset($player_data[$account]["status_messages"])==True)
+    {
+      $unique_messages=array_count_values($player_data[$account]["status_messages"]);
+      foreach ($unique_messages as $msg => $count)
+      {
+        if ($count>1)
+        {
+          $msg=$msg." (x$count)";
+        }
+        status_msg($dest." $account => $msg",$public);
+      }
+      unset($player_data[$account]["status_messages"]);
+    }
+    status_msg($dest." $account => $index/$n, $type, +$health, ($x,$y)",$public);
+  }
 }
 
 #####################################################################################################
@@ -1232,18 +1321,19 @@ function unit_attack($attack_account,$defend_account,&$attack_unit,&$defend_unit
 function attacker_health($attacker,$defender)
 {
   $health=$attacker["health"];
+  # dl,ds,da,al,as,aa (warrior: 1,0,0,1,0,0)
   $attacker_strength=explode(",",$attacker["strength"]);
   $defender_strength=explode(",",$attacker["strength"]);
-  for ($i=1;$i<=3;$i++)
+  for ($i=0;$i<3;$i++) # 0:land,1:sea,2:air
   {
-    $attacker_defend=$attacker["strength"][$i-1]*10;
-    $attacker_attack=$attacker["strength"][$i+2]*10;
-    $defender_defend=$defender["strength"][$i-1]*10;
-    $defender_attack=$defender["strength"][$i+2]*10;
+    $attacker_defend=$attacker_strength[$i]*MAX_HEALTH;
+    $attacker_attack=$attacker_strength[$i+3]*MAX_HEALTH;
+    $defender_defend=$defender_strength[$i]*MAX_HEALTH;
+    $defender_attack=$defender_strength[$i+3]*MAX_HEALTH;
     $attack_rand=mt_rand(round($defender_attack/2),$defender_attack);
     $defend_rand=mt_rand(round($attacker_defend/2),$attacker_defend);
-    $delta=min($attack_rand,$defend_rand)-$attack_rand;
-    $health=min(MAX_HEALTH,max(0,$health-round($delta/10)));
+    $delta=$defend_rand-$attack_rand;
+    $health=min($health,max(0,$health-$delta));
     irciv_term_echo("*** irciv: attacker health: $health");
   }
   return $health;
