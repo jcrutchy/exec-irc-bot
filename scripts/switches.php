@@ -49,6 +49,8 @@ function handle_switch($alias,$dest,$nick,$trailing,$channels_bucket,$switch_ali
           return 4;
         }
         break;
+      default:
+        return 11;
     }
   }
   elseif ($alias==$internal_alias)

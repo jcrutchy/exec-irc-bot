@@ -215,7 +215,8 @@ function get_redirected_url($from_url,$url_list="")
   {
     return False;
   }
-  $headers=whead($host,$uri,$port,ICEWEASEL_UA,"",10);
+  $breakcode="return (substr(\$response,strlen(\$response)-4)==\"\r\n\r\n\");";
+  $headers=wget($host,$uri,$port,ICEWEASEL_UA,"",10,$breakcode);
   $location=trim(exec_get_header($headers,"location",False));
   if ($location=="")
   {
@@ -223,6 +224,10 @@ function get_redirected_url($from_url,$url_list="")
   }
   else
   {
+    if ($location[0]=="/")
+    {
+      $location=$url.$location;
+    }
     if (is_array($url_list)==True)
     {
       if (in_array($location,$url_list)==True)

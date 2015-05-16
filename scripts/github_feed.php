@@ -5,7 +5,9 @@
 /*
 exec:~github-list|60|0|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~github-feed|400|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~slashcode-issue|60|0|0|1|crutchy,TheMightyBuzzard||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~slashcode-issue|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~rehash-issue|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~exec-issue|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #exec:~epoch-feed|400|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 startup:~join #github
 */
@@ -21,10 +23,10 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=strtolower(trim($argv[4]));
 
-if ($alias=="~slashcode-issue")
+if (($alias=="~slashcode-issue") or ($alias=="~rehash-issue") or ($alias=="~exec-issue"))
 {
   $account=users_get_account($nick);
-  $allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs","TheMightyBuzzard","paulej72");
+  $allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs","TheMightyBuzzard","paulej72","Bytram");
   if (in_array($account,$allowed)==False)
   {
     return;
@@ -35,15 +37,26 @@ if ($alias=="~slashcode-issue")
   $body=trim(implode(",",$parts));
   if (($title=="") or ($body==""))
   {
-    privmsg("syntax: ~slashcode-issue title, body");
+    privmsg("syntax: ~slashcode/rehash/exec-issue <title>, <body>");
     return;
   }
   $host="api.github.com";
   $port=443;
-  $username="SoylentNews";
-  $repo="slashcode";
-  #$username="crutchy-";
-  #$repo="exec-irc-bot";
+  if ($alias=="~rehash-issue")
+  {
+    $username="SoylentNews";
+    $repo="rehash";
+  }
+  elseif ($alias=="~slashcode-issue")
+  {
+    $username="SoylentNews";
+    $repo="slashcode";
+  }
+  else
+  {
+    $username="crutchy-";
+    $repo="exec-irc-bot";
+  }
   $uri="/repos/$username/$repo/issues";
   $tok=trim(file_get_contents("../pwd/gh_tok"));
   $headers=array();

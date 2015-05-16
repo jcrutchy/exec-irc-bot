@@ -3,131 +3,82 @@
 #####################################################################################################
 
 /*
-exec:~title|30|0|0|0|||||php scripts/title.php %%trailing%% %%alias%%
-exec:~sizeof|30|0|0|0|*||#journals,#test,#Soylent,#,#exec,#dev||php scripts/title.php %%trailing%% %%alias%%
+exec:~title-internal|30|0|0|0||INTERNAL|||php scripts/title.php %%trailing%% %%alias%% %%dest%% %%nick%%
+exec:~title|30|0|0|0|||||php scripts/title.php %%trailing%% %%alias%% %%dest%% %%nick%%
+exec:~sizeof|30|0|0|0|*||#journals,#test,#Soylent,#,#exec,#dev||php scripts/title.php %%trailing%% %%alias%% %%dest%% %%nick%%
+init:~title-internal register-events
 */
 
 #####################################################################################################
 
 require_once("lib.php");
+require_once("title_lib.php");
+
 $trailing=trim($argv[1]);
 $alias=trim($argv[2]);
-$url=$trailing;
-$url=get_redirected_url($url);
-if ($url===False)
-{
-  term_echo("get_redirected_url=false");
-  return;
-}
-$host="";
-$uri="";
-$port=80;
+$dest=$argv[3];
+$nick=$argv[4];
 
-if (get_host_and_uri($url,$host,$uri,$port)==False)
-{
-  term_echo("get_host_and_uri=false");
-  return;
-}
+$bucket=get_bucket("<exec_title_$dest>");
 
-if ($alias=="~sizeof")
+if ($alias=="~title-internal")
 {
-  $headers=whead($host,$uri,$port);
-  $content_length=exec_get_header($headers,"content-length",False);
-  if ($content_length<>"")
+  $parts=explode(" ",$trailing);
+  $action=strtolower($parts[0]);
+  array_shift($parts);
+  switch ($action)
   {
-    if ($content_length>(1024*1024))
-    {
-      privmsg(chr(3)."13".(round($content_length/1024/1024,3))." Mb (header)");
-    }
-    elseif ($content_length>1024)
-    {
-      privmsg(chr(3)."13".(round($content_length/1024,3))." kb (header)");
-    }
-    else
-    {
-      privmsg(chr(3)."13".$content_length." bytes (header)");
-    }
-    return;
-  }
-}
-
-$breakcode="return (strlen(\$response)>=2000000);";
-if ($alias=="~title")
-{
-  $breakcode="return ((strpos(strtolower(\$response),\"</title>\")!==False) or (strlen(\$response)>=10000));";
-}
-$response=wget($host,$uri,$port,ICEWEASEL_UA,"",20,$breakcode,256);
-
-var_dump($response);
-term_echo("*** TITLE => response bytes: ".strlen($response));
-
-$html=strip_headers($response);
-
-if ($alias=="~sizeof")
-{
-  if ($content_length>(1024*1024))
-  {
-    privmsg(chr(3)."13".(round($content_length/1024/1024,3))." Mb (downloaded)");
-  }
-  elseif ($content_length>1024)
-  {
-    privmsg(chr(3)."13".(round($content_length/1024,3))." kb (downloaded)");
-  }
-  else
-  {
-    privmsg(chr(3)."13".$content_length." bytes (downloaded)");
-  }
-  return;
-}
-
-#var_dump($html);
-
-$title=extract_raw_tag($html,"title");
-
-$title=html_decode($title);
-$title=html_decode($title);
-
-$filtered_url=strtolower(filter_non_alpha_num($url));
-$filtered_title=strtolower(filter_non_alpha_num($title));
-
-if ($filtered_title=="")
-{
-  term_echo("filtered_title is empty");
-  return;
-}
-
-term_echo("  filtered_url = $filtered_url");
-term_echo("filtered_title = $filtered_title");
-
-if (strpos($filtered_url,$filtered_title)===False)
-{
-  $i=strpos($title," - ");
-  if ($i!==False)
-  {
-    $filtered_title=strtolower(filter_non_alpha_num(substr($title,0,$i)));
-    if (strpos($filtered_url,$filtered_title)!==False)
-    {
-      privmsg("portion of title left of \" - \" exists in url");
+    case "register-events":
+      register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~title-internal event-privmsg %%nick%% %%dest%% %%trailing%%");
       return;
-    }
+    case "event-privmsg":
+      # trailing = <nick> <channel> <trailing>
+      $nick=strtolower($parts[0]);
+      $channel=strtolower($parts[1]);
+      array_shift($parts);
+      array_shift($parts);
+      $trailing=trim(implode(" ",$parts));
+      if ($bucket=="on")
+      {
+        title_privmsg($trailing,$channel);
+      }
+      break;
   }
-  $i=strpos($title," | ");
-  if ($i!==False)
-  {
-    $filtered_title=strtolower(filter_non_alpha_num(substr($title,0,$i)));
-    term_echo("*** filtered_title = $filtered_title");
-    term_echo("*** filtered_url   = $filtered_url");
-    if (strpos($filtered_url,$filtered_title)!==False)
-    {
-      privmsg("portion of title left of \" | \" exists in url");
-      return;
-    }
-  }
-  privmsg(chr(3)."13".$title);
 }
 else
 {
-  privmsg("title exists in url");
+  if (strtolower($trailing)=="on")
+  {
+    if ($bucket=="on")
+    {
+      privmsg("  titles already enabled for ".chr(3)."10$dest");
+    }
+    else
+    {
+      set_bucket("<exec_title_$dest>","on");
+      privmsg("  titles enabled for ".chr(3)."10$dest");
+    }
+  }
+  elseif (strtolower($trailing)=="off")
+  {
+    if ($bucket=="")
+    {
+      privmsg("  titles already disabled for ".chr(3)."10$dest");
+    }
+    else
+    {
+      unset_bucket("<exec_title_$dest>");
+      privmsg("  titles disabled for ".chr(3)."10$dest");
+    }
+  }
+  else
+  {
+    $msg=get_title($trailing,$alias);
+    if ($msg!==False)
+    {
+      privmsg($msg);
+    }
+  }
 }
 
 #####################################################################################################
