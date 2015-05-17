@@ -18,6 +18,10 @@ $dest=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];
 
+return;
+
+# EXPLOIT FOUND (17/05/2015): s/.*/ls/e executes an 'ls' command; s/.*/ps/e executes an 'ps' command. touch doesn't seem to work, but need to prevent the use of /e
+
 $delims=array("/","#"); # cannot be alphanumeric or \
 
 $msg="";
@@ -111,12 +115,14 @@ function shell_sed($trailing,$nick,$dest)
     $last=trim(substr($last,strlen($action_delim)),chr(1));
   }
   $command="echo ".escapeshellarg($last)." | sed -e ".escapeshellarg($sed_cmd);
+  var_dump($command);
   $cwd=NULL;
   $env=NULL;
   $descriptorspec=array(0=>array("pipe","r"),1=>array("pipe","w"),2=>array("pipe","w"));
   $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
   $result=trim(stream_get_contents($pipes[1]));
   $result_lines=explode("\n",$result);
+  var_dump($result_lines);
   if (count($result_lines)>1)
   {
     return False;
