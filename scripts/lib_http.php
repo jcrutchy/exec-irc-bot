@@ -154,7 +154,7 @@ function get_host_and_uri($url,&$host,&$uri,&$port)
 
 #####################################################################################################
 
-function get_redirected_url($from_url,$url_list="")
+function get_redirected_url($from_url,$url_list="",$last_loc="")
 {
   # returned this (wtf): http://www.theaustralian.com.au/remote/check_cookie.html?url=http%3a%2f%2fwww.theaustralian.com.au%2fnational-affairs%2fbudget-2015%2fbudget-2015-abbott-presses-vic-labor-on-road-needs%2fstory-fntfa2d0-1227357449721/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies/nocookies
   $url=trim($from_url);
@@ -218,8 +218,10 @@ function get_redirected_url($from_url,$url_list="")
   }
   $breakcode="return (substr(\$response,strlen(\$response)-4)==\"\r\n\r\n\");";
   $headers=wget($host,$uri,$port,ICEWEASEL_UA,"",10,$breakcode);
-  $location=trim(exec_get_header($headers,"location",False));
-  if ($location=="")
+  #var_dump($headers);
+  $loc_header=trim(exec_get_header($headers,"location",False));
+  $location=$loc_header;
+  if (($location=="") or ($location==$last_loc))
   {
     return $url;
   }
@@ -239,13 +241,20 @@ function get_redirected_url($from_url,$url_list="")
       {
         $list=$url_list;
         $list[]=$url;
-        return get_redirected_url($location,$list);
+        if (count($list)<6)
+        {
+          return get_redirected_url($location,$list,$loc_header);
+        }
+        else
+        {
+          return $url;
+        }
       }
     }
     else
     {
       $list=array($url);
-      return get_redirected_url($location,$list);
+      return get_redirected_url($location,$list,$loc_header);
     }
   }
 }
