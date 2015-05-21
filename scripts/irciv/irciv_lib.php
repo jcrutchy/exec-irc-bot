@@ -1297,7 +1297,9 @@ function unit_attack($attack_account,$defend_account,&$attack_unit,&$defend_unit
 {
   global $player_data;
   $attack_unit["health"]=attacker_health($attack_unit,$defend_unit);
+  irciv_term_echo("*** irciv: attacker health: ".$attack_unit["health"]);
   $defend_unit["health"]=defender_health($defend_unit,$attack_unit);
+  irciv_term_echo("*** irciv: defender health: ".$defend_unit["health"]);
   if ($attack_unit["health"]==0)
   {
     # attacker died
@@ -1335,7 +1337,6 @@ function attacker_health($attacker,$defender)
     $defend_rand=mt_rand(round($attacker_defend/2),$attacker_defend);
     $delta=$defend_rand-$attack_rand;
     $health=min($health,max(0,$health-$delta));
-    irciv_term_echo("*** irciv: attacker health: $health");
   }
   return $health;
 }
@@ -1447,8 +1448,16 @@ function update_other_players($account,$active)
     }
     if (is_fogged($player,$x,$y)==False)
     {
-      $player_data[$player]["status_messages"][]="player \"$account\" moved a unit within your field of vision";
-      $player_data[$account]["status_messages"][]="you moved a unit within the field of vision of player \"$player\"";
+      $msg="player \"$account\" moved a unit within your field of vision";
+      if (in_array($msg,$player_data[$player]["status_messages"])==False)
+      {
+        $player_data[$player]["status_messages"][]=$msg;
+      }
+      $msg="you moved a unit within the field of vision of player \"$player\"";
+      if (in_array($msg,$player_data[$account]["status_messages"])==False)
+      {
+        $player_data[$account]["status_messages"][]=$msg;
+      }
     }
   }
 }

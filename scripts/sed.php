@@ -20,7 +20,7 @@ $cmd=$argv[5];
 
 return;
 
-# EXPLOIT FOUND (17/05/2015): s/.*/ls/e executes an 'ls' command; s/.*/ps/e executes an 'ps' command. touch doesn't seem to work, but need to prevent the use of /e
+# EXPLOIT FOUND (17/05/2015): s/.*/ls/e executes an 'ls' command; s/.*/ps/e executes an 'ps' command. touch doesn't seem to work, but need to prevent the use of /e (or use awk/perl)
 
 $delims=array("/","#"); # cannot be alphanumeric or \
 
@@ -114,7 +114,7 @@ function shell_sed($trailing,$nick,$dest)
   {
     $last=trim(substr($last,strlen($action_delim)),chr(1));
   }
-  $command="echo ".escapeshellarg($last)." | sed -e ".escapeshellarg($sed_cmd);
+  $command="echo ".escapeshellarg($last)." | sed -e --posix ".escapeshellarg($sed_cmd);
   var_dump($command);
   $cwd=NULL;
   $env=NULL;

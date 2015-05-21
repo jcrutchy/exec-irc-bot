@@ -4,7 +4,7 @@
 
 /*
 exec:~comments|1700|0|0|1|||||php scripts/comment_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~comments-internal|1700|3600|0|1||INTERNAL|||php scripts/comment_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#exec:~comments-internal|1700|3600|0|1||INTERNAL|||php scripts/comment_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 startup:~join #comments
 */
 
