@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~feeds|1000|0|0|1|crutchy||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#exec:~feeds-internal|1000|1800|0|1||INTERNAL|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~feeds|890|0|0|1|crutchy||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~feeds-internal|890|900|0|1||INTERNAL|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~feed-list|5|0|0|1|||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 startup:~join #feeds
 */
@@ -128,7 +128,8 @@ for ($i=count($results)-1;$i>=0;$i--)
     pm($feed_chan,$msg);
   }
 }
-pm($feed_chan,chr(3)."08"."************");
+$msg=chr(3)."08"."********** ".chr(3)."03"."END FEED".chr(3)."08"." **********";
+pm($feed_chan,$msg);
 
 #####################################################################################################
 

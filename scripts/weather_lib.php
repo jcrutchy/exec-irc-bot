@@ -2,8 +2,6 @@
 
 # http://openweathermap.org/API
 
-# TODO: BROKEN FOR "ADA, OKLAHOMA" FOR SOME REASON (BUT WORKS FOR "TULSA, OK")
-
 #####################################################################################################
 
 require_once("lib.php");
@@ -162,7 +160,7 @@ function process_weather(&$location,$nick)
   $response=wget("www.google.com.au","/search?gbv=1&fheit=$fheit&q=weather+".urlencode($loc_query),80,ICEWEASEL_UA,"",60);
   $html=strip_headers($response);
   $delim1="<div class=\"e\">";
-  $delim2="Detailed forecast:";
+  $delim2="</table>";
   $html=extract_text($html,$delim1,$delim2);
   if ($html===False)
   {

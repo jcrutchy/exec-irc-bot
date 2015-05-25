@@ -2,7 +2,7 @@
 
 #####################################################################################################
 
-define("ICEWEASEL_UA","Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20140429 Firefox/24.0 Iceweasel/24.5.0");
+define("ICEWEASEL_UA","Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0");
 
 $url_blacklist=array("kidd","porn","goat","xxx","sex","fuck");
 

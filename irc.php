@@ -31,7 +31,7 @@ if (isset($argv[1])==False)
   define("OPERATOR_ACCOUNT","crutchy");
   define("DEBUG_CHAN","#debug");
   define("NICKSERV_IDENTIFY_PROMPT","You have 60 seconds to identify to your nickname before it is changed.");
-  define("ADMIN_ACCOUNTS","chromas,juggs");
+  define("ADMIN_ACCOUNTS","chromas,juggs,martyb");
 }
 elseif (file_exists($argv[1])==True)
 {
