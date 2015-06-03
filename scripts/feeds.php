@@ -13,6 +13,8 @@ startup:~join #feeds
 
 # TODO: FEED ITEM LIMIT PARAMETER FOR EACH FEED IN FEED LIST FILE
 
+return;
+
 require_once("lib.php");
 require_once("feeds_lib.php");
 

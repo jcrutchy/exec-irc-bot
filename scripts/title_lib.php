@@ -43,12 +43,16 @@ function title_privmsg($trailing,$channel)
 
 function get_title($url,$alias="")
 {
-  $rd_url=get_redirected_url($url);
-  if ($rd_url===False)
+  $redirect_data=get_redirected_url($url,"","",array());
+  if ($redirect_data===False)
   {
     term_echo("get_redirected_url=false");
     return False;
   }
+  $rd_url=$redirect_data["url"];
+  $rd_cookies=$redirect_data["cookies"];
+  $rd_extra_headers=$redirect_data["extra_headers"];
+  term_echo("get_title: ".$rd_url);
   $host="";
   $uri="";
   $port=80;
@@ -83,7 +87,7 @@ function get_title($url,$alias="")
   {
     $breakcode="return ((strpos(strtolower(\$response),\"</title>\")!==False) or (strlen(\$response)>=10000));";
   }
-  $response=wget($host,$uri,$port,ICEWEASEL_UA,"",20,$breakcode,256);
+  $response=wget($host,$uri,$port,ICEWEASEL_UA,$rd_extra_headers,20,$breakcode,256);
   term_echo("*** TITLE => response bytes: ".strlen($response));
   $html=strip_headers($response);
   if ($alias=="~sizeof")
@@ -114,6 +118,7 @@ function get_title($url,$alias="")
   }
   term_echo("  filtered_url = $filtered_url");
   term_echo("filtered_title = $filtered_title");
+  $original_title=$title;
   if ($rd_url==$url)
   {
     if (strpos($filtered_url,$filtered_title)===False)
@@ -121,14 +126,30 @@ function get_title($url,$alias="")
       $delims=array("--","|"," - "," : "," | "," — "," • ");
       for ($i=0;$i<count($delims);$i++)
       {
-        $j=strpos($title,$delims[$i]);
-        if ($j!==False)
+        $parts=explode($delims[$i],$title);
+        if (count($parts)==2)
         {
-          $filtered_title=strtolower(filter_non_alpha_num(substr($title,0,$j)));
-          if (strpos($filtered_url,$filtered_title)!==False)
+          if ($original_title<>$title)
           {
-            term_echo("portion of title left of \"".$delims[$i]."\" exists in url");
+            $title=$original_title;
+            break;
+          }
+          $filtered_left=strtolower(filter_non_alpha_num($parts[0]));
+          $filtered_right=strtolower(filter_non_alpha_num($parts[1]));
+          if ((strpos($filtered_url,$filtered_left)!==False) and (strpos($filtered_url,$filtered_right)!==False))
+          {
+            term_echo("portions of title left and right of \"".$delims[$i]."\" exists in url");
             return False;
+          }
+          if ((strpos($filtered_url,$filtered_left)!==False) and (strpos($filtered_url,$filtered_right)===False))
+          {
+            term_echo("portion of title left of \"".$delims[$i]."\" exists in url - showing right");
+            $title=$parts[1];
+          }
+          if ((strpos($filtered_url,$filtered_left)===False) and (strpos($filtered_url,$filtered_right)!==False))
+          {
+            term_echo("portion of title left of \"".$delims[$i]."\" exists in url - showing left");
+            $title=$parts[0];
           }
         }
       }

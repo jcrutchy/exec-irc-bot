@@ -461,6 +461,176 @@ function map_paint_city(&$buffer,&$city_buffers,&$buffer_city_flag,$tile_w,$tile
 
 #####################################################################################################
 
+function map_path_img($map_data,$filename="",$player_data="",$account="",$filetype="png")
+{
+  if ($account=="")
+  {
+    return False;
+  }
+  $cols=$map_data["cols"];
+  $rows=$map_data["rows"];
+
+  $buffer_terrain_ocean=imagecreatefrompng(PATH_IMAGES.IMAGE_TERRAIN_OCEAN);
+  if ($buffer_terrain_ocean===False)
+  {
+    return False;
+  }
+
+  $tile_w=imagesx($buffer_terrain_ocean);
+  $tile_h=imagesy($buffer_terrain_ocean);
+
+  $w=$cols*$tile_w;
+  $h=$rows*$tile_h;
+  $buffer=imagecreatetruecolor($w,$h);
+
+  for ($y=0;$y<$rows;$y++)
+  {
+    for ($x=0;$x<$cols;$x++)
+    {
+      $i=map_coord($cols,$x,$y);
+      if (($player_data<>"") and ($account<>""))
+      {
+        if ($player_data[$account]["fog"][$i]=="0")
+        {
+          continue;
+        }
+      }
+      if ($map_data["coords"][$i]==TERRAIN_LAND)
+      {
+
+      }
+      if ($map_data["coords"][$i]==TERRAIN_OCEAN)
+      {
+
+      }
+    }
+  }
+  imagedestroy($buffer_terrain_ocean);
+
+  # to make final map image smaller filesize, use createimage to create palleted image, then copy truecolor image to palleted image
+  $scale=1.0;
+  $final_w=round($w*$scale);
+  $final_h=round($h*$scale);
+  $buffer_resized=imagecreatetruecolor($final_w,$final_h);
+  if (imagecopyresampled($buffer_resized,$buffer,0,0,0,0,$final_w,$final_h,$w,$h)==False)
+  {
+    irciv_term_echo("imagecopyresampled error");
+    return False;
+  }
+  imagedestroy($buffer);
+  $buffer=imagecreate($final_w,$final_h);
+  if (imagecopy($buffer,$buffer_resized,0,0,0,0,$final_w,$final_h)==False)
+  {
+    irciv_term_echo("imagecopy error");
+    return False;
+  }
+  imagedestroy($buffer_resized);
+  unset($buffer_resized);
+  if (isset($player_data[$account]["flags"]["crop_map"])==True)
+  {
+    $fog_boundary_l=$cols;
+    $fog_boundary_t=$rows;
+    $fog_boundary_r=0;
+    $fog_boundary_b=0;
+    for ($y=0;$y<$rows;$y++)
+    {
+      for ($x=0;$x<$cols;$x++)
+      {
+        $coord=map_coord($cols,$x,$y);
+        if ($player_data[$account]["fog"][$coord]=="1")
+        {
+          if ($x<$fog_boundary_l)
+          {
+            $fog_boundary_l=$x;
+          }
+          if ($x>$fog_boundary_r)
+          {
+            $fog_boundary_r=$x;
+          }
+          if ($y<$fog_boundary_t)
+          {
+            $fog_boundary_t=$y;
+          }
+          if ($y>$fog_boundary_b)
+          {
+            $fog_boundary_b=$y;
+          }
+        }
+      }
+    }
+    $fog_boundary_l=max(0,$fog_boundary_l-1);
+    $fog_boundary_t=max(0,$fog_boundary_t-1);
+    $fog_boundary_r=min($cols,$fog_boundary_r+2);
+    $fog_boundary_b=min($rows,$fog_boundary_b+2);
+    irciv_term_echo("IRCiv >> map_img: fog_boundary_l = $fog_boundary_l");
+    irciv_term_echo("IRCiv >> map_img: fog_boundary_t = $fog_boundary_t");
+    irciv_term_echo("IRCiv >> map_img: fog_boundary_r = $fog_boundary_r");
+    irciv_term_echo("IRCiv >> map_img: fog_boundary_b = $fog_boundary_b");
+    if (($fog_boundary_l<$fog_boundary_r) and ($fog_boundary_t<$fog_boundary_b))
+    {
+      $range_x=$fog_boundary_r-$fog_boundary_l;
+      $range_y=$fog_boundary_b-$fog_boundary_t;
+      irciv_term_echo("IRCiv >> map_img: range_x = $range_x");
+      irciv_term_echo("IRCiv >> map_img: range_y = $range_y");
+      $w=$range_x*$tile_w;
+      $h=$range_y*$tile_h;
+      $buffer_resized=imagecreatetruecolor($w,$h);
+      if (imagecopy($buffer_resized,$buffer,0,0,$fog_boundary_l*$tile_w,$fog_boundary_t*$tile_h,$w,$h)==False)
+      {
+        irciv_term_echo("imagecopy error");
+        return False;
+      }
+      imagedestroy($buffer);
+      $buffer=imagecreate($w,$h);
+      if (imagecopy($buffer,$buffer_resized,0,0,0,0,$w,$h)==False)
+      {
+        irciv_term_echo("imagecopy error");
+        return False;
+      }
+      imagedestroy($buffer_resized);
+      unset($buffer_resized);
+    }
+  }
+  if ($filename<>"")
+  {
+    switch ($filetype)
+    {
+      case "gif":
+        imagegif($buffer,$filename.".gif");
+        break;
+      case "png":
+        imagepng($buffer,$filename.".png");
+        break;
+      case "jpg":
+        imagejpg($buffer,$filename.".jpg");
+        break;
+    }
+    imagedestroy($buffer);
+  }
+  else
+  {
+    ob_start();
+    switch ($filetype)
+    {
+      case "gif":
+        imagegif($buffer);
+        break;
+      case "png":
+        imagepng($buffer);
+        break;
+      case "jpg":
+        imagejpg($buffer);
+        break;
+    }
+    $data=ob_get_contents();
+    ob_end_clean();
+    imagedestroy($buffer);
+    return $data;
+  }
+}
+
+#####################################################################################################
+
 function map_img($map_data,$filename="",$player_data="",$account="",$filetype="png")
 {
   if ($account=="")
@@ -1607,6 +1777,11 @@ function cycle_active($account)
 function find_path(&$path,$start,$finish)
 {
   global $map_data;
+  if (($start["x"]<0) or ($start["x"]>=$map_data["cols"]) or ($finish["x"]<0) or ($finish["x"]>=$map_data["cols"]) or ($start["y"]<0) or ($start["y"]>=$map_data["rows"]) or ($finish["y"]<0) or ($finish["y"]>=$map_data["rows"]))
+  {
+    irciv_privmsg("  error: invalid start or finish coordinate(s)");
+    return False;
+  }
 
 }
 

@@ -17,6 +17,8 @@ startup:~join #comments
   revive the comment submission script with ability to reply to a cid (get corresponding sid from mysql)
 */
 
+return;
+
 ini_set("display_errors","on");
 require_once("lib.php");
 require_once("lib_mysql.php");

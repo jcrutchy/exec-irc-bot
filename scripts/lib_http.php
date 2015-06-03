@@ -154,11 +154,12 @@ function get_host_and_uri($url,&$host,&$uri,&$port)
 
 #####################################################################################################
 
-function get_redirected_url($from_url,$url_list="",$last_loc="")
+function get_redirected_url($from_url,$url_list="",$last_loc="",$cookies="")
 {
   $url=trim($from_url);
   if ($url=="")
   {
+    term_echo("get_redirected_url: empty url");
     return False;
   }
   $comp=parse_url($url);
@@ -181,7 +182,7 @@ function get_redirected_url($from_url,$url_list="",$last_loc="")
   }
   if ($host=="")
   {
-    term_echo("redirect without host: ".$url);
+    term_echo("get_redirected_url: redirect without host: ".$url);
     return False;
   }
   $uri="/";
@@ -213,16 +214,53 @@ function get_redirected_url($from_url,$url_list="",$last_loc="")
   }
   if (($host=="") or ($uri==""))
   {
+    term_echo("get_redirected_url: empty host or uri");
     return False;
   }
+  $extra_headers="";
+  if (isset($cookies[$host])==True)
+  {
+    $cookie_strings=array();
+    foreach ($cookies[$host] as $key => $value)
+    {
+      $cookie_strings[]=$key."=".$value;
+    }
+    $extra_headers=array();
+    $extra_headers["Cookie"]=implode("; ",$cookie_strings);
+  }
   $breakcode="return (substr(\$response,strlen(\$response)-4)==\"\r\n\r\n\");";
-  $headers=wget($host,$uri,$port,ICEWEASEL_UA,"",10,$breakcode);
-  #var_dump($headers);
+  $headers=wget($host,$uri,$port,ICEWEASEL_UA,$extra_headers,10,$breakcode);
+  if (is_array($cookies)==True)
+  {
+    $new_cookies=exec_get_cookies($headers);
+    if (count($new_cookies)>0)
+    {
+      for ($i=0;$i<count($new_cookies);$i++)
+      {
+        $parts=explode("; ",$new_cookies[$i]);
+        $keyval=explode("=",$parts[0]);
+        if (count($keyval)>=2)
+        {
+          $key=$keyval[0];
+          array_shift($keyval);
+          $value=implode("=",$keyval);
+          $cookies[$host][$key]=$value;
+        }
+      }
+    }
+  }
   $loc_header=trim(exec_get_header($headers,"location",False));
   $location=$loc_header;
   if (($location=="") or ($location==$last_loc))
   {
-    return $url;
+    if (is_array($cookies)==False)
+    {
+      return $url;
+    }
+    else
+    {
+      return array("url"=>$url,"cookies"=>$cookies,"extra_headers"=>$extra_headers);
+    }
   }
   else
   {
@@ -232,8 +270,17 @@ function get_redirected_url($from_url,$url_list="",$last_loc="")
     }
     if (is_array($url_list)==True)
     {
-      if (in_array($location,$url_list)==True)
+      $n=0;
+      for ($i=0;$i<count($url_list);$i++)
       {
+        if ($url_list[$i]==$url_list)
+        {
+          $n++;
+        }
+      }
+      if ($n>1)
+      {
+        term_echo("get_redirected_url: redirected url already been visited twice");
         return False;
       }
       else
@@ -242,18 +289,25 @@ function get_redirected_url($from_url,$url_list="",$last_loc="")
         $list[]=$url;
         if (count($list)<6)
         {
-          return get_redirected_url($location,$list,$loc_header);
+          return get_redirected_url($location,$list,$loc_header,$cookies);
         }
         else
         {
-          return $url;
+          if (is_array($cookies)==False)
+          {
+            return $url;
+          }
+          else
+          {
+            return array("url"=>$url,"cookies"=>$cookies,"extra_headers"=>$extra_headers);
+          }
         }
       }
     }
     else
     {
       $list=array($url);
-      return get_redirected_url($location,$list,$loc_header);
+      return get_redirected_url($location,$list,$loc_header,$cookies);
     }
   }
 }
@@ -353,7 +407,8 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
       $headers=$headers.$key.": ".$value."\r\n";
     }
   }
-  $headers=$headers."Connection: Close\r\n\r\n";
+  #$headers=$headers."Connection: Close\r\n\r\n";
+  $headers=$headers."Connection: keep-alive\r\n\r\n";
   #var_dump($headers);
   fwrite($fp,$headers);
   $response="";

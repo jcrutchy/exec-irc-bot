@@ -102,6 +102,7 @@ function parse_xml($html)
     $item["title"]=replace_ctrl_chars($item["title"]," ");
     $item["title"]=str_replace("  "," ",$item["title"]);
     $url=str_replace("&amp;","&",strip_ctrl_chars(extract_raw_tag($parts[$i],"url")));
+    term_echo("*** raw story url: ".$url);
     $item["url"]=get_redirected_url($url);
     $item["timestamp"]=time();
     if (($item["title"]===False) or ($item["url"]===False))
