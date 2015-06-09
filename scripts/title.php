@@ -86,22 +86,20 @@ elseif ($alias=="~sizeof")
   $breakcode="return (strlen(\$response)>=2000000);";
   $response=wget($host,$uri,$port,ICEWEASEL_UA,$rd_extra_headers,20,$breakcode,256);
   $html=strip_headers($response);
-  if ($alias=="~sizeof")
+  $content_length=strlen($html);
+  if ($content_length>(1024*1024))
   {
-    if ($content_length>(1024*1024))
-    {
-      privmsg(chr(3)."13".(round($content_length/1024/1024,3))." Mb (downloaded)");
-    }
-    elseif ($content_length>1024)
-    {
-      privmsg(chr(3)."13".(round($content_length/1024,3))." kb (downloaded)");
-    }
-    else
-    {
-      privmsg(chr(3)."13".$content_length." bytes (downloaded)");
-    }
-    return;
+    privmsg(chr(3)."13".(round($content_length/1024/1024,3))." Mb (downloaded)");
   }
+  elseif ($content_length>1024)
+  {
+    privmsg(chr(3)."13".(round($content_length/1024,3))." kb (downloaded)");
+  }
+  else
+  {
+    privmsg(chr(3)."13".$content_length." bytes (downloaded)");
+  }
+  return;
 }
 elseif ($alias=="~title")
 {
