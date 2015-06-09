@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~feeds|890|0|0|1|crutchy||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~feeds-internal|890|900|0|1||INTERNAL|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~feeds|1750|0|0|1|crutchy||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~feeds-internal|1750|1800|0|1||INTERNAL|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~feed-list|5|0|0|1|||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 startup:~join #feeds
 */
@@ -12,8 +12,6 @@ startup:~join #feeds
 #####################################################################################################
 
 # TODO: FEED ITEM LIMIT PARAMETER FOR EACH FEED IN FEED LIST FILE
-
-return;
 
 require_once("lib.php");
 require_once("feeds_lib.php");

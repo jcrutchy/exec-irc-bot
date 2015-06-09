@@ -42,7 +42,7 @@ switch ($alias)
     return;
   case "~uid":
     $host="www.soylentnews.org";
-    $port=80;
+    $port=443;
     $uri="/zoo.pl?op=max";
     $response=wget($host,$uri,$port,ICEWEASEL_UA);
     $delim1="<p class='bender'>";
@@ -51,6 +51,11 @@ switch ($alias)
     if ($uid!==False)
     {
       privmsg($uid);
+    }
+    else
+    {
+      var_dump($response);
+      privmsg(" uid: an error occurred");
     }
     return;
   case "~comment":

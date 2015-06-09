@@ -91,6 +91,11 @@ if (isset($params["channel"])==False)
   $paramstr=$paramstr."&channel=".urlencode($dest);
 }
 
+if (isset($params["out"])==False)
+{
+  $paramstr=$paramstr."&out=irc-full";
+}
+
 if ($alias=="~log")
 {
   $uri="/s/soylent_log.php?".$paramstr;

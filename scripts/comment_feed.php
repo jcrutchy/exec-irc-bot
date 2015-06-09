@@ -17,8 +17,6 @@ startup:~join #comments
   revive the comment submission script with ability to reply to a cid (get corresponding sid from mysql)
 */
 
-return;
-
 ini_set("display_errors","on");
 require_once("lib.php");
 require_once("lib_mysql.php");
@@ -162,7 +160,7 @@ foreach ($filters as $id => $filter)
 
 $host="soylentnews.org";
 $feed_uri="/index.xml";
-$port=80;
+$port=443;
 
 $msg=chr(3)."08"."********** ".chr(3)."03".chr(2)."SOYLENTNEWS COMMENT FEED".chr(2).chr(3)."08"." **********";
 pm(MAIN_FEED_CHANNEL,$msg);

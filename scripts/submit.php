@@ -209,7 +209,7 @@ if ($nick<>"crutchy")
   return;
 } */
 
-$host="dev.soylentnews.org";
+$host="soylentnews.org";
 $port=443;
 $uri="/submit.pl";
 $response=wget($host,$uri,$port,ICEWEASEL_UA);

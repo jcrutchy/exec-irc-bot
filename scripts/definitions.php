@@ -34,7 +34,8 @@ exec:~define-source-delete|5|0|0|1|crutchy||||php scripts/definitions.php %%trai
 require_once("lib.php");
 $trailing=$argv[1];
 $alias=$argv[2];
-$debug=get_bucket("<<DEFINE_DEBUG>>");
+#$debug=get_bucket("<<DEFINE_DEBUG>>");
+$debug="";
 define("DEFINITIONS_FILE","../data/definitions");
 define("DEFINE_SOURCES_FILE","../data/define_sources");
 define("MAX_DEF_LENGTH",200);
