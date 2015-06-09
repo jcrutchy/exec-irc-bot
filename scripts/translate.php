@@ -10,6 +10,7 @@ exec:~translate-sl|10|0|0|0|||||php scripts/translate.php %%trailing%% %%alias%%
 #####################################################################################################
 
 require_once("lib.php");
+require_once("translate_lib.php");
 
 $trailing=$argv[1];
 $alias=$argv[2];
@@ -37,34 +38,15 @@ else
 array_shift($parts);
 $msg=implode(" ",$parts);
 
-translate($lang_from,$lang_to,$msg);
+$def=translate($lang_from,$lang_to,$msg);
 
-#####################################################################################################
-
-function translate($lang_from,$lang_to,$msg)
+if (strlen($def)>500)
 {
-  # https://translate.google.com/?sl=en&tl=es&js=n&ie=UTF-8&text=test (thanks to TheMightyBuzzard for URL)
-  $html=wget_ssl("translate.google.com","/?sl=".urlencode($lang_from)."&tl=".urlencode($lang_to)."&js=n&ie=UTF-8&text=".urlencode($msg));
-  $html=strip_headers($html);
-  strip_all_tag($html,"head");
-  #strip_all_tag($html,"script");
-  strip_all_tag($html,"style");
-  strip_all_tag($html,"a");
-  $html=strip_tags($html,"<div>");
-  $delim1="TRANSLATED_TEXT='";
-  $delim2="';";
-  $i=strpos($html,$delim1)+strlen($delim1);
-  $html=substr($html,$i);
-  $i=strpos($html,$delim2);
-  $def=trim(substr($html,0,$i));
-  if (strlen($def)>500)
-  {
-    $def=substr($def,0,500)."...";
-  }
-  if ($def<>"")
-  {
-    privmsg("[google translate] $msg ($lang_from -> $lang_to): $def");
-  }
+  $def=substr($def,0,500)."...";
+}
+if ($def<>"")
+{
+  privmsg("[google translate] $msg ($lang_from -> $lang_to): $def");
 }
 
 #####################################################################################################

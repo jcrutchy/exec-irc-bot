@@ -14,6 +14,12 @@ if (isset($_GET["stats"])==True)
   return;
 }
 
+if (isset($_GET["execfs"])==True)
+{
+  require_once(__DIR__."/execfs.inc");
+  return;
+}
+
 if (isset($_GET["karma"])==True)
 {
   require_once(__DIR__."/karma.inc");

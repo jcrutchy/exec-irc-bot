@@ -3,17 +3,17 @@
 
 #include ./scripts/php.php
 include ./scripts/bucket.php
-include ./scripts/sed.php
+#include ./scripts/sed.php
 include ./scripts/part.php
 include ./scripts/join.php
 #include ./scripts/admin.php
-include ./scripts/definitions.php
+#include ./scripts/definitions.php
 #include ./scripts/help.php
 #include ./scripts/users.php
 #include ./scripts/say.php
 include ./scripts/time.php
-include ./scripts/weather.php
-#include ./scripts/title.php
+#include ./scripts/weather.php
+include ./scripts/title.php
 #include ./scripts/isup.php
 include ./scripts/translate.php
 #include ./scripts/rainbow.php
@@ -21,7 +21,7 @@ include ./scripts/quit.php
 #include ./scripts/link.php
 #include ./scripts/ircd.php
 
-~epoch-feed|280|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#~epoch-feed|280|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 #~cowsay|10|0|1|0|||||cowsay %%trailing%%
 #~moo|10|0|1|1|||||apt-get moo
