@@ -15,28 +15,33 @@ require_once("translate_lib.php");
 $trailing=$argv[1];
 $alias=$argv[2];
 
-$parts=explode(" ",$trailing);
-if (count($parts)<2)
+if ($trailing=="")
 {
-  privmsg("syntax: ~translate <larget-lang> <msg>");
-  privmsg("eg (translate \"test\" from English to Spanish): ~translate es test");
-  privmsg("see also: ~translate-sl <source-lang> <larget-lang> <msg>");
-  privmsg("eg (translate \"test\" from Spanish to English): ~translate-sl es en prueba");
+  privmsg("syntax: ~translate <msg>");
+  privmsg("        ~translate-sl <source-lang> <larget-lang> <msg>");
   return;
 }
+
 if ($alias=="~translate")
 {
   $lang_from="auto";
-  $lang_to=$parts[0];
+  $lang_to="en";
+  $msg=$trailing;
 }
 else
 {
+  $parts=explode(" ",$trailing);
+  if (count($parts)<3)
+  {
+    privmsg("  translate-sl error: insufficient parameters");
+    return;
+  }
   $lang_from=$parts[0];
   $lang_to=$parts[1];
   array_shift($parts);
+  array_shift($parts);
+  $msg=implode(" ",$parts);
 }
-array_shift($parts);
-$msg=implode(" ",$parts);
 
 $def=translate($lang_from,$lang_to,$msg);
 
