@@ -4,12 +4,12 @@
 
 /*
 exec:~github-list|60|0|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~github-feed|570|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~github-feed|1700|1800|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~slashcode-issue|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~slashcode-find|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~rehash-issue|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~exec-issue|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-#exec:~epoch-feed|570|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#exec:~epoch-feed|1700|1800|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 startup:~join #github
 */
 
@@ -18,6 +18,8 @@ startup:~join #github
 ini_set("display_errors","on");
 date_default_timezone_set("UTC");
 require_once("lib.php");
+
+define("TIME_LIMIT_SEC",1800); # 30 mins
 
 $trailing=$argv[1];
 $dest=$argv[2];
@@ -149,7 +151,6 @@ else
 
 sort($list,SORT_STRING+SORT_FLAG_CASE);
 
-define("TIME_LIMIT_SEC",600); # 10 mins
 define("CREATE_TIME_FORMAT","Y-m-d H:i:s ");
 
 if ($alias=="~github-list")

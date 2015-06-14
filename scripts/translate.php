@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~translate|10|0|0|0|||||php scripts/translate.php %%trailing%% %%alias%%
-exec:~translate-sl|10|0|0|0|||||php scripts/translate.php %%trailing%% %%alias%%
+exec:~translate|10|0|0|1|||||php scripts/translate.php %%trailing%% %%alias%%
+exec:~translate-sl|10|0|0|1|||||php scripts/translate.php %%trailing%% %%alias%%
 */
 
 #####################################################################################################

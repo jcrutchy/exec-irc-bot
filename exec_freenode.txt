@@ -1,8 +1,10 @@
 *|10|0|0|1|||||php scripts/cmd.php %%items%%
 <quit>|10|0|0|1|||||php scripts/quit.php
 
+include ./scripts/about.php
 #include ./scripts/php.php
 include ./scripts/bucket.php
+include ./scripts/convert.php
 #include ./scripts/sed.php
 include ./scripts/part.php
 include ./scripts/join.php
