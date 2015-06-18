@@ -3,7 +3,7 @@
 #####################################################################################################
 
 /*
-exec:~define|30|0|0|0|||||php scripts/definitions.php %%trailing%% %%alias%%
+exec:~define|60|0|0|0|||||php scripts/definitions.php %%trailing%% %%alias%%
 exec:~define-list|60|0|0|1|crutchy||||php scripts/definitions.php %%trailing%% %%alias%%
 exec:~define-add|10|0|0|0|||||php scripts/definitions.php %%trailing%% %%alias%%
 exec:~define-delete|10|0|0|0|||||php scripts/definitions.php %%trailing%% %%alias%%
@@ -39,50 +39,79 @@ $debug="";
 define("DEFINITIONS_FILE","../data/definitions");
 define("DEFINE_SOURCES_FILE","../data/define_sources");
 define("MAX_DEF_LENGTH",200);
+$sources=array(
+  "en.wikipedia.org"=>array(
+    "name"=>"wikipedia",
+    "port"=>80,
+    "uri"=>"/wiki/%%term%%",
+    "template"=>"%%term%%",
+    "get_param"=>"wiki/",
+    "order"=>2,
+    "delim_start"=>"<p>",
+    "delim_end"=>"</p>",
+    "ignore"=>"Other reasons this message may be displayed:",
+    "space_delim"=>"_"),
+  "www.urbandictionary.com"=>array(
+    "name"=>"urbandictionary",
+    "port"=>80,
+    "uri"=>"/define.php?term=%%term%%",
+    "template"=>"%%term%%",
+    "get_param"=>"term=",
+    "order"=>1,
+    "delim_start"=>"<div class='meaning'>",
+    "delim_end"=>"</div>",
+    "ignore"=>"",
+    "space_delim"=>""));
 if (file_exists(DEFINE_SOURCES_FILE)==False)
 {
-  # if you add/remove elements from this array you need to delete (or amend) the define_sources file in the data path of whatever machine exec is running on
-  $sources=array(
-    "en.wikipedia.org"=>array(
-      "name"=>"wikipedia",
-      "port"=>80,
-      "uri"=>"/wiki/%%term%%",
-      "template"=>"%%term%%",
-      "get_param"=>"wiki/",
-      "order"=>2,
-      "delim_start"=>"<p>",
-      "delim_end"=>"</p>",
-      "ignore"=>"Other reasons this message may be displayed:",
-      "space_delim"=>"_"),
-    "www.wolframalpha.com"=>array(
-      "name"=>"wolframalpha",
-      "port"=>80,
-      "uri"=>"/input/?i=define%3A%%term%%",
-      "template"=>"%%term%%",
-      "get_param"=>"i=define%3A",
-      "order"=>3,
-      "delim_start"=>"context.jsonArray.popups.pod_0200.push( {\"stringified\": \"",
-      "delim_end"=>"\",\"mInput\": \"\",\"mOutput\": \"\", \"popLinks\": {} });",
-      "ignore"=>"",
-      "space_delim"=>""),
-    "www.urbandictionary.com"=>array(
-      "name"=>"urbandictionary",
-      "port"=>80,
-      "uri"=>"/define.php?term=%%term%%",
-      "template"=>"%%term%%",
-      "get_param"=>"term=",
-      "order"=>1,
-      "delim_start"=>"<div class='meaning'>",
-      "delim_end"=>"</div>",
-      "ignore"=>"",
-      "space_delim"=>""));
+  term_echo("*** DEFINITIONS ERROR: DEFINE SOURCES FILE NOT FOUND");
 }
 else
 {
-  $sources=unserialize(file_get_contents(DEFINE_SOURCES_FILE));
+  $data=file_get_contents(DEFINE_SOURCES_FILE);
+  if ($data===False)
+  {
+    term_echo("*** DEFINITIONS ERROR: UNABLE TO READ DEFINE SOURCES FILE CONTENTS");
+  }
+  else
+  {
+    $data=unserialize($data);
+    if ($data===False)
+    {
+      term_echo("*** DEFINITIONS ERROR: DEFINE SOURCES FILE CONTAINS INVALID SERIALIZED ARRAY DATA");
+    }
+    else
+    {
+      $sources=$data;
+    }
+  }
 }
 reorder($sources);
-$terms=unserialize(file_get_contents(DEFINITIONS_FILE));
+$terms=array();
+if (file_exists(DEFINITIONS_FILE)==False)
+{
+  term_echo("*** DEFINITIONS ERROR: DEFINITIONS FILE NOT FOUND");
+}
+else
+{
+  $data=file_get_contents(DEFINITIONS_FILE);
+  if ($data===False)
+  {
+    term_echo("*** DEFINITIONS ERROR: UNABLE TO READ DEFINITIONS FILE CONTENTS");
+  }
+  else
+  {
+    $data=unserialize($data);
+    if ($data===False)
+    {
+      term_echo("*** DEFINITIONS ERROR: DEFINITIONS FILE CONTAINS INVALID SERIALIZED ARRAY DATA");
+    }
+    else
+    {
+      $terms=$data;
+    }
+  }
+}
 switch($alias)
 {
   case "~define-count":
@@ -286,7 +315,8 @@ function source_define($host,$term,$params)
     $sterm=str_replace(" ",$params["space_delim"],$sterm);
   }
   $uri=str_replace($params["template"],urlencode($sterm),$params["uri"]);
-  $response=wget($host,$uri,$params["port"]);
+  term_echo("*** DEFINE: trying $host$uri on port ".$params["port"]);
+  $response=wget($host,$uri,$params["port"],ICEWEASEL_UA,"",20);
   $html=strip_headers($response);
   $html=replace_ctrl_chars($html," ");
   strip_all_tag($html,"head");

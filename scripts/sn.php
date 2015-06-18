@@ -6,7 +6,7 @@
 #exec:~comment|30|0|0|1|crutchy||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~verifier-nick-change|30|0|0|1||INTERNAL|||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~verifier-nick|30|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~funding|30|900|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~funding|150|900|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~queue|15|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~uid|15|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~sn-internal|15|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
@@ -228,7 +228,7 @@ switch ($alias)
     $host="soylentnews.org";
     $host_g="google.com";
     $uri="/";
-    $port=80;
+    $port=443;
     $response=wtouch($host,$uri,$port,120);
     $response_g=wtouch($host_g,$uri,$port,120);
     if (($response===False) and ($response_g!==False))
