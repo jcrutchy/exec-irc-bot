@@ -11,6 +11,9 @@ init:~title-internal register-events
 
 #####################################################################################################
 
+# TODO: PICK UP ON www. LINKS THAT OMIT A SCHEME PREFIX (ASSUME HTTP)
+# TODO: META HTTP-EQUIV=REFRESH URL REDIRECTS
+
 require_once("lib.php");
 require_once("title_lib.php");
 require_once("translate_lib.php");
