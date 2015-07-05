@@ -423,7 +423,7 @@ function output($record,$msg,$show_filter=True)
             $msg="[".$filter["id"]."] ".$msg;
           }
           pm($filter["target"],$msg);
-          break;
+          return;
         }
       }
       while ($parent_cid<>"");
@@ -434,17 +434,23 @@ function output($record,$msg,$show_filter=True)
       {
         return;
       }
-      if ($show_filter==True)
-      {
-        $msg="[".$filter["id"]."] ".$msg;
-      }
       if ($record[$filter["field"]]==$filter["pattern"])
       {
+        if ($show_filter==True)
+        {
+          $msg="[".$filter["id"]."] ".$msg;
+        }
         pm($filter["target"],$msg);
+        return;
       }
       elseif (preg_match("#".trim($filter["pattern"])."#",$record[$filter["field"]])==1)
       {
+        if ($show_filter==True)
+        {
+          $msg="[".$filter["id"]."] ".$msg;
+        }
         pm($filter["target"],$msg);
+        return;
       }
     }
   }
