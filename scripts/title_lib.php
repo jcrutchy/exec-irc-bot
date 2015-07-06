@@ -40,8 +40,16 @@ function title_privmsg($trailing,$channel)
       }
       $out[]=$msg;
     }
+    else
+    {
+      term_echo("  title: get_raw_title returned false");
+    }
   }
   $n=count($out);
+  if ($n==0)
+  {
+    term_echo("  title: no titles to output");
+  }
   for ($i=0;$i<$n;$i++)
   {
     if ($i==($n-1))
@@ -78,6 +86,7 @@ function get_raw_title($redirect_data)
   $title=trim(html_decode($title));
   if ($title=="")
   {
+    term_echo("  get_raw_title: title is empty");
     return False;
   }
   return $title;

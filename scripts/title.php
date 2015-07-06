@@ -135,7 +135,7 @@ elseif ($alias=="~title")
     $redirect_data=get_redirected_url($trailing,"","",array());
     if ($redirect_data===False)
     {
-      term_echo("get_redirected_url=false");
+      term_echo("  title: get_redirected_url=false");
       return;
     }
     $rd_url=$redirect_data["url"];
@@ -153,6 +153,10 @@ elseif ($alias=="~title")
         $msg=$msg." - ".chr(3)."03".$rd_url;
       }
       privmsg($msg);
+    }
+    else
+    {
+      term_echo("  title: get_raw_title returned false");
     }
   }
 }

@@ -186,6 +186,7 @@ function get_redirected_url($from_url,$url_list="",$last_loc="",$cookies="")
     term_echo("get_redirected_url: empty url");
     return False;
   }
+  #term_echo("  get_redirected_url: $url");
   $comp=parse_url($url);
   $host="";
   if (isset($comp["host"])==False)
@@ -274,6 +275,7 @@ function get_redirected_url($from_url,$url_list="",$last_loc="",$cookies="")
       }
     }
   }
+  #var_dump($response);
   $loc_header=trim(exec_get_header($response,"location",False));
   $location=$loc_header;
 
@@ -435,8 +437,8 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
       $headers=$headers.$key.": ".$value."\r\n";
     }
   }
-  #$headers=$headers."Connection: Close\r\n\r\n";
-  $headers=$headers."Connection: keep-alive\r\n\r\n";
+  $headers=$headers."Connection: Close\r\n\r\n";
+  #$headers=$headers."Connection: keep-alive\r\n\r\n";
   #var_dump($headers);
   fwrite($fp,$headers);
   $response="";
