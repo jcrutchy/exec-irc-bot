@@ -4,18 +4,31 @@
 
 function title_privmsg($trailing,$channel)
 {
-  $list=explode("http",$trailing);
-  array_shift($list);
-  for ($i=0;$i<count($list);$i++)
+  $list_http=explode("http://",$trailing);
+  array_shift($list_http);
+  for ($i=0;$i<count($list_http);$i++)
   {
-    $parts=explode(" ",$list[$i]);
-    $list[$i]="http".$parts[0];
-    if ((substr($list[$i],0,7)<>"http://") and (substr($list[$i],0,8)<>"https://"))
+    $parts=explode(" ",$list_http[$i]);
+    $list_http[$i]="http://".$parts[0];
+    if (substr($list_http[$i],0,7)<>"http://")
     {
-      unset($list[$i]);
+      unset($list_http[$i]);
     }
   }
-  $list=array_values($list);
+  $list_http=array_values($list_http);
+  $list_https=explode("https://",$trailing);
+  array_shift($list_https);
+  for ($i=0;$i<count($list_https);$i++)
+  {
+    $parts=explode(" ",$list_https[$i]);
+    $list_https[$i]="https://".$parts[0];
+    if (substr($list_https[$i],0,8)<>"https://")
+    {
+      unset($list_https[$i]);
+    }
+  }
+  $list_https=array_values($list_https);
+  $list=array_merge($list_http,$list_https);
   $out=array();
   for ($i=0;$i<min(4,count($list));$i++)
   {
@@ -79,7 +92,9 @@ function get_raw_title($redirect_data)
     return False;
   }
   $breakcode="return ((strpos(strtolower(\$response),\"</title>\")!==False) or (strlen(\$response)>=10000));";
+  #$breakcode="";
   $response=wget($host,$uri,$port,ICEWEASEL_UA,$rd_extra_headers,20,$breakcode,256);
+  #var_dump($response);
   $html=strip_headers($response);
   $title=extract_raw_tag($html,"title");
   $title=html_decode($title);
