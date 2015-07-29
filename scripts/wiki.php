@@ -48,68 +48,38 @@ if ($alias=="~wiki-privmsg")
   }
   $delim1="[[";
   $delim2="]]";
-  if (substr($trailing,0,strlen($delim1))==$delim1)
+  $parts=explode($delim1,$trailing);
+  array_shift($parts);
+  for ($i=0;$i<count($parts);$i++)
   {
-    $parts=explode($delim2,substr($trailing,strlen($delim1)));
-    if (count($parts)<>2)
-    {
-      return;
-    }
+    $subparts=explode($delim2,$parts[$i]);
+    $linkstr=$subparts[0];
     $section="";
-    $params=explode("|",$parts[0]);
+    $params=explode("|",$linkstr);
     $title=$params[0];
+    $section="";
     if (count($params)==2)
     {
       $section=$params[1];
     }
-    $params=explode("#",$parts[0]);
-    if (count($params)==2)
+    else
     {
-      $title=$params[0];
-      $section=$params[1];
+      $params=explode("#",$linkstr);
+      if (count($params)==2)
+      {
+        $title=$params[0];
+        $section=$params[1];
+      }
     }
     $result=get_text($title,$section,True,True);
     if ($result!==False)
     {
       if (count($result)>=2)
       {
-        privmsg(chr(3)."13".$result[0]);
-        privmsg(chr(3)."02".$result[count($result)-1]);
+        privmsg("  ".chr(3)."03".$linkstr.chr(3)." => ".chr(3)."13".$result[0]);
+        privmsg("  └─ ".chr(3)."02".$result[count($result)-1]);
       }
     }
-  }
-  elseif ((strpos($trailing,$delim1)!==False) and (strpos($trailing,$delim2)!==False))
-  {
-    /*$i=strpos($trailing,$delim1);
-    $j=strpos($trailing,$delim2);
-    if ($i<$j)
-    {
-      $link=substr($trailing,$i+strlen($delim1),$j-$i-strlen($delim2));
-      $section="";
-      $params=explode("|",$link);
-      $title=$params[0];
-      if (count($params)==2)
-      {
-        $section=$params[1];
-      }
-      $params=explode("#",$link);
-      if (count($params)==2)
-      {
-        $title=$params[0];
-        $section=$params[1];
-      }
-      $title=str_replace(" ","_",$title);
-      $url="http://wiki.soylentnews.org/wiki/".urlencode($title);
-      if ($section<>"")
-      {
-        $section=str_replace(" ","_",$section);
-        $section=str_replace("~",".7E",$section);
-        $section=str_replace("(",".28",$section);
-        $section=str_replace(")",".29",$section);
-        $url=$url."#$section";
-      }
-      privmsg(chr(3)."13".$url);
-    }*/
   }
   return;
 }

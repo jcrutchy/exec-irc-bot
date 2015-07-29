@@ -5,7 +5,7 @@ include ./scripts/about.php
 #include ./scripts/php.php
 include ./scripts/bucket.php
 include ./scripts/convert.php
-#include ./scripts/sed.php
+include ./scripts/sed.php
 include ./scripts/part.php
 include ./scripts/join.php
 #include ./scripts/admin.php
