@@ -202,8 +202,8 @@ switch ($alias)
     sn_logout();
     return;
   case "~queue":
-    $host="www.soylentnews.org";
-    $port=80;
+    $host="soylentnews.org";
+    $port=443;
     $extra_headers=array();
     $extra_headers["Cookie"]=sn_login();
     $uri="/submit.pl?op=list";
