@@ -1615,7 +1615,7 @@ function script_event_handlers($cmd,&$items)
 
 #####################################################################################################
 
-function handle_data($data,$is_sock=False,$auth=False,$exec=False)
+function handle_data($data,$is_sock=False,$auth=False,$exec=False,$piped_commands="")
 {
   global $buckets;
   global $alias_locks;
@@ -1988,7 +1988,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         }
         break;
       default:
-        process_scripts($items); # execute scripts occurring for a specific alias
+        process_scripts($items,"",$piped_commands); # execute scripts occurring for a specific alias
         process_scripts($items,ALIAS_ALL); # process scripts occuring for every line (* alias)
     }
   }
@@ -2379,7 +2379,7 @@ function construct_mask($items)
 
 #####################################################################################################
 
-function process_scripts($items,$reserved="")
+function process_scripts($items,$reserved="",$piped_commands="")
 {
   global $handles;
   global $exec_list;
@@ -2423,11 +2423,21 @@ function process_scripts($items,$reserved="")
   }
   if (isset($exec_list[$alias])==False)
   {
-    # handle piped commands here
-    $piped_commands=explode("|",$trailing);
-    # need to look at way of mapping stdout handle of one process directly to stdin of another
-    # try using proc_open descriptorspec argument
-    # http://php.net/manual/en/function.proc-open.php
+    if ($piped_commands==="")
+    {
+      # handle piped commands here
+      # example: ~time | ~rainbow | ~cowsay (output of ~time is fed as input for ~rainbow, and the output of ~rainbow is fed as input for ~cowsay)
+      $piped_commands=explode("|",$trailing);
+      $n=count($piped_commands);
+      if ($n>1)
+      {
+        for ($i=0;$i<$n;$i++)
+        {
+          $data=":".$items["prefix"]." ".$items["cmd"]." ".$items["params"]." :".$piped_commands[$i];
+          handle_data($data,False,False,False,$piped_commands);
+        }
+      }
+    }
     return;
   }
   if (count($exec_list[$alias]["cmds"])>0)
