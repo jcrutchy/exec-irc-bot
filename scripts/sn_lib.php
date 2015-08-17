@@ -36,12 +36,12 @@ function sn_login()
   }
   if ($login_cookie=="")
   {
-    term_echo("slash-test error: login failure");
+    privmsg("error: login failure");
     sn_logout();
   }
   $parts=explode(";",$login_cookie);
   $cookie_user=trim($parts[0]);
-  # term_echo("*** SN USER COOKIE = \"$cookie_user\""); # << THERE SEEMS TO BE ABOUT A 30 MINUTE CYCLE TIME FOR COOKIE VALUES
+  term_echo("*** SN USER COOKIE = \"$cookie_user\""); # << THERE SEEMS TO BE ABOUT A 30 MINUTE CYCLE TIME FOR COOKIE VALUES
   return $cookie_user;
 }
 
@@ -62,10 +62,10 @@ function sn_logout()
 function sn_comment($subject,$comment_body,$sd_key_sid,$parent_cid="")
 {
   $article_sid=sn_get_sid($sd_key_sid);
-  privmsg("article_sid = ".$article_sid);
+  #privmsg("article_sid = ".$article_sid);
   if ($article_sid===False)
   {
-    privmsg("slash-test error: sn_get_sid returned false");
+    privmsg("error: sn_get_sid returned false");
     return False;
   }
   return sn_comment_sid($subject,$comment_body,$article_sid,$parent_cid);
@@ -92,7 +92,7 @@ function sn_comment_sid($subject,$comment_body,$article_sid,$parent_cid="")
   $extra_headers["Cookie"]=sn_login();
   if ($extra_headers["Cookie"]=="")
   {
-    term_echo("slash-test error: login failure (2)");
+    privmsg("error: login failure (2)");
     return False;
   }
   $response=wget($host,$uri,$port,ICEWEASEL_UA,$extra_headers);
@@ -102,7 +102,7 @@ function sn_comment_sid($subject,$comment_body,$article_sid,$parent_cid="")
   $formkey=extract_text($html,$delim1,$delim2);
   if ($formkey===False)
   {
-    term_echo("slash-test error: unable to get formkey");
+    privmsg("error: unable to get formkey");
     sn_logout();
     return False;
   }
@@ -131,18 +131,31 @@ function sn_comment_sid($subject,$comment_body,$article_sid,$parent_cid="")
   {
     privmsg("SoylentNews requires you to wait between each successful posting of a comment to allow everyone a fair chance at posting.");
   }
-  $delim="start template: ID 274";
+  $delim="This exact comment has already been posted.";
   if (strpos($html,$delim)!==False)
   {
     privmsg("This exact comment has already been posted. Try to be more original.");
   }
-  $delim="start template: ID 180";
+  $delim="Comment Submitted. There will be a delay before the comment becomes part of the static page.";
   if (strpos($html,$delim)!==False)
   {
-    privmsg("Comment submitted successfully. There will be a delay before the comment becomes part of the static page.");
-    $result=True;
+    $result=array();
+    $delim1="<input type=\"hidden\" name=\"sid\" value=\"";
+    $delim2="\">";
+    $result["sid"]=extract_text($html,$delim1,$delim2);
+    $delim1="<input type=\"hidden\" name=\"cid\" value=\"";
+    $result["cid"]=extract_text($html,$delim1,$delim2);
+    $delim1="<input type=\"hidden\" name=\"pid\" value=\"";
+    $result["pid"]=extract_text($html,$delim1,$delim2); # if pid=cid, then comment is at root level
+    $delim1="<div id=\"comment_body_".$result["cid"]."\">";
+    $delim2="</div>";
+    $result["body"]=extract_text($html,$delim1,$delim2);
+    $delim1="<a name=\"".$result["cid"]."\">";
+    $delim2="</a>";
+    $result["subject"]=extract_text($html,$delim1,$delim2);
+    privmsg("  comment submitted successfully => https://".$host."/comments.pl?sid=".$result["sid"]."&cid=".$result["cid"]);
   }
-  var_dump($html);
+  #var_dump($html);
   sn_logout();
   return $result;
 }

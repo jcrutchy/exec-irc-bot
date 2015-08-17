@@ -568,8 +568,8 @@ function handle_reader_stdout_command($handle,$prefix)
         $data["type"]="reader_exec_list";
         $data["buf"]=$exec_data;
         $data["time"]=microtime(True);
-        write_out_buffer($data);   
-      }   
+        write_out_buffer($data);
+      }
       return;
     case PREFIX_READER_BUCKETS:
       foreach ($buckets as $index => $value)
@@ -591,7 +591,7 @@ function handle_reader_stdout_command($handle,$prefix)
         $data["time"]=microtime(True);
         write_out_buffer($data);
       }
-      return;          
+      return;
   }
 }
 
@@ -1693,6 +1693,38 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False,$piped_command
       }
     }
     $alias=$args[0];
+    if ($piped_commands==="")
+    {
+      # handle piped commands here
+      # example: ~time | ~rainbow | ~cowsay (output of ~time is fed as input for ~rainbow, and the output of ~rainbow is fed as input for ~cowsay)
+      $commands=explode("|",$items["trailing"]);
+      $n=count($commands);
+      for ($i=0;$i<$n;$i++)
+      {
+        $commands[$i]=ltrim($commands[$i]);
+        if ($commands[$i]=="")
+        {
+          unset($commands[$i]);
+          continue;
+        }
+        if (substr($commands[$i],0,1)<>"~")
+        {
+          unset($commands[$i]);
+          continue;
+        }
+      }
+      $commands=array_values($commands);
+      $n=count($commands);
+      if ($n>1)
+      {
+        for ($i=0;$i<$n;$i++)
+        {
+          $data=":".$items["prefix"]." ".$items["cmd"]." ".$items["params"]." :".$commands[$i]."\n";
+          handle_data($data,False,False,False,$commands);
+        }
+        return;
+      }
+    }
     handle_events($items);
     switch ($alias)
     {
@@ -2386,6 +2418,7 @@ function process_scripts($items,$reserved="",$piped_commands="")
   global $alias_locks;
   global $reserved_aliases;
   global $bucket_locks;
+  global $events_pause;
   if ($items===False)
   {
     return;

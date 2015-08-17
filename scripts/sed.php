@@ -5,43 +5,7 @@
 /*
 exec:~sed-internal|10|0|0|1||INTERNAL|||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
 exec:~sed|10|0|0|0|||||php scripts/sed.php %%trailing%% %%nick%% %%dest%% %%alias%% %%cmd%%
-#exec:~sedbot-ii|0|0|0|1|crutchy||||ii -s irc.sylnt.us -p 6667 -n SedBot2 -f SedBot2
-#exec:~sedbot-cmd|0|0|0|1|crutchy||||echo %%trailing%% > ~/irc/irc.sylnt.us/in
-#exec:~sedbot-awk1|0|0|0|1|crutchy||||tail -Fn1 /home/jared/irc/irc.sylnt.us/#soylent/out | /home/jared/sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#soylent/in
-#exec:~sedbot-awk2|0|0|0|1|crutchy||||tail -Fn1 /home/jared/irc/irc.sylnt.us/##/out | /home/jared/sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/##/in
-#exec:~sedbot-awk3|0|0|0|1|crutchy||||tail -Fn1 /home/jared/irc/irc.sylnt.us/#test/out | /home/jared/sedbot.awk outfile=/home/jared/irc/irc.sylnt.us/#test/in
-#exec:~sedbot-tail0|0|0|0|1|crutchy||||tail -Fn1 ~/irc/irc.sylnt.us/out
-#exec:~sedbot-tail1|0|0|0|1|crutchy||||tail -Fn1 ~/irc/irc.sylnt.us/#soylent/out
-#exec:~sedbot-tail2|0|0|0|1|crutchy||||tail -Fn1 ~/irc/irc.sylnt.us/##/out
-#exec:~sedbot-tail3|0|0|0|1|crutchy||||tail -Fn1 ~/irc/irc.sylnt.us/#test/out
-#exec:~sedbot-talk1|0|0|0|0|crutchy||||echo %%trailing%% > ~/irc/irc.sylnt.us/#soylent/in
-#exec:~sedbot-talk2|0|0|0|0|crutchy||||echo %%trailing%% > ~/irc/irc.sylnt.us/##/in
-#exec:~sedbot-talk3|0|0|0|0|crutchy||||echo %%trailing%% > ~/irc/irc.sylnt.us/#test/in
 */
-
-#####################################################################################################
-
-/*
-<crutchy> c++
-<Bender> karma - c: 0
-<crutchy> s/c+/p/
-<exec> <crutchy> p++
-<crutchy> that's weird
-
-jared@debian:~$ echo "so i think i'm going C++ for awhile" | sed -e "s/C++/pascal/"
-so i think i'm going pascal for awhile
-
-jared@debian:~$ echo "so i think i'm going C++ for awhile" | sed -e "s/C+/pascal/"
-so i think i'm going pascal+ for awhile
-
-<crutchy> C++
-<Bender> karma - c: 26
-<crutchy> s/C\+\+/pascal/
-<exec> <crutchy> pascal
-<crutchy> works if i escape them manually at least
-*/
-
-# TODO: s/foo/bar/# where # is a number representing the #'th instance
 
 #####################################################################################################
 
@@ -53,6 +17,10 @@ $nick=$argv[2];
 $dest=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];
+
+#return;
+
+# EXPLOIT FOUND (17/05/2015): s/.*/ls/e executes an 'ls' command; s/.*/ps/e executes an 'ps' command. touch doesn't seem to work, but need to prevent the use of /e (or use awk/perl)
 
 $delims=array("/","#"); # cannot be alphanumeric or \
 
@@ -81,13 +49,9 @@ switch ($flag)
     # bot parted channel
     return;
   case 7:
-    for ($i=0;$i<count($delims);$i++)
+    if (shell_sed($msg,$nick,$dest)==True)
     {
-      if (sed($msg,$nick,$dest,$delims[$i])==True)
-      #if (shell_sed($msg,$nick,$dest,$delims[$i])==True)
-      {
-        return;
-      }
+      return;
     }
     break;
   case 8:
@@ -102,146 +66,97 @@ set_bucket("last_".strtolower($nick)."_".strtolower($dest),$msg);
 
 #####################################################################################################
 
-/*function shell_sed($trailing,$nick,$dest,$delim="/")
+function shell_sed($trailing,$nick,$dest)
 {
-  $parts=explode("s".$delim,$trailing);
-  if (count($parts)<2)
+  # [nick[:|,|>|.] ]sed_cmd
+  global $delims;
+  $trailing=trim($trailing);
+  if (trim($trailing)=="")
   {
     return False;
   }
-  $sed_nick=
-  # sed -f expression.txt message.txt
-  # nick: s
-  # nick, s
-  # delims can be / or # (cannot be alphanumeric or \)
-  # return true on successful sed replacement (after privmsg), otherwise false
-}*/
-
-#####################################################################################################
-
-function sed($trailing,$nick,$dest,$delim="/")
-{
-  # [nick[:|,|>|.] ]s/pattern/replace[/[g]]
-  $replace_all=False;
-  if (substr(strtolower($trailing),strlen($trailing)-2)==($delim."g"))
+  if (strtolower(substr($trailing,strlen($trailing)-2))=="/e")
   {
-    $trailing=substr($trailing,0,strlen($trailing)-2);
-    $replace_all=True;
+    die;
   }
-  if (substr($trailing,strlen($trailing)-1)==$delim)
+  $parts=explode(" ",$trailing);
+  $sed_nick="";
+  if (count($parts)>1)
   {
-    $trailing=substr($trailing,0,strlen($trailing)-1);
+    $sed_nick=$parts[0];
+    if (strpos(":,>.",substr($sed_nick,strlen($sed_nick)-1))!==False)
+    {
+      $sed_nick=substr($sed_nick,0,strlen($sed_nick)-1);
+    }
+    array_shift($parts);
   }
-  # [nick[:|,|>|.] ]s/pattern/replace
-  $trailing=str_replace("\\\\","\nB\n",$trailing);
-  $trailing=str_replace("\/","\nF\n",$trailing);
-  $parts=explode($delim,$trailing);
-  if (count($parts)==3)
+  if ($sed_nick=="")
   {
-    $start=ltrim($parts[0]);
-    if (trim($start)=="")
+    $sed_nick=$nick;
+  }
+  $sed_cmd=implode(" ",$parts);
+  if (strlen($sed_cmd)<5)
+  {
+    return False;
+  }
+  if (strtolower($sed_cmd[0])<>"s")
+  {
+    return False;
+  }
+  if (in_array($sed_cmd[1],$delims)==False)
+  {
+    return False;
+  }
+  $index="last_".strtolower($sed_nick)."_".strtolower($dest);
+  $last=get_bucket($index);
+  if ($last=="")
+  {
+    return False;
+  }
+  $action_delim=chr(1)."ACTION ";
+  if (strtoupper(substr($last,0,strlen($action_delim)))==$action_delim)
+  {
+    $last=trim(substr($last,strlen($action_delim)),chr(1));
+  }
+  #$command="echo ".escapeshellarg($last)." | sed -e --posix ".escapeshellarg($sed_cmd);
+  $command="echo ".escapeshellarg($last)." | sed -e ".escapeshellarg($sed_cmd);
+  var_dump($command);
+  $cwd=NULL;
+  $env=NULL;
+  $descriptorspec=array(0=>array("pipe","r"),1=>array("pipe","w"),2=>array("pipe","w"));
+  $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
+  $result=trim(stream_get_contents($pipes[1]));
+  $result_lines=explode("\n",$result);
+  var_dump($result_lines);
+  if (count($result_lines)>1)
+  {
+    return False;
+  }
+  fclose($pipes[1]);
+  $stderr=trim(stream_get_contents($pipes[2]));
+  fclose($pipes[2]);
+  proc_close($process);
+  if ($stderr<>"")
+  {
+    term_echo($stderr);
+    return True;
+  }
+  if (($result==$last) or ($result==$sed_cmd))
+  {
+    $result="";
+  }
+  if ($result<>"")
+  {
+    if ($nick==$sed_nick)
     {
-      return False;
-    }
-    $start_arr=explode(" ",$start);
-    $sed_nick="";
-    if (count($start_arr)==1)
-    {
-      if (strtolower($start_arr[0])<>"s")
-      {
-        return False;
-      }
-    }
-    elseif (count($start_arr)==2)
-    {
-      if (strtolower($start_arr[1])=="s")
-      {
-        $sed_nick=$start_arr[0];
-        if (strpos(":,>.",substr($sed_nick,strlen($sed_nick)-1))!==False)
-        {
-          $sed_nick=substr($sed_nick,0,strlen($sed_nick)-1);
-        }
-      }
-      else
-      {
-        return False;
-      }
+      privmsg("<$sed_nick> $result");
     }
     else
     {
-      return False;
-    }
-    $pattern=$parts[1];
-    if ($pattern=="")
-    {
-      sed_help();
-      return False;
-    }
-    $replace=$parts[2];
-    if ($sed_nick=="")
-    {
-      $sed_nick=$nick;
-    }
-    $index="last_".strtolower($sed_nick)."_".strtolower($dest);
-    $last=get_bucket($index);
-    if ($last=="")
-    {
-      privmsg("last message by \"$sed_nick\" not found");
-      return False;
-    }
-    $action_delim=chr(1)."ACTION ";
-    if (strtoupper(substr($last,0,strlen($action_delim)))==$action_delim)
-    {
-      $last=trim(substr($last,strlen($action_delim)),chr(1));
-    }
-    $pattern=str_replace("\nB\n","\\",$pattern);
-    $replace=str_replace("\nB\n","\\",$replace);
-    $pattern=str_replace("\nF\n","/",$pattern);
-    $replace=str_replace("\nF\n","/",$replace);
-    $pattern=str_replace("\\\\","\nDB\n",$pattern);
-    $pattern=str_replace("/","\/",$pattern);
-    $pattern=str_replace("\nDB\n","\\\\",$pattern);
-    term_echo("*** SED: NICK: $nick");
-    term_echo("*** SED: SUBJECT: $last");
-    term_echo("*** SED: PATTERN: $pattern");
-    term_echo("*** SED: REPLACE: $replace");
-    if ($replace_all==True)
-    {
-      $result=preg_replace($delim.$pattern.$delim,$replace,$last);
-    }
-    else
-    {
-      $result=preg_replace($delim.$pattern.$delim,$replace,$last,1);
-    }
-    if ($result==$last)
-    {
-      $result="";
-    }
-    if ($result<>"")
-    {
-      if ($nick==$sed_nick)
-      {
-        privmsg("<$sed_nick> $result");
-      }
-      else
-      {
-        privmsg("<$nick> <$sed_nick> $result");
-      }
-      return True;
-    }
-    else
-    {
-      sed_help();
+      privmsg("<$nick> <$sed_nick> $result");
     }
   }
-  return False;
-}
-
-#####################################################################################################
-
-function sed_help()
-{
-  #privmsg("syntax: ".chr(3)."8[nick[:|,|>|.] ]s/pattern/replace[/[g]]");
+  return True;
 }
 
 #####################################################################################################

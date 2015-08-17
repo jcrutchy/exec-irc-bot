@@ -4,9 +4,10 @@
 
 /*
 exec:~first|60|0|0|1|||||php scripts/chromas_log.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~last|60|0|0|1|||||php scripts/chromas_log.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#exec:~last|60|0|0|1|||||php scripts/chromas_log.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~random|60|0|0|1|||||php scripts/chromas_log.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~count|60|0|0|1|||||php scripts/chromas_log.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~log|60|0|0|1|||||php scripts/chromas_log.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################
@@ -51,6 +52,7 @@ if ($params===False)
   $html=trim(strip_headers($response));
   $html=str_replace("\n"," ",$html);
   privmsg(chr(3)."03".$html);
+  privmsg(chr(3)."  http://chromas.0x.no/s/soylent_log.php");
   return;
 }
 
@@ -77,7 +79,11 @@ if (isset($params['until'])==False)
 $paramstr="";
 foreach ($params as $key => $value)
 {
-  $paramstr=$paramstr."&".urlencode($key)."=".urlencode($value);
+  if ($paramstr<>"")
+  {
+    $paramstr=$paramstr."&";
+  }
+  $paramstr=$paramstr.urlencode($key)."=".urlencode($value);
 }
 
 if (isset($params["channel"])==False)
@@ -85,7 +91,19 @@ if (isset($params["channel"])==False)
   $paramstr=$paramstr."&channel=".urlencode($dest);
 }
 
-$uri="/s/soylent_log.php?op=".$alias.$paramstr;
+if (isset($params["out"])==False)
+{
+  $paramstr=$paramstr."&out=irc-full";
+}
+
+if ($alias=="~log")
+{
+  $uri="/s/soylent_log.php?".$paramstr;
+}
+else
+{
+  $uri="/s/soylent_log.php?op=".$alias."&".$paramstr;
+}
 
 var_dump($uri);
 

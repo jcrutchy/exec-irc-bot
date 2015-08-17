@@ -39,12 +39,17 @@ include test.php
 ~openthepodbaydoors|5|0|1|1|||||fortune -s -o
 
 # FOLLOWING ALIAS PERMITS GENERIC SHELL COMMANDS IN IRC (ENABLE AT OWN RISK)
-~eval|0|0|1|0|@||#soylent,#journals,#test||{ eval %%trailing%% ; } 2>&1
+~eval|10|0|1|0|@||#soylent,#journals,#test||{ eval %%trailing%% ; } 2>&1
 
-~deb|0|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
+~deb|10|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
 
-~addr|0|0|1|0|*||||{ host '%%trailing%%' | head -1 ; } 2>&1
+~addr|10|0|1|0|*||||{ host '%%trailing%%' | head -1 ; } 2>&1
 
 # http://kedar.nitty-witty.com/blog/how-to-get-stock-quote-on-linux-using-google-curl-grep-awk
 # todo: test with single quotes around %%trailing%% to prevent shell code injection
-~nyse|0|0|1|0|*||||{ code='%%trailing%%' && curl --silent -X get "http://www.google.com/finance?q=nyse:$code" > /tmp/bgz && cat /tmp/bgz | grep -m1 -E 'span id="ref_' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' && sleep 2 && rm /tmp/bgz && echo "http://www.google.com/finance?q=nyse:$code" ; } 2>&1
+~nyse|30|0|1|0|*||||{ code='%%trailing%%' && curl --silent -X get "http://www.google.com/finance?q=nyse:$code" > /tmp/bgz && cat /tmp/bgz | grep -m1 -E 'span id="ref_' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' && sleep 2 && rm /tmp/bgz && echo "http://www.google.com/finance?q=nyse:$code" ; } 2>&1
+
+# https://www.google.com/finance/converter?a=1&from=AUD&to=USD
+# http://finance.yahoo.com/d/quotes.csv?s=GBPEUR=X&f=l1
+
+~last|10|0|1|0|*||||{ mysql --user=public --password=public -e 'SELECT `time`,`trailing` FROM exec_irc_bot.irc_log where ((nick="%%trailing%%") and (destination="%%dest%%")) order by id desc limit 1;' | tail -1 ; } 2>&1

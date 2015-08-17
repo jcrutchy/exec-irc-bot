@@ -89,6 +89,8 @@ function nick_follow($nick,$channel,$trailing)
   $freenode_follows=array(
     "Rodney"=>array("from"=>"#NetHack","to"=>"#nethack"),
     "Gretell"=>array("from"=>"##crawl","to"=>"#crawl"),
+    "Henzell"=>array("from"=>"##crawl","to"=>"#crawl"),
+    "Sizzell"=>array("from"=>"##crawl","to"=>"#crawl"),
     "Cheibriados"=>array("from"=>"##crawl","to"=>"#crawl"),
     "*"=>array("from"=>"#systemd","to"=>"#systemd"));
   $highlight_follows=array("NCommander"=>array("from"=>"#NetHack","to"=>"#Soylent"));

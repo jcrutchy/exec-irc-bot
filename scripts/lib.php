@@ -22,10 +22,11 @@ define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
 
 #####################################################################################################
 
-function parse_parameters($text,$delim="=",$sep=",")
+function parse_parameters($text,$delim="=",$sep=",",$force=False)
 {
   # param 1 = fluff, and stuff, param 2 = fart, param 3 = butt
   # "param 1"=>"fluff, and stuff","param 2"=>"fart","param 3"=>"butt"
+  # use break chars if you want something like "foo"=>"bar","butt hole"=>"fart" from "foo=bar butt hole=fart"
   $results=array();
   $parts=explode($delim,$text);
   if (count($parts)==1)
@@ -41,10 +42,36 @@ function parse_parameters($text,$delim="=",$sep=",")
       $next=trim(array_pop($subparts));
     }
     while (($next=="") and (count($subparts)>0));
-    $results[$key]=trim(implode($sep,$subparts));
+    $data=trim(implode($sep,$subparts));
+    $subparts=explode($sep,$data);
+    if (($force==False) or (count($subparts)==1))
+    {
+      $results[$key]=trim(implode($sep,$subparts));
+    }
+    else
+    {
+      $results[$key]=$subparts[0];
+      for ($j=1;$j<count($subparts);$j++)
+      {
+        $results[$subparts[$j]]="";
+      }
+    }
     $key=$next;
   }
-  $results[$key]=trim(array_pop($parts));
+  $data=trim(array_pop($parts));
+  $subparts=explode($sep,$data);
+  if (($force==False) or (count($subparts)==1))
+  {
+    $results[$key]=$data;
+  }
+  else
+  {
+    $results[$key]=$subparts[0];
+    for ($i=1;$i<count($subparts);$i++)
+    {
+      $results[$subparts[$i]]="";
+    }
+  }
   return $results;
 }
 
@@ -314,18 +341,15 @@ function extract_text($text,$delim1,$delim2,$delim2opt=False)
     return False;
   }
   $text=substr($text,$i+strlen($delim1));
+  if ($delim2opt==True)
+  {
+    return trim($text);
+  }
   $i=strpos($text,$delim2);
   if ($i===False)
   {
-    if ($delim2opt==True)
-    {
-      return trim($text);
-    }
-    else
-    {
-      #term_echo("*** lib.php->extract_text: required delim2 not found");
-      return False;
-    }
+    #term_echo("*** lib.php->extract_text: required delim2 not found");
+    return False;
   }
   $text=substr($text,0,$i);
   return trim($text);

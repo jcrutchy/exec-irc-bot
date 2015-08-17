@@ -6,7 +6,7 @@
 #exec:~comment|30|0|0|1|crutchy||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~verifier-nick-change|30|0|0|1||INTERNAL|||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~verifier-nick|30|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~funding|30|900|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~funding|150|900|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~queue|15|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~uid|15|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~sn-internal|15|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
@@ -42,7 +42,7 @@ switch ($alias)
     return;
   case "~uid":
     $host="www.soylentnews.org";
-    $port=80;
+    $port=443;
     $uri="/zoo.pl?op=max";
     $response=wget($host,$uri,$port,ICEWEASEL_UA);
     $delim1="<p class='bender'>";
@@ -51,6 +51,11 @@ switch ($alias)
     if ($uid!==False)
     {
       privmsg($uid);
+    }
+    else
+    {
+      var_dump($response);
+      privmsg(" uid: an error occurred");
     }
     return;
   case "~comment":
@@ -197,8 +202,8 @@ switch ($alias)
     sn_logout();
     return;
   case "~queue":
-    $host="www.soylentnews.org";
-    $port=80;
+    $host="soylentnews.org";
+    $port=443;
     $extra_headers=array();
     $extra_headers["Cookie"]=sn_login();
     $uri="/submit.pl?op=list";
@@ -223,7 +228,7 @@ switch ($alias)
     $host="soylentnews.org";
     $host_g="google.com";
     $uri="/";
-    $port=80;
+    $port=443;
     $response=wtouch($host,$uri,$port,120);
     $response_g=wtouch($host_g,$uri,$port,120);
     if (($response===False) and ($response_g!==False))

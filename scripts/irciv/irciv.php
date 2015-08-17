@@ -375,7 +375,7 @@ switch ($action)
   case "status":
     if (output_map($account)==True)
     {
-      status($account);
+      status($account,trim($trailing));
     }
     break;
   case "set":

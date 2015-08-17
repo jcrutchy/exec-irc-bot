@@ -3,6 +3,7 @@
 #####################################################################################################
 
 require_once(__DIR__."/../lib.php");
+require_once(__DIR__."/../lib_mysql.php");
 
 #####################################################################################################
 
@@ -456,6 +457,176 @@ function map_paint_city(&$buffer,&$city_buffers,&$buffer_city_flag,$tile_w,$tile
   $text_y=round($y*$tile_h-$dy+$city_h/2-$tile_h/2+$city["size"]*$tile_h);
   imagefilledrectangle($buffer,$text_x,$text_y,$text_x+$text_w,$text_y+$font_h,$color_text_shadow);
   imagestring($buffer,5,$text_x+1,$text_y,$city["name"],$color_text);
+}
+
+#####################################################################################################
+
+function map_path_img($map_data,$filename="",$player_data="",$account="",$filetype="png")
+{
+  if ($account=="")
+  {
+    return False;
+  }
+  $cols=$map_data["cols"];
+  $rows=$map_data["rows"];
+
+  $buffer_terrain_ocean=imagecreatefrompng(PATH_IMAGES.IMAGE_TERRAIN_OCEAN);
+  if ($buffer_terrain_ocean===False)
+  {
+    return False;
+  }
+
+  $tile_w=imagesx($buffer_terrain_ocean);
+  $tile_h=imagesy($buffer_terrain_ocean);
+
+  $w=$cols*$tile_w;
+  $h=$rows*$tile_h;
+  $buffer=imagecreatetruecolor($w,$h);
+
+  for ($y=0;$y<$rows;$y++)
+  {
+    for ($x=0;$x<$cols;$x++)
+    {
+      $i=map_coord($cols,$x,$y);
+      if (($player_data<>"") and ($account<>""))
+      {
+        if ($player_data[$account]["fog"][$i]=="0")
+        {
+          continue;
+        }
+      }
+      if ($map_data["coords"][$i]==TERRAIN_LAND)
+      {
+
+      }
+      if ($map_data["coords"][$i]==TERRAIN_OCEAN)
+      {
+
+      }
+    }
+  }
+  imagedestroy($buffer_terrain_ocean);
+
+  # to make final map image smaller filesize, use createimage to create palleted image, then copy truecolor image to palleted image
+  $scale=1.0;
+  $final_w=round($w*$scale);
+  $final_h=round($h*$scale);
+  $buffer_resized=imagecreatetruecolor($final_w,$final_h);
+  if (imagecopyresampled($buffer_resized,$buffer,0,0,0,0,$final_w,$final_h,$w,$h)==False)
+  {
+    irciv_term_echo("imagecopyresampled error");
+    return False;
+  }
+  imagedestroy($buffer);
+  $buffer=imagecreate($final_w,$final_h);
+  if (imagecopy($buffer,$buffer_resized,0,0,0,0,$final_w,$final_h)==False)
+  {
+    irciv_term_echo("imagecopy error");
+    return False;
+  }
+  imagedestroy($buffer_resized);
+  unset($buffer_resized);
+  if (isset($player_data[$account]["flags"]["crop_map"])==True)
+  {
+    $fog_boundary_l=$cols;
+    $fog_boundary_t=$rows;
+    $fog_boundary_r=0;
+    $fog_boundary_b=0;
+    for ($y=0;$y<$rows;$y++)
+    {
+      for ($x=0;$x<$cols;$x++)
+      {
+        $coord=map_coord($cols,$x,$y);
+        if ($player_data[$account]["fog"][$coord]=="1")
+        {
+          if ($x<$fog_boundary_l)
+          {
+            $fog_boundary_l=$x;
+          }
+          if ($x>$fog_boundary_r)
+          {
+            $fog_boundary_r=$x;
+          }
+          if ($y<$fog_boundary_t)
+          {
+            $fog_boundary_t=$y;
+          }
+          if ($y>$fog_boundary_b)
+          {
+            $fog_boundary_b=$y;
+          }
+        }
+      }
+    }
+    $fog_boundary_l=max(0,$fog_boundary_l-1);
+    $fog_boundary_t=max(0,$fog_boundary_t-1);
+    $fog_boundary_r=min($cols,$fog_boundary_r+2);
+    $fog_boundary_b=min($rows,$fog_boundary_b+2);
+    irciv_term_echo("IRCiv >> map_img: fog_boundary_l = $fog_boundary_l");
+    irciv_term_echo("IRCiv >> map_img: fog_boundary_t = $fog_boundary_t");
+    irciv_term_echo("IRCiv >> map_img: fog_boundary_r = $fog_boundary_r");
+    irciv_term_echo("IRCiv >> map_img: fog_boundary_b = $fog_boundary_b");
+    if (($fog_boundary_l<$fog_boundary_r) and ($fog_boundary_t<$fog_boundary_b))
+    {
+      $range_x=$fog_boundary_r-$fog_boundary_l;
+      $range_y=$fog_boundary_b-$fog_boundary_t;
+      irciv_term_echo("IRCiv >> map_img: range_x = $range_x");
+      irciv_term_echo("IRCiv >> map_img: range_y = $range_y");
+      $w=$range_x*$tile_w;
+      $h=$range_y*$tile_h;
+      $buffer_resized=imagecreatetruecolor($w,$h);
+      if (imagecopy($buffer_resized,$buffer,0,0,$fog_boundary_l*$tile_w,$fog_boundary_t*$tile_h,$w,$h)==False)
+      {
+        irciv_term_echo("imagecopy error");
+        return False;
+      }
+      imagedestroy($buffer);
+      $buffer=imagecreate($w,$h);
+      if (imagecopy($buffer,$buffer_resized,0,0,0,0,$w,$h)==False)
+      {
+        irciv_term_echo("imagecopy error");
+        return False;
+      }
+      imagedestroy($buffer_resized);
+      unset($buffer_resized);
+    }
+  }
+  if ($filename<>"")
+  {
+    switch ($filetype)
+    {
+      case "gif":
+        imagegif($buffer,$filename.".gif");
+        break;
+      case "png":
+        imagepng($buffer,$filename.".png");
+        break;
+      case "jpg":
+        imagejpg($buffer,$filename.".jpg");
+        break;
+    }
+    imagedestroy($buffer);
+  }
+  else
+  {
+    ob_start();
+    switch ($filetype)
+    {
+      case "gif":
+        imagegif($buffer);
+        break;
+      case "png":
+        imagepng($buffer);
+        break;
+      case "jpg":
+        imagejpg($buffer);
+        break;
+    }
+    $data=ob_get_contents();
+    ob_end_clean();
+    imagedestroy($buffer);
+    return $data;
+  }
 }
 
 #####################################################################################################
@@ -1085,7 +1256,7 @@ function unfog($account,$x,$y,$range)
 
 #####################################################################################################
 
-function status($account)
+function status($account,$params="")
 {
   global $player_data;
   global $map_data;
@@ -1099,28 +1270,117 @@ function status($account)
   {
     $public=True;
   }
-  $i=$player_data[$account]["active"];
-  $unit=$player_data[$account]["units"][$i];
-  $index=$unit["index"];
-  $type=$unit["type"];
-  $health=$unit["health"];
-  $x=$unit["x"];
-  $y=$unit["y"];
-  $n=count($player_data[$account]["units"]);
-  if (isset($player_data[$account]["status_messages"])==True)
+  if ($params<>"")
   {
-    $unique_messages=array_count_values($player_data[$account]["status_messages"]);
-    foreach ($unique_messages as $msg => $count)
+    $params=explode(" ",$params);
+    if (count($params)<>2)
     {
-      if ($count>1)
-      {
-        $msg=$msg." (x$count)";
-      }
-      status_msg($dest." $account => $msg",$public);
+      status_msg("syntax: [~civ] status [x y]",$public);
+      return;
     }
-    unset($player_data[$account]["status_messages"]);
+    $x=$params[0];
+    $y=$params[1];
+    if ((exec_is_integer($x)==False) or (exec_is_integer($y)==False))
+    {
+      status_msg("error: coordinates must be two positive integers",$public);
+      return;
+    }
+    if (($x<0) or ($x>=$map_data["cols"]) or ($y<0) or ($y>=$map_data["rows"]))
+    {
+      status_msg("error: coordinate $x,$y is outside the map",$public);
+      return;
+    }
+    $terrain=$map_data["coords"][map_coord($map_data["cols"],$x,$y)];
+    if (is_fogged($account,$x,$y)==True)
+    {
+      status_msg("coordinate $x,$y is fogged",$public);
+      return;
+    }
+    $owner="";
+    $units=array();
+    foreach ($player_data as $player => $data)
+    {
+      for ($i=0;$i<count($player_data[$player]["units"]);$i++)
+      {
+        $unit=$player_data[$player]["units"][$i];
+        if (($unit["x"]==$x) and ($unit["y"]==$y))
+        {
+          if ($owner=="")
+          {
+            $owner=$player;
+          }
+          elseif ($owner<>$player)
+          {
+            status_msg("error: multiple players have assets at $x,$y",$public);
+            return;
+          }
+          $units[]=$unit;
+        }
+      }
+    }
+    $cities=array();
+    foreach ($player_data as $player => $data)
+    {
+      for ($i=0;$i<count($player_data[$player]["cities"]);$i++)
+      {
+        $city=$player_data[$player]["cities"][$i];
+        if (($city["x"]==$x) and ($city["y"]==$y))
+        {
+          if ($owner=="")
+          {
+            $owner=$player;
+          }
+          elseif ($owner<>$player)
+          {
+            status_msg("error: multiple players have assets at $x,$y",$public);
+            return;
+          }
+          $cities[]=$city;
+        }
+      }
+    }
+    if ((count($cities)==0) and (count($units)==0))
+    {
+      status_msg("coordinate $x,$y ($terrain) is currently unoccupied",$public);
+      return;
+    }
+    if (count($cities)>1)
+    {
+      status_msg("error: multiple cities at $x,$y",$public);
+      return;
+    }
+    status_msg("status for coordinate $x,$y ($terrain): occupied by $owner",$public);
+    if (count($cities)>0)
+    {
+      status_msg("city: ".$cities[0]["name"],$public);
+    }
+    status_msg("units: ".count($units),$public);
   }
-  status_msg($dest." $account => $index/$n, $type, +$health, ($x,$y)",$public);
+  else
+  {
+    $i=$player_data[$account]["active"];
+    $unit=$player_data[$account]["units"][$i];
+    $index=$unit["index"];
+    $type=$unit["type"];
+    $health=$unit["health"];
+    $x=$unit["x"];
+    $y=$unit["y"];
+    $n=count($player_data[$account]["units"]);
+    if (isset($player_data[$account]["status_messages"])==True)
+    {
+      $unique_messages=array_count_values($player_data[$account]["status_messages"]);
+      foreach ($unique_messages as $msg => $count)
+      {
+        if ($count>1)
+        {
+          $msg=$msg." (x$count)";
+        }
+        status_msg($dest." $account => $msg",$public);
+      }
+      unset($player_data[$account]["status_messages"]);
+    }
+    status_msg($dest." $account => $index/$n, $type, +$health, ($x,$y)",$public);
+  }
 }
 
 #####################################################################################################
@@ -1207,7 +1467,9 @@ function unit_attack($attack_account,$defend_account,&$attack_unit,&$defend_unit
 {
   global $player_data;
   $attack_unit["health"]=attacker_health($attack_unit,$defend_unit);
+  irciv_term_echo("*** irciv: attacker health: ".$attack_unit["health"]);
   $defend_unit["health"]=defender_health($defend_unit,$attack_unit);
+  irciv_term_echo("*** irciv: defender health: ".$defend_unit["health"]);
   if ($attack_unit["health"]==0)
   {
     # attacker died
@@ -1232,19 +1494,19 @@ function unit_attack($attack_account,$defend_account,&$attack_unit,&$defend_unit
 function attacker_health($attacker,$defender)
 {
   $health=$attacker["health"];
+  # dl,ds,da,al,as,aa (warrior: 1,0,0,1,0,0)
   $attacker_strength=explode(",",$attacker["strength"]);
   $defender_strength=explode(",",$attacker["strength"]);
-  for ($i=1;$i<=3;$i++)
+  for ($i=0;$i<3;$i++) # 0:land,1:sea,2:air
   {
-    $attacker_defend=$attacker["strength"][$i-1]*10;
-    $attacker_attack=$attacker["strength"][$i+2]*10;
-    $defender_defend=$defender["strength"][$i-1]*10;
-    $defender_attack=$defender["strength"][$i+2]*10;
+    $attacker_defend=$attacker_strength[$i]*MAX_HEALTH;
+    $attacker_attack=$attacker_strength[$i+3]*MAX_HEALTH;
+    $defender_defend=$defender_strength[$i]*MAX_HEALTH;
+    $defender_attack=$defender_strength[$i+3]*MAX_HEALTH;
     $attack_rand=mt_rand(round($defender_attack/2),$defender_attack);
     $defend_rand=mt_rand(round($attacker_defend/2),$attacker_defend);
-    $delta=min($attack_rand,$defend_rand)-$attack_rand;
-    $health=min(MAX_HEALTH,max(0,$health-round($delta/10)));
-    irciv_term_echo("*** irciv: attacker health: $health");
+    $delta=$defend_rand-$attack_rand;
+    $health=min($health,max(0,$health-$delta));
   }
   return $health;
 }
@@ -1356,8 +1618,16 @@ function update_other_players($account,$active)
     }
     if (is_fogged($player,$x,$y)==False)
     {
-      $player_data[$player]["status_messages"][]="player \"$account\" moved a unit within your field of vision";
-      $player_data[$account]["status_messages"][]="you moved a unit within the field of vision of player \"$player\"";
+      $msg="player \"$account\" moved a unit within your field of vision";
+      if (in_array($msg,$player_data[$player]["status_messages"])==False)
+      {
+        $player_data[$player]["status_messages"][]=$msg;
+      }
+      $msg="you moved a unit within the field of vision of player \"$player\"";
+      if (in_array($msg,$player_data[$account]["status_messages"])==False)
+      {
+        $player_data[$account]["status_messages"][]=$msg;
+      }
     }
   }
 }
@@ -1501,6 +1771,112 @@ function cycle_active($account)
     }
   }
 }
+
+#####################################################################################################
+
+function find_path(&$path,$start,$finish)
+{
+  global $map_data;
+  if (($start["x"]<0) or ($start["x"]>=$map_data["cols"]) or ($finish["x"]<0) or ($finish["x"]>=$map_data["cols"]) or ($start["y"]<0) or ($start["y"]>=$map_data["rows"]) or ($finish["y"]<0) or ($finish["y"]>=$map_data["rows"]))
+  {
+    irciv_privmsg("  error: invalid start or finish coordinate(s)");
+    return False;
+  }
+
+}
+
+  /*if (Start.x < 0) or (Start.x >= MapWidth) or (Finish.x < 0) or (Finish.x >= MapWidth) or (Start.y < 0) or (Start.y >= MapHeight) or (Finish.y < 0) or (Finish.y >= MapHeight) then
+  begin
+    Result := False;
+    ShowMessage('(Start.x < 0) or (Start.x >= MapWidth) or (Finish.x < 0) or (Finish.x >= MapWidth) or (Start.y < 0) or (Start.y >= MapHeight) or (Finish.y < 0) or (Finish.y >= MapHeight)');
+    Exit;
+  end;
+  if Length(ObstacleMap^) <> MapHeight then
+  begin
+    Result := False;
+    ShowMessage('Length(ObstacleMap) <> MapHeight');
+    Exit;
+  end;
+  if Length(ObstacleMap^[0]) <> MapWidth then
+  begin
+    Result := False;
+    ShowMessage('Length(ObstacleMap[0]) <> MapWidth');
+    Exit;
+  end;
+  if ObstacleMap^[Start.y, Start.x] or ObstacleMap^[Finish.y, Finish.x] then
+  begin
+    Result := False;
+    ShowMessage('ObstacleMap^[Start.y, Start.x] or ObstacleMap^[Finish.y, Finish.x]');
+    Exit;
+  end;
+  // Initialize the direction map with 255 (no direction).
+  SetLength(DirectionMap, MapHeight, MapWidth);
+  for y := 0 to MapHeight - 1 do
+    for x := 0 to MapWidth - 1 do
+      DirectionMap[y, x] := 255;
+  LocationsCount := 0;
+  LocationIndex := -1;
+  CurrentLocation := Start;
+  repeat
+    // Test for traversable locations in all directions around the current location.
+    for Direction := 0 to 7 do
+    begin
+      x := CurrentLocation.x + Directions[0, Direction];
+      y := CurrentLocation.y + Directions[1, Direction];
+      // If the point at (x, y) is traversable, add it to the locations array if it hasn't already been added, and add the direction relative to the current location to the direction map.
+      if (x >= 0) and (y >= 0) and (x < MapWidth) and (y < MapHeight) then
+        if (not ObstacleMap^[y, x]) and (DirectionMap[y, x] = 255) then
+        begin
+          Inc(LocationsCount);
+          SetLength(Locations, LocationsCount);
+          Locations[LocationsCount - 1] := Point(x, y);
+          DirectionMap[y, x] := Direction;
+        end;
+    end;
+    // The current location has been fully tested. Move on to the next traversable location stored in the locations array.
+    Inc(LocationIndex);
+    if LocationIndex >= Length(Locations) then
+    begin
+      SetLength(DirectionMap, 0);
+      SetLength(Locations, 0);
+      SetLength(InversePath, 0);
+      Result := False;
+      ShowMessage('LocationIndex >= Length(Locations)');
+      Exit;
+    end;
+    CurrentLocation := Locations[LocationIndex];
+    // If the current location is the same as the finish location, a path has been found (break from the searching loop).
+  until (CurrentLocation.x = Finish.x) and (CurrentLocation.y = Finish.y);
+  PathLength := 1;
+  SetLength(InversePath, PathLength);
+  InversePath[0].Location := CurrentLocation;
+  InversePath[0].Direction := DirectionMap[CurrentLocation.y, CurrentLocation.x];
+  // Start from the finish and work back to the start, following the inverted directions and adding locations as you go.
+  repeat
+    Direction := DirectionMap[CurrentLocation.y, CurrentLocation.x];
+    // To invert the direction, subtract the ordinal in the directions array instead of adding it.
+    CurrentLocation.x := CurrentLocation.x - Directions[0, Direction];
+    CurrentLocation.y := CurrentLocation.y - Directions[1, Direction];
+    Inc(PathLength);
+    SetLength(InversePath, PathLength);
+    InversePath[PathLength - 1].Location := CurrentLocation;
+    InversePath[PathLength - 1].Direction := Direction;
+    // When the start location is reached, break from the loop.
+  until (CurrentLocation.x = Start.x) and (CurrentLocation.y = Start.y);
+  SetLength(Path^, PathLength);
+  // Copy the points from InversePath into Path in the opposite order.
+  y := PathLength - 1;
+  for x := 0 to PathLength - 1 do
+  begin
+    Path^[x] := InversePath[y];
+    Dec(y);
+  end;
+  // Free memory from temporary arrays.
+  SetLength(DirectionMap, 0);
+  SetLength(Locations, 0);
+  SetLength(InversePath, 0);
+  // Path has been successfully found (and is stored in the array that Path points to).
+  Result := True;*/
 
 #####################################################################################################
 

@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~feeds|1000|0|0|1|crutchy||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~feeds-internal|1000|1800|0|1||INTERNAL|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~feeds|1750|0|0|1|crutchy||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~feeds-internal|1750|1800|0|1||INTERNAL|||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~feed-list|5|0|0|1|||||php scripts/feeds.php %%trailing%% %%nick%% %%dest%% %%alias%%
 startup:~join #feeds
 */
@@ -115,7 +115,6 @@ for ($i=0;$i<count($new_history);$i++)
   $data=$data.$new_history[$i].PHP_EOL;
 }
 file_put_contents(FEED_HISTORY_FILE,$data,FILE_APPEND);
-pm($feed_chan,chr(3)."08"."************");
 for ($i=count($results)-1;$i>=0;$i--)
 {
   $item=$results[$i];
@@ -129,6 +128,8 @@ for ($i=count($results)-1;$i>=0;$i--)
     pm($feed_chan,$msg);
   }
 }
+#$msg=chr(3)."08"."********** ".chr(3)."03"."END FEED".chr(3)."08"." **********";
+#pm($feed_chan,$msg);
 
 #####################################################################################################
 

@@ -16,12 +16,14 @@ $nick=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];
 
+define("API_WIKI_URL","http://wiki.soylentnews.org/wiki/ApiDocs");
+
 if ($trailing=="")
 {
-  privmsg("  http://wiki.soylentnews.org/wiki/ApiDocs");
+  privmsg(API_WIKI_URL);
   return;
 }
-$params=parse_parameters($trailing,"="," ");
+$params=parse_parameters($trailing,"="," ",False);
 if ($params!==False)
 {
   foreach ($params as $key => $value)
@@ -35,12 +37,20 @@ if ($params!==False)
 }
 if ($params===False)
 {
-  privmsg("  http://wiki.soylentnews.org/wiki/ApiDocs");
+  privmsg(API_WIKI_URL);
   return;
 }
+$element="";
 $paramstr="";
 foreach ($params as $key => $value)
 {
+  $parts=explode("/",$value);
+  if (count($parts)>1)
+  {
+    $value=trim($parts[0]);
+    array_shift($parts);
+    $element=implode("/",$parts);
+  }
   if ($paramstr<>"")
   {
     $paramstr=$paramstr."&";
@@ -48,7 +58,8 @@ foreach ($params as $key => $value)
   $paramstr=$paramstr.urlencode($key)."=".urlencode($value);
 }
 $uri="/api.pl?".$paramstr;
-$host="dev.soylentnews.org";
+$host="soylentnews.org";
+var_dump($host.$uri);
 $port=443;
 $response=wget($host,$uri,$port,ICEWEASEL_UA,"",20,"",1024,False);
 $content=trim(strip_headers($response));
@@ -57,145 +68,24 @@ if ($content=="")
   privmsg("  no data returned");
   return;
 }
-privmsg(chr(3)."02".substr($content,0,400));
-
-/*$uid_tests=array(
-  "crutchy"=>"179",
-  ""=>False,
-  "chromas"=>"34",
-  "ChRoMaS"=>"34",
-  "Anonymous Coward"=>"1",
-  "The Mighty Buzzard"=>"18",
-  "@chromas"=>False,
-  " chromas "=>False,
-  " chromas"=>False,
-  "%20chromas"=>False,
-  "chromas "=>"34",
-  "&"=>False);
-$name_tests=array(
-  "179"=>"crutchy",
-  ""=>False,
-  "x"=>False,
-  "0"=>False,
-  "1e12"=>"Anonymous Coward",
-  "-1"=>False,
-  "-"=>False,
-  "@"=>False,
-  "1"=>"Anonymous Coward",
-  "2"=>"NCommander",
-  "2 2 2"=>"NCommander",
-  "2-2"=>"NCommander",
-  "&#50;"=>False,
-  "2"=>False,
-  "#2"=>False,
-  ""=>False,
-  "\"2\""=>False,
-  "2"=>False,
-  "2"=>"NCommander",
-  "*"=>False,
-  "2); DROP users"=>"NCommander",
-  "18"=>"The Mighty Buzzard",
-  "34"=>"chromas",
-  "x34"=>False,
-  "34abcdefg"=>"chromas",
-  "34-"=>"chromas");
-
-$parts=explode(" ",$trailing);
-delete_empty_elements($parts);
-$op=$parts[0];
-array_shift($parts);
-$trailing=trim(implode(" ",$parts));
-
-$host="dev.soylentnews.org";
-#$host="soylentnews.org";
-$port=443;
-
-switch ($op)
+if ($element=="")
 {
-  case "uid":
-    $uid=get_uid($trailing);
-    if ($uid!==False)
-    {
-      privmsg("  SN uid for user \"$trailing\" is $uid");
-    }
-    else
-    {
-      privmsg("  error: unable to retrive SN uid for user \"$trailing\"");
-    }
-    break;
-  case "name":
-    $name=get_name($trailing);
-    if ($name!==False)
-    {
-      privmsg("  SN username for uid $trailing is \"$name\"");
-    }
-    else
-    {
-      privmsg("  error: unable to retrive SN username for uid $trailing");
-    }
-    break;
-  case "karma":
-    $uname="";
-    if (exec_is_integer($trailing)==False)
-    {
-      $uid=get_uid($trailing);
-      if ($uid!==False)
-      {
-        $uname=$trailing;
-        $trailing=$uid;
-      }
-      else
-      {
-        privmsg("  error: invalid uid");
-        break;
-      }
-    }
-    else
-    {
-      $name=get_name($trailing);
-      if ($name!==False)
-      {
-        $uname=$name;
-      }
-      else
-      {
-        privmsg("  error: invalid uid");
-        break;
-      }
-    }
-    $uri="/api.pl?m=user&op=get_user&uid=$trailing";
-    $response=wget($host,$uri,$port);
-    $content=strip_headers($response);
-    $data=json_decode($content,True);
-    if ((isset($data["karma"])==True) and ($uname<>""))
-    {
-      privmsg("  SN karma for \"$uname\" (uid $trailing) is ".$data["karma"]);
-    }
-    else
-    {
-      privmsg("  error: unable to retrive SN karma for uid $trailing");
-    }
-    break;
-  case "test":
-    foreach ($uid_tests as $name => $uid)
-    {
-      if (get_uid($name)!==$uid)
-      {
-        privmsg("  test failed: get_uid($name)!==$uid");
-        return;
-      }
-    }
-    foreach ($name_tests as $uid => $name)
-    {
-      if (get_name($uid)!==$name)
-      {
-        privmsg("  test failed: get_name($uid)!==$name");
-        return;
-      }
-    }
-    privmsg("  tests successful!");
-    break;
-}*/
+  $content=clean_text($content);
+  privmsg(chr(3)."02".substr($content,0,650));
+}
+else
+{
+  $data=json_decode($content,True);
+  if (isset($data[$element])==True)
+  {
+    privmsg(chr(3)."02".substr($data[$element],0,650));
+  }
+  else
+  {
+    privmsg(chr(3)."02  api error: element \"$element\" not found");
+    #var_dump($data);
+  }
+}
 
 #####################################################################################################
 

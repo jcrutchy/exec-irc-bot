@@ -2,7 +2,7 @@
 
 #####################################################################################################
 
-define("ICEWEASEL_UA","Mozilla/5.0 (X11; Linux x86_64; rv:24.0) Gecko/20140429 Firefox/24.0 Iceweasel/24.5.0");
+define("ICEWEASEL_UA","Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0");
 
 $url_blacklist=array("kidd","porn","goat","xxx","sex","fuck");
 
@@ -15,7 +15,7 @@ function authorization_header_value($uname,$passwd,$prefix)
 
 #####################################################################################################
 
-function shorten_url($url)
+function shorten_url($url,$mode="title")
 {
   if ($url=="")
   {
@@ -23,7 +23,10 @@ function shorten_url($url)
   }
   $params=array();
   $params["url"]=$url;
-  $params["mode"]="title";
+  if ($mode<>"")
+  {
+    $params["mode"]=$mode; # optional
+  }
   $response=wpost("o.my.to","/","80",ICEWEASEL_UA,$params,"",30);
   $short_url=trim(strip_headers($response));
   if ($short_url<>"")
@@ -151,13 +154,39 @@ function get_host_and_uri($url,&$host,&$uri,&$port)
 
 #####################################################################################################
 
-function get_redirected_url($from_url,$url_list="")
+    # http://news.google.com.au/news/url?sr=1&ct2=au%2F1_0_s_2_1_a&sa=t&usg=AFQjCNHp84kZxA_17wYT4j7KeBQK5tFokw&cid=52778885459115&url=http%3A%2F%2Fwww.goodgearguide.com.au%2Farticle%2F577990%2Fhow-encryption-keys-could-stolen-by-your-lunch%2F&ei=UYqIVe_ZOMjs8AW16oHYDQ&rt=SECTION&vm=STANDARD&bvm=section&did=-764385622478417134&sid=en_au%3Atc&ssid=tc&at=dt0
+    #$response=wget("news.google.com.au","/news/url?sr=1&ct2=au%2F1_0_s_2_1_a&sa=t&usg=AFQjCNHp84kZxA_17wYT4j7KeBQK5tFokw&cid=52778885459115&url=http%3A%2F%2Fwww.goodgearguide.com.au%2Farticle%2F577990%2Fhow-encryption-keys-could-stolen-by-your-lunch%2F&ei=UYqIVe_ZOMjs8AW16oHYDQ&rt=SECTION&vm=STANDARD&bvm=section&did=-764385622478417134&sid=en_au%3Atc&ssid=tc&at=dt0",80);
+    #var_dump($response);
+    #return;
+
+/*
+2015-06-22 22:26:44 > string(1121) "HTTP/1.0 200 OK
+2015-06-22 22:26:44 > Content-Type: text/html; charset=UTF-8
+2015-06-22 22:26:44 > Set-Cookie: NID=68=lK22dEGidgP8irSn4JlsbdmBQFExNq5S9ykH6s2vUa0wSdznWz3of3YabfPNgmMmgarfl6rcV8cM_Ssb2gt3FOBWtNqDX55irLVHx_tKL6j2JbZLytmUhy5z7L2XvF7f;Domain=.google.com.au;Path=/;Expires=Tue, 22-Dec-2015 22:26:42 GMT;HttpOnly
+2015-06-22 22:26:44 > P3P: CP="This is not a P3P policy! See http://www.google.com/support/accounts/bin/answer.py?hl=en&answer=151657 for more info."
+2015-06-22 22:26:44 > Date: Mon, 22 Jun 2015 22:26:42 GMT
+2015-06-22 22:26:44 > Expires: Mon, 22 Jun 2015 22:26:42 GMT
+2015-06-22 22:26:44 > Cache-Control: private, max-age=0
+2015-06-22 22:26:44 > X-Content-Type-Options: nosniff
+2015-06-22 22:26:44 > X-Frame-Options: SAMEORIGIN
+2015-06-22 22:26:44 > X-XSS-Protection: 1; mode=block
+2015-06-22 22:26:44 > Server: GSE
+2015-06-22 22:26:45 > Alternate-Protocol: 80:quic,p=0
+2015-06-22 22:26:45 > Accept-Ranges: none
+2015-06-22 22:26:45 > Vary: Accept-Encoding
+2015-06-22 22:26:45 >
+2015-06-22 22:26:45 > <!DOCTYPE html><html><head><meta name="referrer" content="origin"><script type="text/javascript">document.location.replace('http:\/\/www.goodgearguide.com.au\/article\/577990\/how-encryption-keys-could-stolen-by-your-lunch\/');</script><noscript><META http-equiv="refresh" content="0;URL='http://www.goodgearguide.com.au/article/577990/how-encryption-keys-could-stolen-by-your-lunch/'"></noscript></head></html>"
+*/
+
+function get_redirected_url($from_url,$url_list="",$last_loc="",$cookies="")
 {
   $url=trim($from_url);
   if ($url=="")
   {
+    term_echo("get_redirected_url: empty url");
     return False;
   }
+  #term_echo("  get_redirected_url: $url");
   $comp=parse_url($url);
   $host="";
   if (isset($comp["host"])==False)
@@ -178,7 +207,7 @@ function get_redirected_url($from_url,$url_list="")
   }
   if ($host=="")
   {
-    term_echo("redirect without host: ".$url);
+    term_echo("get_redirected_url: redirect without host: ".$url);
     return False;
   }
   $uri="/";
@@ -210,33 +239,105 @@ function get_redirected_url($from_url,$url_list="")
   }
   if (($host=="") or ($uri==""))
   {
+    term_echo("get_redirected_url: empty host or uri");
     return False;
   }
-  $headers=whead($host,$uri,$port,ICEWEASEL_UA,"",10);
-  $location=trim(exec_get_header($headers,"location",False));
-  if ($location=="")
+  $extra_headers="";
+  if (isset($cookies[$host])==True)
   {
-    return $url;
+    $cookie_strings=array();
+    foreach ($cookies[$host] as $key => $value)
+    {
+      $cookie_strings[]=$key."=".$value;
+    }
+    $extra_headers=array();
+    $extra_headers["Cookie"]=implode("; ",$cookie_strings);
+  }
+  #$breakcode="return (substr(\$response,strlen(\$response)-4)==\"\r\n\r\n\");";
+  $breakcode="return ((strlen(\$response)>10000) or (substr(\$response,strlen(\$response)-7)==\"</head>\"));";
+  $response=wget($host,$uri,$port,ICEWEASEL_UA,$extra_headers,10,$breakcode);
+  if (is_array($cookies)==True)
+  {
+    $new_cookies=exec_get_cookies($response);
+    if (count($new_cookies)>0)
+    {
+      for ($i=0;$i<count($new_cookies);$i++)
+      {
+        $parts=explode("; ",$new_cookies[$i]);
+        $keyval=explode("=",$parts[0]);
+        if (count($keyval)>=2)
+        {
+          $key=$keyval[0];
+          array_shift($keyval);
+          $value=implode("=",$keyval);
+          $cookies[$host][$key]=$value;
+        }
+      }
+    }
+  }
+  #var_dump($response);
+  $loc_header=trim(exec_get_header($response,"location",False));
+  $location=$loc_header;
+
+# <META http-equiv="refresh" content="0;URL='http://www.goodgearguide.com.au/article/577990/how-encryption-keys-could-stolen-by-your-lunch/'">
+
+  if (($location=="") or ($location==$last_loc))
+  {
+    if (is_array($cookies)==False)
+    {
+      return $url;
+    }
+    else
+    {
+      return array("url"=>$url,"cookies"=>$cookies,"extra_headers"=>$extra_headers);
+    }
   }
   else
   {
+    if ($location[0]=="/")
+    {
+      $location=$url.$location;
+    }
     if (is_array($url_list)==True)
     {
-      if (in_array($location,$url_list)==True)
+      $n=0;
+      for ($i=0;$i<count($url_list);$i++)
       {
+        if ($url_list[$i]==$url_list)
+        {
+          $n++;
+        }
+      }
+      if ($n>1)
+      {
+        term_echo("get_redirected_url: redirected url already been visited twice");
         return False;
       }
       else
       {
         $list=$url_list;
         $list[]=$url;
-        return get_redirected_url($location,$list);
+        if (count($list)<6)
+        {
+          return get_redirected_url($location,$list,$loc_header,$cookies);
+        }
+        else
+        {
+          if (is_array($cookies)==False)
+          {
+            return $url;
+          }
+          else
+          {
+            return array("url"=>$url,"cookies"=>$cookies,"extra_headers"=>$extra_headers);
+          }
+        }
       }
     }
     else
     {
       $list=array($url);
-      return get_redirected_url($location,$list);
+      return get_redirected_url($location,$list,$loc_header,$cookies);
     }
   }
 }
@@ -337,6 +438,7 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
     }
   }
   $headers=$headers."Connection: Close\r\n\r\n";
+  #$headers=$headers."Connection: keep-alive\r\n\r\n";
   #var_dump($headers);
   fwrite($fp,$headers);
   $response="";

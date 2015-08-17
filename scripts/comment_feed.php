@@ -160,7 +160,7 @@ foreach ($filters as $id => $filter)
 
 $host="soylentnews.org";
 $feed_uri="/index.xml";
-$port=80;
+$port=443;
 
 $msg=chr(3)."08"."********** ".chr(3)."03".chr(2)."SOYLENTNEWS COMMENT FEED".chr(2).chr(3)."08"." **********";
 pm(MAIN_FEED_CHANNEL,$msg);
@@ -423,7 +423,7 @@ function output($record,$msg,$show_filter=True)
             $msg="[".$filter["id"]."] ".$msg;
           }
           pm($filter["target"],$msg);
-          break;
+          return;
         }
       }
       while ($parent_cid<>"");
@@ -434,17 +434,23 @@ function output($record,$msg,$show_filter=True)
       {
         return;
       }
-      if ($show_filter==True)
-      {
-        $msg="[".$filter["id"]."] ".$msg;
-      }
       if ($record[$filter["field"]]==$filter["pattern"])
       {
+        if ($show_filter==True)
+        {
+          $msg="[".$filter["id"]."] ".$msg;
+        }
         pm($filter["target"],$msg);
+        return;
       }
       elseif (preg_match("#".trim($filter["pattern"])."#",$record[$filter["field"]])==1)
       {
+        if ($show_filter==True)
+        {
+          $msg="[".$filter["id"]."] ".$msg;
+        }
         pm($filter["target"],$msg);
+        return;
       }
     }
   }

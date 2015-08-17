@@ -9,6 +9,6 @@ if ($argv[1]<>"")
   return;
 }
 
-echo "http://sylnt.us/exec\n";
+#echo "http://sylnt.us/exec\n";
 
 ?>

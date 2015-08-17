@@ -4,9 +4,12 @@
 
 /*
 exec:~github-list|60|0|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~github-feed|280|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~slashcode-issue|60|0|0|1|crutchy,TheMightyBuzzard||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-#exec:~epoch-feed|280|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~github-feed|1700|1800|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~slashcode-issue|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~slashcode-find|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~rehash-issue|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~exec-issue|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#exec:~epoch-feed|1700|1800|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 startup:~join #github
 */
 
@@ -16,15 +19,22 @@ ini_set("display_errors","on");
 date_default_timezone_set("UTC");
 require_once("lib.php");
 
+define("TIME_LIMIT_SEC",1800); # 30 mins
+
 $trailing=$argv[1];
 $dest=$argv[2];
 $nick=$argv[3];
 $alias=strtolower(trim($argv[4]));
 
-if ($alias=="~slashcode-issue")
+if ($alias=="~slashcode-find")
+{
+  return;
+}
+
+if (($alias=="~slashcode-issue") or ($alias=="~rehash-issue") or ($alias=="~exec-issue"))
 {
   $account=users_get_account($nick);
-  $allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs","TheMightyBuzzard");
+  $allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs","TheMightyBuzzard","paulej72","Bytram");
   if (in_array($account,$allowed)==False)
   {
     return;
@@ -35,15 +45,26 @@ if ($alias=="~slashcode-issue")
   $body=trim(implode(",",$parts));
   if (($title=="") or ($body==""))
   {
-    privmsg("syntax: ~slashcode-issue title, body");
+    privmsg("syntax: ~slashcode/rehash/exec-issue <title>, <body>");
     return;
   }
   $host="api.github.com";
   $port=443;
-  $username="SoylentNews";
-  $repo="slashcode";
-  #$username="crutchy-";
-  #$repo="exec-irc-bot";
+  if ($alias=="~rehash-issue")
+  {
+    $username="SoylentNews";
+    $repo="rehash";
+  }
+  elseif ($alias=="~slashcode-issue")
+  {
+    $username="SoylentNews";
+    $repo="slashcode";
+  }
+  else
+  {
+    $username="crutchy-";
+    $repo="exec-irc-bot";
+  }
   $uri="/repos/$username/$repo/issues";
   $tok=trim(file_get_contents("../pwd/gh_tok"));
   $headers=array();
@@ -81,9 +102,17 @@ $list=array(
   "Subsentient/wzblue",
   "Subsentient/nexus",
   "Subsentient/substrings",
+  "NSAKEY/happy-dance",
+  "NSAKEY/not-paranoid-prosody",
+  "NSAKEY/paranoid-prosody",
   "SoylentNews/slashcode",
   "SoylentNews/slashcode_vm",
-  "SoylentNews/SoylentCode",
+  "SoylentNews/rehash",
+  "davidtseng/rehash",
+  "iwantedue/rehash",
+  "NCommander/rehash",
+  "paulej72/rehash",
+  "TheMightyBuzzard/rehash",
   "cosurgi/trunk",
   "dimkr/LoginKit",
   "paulej72/slashcode",
@@ -114,6 +143,8 @@ $list=array(
   "Lagg/steam-tracker",
   "Lagg/steam-swissapiknife");
 
+sort($list,SORT_STRING);
+
 if ($alias=="~epoch-feed")
 {
   $list=array("Subsentient/epoch");
@@ -126,16 +157,29 @@ else
   define("FEED_CHAN","#github");
 }
 
-sort($list);
+sort($list,SORT_STRING+SORT_FLAG_CASE);
 
-define("TIME_LIMIT_SEC",600); # 10 mins
 define("CREATE_TIME_FORMAT","Y-m-d H:i:s ");
 
 if ($alias=="~github-list")
 {
+  $gh_users=array();
   for ($i=0;$i<count($list);$i++)
   {
-    notice($nick,$list[$i]);
+    $a=explode("/",$list[$i]);
+    $gh_username=$a[0];
+    $gh_repo=$a[1];
+    if (isset($gh_users[$a[0]])==False)
+    {
+      $gh_users[$gh_username]=array();
+    }
+    $gh_users[$gh_username][]=$gh_repo;
+  }
+  ksort($gh_users,SORT_STRING+SORT_FLAG_CASE);
+  foreach ($gh_users as $gh_username => $gh_repos)
+  {
+    sort($gh_repos,SORT_STRING+SORT_FLAG_CASE);
+    privmsg(chr(3)."03".$gh_username." => ".implode(", ",$gh_repos));
   }
   return;
 }
