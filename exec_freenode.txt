@@ -1,22 +1,22 @@
-*|10|0|0|1|||||php scripts/cmd.php %%items%%
+#*|10|0|0|1|||||php scripts/cmd.php %%items%%
 <quit>|10|0|0|1|||||php scripts/quit.php
 
 include ./scripts/about.php
-#include ./scripts/php.php
+include ./scripts/php.php
 include ./scripts/bucket.php
 include ./scripts/convert.php
-#include ./scripts/sed.php
+include ./scripts/sed.php
 include ./scripts/part.php
 include ./scripts/join.php
 #include ./scripts/admin.php
-#include ./scripts/definitions.php
+include ./scripts/definitions.php
 #include ./scripts/help.php
 #include ./scripts/users.php
 #include ./scripts/say.php
 include ./scripts/time.php
 #include ./scripts/weather.php
 include ./scripts/title.php
-#include ./scripts/isup.php
+include ./scripts/isup.php
 include ./scripts/translate.php
 #include ./scripts/rainbow.php
 include ./scripts/quit.php

@@ -18,7 +18,7 @@ $dest=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];
 
-return;
+#return;
 
 # EXPLOIT FOUND (17/05/2015): s/.*/ls/e executes an 'ls' command; s/.*/ps/e executes an 'ps' command. touch doesn't seem to work, but need to prevent the use of /e (or use awk/perl)
 
@@ -75,6 +75,10 @@ function shell_sed($trailing,$nick,$dest)
   {
     return False;
   }
+  if (strtolower(substr($trailing,strlen($trailing)-2))=="/e")
+  {
+    die;
+  }
   $parts=explode(" ",$trailing);
   $sed_nick="";
   if (count($parts)>1)
@@ -114,7 +118,8 @@ function shell_sed($trailing,$nick,$dest)
   {
     $last=trim(substr($last,strlen($action_delim)),chr(1));
   }
-  $command="echo ".escapeshellarg($last)." | sed -e --posix ".escapeshellarg($sed_cmd);
+  #$command="echo ".escapeshellarg($last)." | sed -e --posix ".escapeshellarg($sed_cmd);
+  $command="echo ".escapeshellarg($last)." | sed -e ".escapeshellarg($sed_cmd);
   var_dump($command);
   $cwd=NULL;
   $env=NULL;
