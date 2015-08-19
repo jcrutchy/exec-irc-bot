@@ -36,6 +36,10 @@ $nick=strtolower(trim($argv[3]));
 $alias=strtolower(trim($argv[4]));
 
 $filters=load_settings(COMMENTS_FILTERS_FILE," ");
+if ($filters==False)
+{
+  $filters=array();
+}
 
 if ($alias=="~comments")
 {

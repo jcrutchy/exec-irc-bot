@@ -52,4 +52,4 @@ include test.php
 # https://www.google.com/finance/converter?a=1&from=AUD&to=USD
 # http://finance.yahoo.com/d/quotes.csv?s=GBPEUR=X&f=l1
 
-~last|10|0|1|0|*||||{ mysql --user=public --password=public -e 'SELECT `time`,`trailing` FROM exec_irc_bot.irc_log where ((nick="%%trailing%%") and (destination="%%dest%%")) order by id desc limit 1;' | tail -1 ; } 2>&1
+#~last|10|0|1|0|*||||{ mysql --user=public --password=public -e 'SELECT `time`,`trailing` FROM exec_irc_bot.irc_log where ((nick="%%trailing%%") and (destination="%%dest%%")) order by id desc limit 1;' | tail -1 ; } 2>&1

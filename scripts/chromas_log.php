@@ -4,7 +4,7 @@
 
 /*
 exec:~first|60|0|0|1|||||php scripts/chromas_log.php %%trailing%% %%dest%% %%nick%% %%alias%%
-#exec:~last|60|0|0|1|||||php scripts/chromas_log.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~last|60|0|0|1|||||php scripts/chromas_log.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~random|60|0|0|1|||||php scripts/chromas_log.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~count|60|0|0|1|||||php scripts/chromas_log.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~log|60|0|0|1|||||php scripts/chromas_log.php %%trailing%% %%dest%% %%nick%% %%alias%%

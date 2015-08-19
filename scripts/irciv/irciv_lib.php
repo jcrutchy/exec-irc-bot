@@ -957,7 +957,7 @@ function upload_map_image($filename,$map_data,$player_data,$account)
     return "upload_map_image: file load error";
   }
   $uri="/";
-  $host="irciv.us.to";
+  $host="irciv.bot.nu";
   $img_data=map_img($map_data,"",$player_data,$account,"png");
   if (($img_data===False) or ($img_data==""))
   {
@@ -1732,8 +1732,8 @@ function output_map($account)
   {
     if ($msg=="SUCCESS")
     {
-      $player_data[$account]["status_messages"][]="http://irciv.us.to/?pid=".$player_data[$account]["player_id"];
-      #$player_data[$account]["status_messages"][]="http://irciv.us.to/?map=$filename";
+      $player_data[$account]["status_messages"][]="http://irciv.bot.nu/?pid=".$player_data[$account]["player_id"];
+      #$player_data[$account]["status_messages"][]="http://irciv.bot.nu/?map=$filename";
     }
     else
     {
