@@ -151,7 +151,7 @@ function valid_filename($value)
 
 function check_exec_key()
 {
-  $key=file_get_contents("/var/include/vhosts/irciv.us.to/pwd/exec_key");
+  $key=file_get_contents("/var/include/vhosts/irciv.bot.nu/pwd/exec_key");
   if ($key===False)
   {
     die("ERROR: UNABLE TO READ EXEC KEY FILE");

@@ -86,6 +86,18 @@ switch ($action)
       irciv_load_data();
     }
     break;
+  case "init-ai":
+    if (is_gm()==True)
+    {
+      init_ai();
+    }
+    break;
+  case "test-ai":
+    if (is_gm()==True)
+    {
+      test_ai();
+    }
+    break;
   case "game-list":
     $game_chans=get_game_list();
     $n=count($game_chans);

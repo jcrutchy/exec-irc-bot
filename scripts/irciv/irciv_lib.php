@@ -93,6 +93,45 @@ function is_gm()
 
 #####################################################################################################
 
+function init_ai()
+{
+  player_init("AI_Player_1");
+  #player_init("AI_Player_2");
+}
+
+#####################################################################################################
+
+function test_ai()
+{
+  move_ai("AI_Player_1");
+  #move_ai("AI_Player_2");
+}
+
+#####################################################################################################
+
+function move_ai($account)
+{
+  global $player_data;
+  global $map_data;
+  if (player_ready($account)==False)
+  {
+    return;
+  }
+  $test_enemy_account="crutchy";
+  $path=array();
+  $start=array();
+  $finish=array();
+  $start["x"]=$player_data[$account]["units"][$active]["x"];
+  $start["y"]=$player_data[$account]["units"][$active]["y"];
+  $finish["x"]=$player_data[$test_enemy_account]["units"][$active]["x"];
+  $finish["y"]=$player_data[$test_enemy_account]["units"][$active]["y"];
+  find_path($path,$start,$finish);
+  #move_active_unit($account,$dir)
+  # log status messages to file
+}
+
+#####################################################################################################
+
 function register_channel()
 {
   global $trailing;
@@ -715,6 +754,21 @@ function map_img($map_data,$filename="",$player_data="",$account="",$filetype="p
       }
     }
   }
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  $path=array();
+  $start=array("x"=>14,"y"=>19);
+  $finish=array("x"=>7,"y"=>52);
+  find_path($path,$start,$finish);
+  $color_path=imagecolorallocate($buffer,255,0,0);
+  for ($i=1;$i<count($path);$i++)
+  {
+    $p1x=round($path[$i-1]["x"]*$tile_w+$tile_w/2);
+    $p1y=round($path[$i-1]["y"]*$tile_h+$tile_h/2);
+    $p2x=round($path[$i]["x"]*$tile_w+$tile_w/2);
+    $p2y=round($path[$i]["y"]*$tile_h+$tile_h/2);
+    imageline($buffer,$p1x,$p1y,$p2x,$p2y,$color_path);
+  }
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   imagedestroy($buffer_terrain_ocean);
   imagedestroy($buffer_terrain_land);
   if (($player_data<>"") and ($account<>""))
@@ -1087,7 +1141,8 @@ function player_init($account)
   $player_data[$account]["flags"]["coords"]="";
   $player_data[$account]["flags"]["city_names"]="";
   $player_data[$account]["flags"]["crop_map"]="";
-  $player_data[$account]["fog"]=str_repeat("0",strlen($map_data["coords"]));
+  #$player_data[$account]["fog"]=str_repeat("0",strlen($map_data["coords"]));
+  $player_data[$account]["fog"]=str_repeat("1",strlen($map_data["coords"]));
   $start_x=-1;
   $start_y=-1;
   if (random_coord(TERRAIN_LAND,$start_x,$start_y)==False)
@@ -1777,46 +1832,52 @@ function cycle_active($account)
 function find_path(&$path,$start,$finish)
 {
   global $map_data;
-  if (($start["x"]<0) or ($start["x"]>=$map_data["cols"]) or ($finish["x"]<0) or ($finish["x"]>=$map_data["cols"]) or ($start["y"]<0) or ($start["y"]>=$map_data["rows"]) or ($finish["y"]<0) or ($finish["y"]>=$map_data["rows"]))
+  # up,right,down,left,up/left,up/right,down/left,down/right
+  $dir_x=array(0,1,0,-1,-1,1,-1,1);
+  $dir_y=array(-1,0,1,0,-1,-1,1,1);
+  $path=array();
+  $directions=array();
+  $cols=$map_data["cols"];
+  $rows=$map_data["rows"];
+  if (($start["x"]<0) or ($start["x"]>=$cols) or ($finish["x"]<0) or ($finish["x"]>=$cols) or ($start["y"]<0) or ($start["y"]>=$rows) or ($finish["y"]<0) or ($finish["y"]>=$rows))
   {
     irciv_privmsg("  error: invalid start or finish coordinate(s)");
     return False;
   }
-
+  $coord_start=map_coord($cols,$start["x"],$start["y"]);
+  $coord_finish=map_coord($cols,$finish["x"],$finish["y"]);
+  if ($map_data["coords"][$coord_start]<>$map_data["coords"][$coord_finish])
+  {
+    irciv_privmsg("  error: start and finish coordinates are on different terrain");
+    return False;
+  }
+  # initialize the direction map with X (no direction)
+  $direction_map=str_repeat("X",strlen($map_data["coords"]));
+  $location_index=-1;
+  $currrent_location=$start;
+  do
+  {
+    # test for traversable locations in all directions around the current location
+    for ($direction=0;$i<count($dir_x);$i++)
+    {
+      $x=$currrent_location["x"]+$dir_x[$direction];
+      $y=$currrent_location["y"]+$dir_y[$direction];
+      # if the point at ($x, $y) is traversable, add it to the locations array if it hasn't already been added, and add the direction relative to the current location to the direction map
+      if (($x>=0) and ($y>=0) and ($x<$cols) and ($y<$rows))
+      {
+        $coord=map_coord($cols,$x,$y);
+        if (($map_data["coords"][$coord_start]==$map_data["coords"][$coord]) and ($direction_map[$coord]=="X"))
+        {
+          $locations_count++;
+          
+        }
+      }
+    }
+  }
+  while (($currrent_location["x"]==$finish["x"]) and ($currrent_location["y"]==$finish["y"]));
 }
 
-  /*if (Start.x < 0) or (Start.x >= MapWidth) or (Finish.x < 0) or (Finish.x >= MapWidth) or (Start.y < 0) or (Start.y >= MapHeight) or (Finish.y < 0) or (Finish.y >= MapHeight) then
-  begin
-    Result := False;
-    ShowMessage('(Start.x < 0) or (Start.x >= MapWidth) or (Finish.x < 0) or (Finish.x >= MapWidth) or (Start.y < 0) or (Start.y >= MapHeight) or (Finish.y < 0) or (Finish.y >= MapHeight)');
-    Exit;
-  end;
-  if Length(ObstacleMap^) <> MapHeight then
-  begin
-    Result := False;
-    ShowMessage('Length(ObstacleMap) <> MapHeight');
-    Exit;
-  end;
-  if Length(ObstacleMap^[0]) <> MapWidth then
-  begin
-    Result := False;
-    ShowMessage('Length(ObstacleMap[0]) <> MapWidth');
-    Exit;
-  end;
-  if ObstacleMap^[Start.y, Start.x] or ObstacleMap^[Finish.y, Finish.x] then
-  begin
-    Result := False;
-    ShowMessage('ObstacleMap^[Start.y, Start.x] or ObstacleMap^[Finish.y, Finish.x]');
-    Exit;
-  end;
-  // Initialize the direction map with 255 (no direction).
-  SetLength(DirectionMap, MapHeight, MapWidth);
-  for y := 0 to MapHeight - 1 do
-    for x := 0 to MapWidth - 1 do
-      DirectionMap[y, x] := 255;
-  LocationsCount := 0;
-  LocationIndex := -1;
-  CurrentLocation := Start;
+  /*
   repeat
     // Test for traversable locations in all directions around the current location.
     for Direction := 0 to 7 do
