@@ -758,7 +758,7 @@ function map_img($map_data,$filename="",$player_data="",$account="",$filetype="p
   $path=array();
   $start=array("x"=>14,"y"=>19);
   $finish=array("x"=>7,"y"=>52);
-  find_path($path,$start,$finish);
+  find_path4($path,$start,$finish);
   $color_path=imagecolorallocate($buffer,255,0,0);
   for ($i=1;$i<count($path);$i++)
   {
@@ -1141,8 +1141,7 @@ function player_init($account)
   $player_data[$account]["flags"]["coords"]="";
   $player_data[$account]["flags"]["city_names"]="";
   $player_data[$account]["flags"]["crop_map"]="";
-  #$player_data[$account]["fog"]=str_repeat("0",strlen($map_data["coords"]));
-  $player_data[$account]["fog"]=str_repeat("1",strlen($map_data["coords"]));
+  $player_data[$account]["fog"]=str_repeat("0",strlen($map_data["coords"]));
   $start_x=-1;
   $start_y=-1;
   if (random_coord(TERRAIN_LAND,$start_x,$start_y)==False)
@@ -1886,19 +1885,85 @@ function find_path(&$path,$start,$finish)
   while (($currrent_location["x"]<>$finish["x"]) or ($currrent_location["y"]<>$finish["y"]));
   $inverse_path=array();
   $direction=$direction_map[map_coord($cols,$currrent_location["x"],$currrent_location["y"])];
-
-  $data="";
-  for ($y=0;$y<$rows;$y++)
+  #return;
+  $inverse_path[]=array("x"=>$currrent_location["x"],"y"=>$currrent_location["y"],"dir"=>$direction);
+  # start from the finish and work back to the start, following the inverted directions and adding locations as you go
+  do
   {
-    $line="";
-    for ($x=0;$x<$cols;$x++)
-    {
-      $line=$line.$direction_map[map_coord($cols,$x,$y)];
-    }
-    $data=$data.$line.PHP_EOL;
+    # to invert the direction, subtract the ordinal in the directions array instead of adding it
+    $currrent_location["x"]=$currrent_location["x"]-$dir_x[$direction];
+    $currrent_location["y"]=$currrent_location["y"]-$dir_y[$direction];
+    $direction=$direction_map[map_coord($cols,$currrent_location["x"],$currrent_location["y"])];
+    $inverse_path[]=array("x"=>$currrent_location["x"],"y"=>$currrent_location["y"],"dir"=>$direction);
   }
-  file_put_contents("/home/jared/git/exec-irc-bot/scripts/irciv/test",$data);
+  # when the start location is reached, break from the loop
+  while (($currrent_location["x"]<>$start["x"]) or ($currrent_location["y"]<>$start["y"]));
+  for ($i=count($inverse_path)-1;$i>=0;$i--)
+  {
+    $path[]=$inverse_path[$i];
+  }
+  return True;
+}
 
+#####################################################################################################
+
+function find_path4(&$path,$start,$finish)
+{
+  global $map_data;
+  # up,right,down,left
+  $dir_x=array(0,1,0,-1);
+  $dir_y=array(-1,0,1,0);
+  $path=array();
+  $locations=array();
+  $cols=$map_data["cols"];
+  $rows=$map_data["rows"];
+  if (($start["x"]<0) or ($start["x"]>=$cols) or ($finish["x"]<0) or ($finish["x"]>=$cols) or ($start["y"]<0) or ($start["y"]>=$rows) or ($finish["y"]<0) or ($finish["y"]>=$rows))
+  {
+    irciv_privmsg("  error: invalid start or finish coordinate(s)");
+    return False;
+  }
+  $coord_start=map_coord($cols,$start["x"],$start["y"]);
+  $coord_finish=map_coord($cols,$finish["x"],$finish["y"]);
+  if ($map_data["coords"][$coord_start]<>$map_data["coords"][$coord_finish])
+  {
+    irciv_privmsg("  error: start and finish coordinates are on different terrain");
+    return False;
+  }
+  # initialize the direction map with X (no direction)
+  $direction_map=str_repeat("X",strlen($map_data["coords"]));
+  $location_index=-1;
+  $currrent_location=$start;
+  do
+  {
+    # test for traversable locations in all directions around the current location
+    for ($direction=0;$direction<count($dir_x);$direction++)
+    {
+      $x=$currrent_location["x"]+$dir_x[$direction];
+      $y=$currrent_location["y"]+$dir_y[$direction];
+      # if the point at ($x, $y) is traversable, add it to the locations array if it hasn't already been added, and add the direction relative to the current location to the direction map
+      if (($x>=0) and ($y>=0) and ($x<$cols) and ($y<$rows))
+      {
+        $coord=map_coord($cols,$x,$y);
+        if (($map_data["coords"][$coord_start]==$map_data["coords"][$coord]) and ($direction_map[$coord]=="X"))
+        {
+          $locations[]=array("x"=>$x,"y"=>$y);
+          $direction_map[$coord]=$direction;
+        }
+      }
+    }
+    # the current location has been fully tested. move on to the next traversable location stored in the locations array
+    $location_index++;
+    if ($location_index>=count($locations))
+    {
+      irciv_privmsg("  error: location_index >= count(locations)");
+      return False;
+    }
+    $currrent_location=$locations[$location_index];
+  }
+  # if the current location is the same as the finish location, a path has been found (break from the searching loop)
+  while (($currrent_location["x"]<>$finish["x"]) or ($currrent_location["y"]<>$finish["y"]));
+  $inverse_path=array();
+  $direction=$direction_map[map_coord($cols,$currrent_location["x"],$currrent_location["y"])];
   #return;
   $inverse_path[]=array("x"=>$currrent_location["x"],"y"=>$currrent_location["y"],"dir"=>$direction);
   # start from the finish and work back to the start, following the inverted directions and adding locations as you go
