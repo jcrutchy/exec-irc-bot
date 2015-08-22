@@ -1858,7 +1858,7 @@ function find_path(&$path,$start,$finish)
   do
   {
     # test for traversable locations in all directions around the current location
-    for ($direction=0;$i<count($dir_x);$i++)
+    for ($direction=0;$direction<count($dir_x);$direction++)
     {
       $x=$currrent_location["x"]+$dir_x[$direction];
       $y=$currrent_location["y"]+$dir_y[$direction];
@@ -1869,75 +1869,55 @@ function find_path(&$path,$start,$finish)
         if (($map_data["coords"][$coord_start]==$map_data["coords"][$coord]) and ($direction_map[$coord]=="X"))
         {
           $locations[]=array("x"=>$x,"y"=>$y);
-          
+          $direction_map[$coord]=$direction;
         }
       }
     }
+    # the current location has been fully tested. move on to the next traversable location stored in the locations array
+    $location_index++;
+    if ($location_index>=count($locations))
+    {
+      irciv_privmsg("  error: location_index >= count(locations)");
+      return False;
+    }
+    $currrent_location=$locations[$location_index];
   }
-  while (($currrent_location["x"]==$finish["x"]) and ($currrent_location["y"]==$finish["y"]));
-}
+  # if the current location is the same as the finish location, a path has been found (break from the searching loop)
+  while (($currrent_location["x"]<>$finish["x"]) or ($currrent_location["y"]<>$finish["y"]));
+  $inverse_path=array();
+  $direction=$direction_map[map_coord($cols,$currrent_location["x"],$currrent_location["y"])];
 
-  /*
-  repeat
-    // Test for traversable locations in all directions around the current location.
-    for Direction := 0 to 7 do
-    begin
-      x := CurrentLocation.x + Directions[0, Direction];
-      y := CurrentLocation.y + Directions[1, Direction];
-      // If the point at (x, y) is traversable, add it to the locations array if it hasn't already been added, and add the direction relative to the current location to the direction map.
-      if (x >= 0) and (y >= 0) and (x < MapWidth) and (y < MapHeight) then
-        if (not ObstacleMap^[y, x]) and (DirectionMap[y, x] = 255) then
-        begin
-          Inc(LocationsCount);
-          SetLength(Locations, LocationsCount);
-          Locations[LocationsCount - 1] := Point(x, y);
-          DirectionMap[y, x] := Direction;
-        end;
-    end;
-    // The current location has been fully tested. Move on to the next traversable location stored in the locations array.
-    Inc(LocationIndex);
-    if LocationIndex >= Length(Locations) then
-    begin
-      SetLength(DirectionMap, 0);
-      SetLength(Locations, 0);
-      SetLength(InversePath, 0);
-      Result := False;
-      ShowMessage('LocationIndex >= Length(Locations)');
-      Exit;
-    end;
-    CurrentLocation := Locations[LocationIndex];
-    // If the current location is the same as the finish location, a path has been found (break from the searching loop).
-  until (CurrentLocation.x = Finish.x) and (CurrentLocation.y = Finish.y);
-  PathLength := 1;
-  SetLength(InversePath, PathLength);
-  InversePath[0].Location := CurrentLocation;
-  InversePath[0].Direction := DirectionMap[CurrentLocation.y, CurrentLocation.x];
-  // Start from the finish and work back to the start, following the inverted directions and adding locations as you go.
-  repeat
-    Direction := DirectionMap[CurrentLocation.y, CurrentLocation.x];
-    // To invert the direction, subtract the ordinal in the directions array instead of adding it.
-    CurrentLocation.x := CurrentLocation.x - Directions[0, Direction];
-    CurrentLocation.y := CurrentLocation.y - Directions[1, Direction];
-    Inc(PathLength);
-    SetLength(InversePath, PathLength);
-    InversePath[PathLength - 1].Location := CurrentLocation;
-    InversePath[PathLength - 1].Direction := Direction;
-    // When the start location is reached, break from the loop.
-  until (CurrentLocation.x = Start.x) and (CurrentLocation.y = Start.y);
-  SetLength(Path^, PathLength);
-  // Copy the points from InversePath into Path in the opposite order.
-  y := PathLength - 1;
-  for x := 0 to PathLength - 1 do
-  begin
-    Path^[x] := InversePath[y];
-    Dec(y);
-  end;
-  // Free memory from temporary arrays.
-  SetLength(DirectionMap, 0);
-  SetLength(Locations, 0);
-  SetLength(InversePath, 0);
-  // Path has been successfully found (and is stored in the array that Path points to).
-  Result := True;*/
+  $data="";
+  for ($y=0;$y<$rows;$y++)
+  {
+    $line="";
+    for ($x=0;$x<$cols;$x++)
+    {
+      $line=$line.$direction_map[map_coord($cols,$x,$y)];
+    }
+    $data=$data.$line.PHP_EOL;
+  }
+  file_put_contents("/home/jared/git/exec-irc-bot/scripts/irciv/test",$data);
+
+  #return;
+  $inverse_path[]=array("x"=>$currrent_location["x"],"y"=>$currrent_location["y"],"dir"=>$direction);
+  # start from the finish and work back to the start, following the inverted directions and adding locations as you go
+  do
+  {
+    # to invert the direction, subtract the ordinal in the directions array instead of adding it
+    $currrent_location["x"]=$currrent_location["x"]-$dir_x[$direction];
+    $currrent_location["y"]=$currrent_location["y"]-$dir_y[$direction];
+    $direction=$direction_map[map_coord($cols,$currrent_location["x"],$currrent_location["y"])];
+    $inverse_path[]=array("x"=>$currrent_location["x"],"y"=>$currrent_location["y"],"dir"=>$direction);
+  }
+  # when the start location is reached, break from the loop
+  while (($currrent_location["x"]<>$start["x"]) or ($currrent_location["y"]<>$start["y"]));
+  for ($i=count($inverse_path)-1;$i>=0;$i--)
+  {
+    $path[]=$inverse_path[$i];
+  }
+  return True;
+}
 
 #####################################################################################################
 
