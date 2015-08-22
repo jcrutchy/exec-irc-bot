@@ -140,15 +140,13 @@ function move_ai($account)
     irciv_privmsg("no path exists");
     return;
   }
-  if (count($path)==0)
+  if (count($path)<=1)
   {
     irciv_privmsg("no path exists");
     return;
   }
   $player_data[$account]["path"]=$path;
-  $dir=$path[0]["dir"];
-  # up,right,down,left
-  $dir=($dir+2)%4;
+  $dir=$path[1]["dir"];
   move_active_unit($account,$dir);
 }
 
@@ -776,21 +774,6 @@ function map_img($map_data,$filename="",$player_data="",$account="",$filetype="p
       }
     }
   }
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (isset($player_data[$account]["path"])==True)
-  {
-    $path=$player_data[$account]["path"];
-    $color_path=imagecolorallocate($buffer,255,0,0);
-    for ($i=1;$i<count($path);$i++)
-    {
-      $p1x=round($path[$i-1]["x"]*$tile_w+$tile_w/2);
-      $p1y=round($path[$i-1]["y"]*$tile_h+$tile_h/2);
-      $p2x=round($path[$i]["x"]*$tile_w+$tile_w/2);
-      $p2y=round($path[$i]["y"]*$tile_h+$tile_h/2);
-      imageline($buffer,$p1x,$p1y,$p2x,$p2y,$color_path);
-    }
-  }
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   imagedestroy($buffer_terrain_ocean);
   imagedestroy($buffer_terrain_land);
   if (($player_data<>"") and ($account<>""))
@@ -825,6 +808,25 @@ function map_img($map_data,$filename="",$player_data="",$account="",$filetype="p
         }
       }
     }
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    if (isset($player_data[$account]["path"])==True)
+    {
+      $path=$player_data[$account]["path"];
+      $color_path=imagecolorallocate($buffer,255,0,0);
+      for ($i=1;$i<count($path);$i++)
+      {
+        $p1x=round($path[$i-1]["x"]*$tile_w+$tile_w/2);
+        $p1y=round($path[$i-1]["y"]*$tile_h+$tile_h/2);
+        $p2x=round($path[$i]["x"]*$tile_w+$tile_w/2);
+        $p2y=round($path[$i]["y"]*$tile_h+$tile_h/2);
+        imageline($buffer,$p1x,$p1y,$p2x,$p2y,$color_path);
+        $color_text=imagecolorallocate($buffer,0,0,0);
+        $color_text_shadow=imagecolorallocate($buffer,255,255,255);
+        #imagestring($buffer,1,$path[$i-1]["x"]*$tile_w+1,$path[$i-1]["y"]*$tile_h,$path[$i-1]["dir"],$color_text_shadow);
+        #imagestring($buffer,1,$path[$i-1]["x"]*$tile_w+2,$path[$i-1]["y"]*$tile_h+1,$path[$i-1]["dir"],$color_text);
+      }
+    }
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     $color_transparent=imagecolorallocate($unit_buffers[$unit_types[0]],255,0,255);
     for ($i=0;$i<count($unit_types);$i++)
     {
@@ -1475,7 +1477,7 @@ function status_msg($account,$msg,$public)
   }
   if (isset($player_data[$account]["flags"]["logging"])==True)
   {
-    file_put_contents(DATA_FILE_PATH."status_log_".$account,$msg,FILE_APPEND);
+    file_put_contents(DATA_FILE_PATH."status_log_".$account,$msg."\n",FILE_APPEND);
   }
 }
 
