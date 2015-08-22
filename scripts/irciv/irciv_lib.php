@@ -1836,7 +1836,7 @@ function find_path(&$path,$start,$finish)
   $dir_x=array(0,1,0,-1,-1,1,-1,1);
   $dir_y=array(-1,0,1,0,-1,-1,1,1);
   $path=array();
-  $directions=array();
+  $locations=array();
   $cols=$map_data["cols"];
   $rows=$map_data["rows"];
   if (($start["x"]<0) or ($start["x"]>=$cols) or ($finish["x"]<0) or ($finish["x"]>=$cols) or ($start["y"]<0) or ($start["y"]>=$rows) or ($finish["y"]<0) or ($finish["y"]>=$rows))
@@ -1868,7 +1868,7 @@ function find_path(&$path,$start,$finish)
         $coord=map_coord($cols,$x,$y);
         if (($map_data["coords"][$coord_start]==$map_data["coords"][$coord]) and ($direction_map[$coord]=="X"))
         {
-          $locations_count++;
+          $locations[]=array("x"=>$x,"y"=>$y);
           
         }
       }
