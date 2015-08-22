@@ -1477,7 +1477,7 @@ function status_msg($account,$msg,$public)
   }
   if (isset($player_data[$account]["flags"]["logging"])==True)
   {
-    file_put_contents(DATA_FILE_PATH."status_log_".$account,$msg."\n",FILE_APPEND);
+    file_put_contents(DATA_FILE_PATH."status_log_".$account,date("Y-m-d H:i:s",microtime(True))." > ".$msg."\n",FILE_APPEND);
   }
 }
 
