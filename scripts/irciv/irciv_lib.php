@@ -95,16 +95,18 @@ function is_gm()
 
 function init_ai()
 {
-  player_init("AI_Player_1");
-  #player_init("AI_Player_2");
+  global $player_data;
+  $account="AI_Player_1";
+  player_init($account);
+  $player_data[$account]["flags"]["logging"]="";
 }
 
 #####################################################################################################
 
 function test_ai()
 {
-  move_ai("AI_Player_1");
-  #move_ai("AI_Player_2");
+  $account="AI_Player_1";
+  move_ai($account);
 }
 
 #####################################################################################################
@@ -115,19 +117,39 @@ function move_ai($account)
   global $map_data;
   if (player_ready($account)==False)
   {
+    irciv_privmsg("player $account not ready");
     return;
   }
+  unset($player_data[$account]["path"]);
+  if (isset($player_data[$account]["active"])==False)
+  {
+    irciv_privmsg("player $account has no active unit");
+    return;
+  }
+  $active=$player_data[$account]["active"];
   $test_enemy_account="crutchy";
   $path=array();
   $start=array();
   $finish=array();
   $start["x"]=$player_data[$account]["units"][$active]["x"];
   $start["y"]=$player_data[$account]["units"][$active]["y"];
-  $finish["x"]=$player_data[$test_enemy_account]["units"][$active]["x"];
-  $finish["y"]=$player_data[$test_enemy_account]["units"][$active]["y"];
-  find_path($path,$start,$finish);
-  #move_active_unit($account,$dir)
-  # log status messages to file
+  $finish["x"]=$player_data[$test_enemy_account]["units"][0]["x"];
+  $finish["y"]=$player_data[$test_enemy_account]["units"][0]["y"];
+  if (find_path4($path,$start,$finish)==False)
+  {
+    irciv_privmsg("no path exists");
+    return;
+  }
+  if (count($path)==0)
+  {
+    irciv_privmsg("no path exists");
+    return;
+  }
+  $player_data[$account]["path"]=$path;
+  $dir=$path[0]["dir"];
+  # up,right,down,left
+  $dir=($dir+2)%4;
+  move_active_unit($account,$dir);
 }
 
 #####################################################################################################
@@ -755,18 +777,18 @@ function map_img($map_data,$filename="",$player_data="",$account="",$filetype="p
     }
   }
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  $path=array();
-  $start=array("x"=>14,"y"=>19);
-  $finish=array("x"=>7,"y"=>52);
-  find_path4($path,$start,$finish);
-  $color_path=imagecolorallocate($buffer,255,0,0);
-  for ($i=1;$i<count($path);$i++)
+  if (isset($player_data[$account]["path"])==True)
   {
-    $p1x=round($path[$i-1]["x"]*$tile_w+$tile_w/2);
-    $p1y=round($path[$i-1]["y"]*$tile_h+$tile_h/2);
-    $p2x=round($path[$i]["x"]*$tile_w+$tile_w/2);
-    $p2y=round($path[$i]["y"]*$tile_h+$tile_h/2);
-    imageline($buffer,$p1x,$p1y,$p2x,$p2y,$color_path);
+    $path=$player_data[$account]["path"];
+    $color_path=imagecolorallocate($buffer,255,0,0);
+    for ($i=1;$i<count($path);$i++)
+    {
+      $p1x=round($path[$i-1]["x"]*$tile_w+$tile_w/2);
+      $p1y=round($path[$i-1]["y"]*$tile_h+$tile_h/2);
+      $p2x=round($path[$i]["x"]*$tile_w+$tile_w/2);
+      $p2y=round($path[$i]["y"]*$tile_h+$tile_h/2);
+      imageline($buffer,$p1x,$p1y,$p2x,$p2y,$color_path);
+    }
   }
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   imagedestroy($buffer_terrain_ocean);
@@ -1329,25 +1351,25 @@ function status($account,$params="")
     $params=explode(" ",$params);
     if (count($params)<>2)
     {
-      status_msg("syntax: [~civ] status [x y]",$public);
+      status_msg($account,"syntax: [~civ] status [x y]",$public);
       return;
     }
     $x=$params[0];
     $y=$params[1];
     if ((exec_is_integer($x)==False) or (exec_is_integer($y)==False))
     {
-      status_msg("error: coordinates must be two positive integers",$public);
+      status_msg($account,"error: coordinates must be two positive integers",$public);
       return;
     }
     if (($x<0) or ($x>=$map_data["cols"]) or ($y<0) or ($y>=$map_data["rows"]))
     {
-      status_msg("error: coordinate $x,$y is outside the map",$public);
+      status_msg($account,"error: coordinate $x,$y is outside the map",$public);
       return;
     }
     $terrain=$map_data["coords"][map_coord($map_data["cols"],$x,$y)];
     if (is_fogged($account,$x,$y)==True)
     {
-      status_msg("coordinate $x,$y is fogged",$public);
+      status_msg($account,"coordinate $x,$y is fogged",$public);
       return;
     }
     $owner="";
@@ -1365,7 +1387,7 @@ function status($account,$params="")
           }
           elseif ($owner<>$player)
           {
-            status_msg("error: multiple players have assets at $x,$y",$public);
+            status_msg($account,"error: multiple players have assets at $x,$y",$public);
             return;
           }
           $units[]=$unit;
@@ -1386,7 +1408,7 @@ function status($account,$params="")
           }
           elseif ($owner<>$player)
           {
-            status_msg("error: multiple players have assets at $x,$y",$public);
+            status_msg($account,"error: multiple players have assets at $x,$y",$public);
             return;
           }
           $cities[]=$city;
@@ -1395,20 +1417,20 @@ function status($account,$params="")
     }
     if ((count($cities)==0) and (count($units)==0))
     {
-      status_msg("coordinate $x,$y ($terrain) is currently unoccupied",$public);
+      status_msg($account,"coordinate $x,$y ($terrain) is currently unoccupied",$public);
       return;
     }
     if (count($cities)>1)
     {
-      status_msg("error: multiple cities at $x,$y",$public);
+      status_msg($account,"error: multiple cities at $x,$y",$public);
       return;
     }
-    status_msg("status for coordinate $x,$y ($terrain): occupied by $owner",$public);
+    status_msg($account,"status for coordinate $x,$y ($terrain): occupied by $owner",$public);
     if (count($cities)>0)
     {
-      status_msg("city: ".$cities[0]["name"],$public);
+      status_msg($account,"city: ".$cities[0]["name"],$public);
     }
-    status_msg("units: ".count($units),$public);
+    status_msg($account,"units: ".count($units),$public);
   }
   else
   {
@@ -1429,19 +1451,20 @@ function status($account,$params="")
         {
           $msg=$msg." (x$count)";
         }
-        status_msg($dest." $account => $msg",$public);
+        status_msg($account,$dest." $account => $msg",$public);
       }
       unset($player_data[$account]["status_messages"]);
     }
-    status_msg($dest." $account => $index/$n, $type, +$health, ($x,$y)",$public);
+    status_msg($account,$dest." $account => $index/$n, $type, +$health, ($x,$y)",$public);
   }
 }
 
 #####################################################################################################
 
-function status_msg($msg,$public)
+function status_msg($account,$msg,$public)
 {
   global $nick;
+  global $player_data;
   if ($public==False)
   {
     notice($nick,$msg);
@@ -1449,6 +1472,10 @@ function status_msg($msg,$public)
   else
   {
     irciv_privmsg($msg);
+  }
+  if (isset($player_data[$account]["flags"]["logging"])==True)
+  {
+    file_put_contents(DATA_FILE_PATH."status_log_".$account,$msg,FILE_APPEND);
   }
 }
 
@@ -1885,7 +1912,6 @@ function find_path(&$path,$start,$finish)
   while (($currrent_location["x"]<>$finish["x"]) or ($currrent_location["y"]<>$finish["y"]));
   $inverse_path=array();
   $direction=$direction_map[map_coord($cols,$currrent_location["x"],$currrent_location["y"])];
-  #return;
   $inverse_path[]=array("x"=>$currrent_location["x"],"y"=>$currrent_location["y"],"dir"=>$direction);
   # start from the finish and work back to the start, following the inverted directions and adding locations as you go
   do
@@ -1964,7 +1990,6 @@ function find_path4(&$path,$start,$finish)
   while (($currrent_location["x"]<>$finish["x"]) or ($currrent_location["y"]<>$finish["y"]));
   $inverse_path=array();
   $direction=$direction_map[map_coord($cols,$currrent_location["x"],$currrent_location["y"])];
-  #return;
   $inverse_path[]=array("x"=>$currrent_location["x"],"y"=>$currrent_location["y"],"dir"=>$direction);
   # start from the finish and work back to the start, following the inverted directions and adding locations as you go
   do

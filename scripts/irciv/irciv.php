@@ -90,12 +90,14 @@ switch ($action)
     if (is_gm()==True)
     {
       init_ai();
+      $irciv_data_changed=True;
     }
     break;
   case "test-ai":
     if (is_gm()==True)
     {
       test_ai();
+      $irciv_data_changed=True;
     }
     break;
   case "game-list":
