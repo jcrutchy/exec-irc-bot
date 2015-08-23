@@ -166,6 +166,7 @@ function move_ai($account)
     if (count($paths[$i])<$min_path_length)
     {
       $min_path=$i;
+      $min_path_length=count($paths[$i]);
     }
   }
   if ($min_path>=0)
