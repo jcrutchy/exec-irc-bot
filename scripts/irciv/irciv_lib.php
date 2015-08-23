@@ -96,17 +96,23 @@ function is_gm()
 function init_ai()
 {
   global $player_data;
-  $account="AI_Player_1";
-  player_init($account);
-  $player_data[$account]["flags"]["logging"]="";
+  $ai_accounts=array("AI_Player_1","AI_Player_2","AI_Player_3","AI_Player_4","AI_Player_5");
+  for ($i=0;$i<count($ai_accounts);$i++)
+  {
+    player_init($ai_accounts[$i]);
+    $player_data[$ai_accounts[$i]]["flags"]["logging"]="";
+  }
 }
 
 #####################################################################################################
 
 function test_ai()
 {
-  $account="AI_Player_1";
-  move_ai($account);
+  $ai_accounts=array("AI_Player_1","AI_Player_2","AI_Player_3","AI_Player_4","AI_Player_5");
+  for ($i=0;$i<count($ai_accounts);$i++)
+  {
+    move_ai($ai_accounts[$i]);
+  }
 }
 
 #####################################################################################################
@@ -127,27 +133,47 @@ function move_ai($account)
     return;
   }
   $active=$player_data[$account]["active"];
-  $test_enemy_account="crutchy";
-  $path=array();
   $start=array();
-  $finish=array();
   $start["x"]=$player_data[$account]["units"][$active]["x"];
   $start["y"]=$player_data[$account]["units"][$active]["y"];
-  $finish["x"]=$player_data[$test_enemy_account]["units"][0]["x"];
-  $finish["y"]=$player_data[$test_enemy_account]["units"][0]["y"];
-  if (find_path4($path,$start,$finish)==False)
+  $paths=array();
+  foreach ($player_data as $enemy_account=>$enemy_data)
   {
-    irciv_privmsg("no path exists");
-    return;
+    if ($enemy_account==$account)
+    {
+      continue;
+    }
+    $path=array();
+    $finish=array();
+    $finish["x"]=$player_data[$enemy_account]["units"][0]["x"];
+    $finish["y"]=$player_data[$enemy_account]["units"][0]["y"];
+    if (find_path4($path,$start,$finish)==False)
+    {
+      irciv_privmsg("no path exists between $account and $enemy_account");
+      continue;
+    }
+    if (count($path)<=1)
+    {
+      irciv_privmsg("no path exists between $account and $enemy_account");
+      continue;
+    }
+    $paths[]=$path;
   }
-  if (count($path)<=1)
+  $min_path_length=$map_data["cols"]*$map_data["rows"];
+  $min_path=-1;
+  for ($i=0;$i<count($paths);$i++)
   {
-    irciv_privmsg("no path exists");
-    return;
+    if (count($paths[$i])<$min_path_length)
+    {
+      $min_path=$i;
+    }
   }
-  $player_data[$account]["path"]=$path;
-  $dir=$path[1]["dir"];
-  move_active_unit($account,$dir);
+  if ($min_path>=0)
+  {
+    $player_data[$account]["path"]=$paths[$min_path];
+    $dir=$paths[$min_path][1]["dir"];
+    move_active_unit($account,$dir);
+  }
 }
 
 #####################################################################################################
@@ -755,7 +781,7 @@ function map_img($map_data,$filename="",$player_data="",$account="",$filetype="p
       {
         if ($player_data[$account]["fog"][$i]=="0")
         {
-          continue;
+          #continue;
         }
       }
       if ($map_data["coords"][$i]==TERRAIN_LAND)
@@ -916,7 +942,7 @@ function map_img($map_data,$filename="",$player_data="",$account="",$filetype="p
   }
   imagedestroy($buffer_resized);
   unset($buffer_resized);
-  if (isset($player_data[$account]["flags"]["crop_map"])==True)
+  /*if (isset($player_data[$account]["flags"]["crop_map"])==True)
   {
     $fog_boundary_l=$cols;
     $fog_boundary_t=$rows;
@@ -980,7 +1006,7 @@ function map_img($map_data,$filename="",$player_data="",$account="",$filetype="p
       imagedestroy($buffer_resized);
       unset($buffer_resized);
     }
-  }
+  }*/
   if ($filename<>"")
   {
     switch ($filetype)
@@ -1178,6 +1204,7 @@ function player_init($account)
   cycle_active($account);
   $player_data[$account]["start_x"]=$start_x;
   $player_data[$account]["start_y"]=$start_y;
+  $player_data[$account]["status_messages"]=array();
   status($account);
   return True;
 }
@@ -1261,7 +1288,8 @@ function add_unit($account,$type,$x,$y)
   $units=&$player_data[$account]["units"];
   $data["type"]=$type;
   $data["health"]=MAX_HEALTH;
-  $data["sight_range"]=4;
+  #$data["sight_range"]=4;
+  $data["sight_range"]=100;
   $data["x"]=$x;
   $data["y"]=$y;
   $data["strength"]=$unit_strengths[$type];
@@ -1698,6 +1726,10 @@ function update_other_players($account,$active)
     if (player_ready($player)==False)
     {
       continue;
+    }
+    if (isset($player_data[$player]["status_messages"])==False)
+    {
+      $player_data[$player]["status_messages"]=array();
     }
     if (is_fogged($player,$x,$y)==False)
     {
