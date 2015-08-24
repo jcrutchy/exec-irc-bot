@@ -101,6 +101,7 @@ function init_ai()
   {
     player_init($ai_accounts[$i]);
     $player_data[$ai_accounts[$i]]["flags"]["logging"]="";
+    unset($player_data[$ai_accounts[$i]]["flags"]["irc_messages"]);
   }
 }
 
@@ -1192,6 +1193,7 @@ function player_init($account)
   $player_data[$account]["flags"]["coords"]="";
   $player_data[$account]["flags"]["city_names"]="";
   $player_data[$account]["flags"]["crop_map"]="";
+  $player_data[$account]["flags"]["irc_messages"]="";
   $player_data[$account]["fog"]=str_repeat("0",strlen($map_data["coords"]));
   $start_x=-1;
   $start_y=-1;
@@ -1205,7 +1207,6 @@ function player_init($account)
   cycle_active($account);
   $player_data[$account]["start_x"]=$start_x;
   $player_data[$account]["start_y"]=$start_y;
-  $player_data[$account]["status_messages"]=array();
   status($account);
   return True;
 }
@@ -1496,13 +1497,16 @@ function status_msg($account,$msg,$public)
 {
   global $nick;
   global $player_data;
-  if ($public==False)
+  if (isset($player_data[$account]["flags"]["irc_messages"])==True)
   {
-    notice($nick,$msg);
-  }
-  else
-  {
-    irciv_privmsg($msg);
+    if ($public==False)
+    {
+      notice($nick,$msg);
+    }
+    else
+    {
+      irciv_privmsg($msg);
+    }
   }
   if (isset($player_data[$account]["flags"]["logging"])==True)
   {

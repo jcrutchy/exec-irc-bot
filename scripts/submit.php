@@ -4,7 +4,7 @@
 
 /*
 exec:~submit|120|0|0|1|*||||php scripts/submit.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~submit-advert|21600|0|0|1|*||||php scripts/submit.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#exec:~submit-advert|21600|0|0|1|*||||php scripts/submit.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~filter|120|0|0|1|*||||php scripts/submit.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
