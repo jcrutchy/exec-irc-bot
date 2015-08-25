@@ -74,6 +74,12 @@ switch ($action)
       register_channel();
     }
     break;
+  case "flush-channel":
+    if (is_gm()==True)
+    {
+      flush_channel($dest);
+    }
+    break;
   case "save-data":
     if (is_gm()==True)
     {
@@ -96,7 +102,14 @@ switch ($action)
   case "test-ai":
     if (is_gm()==True)
     {
-      test_ai();
+      if ($trailing=="")
+      {
+        test_ai(1);
+      }
+      else
+      {
+        test_ai($trailing);
+      }
       $irciv_data_changed=True;
     }
     break;

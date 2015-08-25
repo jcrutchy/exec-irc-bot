@@ -57,6 +57,14 @@ function output_help()
 
 #####################################################################################################
 
+function flush_channel($dest)
+{
+  unset_bucket(GAME_BUCKET_PREFIX.$dest);
+  irciv_privmsg("game data for channel \"$dest\" deleted");
+}
+
+#####################################################################################################
+
 function get_game_list()
 {
   $prefix="IRCIV_GAME_";
@@ -107,13 +115,17 @@ function init_ai()
 
 #####################################################################################################
 
-function test_ai()
+function test_ai($turns)
 {
   $ai_accounts=array("AI_Player_1","AI_Player_2","AI_Player_3","AI_Player_4","AI_Player_5");
-  for ($i=0;$i<count($ai_accounts);$i++)
+  for ($n=1;$n<=$turns;$n++)
   {
-    move_ai($ai_accounts[$i]);
+    for ($i=0;$i<count($ai_accounts);$i++)
+    {
+      move_ai($ai_accounts[$i]);
+    }
   }
+  irciv_privmsg("ai player moves complete");
 }
 
 #####################################################################################################
@@ -148,14 +160,16 @@ function move_ai($account)
     $finish=array();
     $finish["x"]=$player_data[$enemy_account]["units"][0]["x"];
     $finish["y"]=$player_data[$enemy_account]["units"][0]["y"];
-    if (find_path4($path,$start,$finish)==False)
+    if (find_path($path,$start,$finish)==False)
     {
-      irciv_privmsg("no path exists between $account and $enemy_account");
+      $player_data[$account]["status_messages"][]="no path exists between $account and $enemy_account";
+      status($account);
       continue;
     }
     if (count($path)<=1)
     {
-      irciv_privmsg("no path exists between $account and $enemy_account");
+      $player_data[$account]["status_messages"][]="no path exists between $account and $enemy_account";
+      status($account);
       continue;
     }
     $paths[]=$path;
@@ -186,6 +200,7 @@ function register_channel()
   global $dest;
   global $game_data;
   global $irciv_data_changed;
+  $all_channels=users_get_all_channels(); # seems to be needed to kick the users bucket into gear
   irciv_term_echo("trailing = \"$trailing\"");
   $channel="";
   if ($trailing<>"")
@@ -201,7 +216,7 @@ function register_channel()
   }
   if (users_chan_exists($channel)==False)
   {
-    irciv_privmsg("error: channel not found");
+    irciv_privmsg("error: channel \"$channel\" not found");
     return;
   }
   if (isset($game_data["map"])==True)
@@ -213,7 +228,7 @@ function register_channel()
   $game_data["map"]=$map_data;
   $game_data["players"]=array();
   $irciv_data_changed=True;
-  $msg="map generated for channel $channel";
+  $msg="map generated for channel \"$channel\"";
   if ($trailing<>"")
   {
     irciv_privmsg_dest($trailing,$msg);
@@ -1897,84 +1912,6 @@ function cycle_active($account)
 function find_path(&$path,$start,$finish)
 {
   global $map_data;
-  # up,right,down,left,up/left,up/right,down/left,down/right
-  $dir_x=array(0,1,0,-1,-1,1,-1,1);
-  $dir_y=array(-1,0,1,0,-1,-1,1,1);
-  $path=array();
-  $locations=array();
-  $cols=$map_data["cols"];
-  $rows=$map_data["rows"];
-  if (($start["x"]<0) or ($start["x"]>=$cols) or ($finish["x"]<0) or ($finish["x"]>=$cols) or ($start["y"]<0) or ($start["y"]>=$rows) or ($finish["y"]<0) or ($finish["y"]>=$rows))
-  {
-    irciv_privmsg("  error: invalid start or finish coordinate(s)");
-    return False;
-  }
-  $coord_start=map_coord($cols,$start["x"],$start["y"]);
-  $coord_finish=map_coord($cols,$finish["x"],$finish["y"]);
-  if ($map_data["coords"][$coord_start]<>$map_data["coords"][$coord_finish])
-  {
-    irciv_privmsg("  error: start and finish coordinates are on different terrain");
-    return False;
-  }
-  # initialize the direction map with X (no direction)
-  $direction_map=str_repeat("X",strlen($map_data["coords"]));
-  $location_index=-1;
-  $currrent_location=$start;
-  do
-  {
-    # test for traversable locations in all directions around the current location
-    for ($direction=0;$direction<count($dir_x);$direction++)
-    {
-      $x=$currrent_location["x"]+$dir_x[$direction];
-      $y=$currrent_location["y"]+$dir_y[$direction];
-      # if the point at ($x, $y) is traversable, add it to the locations array if it hasn't already been added, and add the direction relative to the current location to the direction map
-      if (($x>=0) and ($y>=0) and ($x<$cols) and ($y<$rows))
-      {
-        $coord=map_coord($cols,$x,$y);
-        if (($map_data["coords"][$coord_start]==$map_data["coords"][$coord]) and ($direction_map[$coord]=="X"))
-        {
-          $locations[]=array("x"=>$x,"y"=>$y);
-          $direction_map[$coord]=$direction;
-        }
-      }
-    }
-    # the current location has been fully tested. move on to the next traversable location stored in the locations array
-    $location_index++;
-    if ($location_index>=count($locations))
-    {
-      irciv_privmsg("  error: location_index >= count(locations)");
-      return False;
-    }
-    $currrent_location=$locations[$location_index];
-  }
-  # if the current location is the same as the finish location, a path has been found (break from the searching loop)
-  while (($currrent_location["x"]<>$finish["x"]) or ($currrent_location["y"]<>$finish["y"]));
-  $inverse_path=array();
-  $direction=$direction_map[map_coord($cols,$currrent_location["x"],$currrent_location["y"])];
-  $inverse_path[]=array("x"=>$currrent_location["x"],"y"=>$currrent_location["y"],"dir"=>$direction);
-  # start from the finish and work back to the start, following the inverted directions and adding locations as you go
-  do
-  {
-    # to invert the direction, subtract the ordinal in the directions array instead of adding it
-    $currrent_location["x"]=$currrent_location["x"]-$dir_x[$direction];
-    $currrent_location["y"]=$currrent_location["y"]-$dir_y[$direction];
-    $direction=$direction_map[map_coord($cols,$currrent_location["x"],$currrent_location["y"])];
-    $inverse_path[]=array("x"=>$currrent_location["x"],"y"=>$currrent_location["y"],"dir"=>$direction);
-  }
-  # when the start location is reached, break from the loop
-  while (($currrent_location["x"]<>$start["x"]) or ($currrent_location["y"]<>$start["y"]));
-  for ($i=count($inverse_path)-1;$i>=0;$i--)
-  {
-    $path[]=$inverse_path[$i];
-  }
-  return True;
-}
-
-#####################################################################################################
-
-function find_path4(&$path,$start,$finish)
-{
-  global $map_data;
   # up,right,down,left
   $dir_x=array(0,1,0,-1);
   $dir_y=array(-1,0,1,0);
@@ -1984,14 +1921,14 @@ function find_path4(&$path,$start,$finish)
   $rows=$map_data["rows"];
   if (($start["x"]<0) or ($start["x"]>=$cols) or ($finish["x"]<0) or ($finish["x"]>=$cols) or ($start["y"]<0) or ($start["y"]>=$rows) or ($finish["y"]<0) or ($finish["y"]>=$rows))
   {
-    irciv_privmsg("  error: invalid start or finish coordinate(s)");
+    # invalid start or finish coordinate(s)
     return False;
   }
   $coord_start=map_coord($cols,$start["x"],$start["y"]);
   $coord_finish=map_coord($cols,$finish["x"],$finish["y"]);
   if ($map_data["coords"][$coord_start]<>$map_data["coords"][$coord_finish])
   {
-    irciv_privmsg("  error: start and finish coordinates are on different terrain");
+    # start and finish coordinates are on different terrain
     return False;
   }
   # initialize the direction map with X (no direction)
@@ -2020,7 +1957,7 @@ function find_path4(&$path,$start,$finish)
     $location_index++;
     if ($location_index>=count($locations))
     {
-      irciv_privmsg("  error: location_index >= count(locations)");
+      # run out of locations to test and finish hasn't been found
       return False;
     }
     $currrent_location=$locations[$location_index];
