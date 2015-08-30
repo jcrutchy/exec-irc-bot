@@ -92,6 +92,7 @@ if (($alias=="~slashcode-issue") or ($alias=="~rehash-issue") or ($alias=="~exec
 $list=array(
   "crutchy-/exec-irc-bot",
   "crutchy-/ircd",
+  "crutchy-/iiterm",
   "TheMightyBuzzard/slashcode",
   "TheMightyBuzzard/api-testing",
   "chromatos/pas",

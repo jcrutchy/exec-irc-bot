@@ -83,12 +83,23 @@ function shell_sed($trailing,$nick,$dest)
   $sed_nick="";
   if (count($parts)>1)
   {
-    $sed_nick=$parts[0];
-    if (strpos(":,>.",substr($sed_nick,strlen($sed_nick)-1))!==False)
+    $break=False;
+    for ($i=0;$i<count($delims);$i++)
     {
-      $sed_nick=substr($sed_nick,0,strlen($sed_nick)-1);
+      if (strpos($parts[0],$delims[$i])==False)
+      {
+        $break=True;
+      }
     }
-    array_shift($parts);
+    if ($break==False)
+    {
+      $sed_nick=$parts[0];
+      if (strpos(":,>.",substr($sed_nick,strlen($sed_nick)-1))!==False)
+      {
+        $sed_nick=substr($sed_nick,0,strlen($sed_nick)-1);
+      }
+      array_shift($parts);
+    }
   }
   if ($sed_nick=="")
   {
