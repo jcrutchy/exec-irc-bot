@@ -86,9 +86,10 @@ function shell_sed($trailing,$nick,$dest)
     $break=False;
     for ($i=0;$i<count($delims);$i++)
     {
-      if (strpos($parts[0],$delims[$i])==False)
+      if (strpos($parts[0],$delims[$i])==True)
       {
         $break=True;
+        break;
       }
     }
     if ($break==False)
