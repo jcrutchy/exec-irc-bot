@@ -16,6 +16,10 @@ startup:~join #freenode
 ~minion forward sylnt #freenode
 ~minion join sylnt #devuan,#devuan-dev,#IRCiv,#epoch
 ~minion raw sylnt :sylnt PART #debian
+
+~minion new cmn32480s_bot
+~minion privmsg cmn32480s_bot #soylent ruff!
+~minion privmsg cmn32480s_bot #soylent ACTION farts
 */
 
 # .alljoins #epoch,#boxedfox,##crawl,#NetHack
