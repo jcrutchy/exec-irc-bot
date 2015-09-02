@@ -21,7 +21,7 @@ $cmd=$argv[6];
 $data=$argv[7];
 $params=$argv[8];
 $timestamp=$argv[9];
-$items=unserialize($argv[10]);
+$items=unserialize(base64_decode($argv[10]));
 
 #####################################################################################################
 

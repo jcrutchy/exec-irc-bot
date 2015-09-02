@@ -39,7 +39,7 @@ include test.php
 ~openthepodbaydoors|5|0|1|1|||||fortune -s -o
 
 # FOLLOWING ALIAS PERMITS GENERIC SHELL COMMANDS IN IRC (ENABLE AT OWN RISK)
-~eval|10|0|1|0|@||#soylent,#journals,#test||{ eval %%trailing%% ; } 2>&1
+~eval|10|0|1|0|@||#soylent,#journals,#test,#||{ eval %%trailing%% ; } 2>&1
 
 ~deb|10|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
 
@@ -53,3 +53,5 @@ include test.php
 # http://finance.yahoo.com/d/quotes.csv?s=GBPEUR=X&f=l1
 
 #~last|10|0|1|0|*||||{ mysql --user=public --password=public -e 'SELECT `time`,`trailing` FROM exec_irc_bot.irc_log where ((nick="%%trailing%%") and (destination="%%dest%%")) order by id desc limit 1;' | tail -1 ; } 2>&1
+
+~seen|10|0|1|0|*||||{ mysql --user=public --password=public -e 'SELECT `time`,`trailing` FROM exec_irc_bot.irc_log where ((nick="%%trailing%%") and (destination="%%dest%%")) order by id desc limit 1;' | tail -1 ; } 2>&1

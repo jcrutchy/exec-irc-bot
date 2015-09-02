@@ -67,6 +67,7 @@ function execute_prepare($sql,$params)
   }
   foreach ($params as $key => $value)
   {
+    
     if (ctype_digit(strval($value))==True)
     {
       $statement->bindParam(":$key",$params[$key],PDO::PARAM_INT);
@@ -102,11 +103,21 @@ function fetch_prepare($sql,$params)
   {
     if (ctype_digit(strval($value))==True)
     {
-      $statement->bindParam(":$key",$value,PDO::PARAM_INT);
+      $err=$statement->bindParam(":$key",$params[$key],PDO::PARAM_INT);
     }
     else
     {
-      $statement->bindParam(":$key",$value,PDO::PARAM_STR);
+      $err=$statement->bindParam(":$key",$params[$key],PDO::PARAM_STR);
+    }
+    if ($err==False)
+    {
+      $err=$statement->errorInfo();
+      if ($err[0]<>Null)
+      {
+        echo $err[2]."\n";
+      }
+      term_echo("SQL BINDVALUE ERROR\n\n$sql\n");
+      return False;
     }
   }
   if ($statement->execute()===False)

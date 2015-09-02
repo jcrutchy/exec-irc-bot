@@ -51,7 +51,7 @@ if (strlen($def)>500)
 }
 if ($def<>"")
 {
-  privmsg("[google translate] $msg ($lang_from -> $lang_to): $def");
+  privmsg("[google] $msg ($lang_from -> $lang_to): $def");
 }
 
 #####################################################################################################
