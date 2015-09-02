@@ -34,6 +34,7 @@ include ./scripts/seen.php
 
 ~eval|20|0|1|0|@||||{ eval %%trailing%% ; } 2>&1
 
+~addr|10|0|1|0|*||||{ host '%%trailing%%' | head -1 ; } 2>&1
 
 init ./scripts
 #startup ./scripts (don't enable for freenode - there are lots of joins)
