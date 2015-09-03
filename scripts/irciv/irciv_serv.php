@@ -2,11 +2,14 @@
 
 #####################################################################################################
 
-define("LISTEN_ADDRESS","127.0.0.1");
+$addr=gethostbyname("localhost");
+
+define("LISTEN_ADDRESS",$addr);
 define("LISTEN_PORT",50005);
 define("CLIENT_TIMEOUT",60); # seconds
 
 define("MAX_DATA_LEN",1024);
+define("MAX_CLIENTS",50);
 
 $connections=array();
 $nicks=array();
@@ -17,7 +20,53 @@ set_time_limit(0);
 ob_implicit_flush();
 date_default_timezone_set("UTC");
 
-$server=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
+$server=stream_socket_server("tcp://".LISTEN_ADDRESS.":".LISTEN_PORT,$errno,$errmsg);
+if ($server===False)
+{
+  echo "*** could not bind to socket: ".$errmsg."\n";
+  return;
+}
+$clients=array($server);
+echo "CRUTCHY IRCD\n";
+echo "listening...\n";
+for (;;)
+{
+  $read=$clients;
+  $write=NULL;
+  $except=NULL;
+  if (socket_select($read,$write,$except,0)<1)
+  {
+    usleep(10000);
+    continue;
+  }
+  if (in_array($server,$read)==True)
+  {
+    $client=stream_socket_accept($server);
+    if ($client!==False)
+    {
+      if (count($clients)<=MAX_CLIENTS)
+      {
+        $clients[]=$client;
+        $client_index=array_search($client,$clients);
+        $addr=stream_socket_get_name($client,True);
+        echo "connected to remote address $addr\n";
+        #on_connect($client_index);
+        $n=count($clients)-1;
+        socket_write($client,"successfully connected to server\nthere are $n clients connected\n");
+        $key=array_search($server,$read);
+        unset($read[$key]);
+      }
+      else
+      {
+        socket_write($client,"too many clients connected\n");
+        fclose($client);
+      }
+    }
+  }
+  #fclose($client);
+}
+
+/*$server=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
 if ($server===False)
 {
   echo "*** socket_create() failed: reason: ".socket_strerror(socket_last_error())."\n";
