@@ -10,9 +10,8 @@ init:.karma-internal register-events
 
 #####################################################################################################
 
-return;
-
 require_once("lib.php");
+require_once("switches.php");
 
 $trailing=trim($argv[1]);
 $dest=$argv[2];
@@ -22,7 +21,7 @@ $server=$argv[5];
 
 if ($trailing=="register-events")
 {
-  register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :.karma-internal %%trailing%%");
+  register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :.karma-internal PRIVMSG %%trailing%%");
   return;
 }
 
@@ -42,45 +41,52 @@ switch ($flag)
   case 4:
     privmsg("karma already disabled for ".chr(3)."10$dest");
     return;
-  case 9:
-    do_karma($trailing,$alias,$server,$dest);
+  case 7:
+  case 11:
+    break;
+  default:
     return;
 }
 
-#####################################################################################################
-
-function do_karma($trailing,$alias,$server,$dest)
+if ($alias==".karma")
 {
-  $data=get_array_bucket("<<EXEC_KARMA>>");
-  if ($alias<>".karma")
+  $msg=$trailing;
+}
+
+if ($msg=="")
+{
+  return;
+}
+
+$data=get_array_bucket("EXEC_KARMA");
+if ($alias<>".karma")
+{
+  $operator=substr($msg,strlen($msg)-2);
+  $msg=substr($msg,0,strlen($msg)-2);
+  if (isset($data[$server][$dest][$msg])==False)
   {
-    $operator=substr($trailing,strlen($trailing)-2);
-    $trailing=substr($trailing,0,strlen($trailing)-2);
-    if (isset($data[$server][$dest][$trailing])==False)
-    {
-      $data[$server][$dest][$trailing]=0;
-    }
-    switch ($operator)
-    {
-      case "++":
-        $data[$server][$dest][$trailing]=$data[$server][$dest][$trailing]+1;
-        break;
-      case "--":
-        $data[$server][$dest][$trailing]=$data[$server][$dest][$trailing]-1;
-        break;
-      default:
-        return;
-    }
-    set_array_bucket($data,"<<EXEC_KARMA>>");
+    $data[$server][$dest][$msg]=0;
   }
-  if (isset($data[$server][$dest][$trailing])==False)
+  switch ($operator)
   {
-    privmsg(chr(3)."$trailing doesn't have karma yet");
+    case "++":
+      $data[$server][$dest][$msg]=$data[$server][$dest][$msg]+1;
+      break;
+    case "--":
+      $data[$server][$dest][$msg]=$data[$server][$dest][$msg]-1;
+      break;
+    default:
+      return;
   }
-  else
-  {
-    privmsg(chr(2)."karma".chr(2)." - $trailing: ".$data[$server][$dest][$trailing]);
-  }
+  set_array_bucket($data,"EXEC_KARMA");
+}
+if (isset($data[$server][$dest][$msg])==False)
+{
+  privmsg(chr(3)."$msg doesn't have karma yet");
+}
+else
+{
+  privmsg(chr(2)."karma".chr(2)." - $msg: ".$data[$server][$dest][$msg]);
 }
 
 #####################################################################################################
