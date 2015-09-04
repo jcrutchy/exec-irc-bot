@@ -26,10 +26,7 @@ if (count($records)==0)
 }
 else
 {
-  $t=microtime(True);
-  term_echo($t);
-  term_echo($records[0]["microtime"]);
-  $delta=$t-$records[0]["microtime"];
+  $delta=microtime(True)-$records[0]["microtime"];
   if ($delta<=0.5)
   {
     privmsg(chr(3).$items["nick"].", $trailing was last seen in ".$items["destination"]." just now with message: ".$records[0]["trailing"]);

@@ -29,7 +29,7 @@ if ($server===False)
 $clients=array($server);
 echo "CRUTCHY IRCD\n";
 echo "listening...\n";
-for (;;)
+while (True)
 {
   $read=$clients;
   $write=NULL;

@@ -2512,6 +2512,7 @@ function process_scripts($items,$reserved="",$piped_commands="")
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_CMD.TEMPLATE_DELIM,escapeshellarg($cmd),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_PARAMS.TEMPLATE_DELIM,escapeshellarg($items["params"]),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_TIMESTAMP.TEMPLATE_DELIM,escapeshellarg($start),$template);
+  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_SERVER.TEMPLATE_DELIM,escapeshellarg($items["server"]),$template);
   $command="exec ".$template;
   $command=$template;
   $cwd=NULL;

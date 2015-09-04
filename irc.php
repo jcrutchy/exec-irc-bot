@@ -163,6 +163,7 @@ define("TEMPLATE_ITEMS","items");
 define("TEMPLATE_CMD","cmd");
 define("TEMPLATE_PARAMS","params");
 define("TEMPLATE_TIMESTAMP","timestamp");
+define("TEMPLATE_SERVER","server");
 
 define("THROTTLE_LOCKOUT_TIME",10); # sec
 define("ANTI_FLOOD_DELAY",0.7); # sec
