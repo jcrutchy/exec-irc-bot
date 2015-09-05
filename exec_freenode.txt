@@ -27,6 +27,8 @@ include ./scripts/karma.php
 
 include ./scripts/000.php
 
+include ./scripts/python/yukiku.py
+
 #~epoch-feed|280|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 #~cowsay|10|0|1|0|||||cowsay %%trailing%%
