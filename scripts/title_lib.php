@@ -38,6 +38,11 @@ function title_privmsg($trailing,$channel)
       continue;
     }
     $rd_url=$redirect_data["url"];
+    # INCORPORATED THE FOLLOWING CONDITION TO ACCOMMODATE ohmibod YOUTUBE TITLES
+    if ((strpos($rd_url,"youtube")!==False) and ($channel=="##anime-japanese"))
+    {
+      continue;
+    }
     $raw=get_raw_title($redirect_data);
     if ($raw!==False)
     {
