@@ -165,6 +165,8 @@ define("TEMPLATE_PARAMS","params");
 define("TEMPLATE_TIMESTAMP","timestamp");
 define("TEMPLATE_SERVER","server");
 
+define("TEMPLATE_ACCESS_PREFIX","process_template_");
+
 define("THROTTLE_LOCKOUT_TIME",10); # sec
 define("ANTI_FLOOD_DELAY",0.7); # sec
 define("RAWMSG_TIME_COUNT",5); # messages to send without any delays

@@ -18,6 +18,8 @@ $nick=$argv[3];
 $alias=$argv[4];
 $server=$argv[5];
 
+return;
+
 if ($trailing=="register-events")
 {
   register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~tell-internal %%trailing%%");
@@ -26,6 +28,7 @@ if ($trailing=="register-events")
 
 if ($alias=="~tell")
 {
+  $msg="";
   append_array_bucket("TELL_MESSAGES_".$server."_".$nick,$msg);
   return;
 }

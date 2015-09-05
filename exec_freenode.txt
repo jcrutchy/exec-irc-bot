@@ -23,6 +23,9 @@ include ./scripts/quit.php
 include ./scripts/link.php
 include ./scripts/seen.php
 #include ./scripts/ircd.php
+include ./scripts/karma.php
+
+include ./scripts/000.php
 
 #~epoch-feed|280|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 

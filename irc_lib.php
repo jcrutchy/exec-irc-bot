@@ -877,6 +877,23 @@ function handle_buckets($data,$handle)
   {
     case CMD_BUCKET_GET:
       $index=$trailing;
+      if (substr($index,0,strlen(TEMPLATE_ACCESS_PREFIX))==TEMPLATE_ACCESS_PREFIX)
+      {
+        $process_template=substr($index,strlen(TEMPLATE_ACCESS_PREFIX));
+        if (isset($handle[$process_template])==True)
+        {
+          $result=handle_stdin($handle,$handle[$process_template]);
+          if ($result===False)
+          {
+            term_echo("process template \"".$process_template."\" failed for pid ".$handle["pid"]);
+          }
+          else
+          {
+            term_echo("process template \"".$process_template."\" returned successfully for pid ".$handle["pid"]);
+          }
+          return True;
+        }
+      }
       if (isset($buckets[$index])==True)
       {
         if (isset($bucket_locks[$index])==True)
