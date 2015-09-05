@@ -17,4 +17,4 @@ def function_call(arg):
     else:
         print arg1
  
-function_call(sys.arg)
+function_call(sys.argv)
