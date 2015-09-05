@@ -20,6 +20,6 @@ def function_call(arg):
     if function_name(arg) == True:
         print "I'm true!"
     else:
-        print function_name(arg)
+        print chr(3) + function_name(arg)
  
 function_call(arg)
