@@ -1,5 +1,5 @@
 """
-exec:~yukiku|10|0|1|1|*||||python scripts/python/yukiku.py %%trailing%%
+exec:~yukiku|10|0|1|1|*||||python scripts/python/yukiku.py %%trailing%% 2>&1
 """
 
 import sys
