@@ -10,6 +10,8 @@ init:~tell-internal register-events
 
 #####################################################################################################
 
+date_default_timezone_set("UTC");
+
 require_once("lib.php");
 
 $trailing=trim($argv[1]);
@@ -18,24 +20,43 @@ $nick=$argv[3];
 $alias=$argv[4];
 $server=$argv[5];
 
-return;
-
 if ($trailing=="register-events")
 {
   register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~tell-internal %%trailing%%");
   return;
 }
 
+if ($dest<>"#journals")
+{
+  return;
+}
+
 if ($alias=="~tell")
 {
-  $msg="";
-  append_array_bucket("TELL_MESSAGES_".$server."_".$nick,$msg);
+  $parts=explode(" ",$trailing);
+  $target=strtolower($parts[0]);
+  array_shift($parts);
+  $trailing=trim(implode(" ",$parts));
+  append_array_bucket("TELL_MESSAGES_".$server."_".$target,$target.", at ".date("Y-m-d H:i:s",microtime(True)).", ".$nick." left message: ".$trailing);
+  privmsg("message saved");
+  return;
+}
+
+if (substr($trailing,0,5)=="~tell")
+{
   return;
 }
 
 $messages=get_array_bucket("TELL_MESSAGES_".$server."_".$nick);
 
+var_dump($messages);
 
+
+for ($i=0;$i<count($messages);$i++)
+{
+  pm($nick,$messages[$i]);
+}
+unset_bucket("TELL_MESSAGES_".$server."_".$nick);
 
 #####################################################################################################
 

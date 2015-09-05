@@ -23,6 +23,11 @@ $alias=trim($argv[2]);
 $dest=$argv[3];
 $nick=$argv[4];
 
+if ($nick==NICK_EXEC)
+{
+  return;
+}
+
 $bucket=get_bucket("<exec_title_$dest>");
 
 if ($alias=="~title-internal")

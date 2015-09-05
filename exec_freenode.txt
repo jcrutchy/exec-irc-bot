@@ -41,6 +41,8 @@ include ./scripts/python/yukiku.py
 
 ~addr|10|0|1|0|*||||{ host '%%trailing%%' | head -1 ; } 2>&1
 
+~deb|10|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
+
 init ./scripts
 #startup ./scripts (don't enable for freenode - there are lots of joins)
 

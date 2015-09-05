@@ -178,6 +178,8 @@ function get_host_and_uri($url,&$host,&$uri,&$port)
 2015-06-22 22:26:45 > <!DOCTYPE html><html><head><meta name="referrer" content="origin"><script type="text/javascript">document.location.replace('http:\/\/www.goodgearguide.com.au\/article\/577990\/how-encryption-keys-could-stolen-by-your-lunch\/');</script><noscript><META http-equiv="refresh" content="0;URL='http://www.goodgearguide.com.au/article/577990/how-encryption-keys-could-stolen-by-your-lunch/'"></noscript></head></html>"
 */
 
+# http://www.heraldsun.com.au/news/national/support-for-libs-actions-over-damien-mantach/story-fnjj6013-1227513636816
+
 function get_redirected_url($from_url,$url_list="",$last_loc="",$cookies="")
 {
   $url=trim($from_url);
@@ -317,7 +319,7 @@ function get_redirected_url($from_url,$url_list="",$last_loc="",$cookies="")
       {
         $list=$url_list;
         $list[]=$url;
-        if (count($list)<6)
+        if (count($list)<10)
         {
           return get_redirected_url($location,$list,$loc_header,$cookies);
         }

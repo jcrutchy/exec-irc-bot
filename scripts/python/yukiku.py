@@ -5,20 +5,21 @@ https://github.com/Dhs92
 """
 
 import sys
-
-arg = sys.argv
-
+ 
+arg = sys.argv[1]
+ 
+ 
 def function_name(arg):
     if arg == 0:
         return True
     else:
         return arg
-
+ 
+ 
 def function_call(arg):
-    arg1 = function_name(arg)
-    if arg1:
+    if function_name(arg) == True:
         print "I'm true!"
     else:
-        print arg1
-
+        print function_name(arg)
+ 
 function_call(arg)
