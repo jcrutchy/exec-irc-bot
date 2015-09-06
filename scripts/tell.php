@@ -25,12 +25,6 @@ if ($trailing=="register-events")
   register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~tell-internal %%trailing%%");
   return;
 }
-
-if ($dest<>"#journals")
-{
-  return;
-}
-
 if ($alias=="~tell")
 {
   $parts=explode(" ",$trailing);
@@ -41,20 +35,14 @@ if ($alias=="~tell")
   privmsg("message saved");
   return;
 }
-
 if (substr($trailing,0,5)=="~tell")
 {
   return;
 }
-
 $messages=get_array_bucket("TELL_MESSAGES_".$server."_".$nick);
-
-var_dump($messages);
-
-
 for ($i=0;$i<count($messages);$i++)
 {
-  pm($nick,$messages[$i]);
+  notice($nick,$messages[$i]);
 }
 unset_bucket("TELL_MESSAGES_".$server."_".$nick);
 
