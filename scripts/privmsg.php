@@ -29,7 +29,7 @@ if (strtolower(substr($trailing,0,5))=="!isr ")
   delete_empty_elements($parts);
   if (count($parts)<3)
   {
-    privmsg(chr(3)."04In Soviet Russia, error causes YOU!");
+    #privmsg(chr(3)."04In Soviet Russia, error causes YOU!");
     return;
   }
   $x1=$parts[1];
@@ -44,12 +44,12 @@ if (strtolower(substr($trailing,0,5))=="!isr ")
   return;
 }
 
-if ($trailing=="!stats")
+/*if ($trailing=="!stats")
 {
   privmsg("http://stats.sylnt.us/social/soylent/");
   privmsg("http://antiartificial.com/stats/soylent/soylentnews.html");
   return;
-}
+}*/
 
 define("PREFIX_POKE",".poke ");
 if (substr(strtolower($trailing),0,strlen(PREFIX_POKE))==PREFIX_POKE)

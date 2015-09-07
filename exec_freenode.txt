@@ -24,10 +24,14 @@ include ./scripts/link.php
 include ./scripts/seen.php
 #include ./scripts/ircd.php
 include ./scripts/karma.php
+include ./scripts/gday.php
+include ./scripts/privmsg.php
 
 include ./scripts/tell.php
 
 include ./scripts/000.php
+
+include ./scripts/google.php
 
 include ./scripts/python/yukiku.py
 

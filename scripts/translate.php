@@ -18,7 +18,7 @@ $alias=$argv[2];
 if ($trailing=="")
 {
   privmsg("syntax: ~translate <msg>");
-  privmsg("        ~translate-sl <source-lang> <larget-lang> <msg>");
+  privmsg("        ~translate-sl <source-lang> <target-lang> <msg>");
   return;
 }
 
@@ -44,6 +44,11 @@ else
 }
 
 $def=translate($lang_from,$lang_to,$msg);
+
+if ($def==$msg)
+{
+  return;
+}
 
 if (strlen($def)>500)
 {

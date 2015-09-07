@@ -16,7 +16,7 @@ require_once("lib.php");
 
 $trailing=trim($argv[1]);
 $dest=$argv[2];
-$nick=$argv[3];
+$nick=strtolower($argv[3]);
 $alias=$argv[4];
 $server=$argv[5];
 

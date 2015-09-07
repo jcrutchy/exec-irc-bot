@@ -111,6 +111,10 @@ else
     {
       $delta_s="";
     }
+    if (strlen($records[0]["trailing"])>300)
+    {
+      $records[0]["trailing"]=trim(substr($records[0]["trailing"],0,300))."...";
+    }
     privmsg(chr(3).$items["nick"].", $trailing was last seen in ".$items["destination"]." $delta_d$delta_h$delta_m$delta_s ago with message: ".$records[0]["trailing"]);
   }
 }

@@ -30,6 +30,7 @@ if ($trailing=="")
   while (count($last_parts)<4);
   $k=mt_rand(1,count($last_parts)-1);
   $i=0;
+  $replacements=array();
   while ($i<=$k)
   {
     $n=mt_rand(0,count($records)-2);
@@ -42,9 +43,14 @@ if ($trailing=="")
     {
       continue;
     }
+    if (in_array($replace,$replacements)==True)
+    {
+      continue;
+    }
     $i++;
     $last_n=mt_rand(0,count($last_parts)-1);
     $last_parts[$last_n]=$replace;
+    $replacements[]=$replace;
   }
   $last="ciri: ".implode(" ",$last_parts);
   if ($dest=="")
