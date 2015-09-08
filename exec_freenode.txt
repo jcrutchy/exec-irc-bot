@@ -33,6 +33,8 @@ include ./scripts/000.php
 
 include ./scripts/google.php
 
+include ./scripts/soon/soon.php
+
 include ./scripts/python/yukiku.py
 
 #~epoch-feed|280|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%

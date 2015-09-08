@@ -10,11 +10,11 @@ function run_tests()
   $test_map=map_translation($pseudo_code,$key,$value);
   var_dump($test_map);
 
-  $pseudo_code="msg hello";
+  /*$pseudo_code="msg hello";
   $key="msg trailing";
   $value="privmsg(trailing);";
   $test_map=map_translation($pseudo_code,$key,$value);
-  var_dump($test_map);
+  var_dump($test_map);*/
 }
 
 #####################################################################################################

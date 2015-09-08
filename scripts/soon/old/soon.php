@@ -2,27 +2,32 @@
 
 #####################################################################################################
 
-# "soon" is intended to be a sort of macro processor that can translate pseudo-code to php (thanks to arti for the name idea)
+# "soon" is intended to be a sort of macro processor that can translate pseudo-code to php
 
 #####################################################################################################
 
 /*
-exec:~soon|30|0|0|1|*||||php scripts/soon.php %%trailing%% %%dest%% %%nick%% %%cmd%%
+exec:~soon|30|0|0|1|@||||php scripts/soon.php %%trailing%% %%dest%% %%nick%% %%cmd%%
 init:~soon register-events
 */
 
 #####################################################################################################
+
+$trailing=trim($argv[1]);
+$dest=$argv[2];
+$nick=$argv[3];
+$cmd=$argv[4];
+
+if ($dest<>"#irciv")
+{
+  return;
+}
 
 ini_set("display_errors","on");
 
 require_once("lib.php");
 require_once("soon_lib.php");
 require_once("soon_test.php");
-
-$trailing=$argv[1];
-$dest=$argv[2];
-$nick=$argv[3];
-$cmd=$argv[4];
 
 if ($trailing=="register-events")
 {
@@ -32,7 +37,8 @@ if ($trailing=="register-events")
 
 if ($cmd=="INTERNAL")
 {
-  # PRIVMSG event triggered
+  # PRIVMSG event triggered 
+  return;
 }
 else
 {

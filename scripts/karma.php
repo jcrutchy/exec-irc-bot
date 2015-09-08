@@ -3,9 +3,9 @@
 #####################################################################################################
 
 /*
-exec:.karma|10|0|0|1|*||||php scripts/karma.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
-exec:.karma-internal|10|0|0|1|*|INTERNAL||<<EXEC_KARMA>>|php scripts/karma.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
-init:.karma-internal register-events
+exec:~karma|10|0|0|1|*||||php scripts/karma.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
+exec:~karma-internal|10|0|0|1|*|INTERNAL||<<EXEC_KARMA>>|php scripts/karma.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
+init:~karma-internal register-events
 */
 
 #####################################################################################################
@@ -21,12 +21,12 @@ $server=$argv[5];
 
 if ($trailing=="register-events")
 {
-  register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :.karma-internal PRIVMSG %%trailing%%");
+  register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~karma-internal PRIVMSG %%trailing%%");
   return;
 }
 
 $msg="";
-$flag=handle_switch($alias,$dest,$nick,$trailing,"<<EXEC_KARMA_CHANNELS>>",".karma",".karma-internal",$msg);
+$flag=handle_switch($alias,$dest,$nick,$trailing,"<<EXEC_KARMA_CHANNELS>>","~karma","~karma-internal",$msg);
 switch ($flag)
 {
   case 1:
@@ -59,7 +59,7 @@ if ($msg=="")
 }
 
 $data=get_array_bucket("EXEC_KARMA");
-if ($alias<>".karma")
+if ($alias<>"~karma")
 {
   $operator=substr($msg,strlen($msg)-2);
   $msg=substr($msg,0,strlen($msg)-2);
