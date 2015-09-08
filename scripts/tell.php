@@ -27,6 +27,11 @@ if ($trailing=="register-events")
 }
 if ($alias=="~tell")
 {
+  if ($trailing=="")
+  {
+    privmsg("syntax: ~tell <nick> <message>");
+    return;
+  }
   $parts=explode(" ",$trailing);
   $target=strtolower($parts[0]);
   array_shift($parts);
