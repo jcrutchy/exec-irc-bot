@@ -3,7 +3,7 @@
 #####################################################################################################
 
 /*
-exec:~define|60|0|0|0|||||php scripts/definitions.php %%trailing%% %%alias%%
+exec:~define|60|0|0|1|||||php scripts/definitions.php %%trailing%% %%alias%%
 exec:~define-list|60|0|0|1|crutchy||||php scripts/definitions.php %%trailing%% %%alias%%
 exec:~define-add|10|0|0|0|||||php scripts/definitions.php %%trailing%% %%alias%%
 exec:~define-delete|10|0|0|0|||||php scripts/definitions.php %%trailing%% %%alias%%
@@ -276,7 +276,7 @@ switch($alias)
     if (isset($lterms[strtolower($trailing)])==True)
     {
       $def=$terms[$lterms[strtolower($trailing)]];
-      privmsg("[soylent] $trailing: $def");
+      privmsg("[local] $trailing: $def");
     }
     else
     {
@@ -383,6 +383,10 @@ function source_define($host,$term,$params)
   else
   {
     if (($params["ignore"]<>"") and (strpos($def,$params["ignore"])!==False))
+    {
+      return False;
+    }
+    if (strpos($def,"There aren't any definitions")!==False)
     {
       return False;
     }

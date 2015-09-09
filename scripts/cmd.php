@@ -177,7 +177,7 @@ function handle_macros($nick,$channel,$trailing)
   {
     pm($channel,chr(3)."02"."  syntax to add: .macro <trigger> <chanlist> PRIVMSG|INTERNAL <command_template>");
     pm($channel,chr(3)."02"."  syntax to delete: .macro <trigger> -");
-    pm($channel,chr(3)."02"."  <chanlist> is comma-separated or * for any");
+    #pm($channel,chr(3)."02"."  <chanlist> is comma-separated or * for any");
   }
   $macro_file=DATA_PATH."exec_macros.txt";
   $macros=load_settings($macro_file,"=");
@@ -204,7 +204,7 @@ function handle_macros($nick,$channel,$trailing)
   {
     return;
   }
-  if ((strtolower(trim($parts[0]))==".macro") and (count($parts)>2))
+  if ((trim($parts[0])==".macro") and (count($parts)>2))
   {
     $account=users_get_account($nick);
     if (in_array($account,$allowed)==False)
@@ -257,7 +257,7 @@ function handle_macros($nick,$channel,$trailing)
   {
     foreach ($macros as $trigger => $data)
     {
-      if (substr($trailing,0,strlen($trigger))==$trigger)
+      if (trim($parts[0])==$trigger)
       {
         $data=unserialize($data);
         if (($data["chanlist"]=="*") or (in_array(strtolower($channel),explode(",",strtolower($data["chanlist"])))==True))

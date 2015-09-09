@@ -457,9 +457,9 @@ function handle_process($handle)
       $msg="process timed out: ".$handle["alias"]." ".$handle["trailing"];
       if ((in_array($handle["alias"],$reserved_aliases)==False) and (in_array($handle["cmd"],$silent_timeout_commands)==False))
       {
-        privmsg($handle["destination"],$handle["nick"],$msg);
+        #privmsg($handle["destination"],$handle["nick"],$msg);
       }
-      privmsg(OPERATOR_ACCOUNT,"",$msg);
+      #privmsg(OPERATOR_ACCOUNT,"",$msg);
       return False;
     }
   }
@@ -2512,7 +2512,7 @@ function process_scripts($items,$reserved="",$piped_commands="")
   }
   if (($exec_list[$alias]["empty"]==0) and ($trailing=="") and ($destination<>"") and ($nick<>""))
   {
-    privmsg($destination,$nick,"alias \"$alias\" requires additional trailing argument");
+    #privmsg($destination,$nick,"alias \"$alias\" requires additional trailing argument");
     return;
   }
   $items_serialized=base64_encode(serialize($items));

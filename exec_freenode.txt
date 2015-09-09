@@ -12,7 +12,7 @@ include ./scripts/admin.php
 include ./scripts/definitions.php
 include ./scripts/help.php
 include ./scripts/users.php
-#include ./scripts/say.php
+include ./scripts/say.php
 include ./scripts/time.php
 include ./scripts/weather.php
 include ./scripts/title.php
