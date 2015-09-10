@@ -12,9 +12,14 @@ exec:~g|20|0|0|0|||||php scripts/google.php %%trailing%%
 require_once("lib.php");
 require_once("google_lib.php");
 
-$results=google_search($argv[1]);
+$trailing=trim($argv[1]);
 
-var_dump($results);
+if ($trailing=="")
+{
+  return;
+}
+
+$results=google_search($trailing);
 
 if ($results!==False)
 {
