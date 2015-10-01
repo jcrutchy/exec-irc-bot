@@ -3,6 +3,7 @@
 #####################################################################################################
 
 /*
+exec:~exec-irc-raw|5|0|0|1|@||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~op|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~deop|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~voice|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
@@ -31,6 +32,9 @@ if ($trailing<>"")
 
 switch ($alias)
 {
+  case "~exec-irc-raw":
+    rawmsg($trailing);
+    break;
   case "~op":
     rawmsg("MODE $dest +o $target");
     break;

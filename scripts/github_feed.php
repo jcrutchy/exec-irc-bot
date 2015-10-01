@@ -103,6 +103,8 @@ $list=array(
   "Subsentient/wzblue",
   "Subsentient/nexus",
   "Subsentient/substrings",
+  "marty-b/rehash",
+  "marty-b/slashcode",
   "NSAKEY/happy-dance",
   "NSAKEY/not-paranoid-prosody",
   "NSAKEY/paranoid-prosody",

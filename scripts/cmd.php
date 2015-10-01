@@ -168,7 +168,7 @@ function handle_macros($nick,$channel,$trailing)
     "<init>",
     "<quit>",
     "<startup>");
-  $allowed=array("crutchy","chromas");
+  $allowed=array("crutchy","chromas","TheMightyBuzzard");
   if (($nick=="") or ($channel=="") or ($trailing==""))
   {
     return;
@@ -217,6 +217,11 @@ function handle_macros($nick,$channel,$trailing)
       privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" not permitted");
       return;
     }
+    if (in_array($trigger,$reserved_commands)==True)
+    {
+      privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" not permitted");
+      return;
+    }
     $chanlist=trim($parts[2]);
     if ($chanlist=="-")
     {
@@ -235,6 +240,17 @@ function handle_macros($nick,$channel,$trailing)
         return;
       }
       array_shift($parts);
+      if (isset($macros[$parts[0]])==True)
+      {
+        privmsg(chr(3)."02"."  *** error: triggering other macros is not permitted");
+        return;
+      }
+      $exec_list=unserialize(base64_decode(trim(get_bucket("<<EXEC_LIST>>"))));
+      if (isset($exec_list[$parts[0]])==True)
+      {
+        privmsg(chr(3)."02"."  *** error: overriding existing aliases is not permitted");
+        return;
+      }
       $command=implode(" ",$parts);
       for ($i=0;$i<count($reserved_commands);$i++)
       {

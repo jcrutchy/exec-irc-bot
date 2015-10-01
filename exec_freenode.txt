@@ -15,6 +15,7 @@ include ./scripts/users.php
 include ./scripts/say.php
 include ./scripts/time.php
 include ./scripts/weather.php
+include ./scripts/location.php
 include ./scripts/title.php
 include ./scripts/isup.php
 include ./scripts/translate.php
@@ -28,8 +29,6 @@ include ./scripts/gday.php
 include ./scripts/privmsg.php
 
 include ./scripts/tell.php
-
-include ./scripts/000.php
 
 include ./scripts/google.php
 

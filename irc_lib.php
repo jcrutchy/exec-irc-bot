@@ -867,6 +867,8 @@ function handle_buckets($data,$handle)
 {
   global $buckets;
   global $bucket_locks;
+  global $internal_bucket_indexes;
+  global $exec_list;
   $items=parse_data($data);
   if ($items===False)
   {
@@ -877,6 +879,13 @@ function handle_buckets($data,$handle)
   {
     case CMD_BUCKET_GET:
       $index=$trailing;
+      if ($index==BUCKET_EXEC_LIST)
+      {
+        $exec_list_data=base64_encode(serialize($exec_list));
+        $result=handle_stdin($handle,$exec_list_data);
+        handle_stdin($handle,"\n");
+        return True;
+      }
       if (substr($index,0,strlen(TEMPLATE_ACCESS_PREFIX))==TEMPLATE_ACCESS_PREFIX)
       {
         $process_template=substr($index,strlen(TEMPLATE_ACCESS_PREFIX));
@@ -891,6 +900,7 @@ function handle_buckets($data,$handle)
           {
             term_echo("process template \"".$process_template."\" returned successfully for pid ".$handle["pid"]);
           }
+          handle_stdin($handle,"\n");
           return True;
         }
       }
@@ -899,6 +909,7 @@ function handle_buckets($data,$handle)
         if (isset($bucket_locks[$index])==True)
         {
           term_echo("BUCKET_GET [$index]: BUCKET INDEX LOCKED BY FOLLOWING PID LIST: ".implode(",",$bucket_locks[$index]));
+          handle_stdin($handle,"\n");
           return True;
         }
         $size=round(strlen($buckets[$index])/1024,1)."kb";
@@ -927,6 +938,11 @@ function handle_buckets($data,$handle)
       else
       {
         $index=$parts[0];
+        if (in_array($index,$internal_bucket_indexes)==True)
+        {
+          term_echo("BUCKET_SET [$index]: BUCKET INDEX RESERVED");
+          return True;
+        }
         if (isset($bucket_locks[$index])==True)
         {
           term_echo("BUCKET_SET [$index]: BUCKET INDEX LOCKED BY FOLLOWING PID LIST: ".implode(",",$bucket_locks[$index]));
