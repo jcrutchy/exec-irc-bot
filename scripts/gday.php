@@ -131,7 +131,10 @@ set_bucket("<<GDAY_LAST_ACTION>>",$action1);
 set_bucket("<<GDAY_LAST_CONTAINER>>",$container);
 set_bucket("<<GDAY_LAST_BEVERAGE>>",$beverage);
 
-privmsg(chr(1)."ACTION $adverb $action1 $container of $beverage $action2 $trailing".chr(1));
+$parts=explode(" ",$trailing);
+$target=$parts[0];
+
+privmsg(chr(1)."ACTION $adverb $action1 $container of $beverage $action2 $target".chr(1));
 
 #####################################################################################################
 

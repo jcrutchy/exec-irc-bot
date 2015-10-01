@@ -222,6 +222,12 @@ function handle_macros($nick,$channel,$trailing)
       privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" not permitted");
       return;
     }
+    $exec_list=unserialize(base64_decode(trim(get_bucket("<<EXEC_LIST>>"))));
+    if (isset($exec_list[$trigger])==True)
+    {
+      privmsg(chr(3)."02"."  *** error: macro with trigger that is the same as existing alias is not permitted");
+      return;
+    }
     $chanlist=trim($parts[2]);
     if ($chanlist=="-")
     {
@@ -243,12 +249,6 @@ function handle_macros($nick,$channel,$trailing)
       if (isset($macros[$parts[0]])==True)
       {
         privmsg(chr(3)."02"."  *** error: triggering other macros is not permitted");
-        return;
-      }
-      $exec_list=unserialize(base64_decode(trim(get_bucket("<<EXEC_LIST>>"))));
-      if (isset($exec_list[$parts[0]])==True)
-      {
-        privmsg(chr(3)."02"."  *** error: overriding existing aliases is not permitted");
         return;
       }
       $command=implode(" ",$parts);

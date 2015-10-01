@@ -227,11 +227,11 @@ function process_weather(&$location,$nick)
     $day=$fulldays[$day];
     if ($use_unit_pref==False)
     {
-      $result=$result.$day." ".$conds[$i]." (".$temps[$i*2+1-$offset]."-".$temps[$i*2-$offset]." / ".$tempsC[$i*2+1-$offset]."-".$tempsC[$i*2-$offset].")";
+      $result=$result.$day." ".$conds[$i]." (".$temps[$i*2+1-$offset].":".$temps[$i*2-$offset]." / ".$tempsC[$i*2+1-$offset].":".$tempsC[$i*2-$offset].")";
     }
     else
     {
-      $result=$result.$day." ".$conds[$i]." (".$temps[$i*2+1-$offset]."-".$temps[$i*2-$offset].")";
+      $result=$result.$day." ".$conds[$i]." (".$temps[$i*2+1-$offset].":".$temps[$i*2-$offset].")";
     }
     if ($i<4)
     {
