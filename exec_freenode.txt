@@ -1,6 +1,7 @@
 *|10|0|0|1|||||php scripts/cmd.php %%items%%
 <quit>|10|0|0|1|||||php scripts/quit.php
 
+.trans|20|0|0|1|||##anime-japanese,#irciv||php scripts/translate-last.php %%trailing%% %%dest%% %%nick%% %%alias%%
 .jdict|20|0|0|1|||##anime-japanese,#irciv||php scripts/japanese.php %%trailing%% %%dest%% %%nick%% %%alias%%
 .jisho|20|0|0|1|||##anime-japanese,#irciv||php scripts/jisho.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
