@@ -47,9 +47,14 @@ if ($alias=="~title-internal")
       array_shift($parts);
       array_shift($parts);
       $trailing=trim(implode(" ",$parts));
+      $show_rd=False;
+      if (get_bucket("<exec_title_url_$dest>")<>"")
+      {
+        $show_rd=True;
+      }
       if ($bucket=="on")
       {
-        title_privmsg($trailing,$channel);
+        title_privmsg($trailing,$channel,$show_rd);
       }
       break;
   }
@@ -134,6 +139,16 @@ elseif ($alias=="~title")
       unset_bucket("<exec_title_$dest>");
       privmsg("  titles disabled for ".chr(3)."10$dest");
     }
+  }
+  elseif (strtolower($trailing)=="url on")
+  {
+    set_bucket("<exec_title_url_$dest>","on");
+    privmsg("  enabled redirected url output for titles in ".chr(3)."10$dest");
+  }
+  elseif (strtolower($trailing)=="url off")
+  {
+    unset_bucket("<exec_title_url_$dest>");
+    privmsg("  disabled redirected url output for titles in ".chr(3)."10$dest");
   }
   else
   {

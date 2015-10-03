@@ -2,7 +2,7 @@
 
 #####################################################################################################
 
-function title_privmsg($trailing,$channel)
+function title_privmsg($trailing,$channel,$show_rd)
 {
   $list_http=explode("http://",$trailing);
   array_shift($list_http);
@@ -52,7 +52,7 @@ function title_privmsg($trailing,$channel)
       {
         $msg=$msg." [".chr(3)."04".$def.chr(3)."]";
       }
-      if ($rd_url<>$list[$i])
+      if (($rd_url<>$list[$i]) and ($show_rd==True))
       {
         $msg=$msg." - ".chr(3)."03".$rd_url;
       }
@@ -60,23 +60,23 @@ function title_privmsg($trailing,$channel)
     }
     else
     {
-      term_echo("  title: get_raw_title returned false");
+      term_echo("title: get_raw_title returned false");
     }
   }
   $n=count($out);
   if ($n==0)
   {
-    term_echo("  title: no titles to output");
+    term_echo("title: no titles to output");
   }
   for ($i=0;$i<$n;$i++)
   {
     if ($i==($n-1))
     {
-      pm($channel,"  └─ ".$out[$i]);
+      pm($channel,"└─ ".$out[$i]);
     }
     else
     {
-      pm($channel,"  ├─ ".$out[$i]);
+      pm($channel,"├─ ".$out[$i]);
     }
   }
 }

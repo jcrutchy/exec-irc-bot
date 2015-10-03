@@ -15,7 +15,7 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 
-$syntax="syntax: ~convert %amount% %from_unit% %to_unit%";
+$syntax="syntax: ~convert <amount> <from_unit> <to_unit>";
 
 if ($trailing=="")
 {
@@ -102,11 +102,11 @@ function convert_in_mm($amount,$reverse=False)
 {
   if ($reverse==False)
   {
-    convert_result($amount,round($amount*25.4,3),"mm","lb");
+    convert_result($amount,round($amount*25.4,3),"in","mm");
   }
   else
   {
-    convert_result($amount,round($amount/25.4,3),"\"","kg");
+    convert_result($amount,round($amount/25.4,3),"mm","in");
   }
 }
 
@@ -135,6 +135,20 @@ function convert_c_k($amount,$reverse=False)
   else
   {
     convert_result($amount,round($amount-273.15,3)," K","°C",False);
+  }
+}
+
+#####################################################################################################
+
+function convert_kg_shitton($amount,$reverse=False)
+{
+  if ($reverse==False)
+  {
+    convert_result($amount,round($amount/42,3),"kg","shitton");
+  }
+  else
+  {
+    convert_result($amount,round($amount*42,3),"shitton","kg");
   }
 }
 

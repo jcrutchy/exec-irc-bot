@@ -2,7 +2,7 @@
 
 #####################################################################################################
 
-# .trans|20|0|0|1|||##anime-japanese||php scripts/japanese.php %%trailing%% %%dest%% %%nick%% %%alias%%
+# .jdict|20|0|0|1|||##anime-japanese,#irciv||php scripts/japanese.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
 #####################################################################################################
 
@@ -29,6 +29,7 @@ $response=wget(HOST,$uri);
 $html=strip_headers($response);
 if ($html===False)
 {
+  privmsg("error downloading");
   return;
 }
 $items=explode("<div class=\"search_items\">",$html);
@@ -57,6 +58,10 @@ if (count($results)>0)
     privmsg($results[$i]);
   }
   privmsg(HOST.$uri);
+}
+else
+{
+  privmsg("no results");
 }
 
 #####################################################################################################
