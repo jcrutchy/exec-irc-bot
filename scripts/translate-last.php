@@ -13,6 +13,7 @@ $alias=$argv[4];
 if ($trailing=="")
 {
   privmsg("syntax: .trans <nick>");
+  privmsg("uses google translate");
   return;
 }
 
@@ -32,7 +33,6 @@ $def=translate($lang_from,$lang_to,$msg);
 
 if ($def==$msg)
 {
-  privmsg("error translating");
   return;
 }
 
@@ -42,7 +42,12 @@ if (strlen($def)>500)
 }
 if ($def<>"")
 {
-  privmsg("[google] $msg: $def");
+  privmsg("<$trailing> $msg: $def");
+}
+else
+{
+  privmsg("error translating");
+  return;
 }
 
 #####################################################################################################
