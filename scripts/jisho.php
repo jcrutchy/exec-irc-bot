@@ -71,29 +71,30 @@ for ($i=0;$i<$n;$i++)
   }
 }
 
-if (count($results)>0)
+$n=0;
+for ($i=0;$i<count($results);$i++)
 {
-  for ($i=0;$i<count($results);$i++)
+  if (($results[$i]["hiragana"]===False) and ($results[$i]["kanji"]!==False))
   {
-    if (($results[$i]["hiragana"]===False) and ($results[$i]["kanji"]!==False))
-    {
-      privmsg($results[$i]["kanji"].", ".$results[$i]["english"]);
-    }
-    elseif (($results[$i]["hiragana"]!==False) and ($results[$i]["kanji"]===False))
-    {
-      privmsg($results[$i]["hiragana"].", ".$results[$i]["english"]);
-    }
-    elseif (($results[$i]["hiragana"]!==False) and ($results[$i]["kanji"]!==False))
-    {
-      privmsg($results[$i]["hiragana"].", ".$results[$i]["kanji"].", ".$results[$i]["english"]);
-    }
+    privmsg($results[$i]["kanji"].", ".$results[$i]["english"]);
+    $n++;
   }
-  privmsg(HOST."/search/".$trailing);
+  elseif (($results[$i]["hiragana"]!==False) and ($results[$i]["kanji"]===False))
+  {
+    privmsg($results[$i]["hiragana"].", ".$results[$i]["english"]);
+    $n++;
+  }
+  elseif (($results[$i]["hiragana"]!==False) and ($results[$i]["kanji"]!==False))
+  {
+    privmsg($results[$i]["hiragana"].", ".$results[$i]["kanji"].", ".$results[$i]["english"]);
+    $n++;
+  }
 }
-else
+if ($n==0)
 {
   privmsg("no results");
 }
+privmsg(HOST."/search/".$trailing);
 
 #####################################################################################################
 
