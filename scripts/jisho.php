@@ -83,7 +83,7 @@ if (count($results)>0)
     {
       privmsg($results[$i]["hiragana"].", ".$results[$i]["english"]);
     }
-    else
+    elseif (($results[$i]["hiragana"]!==False) and ($results[$i]["kanji"]!==False))
     {
       privmsg($results[$i]["hiragana"].", ".$results[$i]["kanji"].", ".$results[$i]["english"]);
     }
