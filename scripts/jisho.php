@@ -76,17 +76,17 @@ for ($i=0;$i<count($results);$i++)
 {
   if (($results[$i]["hiragana"]===False) and ($results[$i]["kanji"]!==False))
   {
-    privmsg($results[$i]["kanji"].", ".$results[$i]["english"]);
+    privmsg(chr(3).$results[$i]["kanji"].", ".$results[$i]["english"]);
     $n++;
   }
   elseif (($results[$i]["hiragana"]!==False) and ($results[$i]["kanji"]===False))
   {
-    privmsg($results[$i]["hiragana"].", ".$results[$i]["english"]);
+    privmsg(chr(3).$results[$i]["hiragana"].", ".$results[$i]["english"]);
     $n++;
   }
   elseif (($results[$i]["hiragana"]!==False) and ($results[$i]["kanji"]!==False))
   {
-    privmsg($results[$i]["hiragana"].", ".$results[$i]["kanji"].", ".$results[$i]["english"]);
+    privmsg(chr(3).$results[$i]["hiragana"].", ".$results[$i]["kanji"].", ".$results[$i]["english"]);
     $n++;
   }
 }
