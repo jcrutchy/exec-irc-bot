@@ -25,8 +25,6 @@ if ($content===False)
 
 $results=json_decode($content,True);
 
-#file_put_contents("../data/jisho",json_encode($results,JSON_PRETTY_PRINT));
-
 if (isset($results["data"])==False)
 {
   privmsg("invalid result");
