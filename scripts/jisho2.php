@@ -35,10 +35,6 @@ if (isset($results["data"])==False)
 
 for ($i=0;$i<min(3,count($results["data"]));$i++)
 {
-  if ($results["data"][$i]["is_common"]==False)
-  {
-    continue;
-  }
   $out="";
   for ($j=0;$j<count($results["data"][$i]["japanese"]);$j++)
   {
@@ -48,7 +44,7 @@ for ($i=0;$i<min(3,count($results["data"]));$i++)
     }
     if (count($results["data"][$i]["japanese"])>1)
     {
-      $out=$out."(".($j+1).") ";
+      $out=$out."[".($j+1)."] ";
     }
     $out=$out.$results["data"][$i]["japanese"][$j]["word"]." (".$results["data"][$i]["japanese"][$j]["reading"].")";
   }
@@ -94,5 +90,7 @@ else
 {
   privmsg(count($results["data"])." results");
 }
+
+privmsg("http://jisho.org/search/".$trailing);
 
 ?>
