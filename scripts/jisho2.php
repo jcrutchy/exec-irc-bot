@@ -84,13 +84,11 @@ for ($i=0;$i<min(3,count($results["data"]));$i++)
 
 if (count($results["data"])==0)
 {
-  privmsg("no results");
+  privmsg("http://jisho.org/search/".$trailing." [no results]");
 }
 else
 {
-  privmsg(count($results["data"])." results");
+  privmsg("http://jisho.org/search/".$trailing." [".count($results["data"])." results]");
 }
-
-privmsg("http://jisho.org/search/".$trailing);
 
 ?>
