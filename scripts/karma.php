@@ -19,7 +19,7 @@ $nick=$argv[3];
 $alias=$argv[4];
 $server=$argv[5];
 
-if ($trailing=="register-events")
+if (($trailing=="register-events") and ($alias=="~karma-internal"))
 {
   register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~karma-internal PRIVMSG %%trailing%%");
   return;

@@ -6,10 +6,11 @@
 
 #####################################################################################################
 
-require_once("lib.php");
+# http://jisho.org/api/v1/search/words?keyword=house
 
-define("HOST","jisho.org");
-define("MAX_ITEMS",2);
+ini_set("display_errors","on");
+
+require_once("lib.php");
 
 $trailing=trim($argv[1]);
 $dest=$argv[2];
@@ -23,9 +24,11 @@ if ($trailing=="")
   return;
 }
 
+$max_items=2;
+$host="jisho.org";
 $uri="/search/".urlencode($trailing);
 
-$response=wget(HOST,$uri);
+$response=wget($host,$uri);
 $html=strip_headers($response);
 if ($html===False)
 {
@@ -35,17 +38,31 @@ if ($html===False)
 $items=explode("<div class=\"concept_light clearfix\">",$html);
 array_shift($items);
 
-$n=min(MAX_ITEMS,count($items));
-
 $results=array();
 
-for ($i=0;$i<$n;$i++)
+for ($i=0;$i<count($items);$i++)
 {
   $result=array();
   # hiragana
   $delim1="<span class=\"kanji-2-up kanji\">";
   $delim2="</span>";
-  $result_hiragana=extract_text($items[$i],$delim1,$delim2);
+  $result_hiragana_2=extract_text($items[$i],$delim1,$delim2);
+  $delim1="<span class=\"kanji-3-up kanji\">";
+  $delim2="</span>";
+  $result_hiragana_3=extract_text($items[$i],$delim1,$delim2);
+  $result_hiragana=False;
+  if (($result_hiragana_2!==False) and ($result_hiragana_3===False))
+  {
+    $result_hiragana=$result_hiragana_2;
+  }
+  elseif (($result_hiragana_2===False) and ($result_hiragana_3!==False))
+  {
+    $result_hiragana=$result_hiragana_3;
+  }
+  elseif (($result_hiragana_2!==False) and ($result_hiragana_3!==False))
+  {
+    $result_hiragana=$result_hiragana_2.", ".$result_hiragana_3;
+  }
   # kanji
   $delim1="<span class=\"text\">";
   $delim2="      </span>";
@@ -89,12 +106,20 @@ for ($i=0;$i<count($results);$i++)
     privmsg(chr(3).$results[$i]["hiragana"].", ".$results[$i]["kanji"].", ".$results[$i]["english"]);
     $n++;
   }
+  if ($n>=$max_items)
+  {
+    break;
+  }
 }
+
 if ($n==0)
 {
   privmsg("no results");
 }
-privmsg(HOST."/search/".$trailing);
+else
+{
+  privmsg(count($results)." results");
+}
 
 #####################################################################################################
 
