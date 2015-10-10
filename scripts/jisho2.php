@@ -50,11 +50,11 @@ for ($i=0;$i<min(3,count($results["data"]));$i++)
     {
       $out=$out."(".($j+1).") ";
     }
-    $out=$out."word: ".$results["data"][$i]["japanese"][$j]["word"].", reading: ".$results["data"][$i]["japanese"][$j]["reading"].", ";
+    $out=$out.$results["data"][$i]["japanese"][$j]["word"]." (".$results["data"][$i]["japanese"][$j]["reading"].")";
   }
   if (count($results["data"][$i]["senses"])>0)
   {
-    $out=$out."meanings: ";
+    $out=$out." ";
   }
   $senses=$results["data"][$i]["senses"];
   for ($j=0;$j<count($senses);$j++)
@@ -66,9 +66,8 @@ for ($i=0;$i<min(3,count($results["data"]));$i++)
       {
         if ($j>0)
         {
-          $meanings=$meanings.", ";
+          $meanings=$meanings." | ";
         }
-        $meanings=$meanings."sense ".($j+1).": ";
       }
     }
     for ($k=0;$k<count($senses[$j]["english_definitions"]);$k++)
