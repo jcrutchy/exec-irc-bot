@@ -56,12 +56,13 @@ for ($i=0;$i<min(3,count($results["data"]));$i++)
   {
     $out=$out."meanings: ";
   }
-  for ($j=0;$j<count($results["data"][$i]["senses"]);$j++)
+  $senses=$results["data"][$i]["senses"];
+  for ($j=0;$j<count($senses);$j++)
   {
     $meanings="";
-    if (count($results["data"][$i]["senses"])>1)
+    if (count($senses)>1)
     {
-      if (count($results["data"][$i]["senses"][$j]["english_definitions"])>0)
+      if (count($senses[$j]["english_definitions"])>0)
       {
         if ($j>0)
         {
@@ -70,13 +71,13 @@ for ($i=0;$i<min(3,count($results["data"]));$i++)
         $meanings=$meanings."sense ".($j+1).": ";
       }
     }
-    for ($k=0;$k<count($results["data"][$i]["senses"][$j]["english_definitions"]);$k++)
+    for ($k=0;$k<count($senses[$j]["english_definitions"]);$k++)
     {
       if ($k>0)
       {
         $meanings=$meanings.", ";
       }
-      $meanings=$meanings.$results["data"][$i]["senses"][$j]["english_definitions"][$k];
+      $meanings=$meanings.$senses[$j]["english_definitions"][$k];
     }
     $out=$out.$meanings;
   }
