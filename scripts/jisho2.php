@@ -33,7 +33,7 @@ if (isset($results["data"])==False)
   return;
 }
 
-for ($i=0;$i<min(3,count($results["data"]));$i++)
+for ($i=0;$i<min(2,count($results["data"]));$i++)
 {
   $out="";
   for ($j=0;$j<count($results["data"][$i]["japanese"]);$j++)
