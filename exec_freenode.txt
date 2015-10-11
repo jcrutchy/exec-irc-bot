@@ -33,6 +33,8 @@ include ./scripts/karma.php
 include ./scripts/gday.php
 include ./scripts/privmsg.php
 
+include ./scripts/jisho2.php
+
 include ./scripts/tell.php
 
 include ./scripts/google.php
