@@ -43,13 +43,13 @@ switch (strtoupper($cmd))
     break;
   case "JOIN":
     # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
-    #echo "/INTERNAL ~welcome-internal JOIN $params\n";
+    echo "/INTERNAL ~welcome-internal JOIN $params\n";
     break;
   case "KICK":
     # :NCommander!~mcasadeva@Soylent/Staff/Sysop/mcasadevall KICK #staff exec :gravel test
     # :exec!~exec@709-27-2-01.cust.aussiebb.net KICK #comments Loggie :commanded by crutchy
     echo "/INTERNAL ~sed-internal KICK $params\n";
-    #echo "/INTERNAL ~welcome-internal KICK $params\n";
+    echo "/INTERNAL ~welcome-internal KICK $params\n";
     break;
   case "KILL":
     # :juggs!~juggs@Soylent/Staff/IRC/juggs KILL dogfart :crutchy_made_me
@@ -65,7 +65,7 @@ switch (strtoupper($cmd))
   case "PART":
     # :Drop!~Drop___@via1-vhat2-0-3-jppz214.perr.cable.virginm.net PART #Soylent :Leaving
     echo "/INTERNAL ~sed-internal PART $dest\n";
-    #echo "/INTERNAL ~welcome-internal PART $dest\n";
+    echo "/INTERNAL ~welcome-internal PART $dest\n";
     break;
   case "PRIVMSG":
     echo "/INTERNAL ~sed-internal PRIVMSG $trailing\n";

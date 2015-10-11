@@ -20,6 +20,7 @@ $alias=$argv[3];
 $trailing=$argv[4];
 $msg="";
 $flag=handle_switch($alias,$dest,$nick,$trailing,"<<EXEC_WELCOME_CHANNELS>>","~welcome","~welcome-internal",$msg);
+
 switch ($flag)
 {
   case 1:
@@ -54,16 +55,16 @@ function show_welcome($nick)
     return;
   }
   $arr=convert_google_location_time($time);
-  $data=process_weather($location);
-  if (is_array($data)==False)
+  $data=process_weather($location,$nick,True);
+  if ($data===False)
   {
     return;
   }
-  if (($data["temp_C"]===False) or ($data["temp_F"]===False))
+  if (($data["tempC"]===False) or ($data["tempF"]===False))
   {
     return;
   }
-  privmsg("$nick: ".$arr["location"].", ".$data["temp_C"]."°C (".$data["temp_F"]."°F), ".date("g:i a",$arr["timestamp"])." ".$arr["timezone"].", ".date("l, j F Y",$arr["timestamp"]));
+  privmsg("welcome $nick: ".trim($arr["location"]).", ".$data["tempC"]."/".$data["tempF"].", ".date("g:i a",$arr["timestamp"])." ".$arr["timezone"].", ".date("l, j F Y",$arr["timestamp"]));
 }
 
 #####################################################################################################

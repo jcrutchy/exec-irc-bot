@@ -125,7 +125,7 @@ function get_prefs($nick)
 
 #####################################################################################################
 
-function process_weather(&$location,$nick)
+function process_weather(&$location,$nick,$getdata=False)
 {
   $loc=get_location($location,$nick);
   term_echo("*** WEATHER LOCATION LOOKUP: $loc");
@@ -142,7 +142,7 @@ function process_weather(&$location,$nick)
   $prefs=get_prefs($nick);
   $fheit="1";
   $use_unit_pref=False;
-  if (isset($prefs["unit"])==True)
+  if ((isset($prefs["unit"])==True) and ($getdata==False))
   {
     if ($prefs["unit"]=="metric")
     {
@@ -239,6 +239,17 @@ function process_weather(&$location,$nick)
     }
   }
   $result=chr(3)."03".$result;
+  if ($getdata<>False)
+  {
+    $data=array();
+    $data["tempF"]=$temps[0];
+    $data["tempC"]=$tempsC[0];
+    $data["cond"]=$conds[0];
+    $data["wind"]=$wind_caption;
+    $data["humidity"]=$humidity;
+    $data["location"]=$location;
+    return $data;
+  }
   return $result;
 }
 
