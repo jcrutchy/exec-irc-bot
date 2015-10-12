@@ -71,6 +71,7 @@ define("FILE_DIRECTIVE_DELIM",":");
 define("FILE_DIRECTIVE_EXEC","exec");
 define("FILE_DIRECTIVE_INIT","init");
 define("FILE_DIRECTIVE_STARTUP","startup");
+define("FILE_DIRECTIVE_HELP","help");
 define("MAX_MSG_LENGTH",458);
 define("IGNORE_TIME",20); # seconds (alias abuse control)
 define("DELTA_TOLERANCE",1.5); # seconds (alias abuse control)

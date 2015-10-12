@@ -2110,7 +2110,29 @@ function exec_load()
         {
           for ($j=0;$j<count($exec_lines);$j++)
           {
-            load_exec_line($exec_lines[$j],$filename);
+            $exec_record=load_exec_line($exec_lines[$j],$filename);
+            if ($exec_record!==False)
+            {
+              $help_lines=array();
+              load_include($filename,$help_lines,FILE_DIRECTIVE_HELP);
+              $alias_help=array();
+              if (isset($help_lines[$filename])==True)
+              {
+                for ($k=0;$k<count($help_lines[$filename]);$k++)
+                {
+                  $help_parts=explode("|",$help_lines[$filename][$k]);
+                  if (trim($help_parts[0])==$exec_record["alias"])
+                  {
+                    array_shift($help_parts);
+                    $alias_help[]=implode("|",$help_parts);
+                  }
+                }
+              }
+              if (count($alias_help)>0)
+              {
+                $exec_list[$exec_record["alias"]]["help"]=$alias_help;
+              }
+            }
           }
         }
         unset($file_lines);

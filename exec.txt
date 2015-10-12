@@ -28,6 +28,7 @@
 
 init ./scripts
 startup ./scripts
+help ./scripts
 
 include ./scripts
 include ./interface/reader.php

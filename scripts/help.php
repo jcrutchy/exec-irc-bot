@@ -22,6 +22,18 @@ if ($trailing=="")
   return;
 }
 
+$exec_list=unserialize(base64_decode(trim(get_bucket("<<EXEC_LIST>>"))));
+
+if (isset($exec_list[$trailing]["help"])==True)
+{
+  $help_lines=$exec_list[$trailing]["help"];
+  for ($i=0;$i<count($help_lines);$i++)
+  {
+    privmsg($help_lines[$i]);
+  }
+  return;
+}
+
 $parts=explode(" ",$trailing);
 delete_empty_elements($parts);
 $cmd=strtolower($parts[0]);
