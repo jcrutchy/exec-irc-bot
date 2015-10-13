@@ -1701,7 +1701,7 @@ function script_event_handlers($cmd,&$items)
 
 #####################################################################################################
 
-function handle_data($data,$is_sock=False,$auth=False,$exec=False,$piped_commands="")
+function handle_data($data,$is_sock=False,$auth=False,$exec=False)
 {
   global $buckets;
   global $alias_locks;
@@ -1779,38 +1779,6 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False,$piped_command
       }
     }
     $alias=$args[0];
-    if ($piped_commands==="")
-    {
-      # handle piped commands here
-      # example: ~time | ~rainbow | ~cowsay (output of ~time is fed as input for ~rainbow, and the output of ~rainbow is fed as input for ~cowsay)
-      $commands=explode("|",$items["trailing"]);
-      $n=count($commands);
-      for ($i=0;$i<$n;$i++)
-      {
-        $commands[$i]=ltrim($commands[$i]);
-        if ($commands[$i]=="")
-        {
-          unset($commands[$i]);
-          continue;
-        }
-        if (substr($commands[$i],0,1)<>"~")
-        {
-          unset($commands[$i]);
-          continue;
-        }
-      }
-      $commands=array_values($commands);
-      $n=count($commands);
-      if ($n>1)
-      {
-        for ($i=0;$i<$n;$i++)
-        {
-          $data=":".$items["prefix"]." ".$items["cmd"]." ".$items["params"]." :".$commands[$i]."\n";
-          handle_data($data,False,False,False,$commands);
-        }
-        return;
-      }
-    }
     handle_events($items);
     switch ($alias)
     {
@@ -2107,7 +2075,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False,$piped_command
         }
         break;
       default:
-        process_scripts($items,"",$piped_commands); # execute scripts occurring for a specific alias
+        process_scripts($items,""); # execute scripts occurring for a specific alias
         process_scripts($items,ALIAS_ALL); # process scripts occuring for every line (* alias)
     }
   }
@@ -2504,7 +2472,7 @@ function construct_mask($items)
 
 #####################################################################################################
 
-function process_scripts($items,$reserved="",$piped_commands="")
+function process_scripts($items,$reserved="")
 {
   global $handles;
   global $exec_list;
@@ -2546,25 +2514,6 @@ function process_scripts($items,$reserved="",$piped_commands="")
   else
   {
     $alias=$reserved;
-  }
-  if (isset($exec_list[$alias])==False)
-  {
-    if ($piped_commands==="")
-    {
-      # handle piped commands here
-      # example: ~time | ~rainbow | ~cowsay (output of ~time is fed as input for ~rainbow, and the output of ~rainbow is fed as input for ~cowsay)
-      $piped_commands=explode("|",$trailing);
-      $n=count($piped_commands);
-      if ($n>1)
-      {
-        for ($i=0;$i<$n;$i++)
-        {
-          $data=":".$items["prefix"]." ".$items["cmd"]." ".$items["params"]." :".$piped_commands[$i];
-          handle_data($data,False,False,False,$piped_commands);
-        }
-      }
-    }
-    return;
   }
   if (count($exec_list[$alias]["cmds"])>0)
   {
