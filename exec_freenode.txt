@@ -1,10 +1,6 @@
 *|10|0|0|1|||||php scripts/cmd.php %%items%%
 <quit>|10|0|0|1|||||php scripts/quit.php
 
-.trans|20|0|0|1|||##anime-japanese,#irciv||php scripts/translate-last.php %%trailing%% %%dest%% %%nick%% %%alias%%
-.jdict|20|0|0|1|||##anime-japanese,#irciv||php scripts/japanese.php %%trailing%% %%dest%% %%nick%% %%alias%%
-.jisho|20|0|0|1|||##anime-japanese,#irciv||php scripts/jisho.php %%trailing%% %%dest%% %%nick%% %%alias%%
-
 include ./scripts/about.php
 include ./scripts/php.php
 include ./scripts/bucket.php
@@ -28,22 +24,21 @@ include ./scripts/rainbow.php
 include ./scripts/quit.php
 include ./scripts/link.php
 include ./scripts/seen.php
-#include ./scripts/ircd.php
 include ./scripts/karma.php
 include ./scripts/gday.php
 include ./scripts/privmsg.php
-
 include ./scripts/welcome.php
-
 include ./scripts/jisho2.php
-
 include ./scripts/tell.php
-
 include ./scripts/google.php
-
 include ./scripts/soon/soon.php
 
 include ./scripts/python/yukiku.py
+
+.trans|20|0|0|1|||##anime-japanese,#irciv||php scripts/translate-last.php %%trailing%% %%dest%% %%nick%% %%alias%%
+.jdict|20|0|0|1|||##anime-japanese,#irciv||php scripts/japanese.php %%trailing%% %%dest%% %%nick%% %%alias%%
+
+help ./scripts
 
 #~epoch-feed|280|600|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 
@@ -56,6 +51,8 @@ include ./scripts/python/yukiku.py
 ~eval|20|0|1|0|@||||{ eval %%trailing%% ; } 2>&1
 
 ~addr|10|0|1|0|*||||{ host '%%trailing%%' | head -1 ; } 2>&1
+help ~addr|syntax: ~addr <host/ip>
+help ~addr|DNS lookup utility
 
 ~deb|10|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
 
