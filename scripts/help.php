@@ -29,7 +29,7 @@ if (isset($exec_list[$trailing]["help"])==True)
   $help_lines=$exec_list[$trailing]["help"];
   for ($i=0;$i<count($help_lines);$i++)
   {
-    privmsg($help_lines[$i]);
+    privmsg(chr(3)."06".$help_lines[$i]);
   }
   return;
 }

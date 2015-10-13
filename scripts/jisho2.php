@@ -2,6 +2,8 @@
 
 /*
 exec:~jisho|20|0|0|1|||||php scripts/jisho2.php %%trailing%%
+help:~jisho|syntax: ~jisho <word>
+help:~jisho|looks up jisho.org
 */
 
 require_once("lib.php");

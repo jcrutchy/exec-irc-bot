@@ -1,12 +1,8 @@
 <?php
 
-#####################################################################################################
-
-# .jisho|20|0|0|1|||##anime-japanese,#irciv||php scripts/japanese.php %%trailing%% %%dest%% %%nick%% %%alias%%
+# this script has been superseded by jisho2.php
 
 #####################################################################################################
-
-# http://jisho.org/api/v1/search/words?keyword=house
 
 ini_set("display_errors","on");
 

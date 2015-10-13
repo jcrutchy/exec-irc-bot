@@ -164,8 +164,61 @@ function init()
   buckets_load($items);
   initialize_buckets();
   #handle_data(CMD_INIT."\n",False,False,True);
+  process_exec_helps();
   process_exec_inits();
   process_scripts($items,ALIAS_INIT);
+}
+
+#####################################################################################################
+
+function process_exec_helps()
+{
+  global $help;
+  global $exec_list;
+  term_echo("help:");
+  $help_lines=array();
+  $file_lines=array();
+  for ($i=0;$i<count($help);$i++)
+  {
+    if (file_exists($help[$i])==True)
+    {
+      if (is_dir($help[$i])==True)
+      {
+        load_directory($help[$i],$file_lines,FILE_DIRECTIVE_HELP);
+      }
+      else
+      {
+        load_include($help[$i],$file_lines,FILE_DIRECTIVE_HELP);
+      }
+    }
+    else
+    {
+      $help_lines[]=$help[$i];
+    }
+  }
+  foreach ($file_lines as $filename => $file_help_lines)
+  {
+    for ($i=0;$i<count($file_help_lines);$i++)
+    {
+      $help_lines[]=$file_help_lines[$i];
+    }
+  }
+  unset($file_lines);
+  for ($i=0;$i<count($help_lines);$i++)
+  {
+    $help_parts=explode("|",$help_lines[$i]);
+    if (count($help_parts)>=2)
+    {
+      $alias=trim($help_parts[0]);
+      if (isset($exec_list[$alias]["help"])==True)
+      {
+        array_shift($help_parts);
+        $help_line=implode("|",$help_parts);
+        $exec_list[$alias]["help"][]=$help_line;
+        term_echo("ALIAS HELP: $alias => $help_line");
+      }
+    }
+  }
 }
 
 #####################################################################################################
@@ -1922,6 +1975,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False,$piped_command
           else
           {
             write_out_buffer_command($items,"rehash");
+            process_exec_helps();
             process_exec_inits();
             process_exec_startups();
             $users=get_users();
@@ -2067,7 +2121,9 @@ function exec_load()
   global $exec_list;
   global $init;
   global $startup;
+  global $help;
   global $buckets;
+  $help=array();
   $startup=array();
   $init=array();
   $exec_errors=array();
@@ -2111,28 +2167,6 @@ function exec_load()
           for ($j=0;$j<count($exec_lines);$j++)
           {
             $exec_record=load_exec_line($exec_lines[$j],$filename);
-            if ($exec_record!==False)
-            {
-              $help_lines=array();
-              load_include($filename,$help_lines,FILE_DIRECTIVE_HELP);
-              $alias_help=array();
-              if (isset($help_lines[$filename])==True)
-              {
-                for ($k=0;$k<count($help_lines[$filename]);$k++)
-                {
-                  $help_parts=explode("|",$help_lines[$filename][$k]);
-                  if (trim($help_parts[0])==$exec_record["alias"])
-                  {
-                    array_shift($help_parts);
-                    $alias_help[]=implode("|",$help_parts);
-                  }
-                }
-              }
-              if (count($alias_help)>0)
-              {
-                $exec_list[$exec_record["alias"]]["help"]=$alias_help;
-              }
-            }
           }
         }
         unset($file_lines);
@@ -2142,6 +2176,9 @@ function exec_load()
         break;
       case EXEC_INIT:
         $init[]=$trailing;
+        break;
+      case EXEC_HELP:
+        $help[]=$trailing;
         break;
       default:
         load_exec_line($data[$i],EXEC_FILE);
@@ -2288,6 +2325,7 @@ function load_exec_line($line,$filename,$saved=True)
   $result["saved"]=$saved;
   $result["line"]=$line;
   $result["file"]=$filename;
+  $result["help"]=array();
   $exec_list[$alias]=$result;
   term_echo("SUCCESS: $line");
   return $result;

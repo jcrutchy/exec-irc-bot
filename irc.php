@@ -67,6 +67,7 @@ define("EXEC_DIRECTIVE_DELIM"," ");
 define("EXEC_INCLUDE","include");
 define("EXEC_INIT","init");
 define("EXEC_STARTUP","startup");
+define("EXEC_HELP","help");
 define("FILE_DIRECTIVE_DELIM",":");
 define("FILE_DIRECTIVE_EXEC","exec");
 define("FILE_DIRECTIVE_INIT","init");
@@ -242,6 +243,7 @@ $valid_data_cmd=get_valid_data_cmd();
 
 $init=array();
 $startup=array();
+$help=array();
 
 $socket=initialize_socket();
 if (file_exists(EXEC_SOCK_FILE)==True)

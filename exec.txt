@@ -45,6 +45,8 @@ include test.php
 ~deb|10|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
 
 ~addr|10|0|1|0|*||||{ host '%%trailing%%' | head -1 ; } 2>&1
+help ~addr|syntax: ~addr <host/ip>
+help ~addr|DNS lookup utility
 
 # http://kedar.nitty-witty.com/blog/how-to-get-stock-quote-on-linux-using-google-curl-grep-awk
 # todo: test with single quotes around %%trailing%% to prevent shell code injection
