@@ -3,7 +3,9 @@
 #####################################################################################################
 
 /*
-exec:~mysql|30|0|0|1|crutchy,chromas||#,#Soylent||php scripts/mysql_tools.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~mysql|30|0|0|1|crutchy,chromas||#,#Soylent,#test,#journals||php scripts/mysql_tools.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~sql|30|0|0|1|crutchy,chromas||#,#Soylent,#test,#journals||php scripts/mysql_tools.php %%trailing%% %%dest%% %%nick%% %%alias%%
+help:~mysql|syntax: ~mysql query <sql>
 */
 
 #####################################################################################################
@@ -11,12 +13,17 @@ exec:~mysql|30|0|0|1|crutchy,chromas||#,#Soylent||php scripts/mysql_tools.php %%
 require_once("lib.php");
 require_once("lib_mysql.php");
 
-$trailing=$argv[1];
+$trailing=trim($argv[1]);
 $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 
-switch ($trailing)
+$parts=explode(" ",$trailing);
+$action=strtolower($parts[0]);
+array_shift($parts);
+$trailing=trim(implode(" ",$parts));
+
+switch ($action)
 {
   case "count":
     $records=fetch_query("SELECT COUNT(*) FROM ".BOT_SCHEMA.".".LOG_TABLE);
@@ -26,6 +33,21 @@ switch ($trailing)
     $params=array("destination"=>$dest);
     $records=fetch_prepare("SELECT * FROM ".BOT_SCHEMA.".".LOG_TABLE." WHERE ((cmd='PRIVMSG') and (destination=:destination)) ORDER BY id DESC LIMIT 1",$params);
     privmsg($records[0]["data"]);
+    break;
+  case "query":
+    # ~sql query select comment_body from exec_irc_bot.sn_comments where (comment_body like '%fart%') order by rand() limit 1
+    $records=fetch_query($trailing);
+    for ($i=0;$i<min(3,count($records));$i++)
+    {
+      if (is_array($records[$i])==True)
+      {
+        privmsg(implode("|",$records[$i]));
+      }
+      else
+      {
+        privmsg($records[$i]);
+      }
+    }
     break;
 }
 

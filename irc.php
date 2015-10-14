@@ -3,7 +3,7 @@
 #####################################################################################################
 
 # TODO: PRIVMSG EVENTS APPEAR IN CHANNEL WITH ANY ALIAS LOCK
-# TODO: PIPED SCRIPTS => ~alias1 trailing | ~alias2 trailing | ~alias3 trailing (stdout of left pipes to shellarg of right)
+# TODO: PIPED SCRIPTS => ~alias1 trailing | ~alias2 trailing | ~alias3 trailing (stdout of left pipes to shellarg of right) ???
 
 require_once("irc_lib.php");
 require_once("scripts/lib_mysql.php");
@@ -59,7 +59,6 @@ else
 
 # TODO: ADD FLAG TO HAVE EXEC IGNORE ITSELF
 
-define("EXEC_SOCK_FILE","../data/sock_".IRC_HOST_CONNECT);
 define("EXEC_OUTPUT_BUFFER_FILE","../data/exec_iface");
 
 define("EXEC_DELIM","|");
@@ -246,14 +245,7 @@ $startup=array();
 $help=array();
 
 $socket=initialize_socket();
-if (file_exists(EXEC_SOCK_FILE)==True)
-{
-  unlink(EXEC_SOCK_FILE);
-}
-else
-{
-  initialize_irc_connection();
-}
+initialize_irc_connection();
 
 $exec_errors=array(); # stores exec load errors
 $exec_list=exec_load();

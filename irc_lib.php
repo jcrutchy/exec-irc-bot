@@ -12,13 +12,6 @@ function initialize_irc_connection()
 
 function initialize_socket()
 {
-  return initialize_socket1();
-}
-
-#####################################################################################################
-
-function initialize_socket1()
-{
   if (IRC_PORT=="6697")
   {
     $socket=fsockopen("ssl://".IRC_HOST_CONNECT,IRC_PORT);
@@ -42,107 +35,12 @@ function initialize_socket1()
 
 #####################################################################################################
 
-function initialize_socket2()
-{
-  if (file_exists(EXEC_SOCK_FILE)==True)
-  {
-    $inode_check=file_get_contents(EXEC_SOCK_FILE);
-    echo "SOCKET INDODE FROM FILE: $inode_check\n";
-    $pid=getmypid();
-    $ip=gethostbyname(IRC_HOST_CONNECT);
-    $ip_parts=explode(".",$ip);
-    $ip_hex=dechex($ip_parts[3]).dechex($ip_parts[2]).dechex($ip_parts[1]).dechex($ip_parts[0]);
-    $port_hex=dechex(IRC_PORT);
-    $tcp=file_get_contents("/proc/$pid/net/tcp");
-    $fds=explode(PHP_EOL,$tcp);
-    for ($i=0;$i<count($fds);$i++)
-    {
-      $line=trim($fds[$i]);
-      echo "$line\n";
-      $parts=explode(" ",$line);
-      for ($j=0;$j<count($parts);$j++)
-      {
-        if ($parts[$j]=="")
-        {
-          unset($parts[$j]);
-        }
-      }
-      $parts=array_values($parts);
-      $remote=$parts[2];
-      if (($remote==strtoupper("$ip_hex:$port_hex")) and (count($parts)>9))
-      {
-        $inode=$parts[9];
-        echo "SOCKET INDODE FROM PROC: $inode\n";
-        /*if ($inode<>$inode_check)
-        {
-          unlink(EXEC_SOCK_FILE);
-          die("ERROR: SOCKET INODE MISMATCH\n");
-        }*/
-        $fd="";
-        $path="/proc/$pid/fd";
-        $handle=opendir($path);
-        while (($fn=readdir($handle))!==False)
-        {
-          $full=$path."/".$fn;
-          if ((is_dir($full)==False) and ($fn<>".") and ($fn<>".."))
-          {
-            if (fileinode($full)==$inode)
-            {
-              $fd=$full;
-              break;
-            }
-          }
-        }
-        closedir($handle);
-        if ($fd=="")
-        {
-          unlink(EXEC_SOCK_FILE);
-          die("ERROR: SOCKET FILE DESCRIPTOR NOT FOUND\n");
-        }
-        $socket=fsockopen("unix://$fd",0);
-        #$socket=fopen($fd,"rw");
-        stream_set_blocking($socket,0);
-        break;
-      }
-    }
-  }
-  else
-  {
-    $socket=initialize_socket1();
-  }
-  return $socket;
-}
-
-#####################################################################################################
-
 function finalize_socket()
-{
-  finalize_socket1();
-}
-
-#####################################################################################################
-
-function finalize_socket1()
 {
   global $socket;
   rawmsg("NickServ LOGOUT");
   rawmsg("QUIT :dafuq");
   fclose($socket);
-}
-
-#####################################################################################################
-
-function finalize_socket2()
-{
-  global $socket;
-  if (defined("RESTART")==True)
-  {
-    file_put_contents(EXEC_SOCK_FILE,intval($socket));
-  }
-  else
-  {
-    finalize_socket1();
-  }
 }
 
 #####################################################################################################
@@ -340,27 +238,30 @@ function get_list($items)
   global $reserved_aliases;
   $msg=" ~list ~list-auth ~lock ~unlock";
   privmsg($items["destination"],$items["nick"],$msg);
+  $aliases=array_keys($exec_list);
+  sort($aliases);
   $msg="";
-  foreach ($exec_list as $alias => $data)
+  for ($i=0;$i<count($aliases);$i++)
   {
-    if ((count($data["accounts"])==0) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False) and ((count($data["cmds"])==0) or (in_array("PRIVMSG",$data["cmds"])==True)))
+    $alias=$aliases[$i];
+    if (($exec_list[$alias]["accounts_wildcard"]<>"@") and (count($exec_list[$alias]["accounts"])==0) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False) and ((count($exec_list[$alias]["cmds"])==0) or (in_array("PRIVMSG",$exec_list[$alias]["cmds"])==True)))
     {
-      if ($msg<>"")
-      {
-        $msg=$msg." ";
-      }
       if (strlen($msg.$alias)>(MAX_MSG_LENGTH-1))
       {
-        privmsg($items["destination"],$items["nick"]," ".$msg);
+        privmsg($items["destination"],$items["nick"]," ".trim($msg));
         $msg=$alias;
       }
       else
       {
         $msg=$msg.$alias;
       }
+      $msg=$msg." ";
     }
   }
-  privmsg($items["destination"],$items["nick"]," ".$msg);
+  if (trim($msg)<>"")
+  {
+    privmsg($items["destination"],$items["nick"]," ".trim($msg));
+  }
 }
 
 #####################################################################################################
@@ -371,27 +272,30 @@ function get_list_auth($items)
   global $reserved_aliases;
   $msg=" ~q ~rehash ~ps ~kill ~killall ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~restart ~ignore ~unignore";
   privmsg($items["destination"],$items["nick"],$msg);
+  $aliases=array_keys($exec_list);
+  sort($aliases);
   $msg="";
-  foreach ($exec_list as $alias => $data)
+  for ($i=0;$i<count($aliases);$i++)
   {
-    if ((count($data["accounts"])>0) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False) and ((count($data["cmds"])==0) or (in_array("PRIVMSG",$data["cmds"])==True)))
+    $alias=$aliases[$i];
+    if ((($exec_list[$alias]["accounts_wildcard"]=="@") or (count($exec_list[$alias]["accounts"])>0)) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False) and ((count($exec_list[$alias]["cmds"])==0) or (in_array("PRIVMSG",$exec_list[$alias]["cmds"])==True)))
     {
-      if ($msg<>"")
-      {
-        $msg=$msg." ";
-      }
       if (strlen($msg.$alias)>(MAX_MSG_LENGTH-1))
       {
-        privmsg($items["destination"],$items["nick"]," ".$msg);
+        privmsg($items["destination"],$items["nick"]," ".trim($msg));
         $msg=$alias;
       }
       else
       {
         $msg=$msg.$alias;
       }
+      $msg=$msg." ";
     }
   }
-  privmsg($items["destination"],$items["nick"]," ".$msg);
+  if (trim($msg)<>"")
+  {
+    privmsg($items["destination"],$items["nick"]," ".trim($msg));
+  }
 }
 
 #####################################################################################################
@@ -2499,10 +2403,6 @@ function process_scripts($items,$reserved="")
     {
       $parts=explode(" ",$items["trailing"]);
       $alias=strtolower(trim($parts[0]));
-      if (isset($exec_list[$alias])==False)
-      {
-        return;
-      }
       array_shift($parts);
       $trailing=implode(" ",$parts);
     }
@@ -2514,6 +2414,10 @@ function process_scripts($items,$reserved="")
   else
   {
     $alias=$reserved;
+  }
+  if (isset($exec_list[$alias])==False)
+  {
+    return;
   }
   if (count($exec_list[$alias]["cmds"])>0)
   {
