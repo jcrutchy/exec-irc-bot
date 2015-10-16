@@ -4,7 +4,8 @@
 
 define("ICEWEASEL_UA","Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0");
 
-$url_blacklist=array("kidd","porn","goat","xxx","sex","fuck");
+$url_blacklist=explode(PHP_EOL,file_get_contents("../data/url_blacklist"));
+delete_empty_elements($url_blacklist,True);
 
 #####################################################################################################
 

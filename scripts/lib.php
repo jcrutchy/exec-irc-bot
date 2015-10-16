@@ -211,11 +211,19 @@ function convert_timestamp($time,$format)
 
 #####################################################################################################
 
-function delete_empty_elements(&$array)
+function delete_empty_elements(&$array,$trim=False)
 {
   for ($i=0;$i<count($array);$i++)
   {
-    if ($array[$i]=="")
+    if ($trim==False)
+    {
+      $value=$array[$i];
+    }
+    else
+    {
+      $value=trim($array[$i]);
+    }
+    if ($value=="")
     {
       unset($array[$i]);
     }

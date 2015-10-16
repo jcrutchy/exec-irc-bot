@@ -1,5 +1,9 @@
 <?php
 
+/*
+exec:~trans|20|0|0|1|||||php scripts/translate-last.php %%trailing%% %%dest%% %%nick%% %%alias%%
+*/
+
 #####################################################################################################
 
 require_once("lib.php");

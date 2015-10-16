@@ -13,6 +13,22 @@ if ($pdo===False)
 
 #####################################################################################################
 
+function get_last_error()
+{
+  global $pdo;
+  $err=$pdo->errorInfo();
+  if ($err[0]<>Null)
+  {
+    return $err[2];
+  }
+  else
+  {
+    return "";
+  }
+}
+
+#####################################################################################################
+
 function sql_insert($items,$table)
 {
   $fieldnames=array_keys($items);
@@ -67,7 +83,6 @@ function execute_prepare($sql,$params)
   }
   foreach ($params as $key => $value)
   {
-    
     if (ctype_digit(strval($value))==True)
     {
       $statement->bindParam(":$key",$params[$key],PDO::PARAM_INT);

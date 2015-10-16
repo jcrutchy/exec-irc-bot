@@ -37,6 +37,12 @@ switch ($action)
   case "query":
     # ~sql query select comment_body from exec_irc_bot.sn_comments where (comment_body like '%fart%') order by rand() limit 1
     $records=fetch_query($trailing);
+    $error=get_last_error();
+    if ($error<>"")
+    {
+      privmsg($error);
+      return;
+    }
     for ($i=0;$i<min(3,count($records));$i++)
     {
       if (is_array($records[$i])==True)
