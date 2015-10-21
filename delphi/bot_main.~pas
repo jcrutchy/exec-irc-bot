@@ -51,7 +51,15 @@ begin
 end;
 
 procedure TFormMain.FormDestroy(Sender: TObject);
+var
+  i: Integer;
 begin
+  for i := 0 to FServers.Count - 1 do
+  begin
+    FServers[i].Send('NickServ LOGOUT');
+    FServers[i].Send('QUIT :dafuq');
+  end;
+  ProcessSleep(500);
   FServers.Free;
 end;
 
@@ -67,7 +75,7 @@ begin
       if SysUtils.FileExists(FNickServPasswordFileName) then
       begin
         S.LoadFromFile(FNickServPasswordFileName);
-        Server.Send('NickServ IDENTIFY ' + SysUtils.Trim(S.Text), False);
+        Server.Send('NickServ IDENTIFY ' + SysUtils.Trim(S.Text), True);
       end;
     finally
       S.Free;

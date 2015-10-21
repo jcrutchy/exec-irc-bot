@@ -111,7 +111,7 @@ type
     function Add: TBotServer;
   public
     property Count: Integer read GetCount;
-    property Servers[const Index: Integer]: TBotServer read GetServer;
+    property Servers[const Index: Integer]: TBotServer read GetServer; default;
   end;
 
   { TBotChannel }
@@ -161,9 +161,19 @@ type
 
   end;
 
+procedure ProcessSleep(const Milliseconds: Cardinal);
 function ParseMessage(const Data: string): TBotMessage;
 
 implementation
+
+procedure ProcessSleep(const Milliseconds: Cardinal);
+var
+  n: Cardinal;
+begin
+  n := Windows.GetTickCount;
+  while (Windows.GetTickCount - n) < Milliseconds do
+    Application.ProcessMessages;
+end;
 
 function ParseMessage(const Data: string): TBotMessage;
 var
