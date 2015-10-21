@@ -20,20 +20,36 @@ type
   TBotClientThread = class;
   TBotServer = class;
   TBotServerArray = class;
-  TBotMessage = class;
-  TBotMessageArray = class;
   TBotChannel = class;
   TBotChannelArray = class;
   TBotUser = class;
   TBotUserArray = class;
+
+  { TBotMessage }
+
+  TBotMessage = record
+    Command: string;
+    Data: string;
+    Destination: string;
+    Hostname: string;
+    Nick: string;
+    Params: string;
+    Prefix: string;
+    Server: string;
+    TimeStamp: TDateTime;    Trailing: string;
+    User: string;
+    Valid: Boolean;
+  end;
+
+  TBotReceiveEvent = procedure(const Server: TBotServer; const Message: TBotMessage; const Data: string) of object;
 
   { TBotClientThread }
 
   TBotClientThread = class(TThread)
   private
     FClient: Sockets.TTcpClient;
+    FServer: TBotServer;
     FBuffer: string;
-    FHandler: Classes.TGetStrProc;
   private
     procedure ClientError(Sender: TObject; SocketError: Integer);
     procedure ClientSend(Sender: TObject; Buf: PAnsiChar; var DataLen: Integer);
@@ -43,88 +59,59 @@ type
     procedure Send(const Msg: string);
     procedure Execute; override;
   public
-    property Handler: Classes.TGetStrProc read FHandler write FHandler;
+    property Server: TBotServer read FServer write FServer;
   end;
 
   { TBotServer }
 
   TBotServer = class(TObject)
   private
-    FHandler: Classes.TGetStrProc;
+    FRemoteHost: string;
+    FRemotePort: string;
+    FNickName: string;
+    FUserName: string;
+    FFullName: string;
+    FHostName: string;
+    FServerName: string;
+    FNickServPasswordFileName: string;
+    FHandler: TBotReceiveEvent;
     FThread: TBotClientThread;
-  private
-    procedure ThreadHandler(const S: string);
   public
-    constructor Create(const Handler: Classes.TGetStrProc);
+    constructor Create(const Handler: TBotReceiveEvent);
     destructor Destroy; override;
   public
-    property Handler: TGetStrProc read FHandler write FHandler;
+    procedure Connect(const RemoteHost, RemotePort, NickName, UserName, FullName, HostName, ServerName: string);
+    procedure Send(const Msg: string);
+  public
+    property RemoteHost: string read FRemoteHost;
+    property RemotePort: string read FRemotePort;
+    property NickName: string read FNickName;
+    property UserName: string read FUserName;
+    property FullName: string read FFullName;
+    property HostName: string read FHostName;
+    property ServerName: string read FServerName;
+    property NickServPasswordFileName: string read FNickServPasswordFileName;
+  public
+    property Handler: TBotReceiveEvent read FHandler write FHandler;
   end;
 
   { TBotServerArray }
 
   TBotServerArray = class(TObject)
   private
-    FGlobalHandler: Classes.TGetStrProc;
+    FGlobalHandler: TBotReceiveEvent;
     FServers: Classes.TList;
   private
     function GetCount: Integer;
     function GetServer(const Index: Integer): TBotServer;
   public
-    constructor Create(const GlobalHandler: Classes.TGetStrProc);
+    constructor Create(const GlobalHandler: TBotReceiveEvent);
     destructor Destroy; override;
   public
     function Add: TBotServer;
   public
     property Count: Integer read GetCount;
     property Servers[const Index: Integer]: TBotServer read GetServer;
-  end;
-
-  { TBotMessage }
-
-  TBotMessage = class(TObject)
-  private
-    FCommand: string;
-    FData: string;
-    FDestination: string;
-    FHostname: string;
-    FNick: string;
-    FParams: string;
-    FPrefix: string;
-    FServer: string;
-    FTimeStamp: TDateTime;    FTrailing: string;
-    FUser: string;
-    FValid: Boolean;
-  public
-    constructor Create(const Data: string);
-  public
-    property Command: string read FCommand;
-    property Data: string read FData;
-    property Destination: string read FDestination;
-    property Hostname: string read FHostname;
-    property Nick: string read FNick;
-    property Params: string read FParams;
-    property Prefix: string read FPrefix;
-    property Server: string read FServer;
-    property TimeStamp: TDateTime read FTimeStamp;    property Trailing: string read FTrailing;    property User: string read FUser;    property Valid: Boolean read FValid;  end;
-
-  { TBotMessageArray }
-
-  TBotMessageArray = class(TObject)
-  private
-    FMessages: TList;
-  private
-    function GetCount: Integer;
-    function GetMessage(const Index: Integer): TBotMessage;
-  public
-    constructor Create;
-    destructor Destroy; override;
-  public
-    procedure Add(const Data: string);
-    procedure Clear;
-  public
-    property Count: Integer read GetCount;
-    property Messages[const Index: Integer]: TBotMessage read GetMessage; default;
   end;
 
   { TBotChannel }
@@ -174,7 +161,71 @@ type
 
   end;
 
+function ParseMessage(const Data: string): TBotMessage;
+
 implementation
+
+function ParseMessage(const Data: string): TBotMessage;
+var
+  S: string;
+  sub: string;
+  i: Integer;
+begin
+  Result.Valid := False;
+  Result.TimeStamp := Now;
+  Result.Data := Data;
+  S := Data;
+  // :<prefix> <command> <params> :<trailing>
+  // the only required part of the message is the command
+  // if there is no prefix, then the source of the message is the server for the current connection (such as for PING)
+  if Copy(Data, 1, 1) = ':' then
+  begin
+    i := Pos(' ', S);
+    if i > 0 then
+    begin
+      Result.Prefix := Copy(S, 2, i - 2);
+      S := Copy(S, i + 1, Length(S) - i);
+    end;
+  end;
+  i := Pos(' :', S);
+  if i > 0 then
+  begin
+    Result.Trailing := Copy(S, i + 2, Length(S) - i - 1);
+    S := Copy(S, 1, i - 1);
+  end;
+  i := Pos(' ', S);
+  if i > 0 then
+  begin
+    // params found
+    Result.Params := Copy(S, i + 1, Length(S) - i);
+    S := Copy(S, 1, i - 1);
+  end;
+  Result.Command := S;
+  if Result.Command = '' then
+    Exit;
+  Result.Valid := True;
+  if Result.Prefix <> '' then
+  begin
+    // prefix format: nick!user@hostname
+    i := Pos('!', Result.Prefix);
+    if i > 0 then
+    begin
+      Result.Nick := Copy(Result.Prefix, 1, i - 1);
+      sub := Copy(Result.Prefix, i + 1, Length(Result.Prefix) - i);
+      i := Pos('@', sub);
+      if i > 0 then
+      begin
+        Result.User := Copy(sub, 1, i - 1);
+        Result.Hostname := Copy(sub, i + 1, Length(sub) - i);
+      end;
+    end
+    else
+      Result.Nick := Result.Prefix;
+  end;
+  i := Pos(' ', Result.Params);
+  if i <= 0 then
+    Result.Destination := Result.Params;
+end;
 
 { TBotClientThread }
 
@@ -195,8 +246,8 @@ begin
     FClient.OnError := ClientError;
     FClient.OnSend := ClientSend;
     try
-      FClient.RemoteHost := FClient.LookupHostAddr('irc.sylnt.us');
-      FClient.RemotePort := '6667';
+      FClient.RemoteHost := FClient.LookupHostAddr(FServer.RemoteHost);
+      FClient.RemotePort := FServer.RemotePort;
       if FClient.Connect = False then
       begin
         FBuffer := '<< CONNECTION ERROR >>';
@@ -205,10 +256,8 @@ begin
       end;
       FBuffer := '<< CONNECTED >>';
       Synchronize(Update);
-
-      Send('NICK delphi_exec_test');
-      Send('USER delphi_exec_test hostname servername :delphi_exec_test');
-
+      Send('NICK ' + FServer.NickName);
+      Send('USER ' + FServer.UserName + ' ' + FServer.HostName + ' ' + FServer.ServerName + ' :' + FServer.FullName);
       FBuffer := '';
       while (Application.Terminated = False) and (Self.Terminated = False) and (FClient.Connected = True) do
       begin
@@ -253,40 +302,50 @@ end;
 
 procedure TBotClientThread.Update;
 begin
-  if Assigned(FHandler) then
-    FHandler(FBuffer);
+  if Assigned(FServer.Handler) then
+    FServer.Handler(FServer, ParseMessage(FBuffer), FBuffer);
 end;
 
 procedure TBotClientThread.ClientError(Sender: TObject; SocketError: Integer);
 begin
-
+  //
 end;
 
 procedure TBotClientThread.ClientSend(Sender: TObject; Buf: PAnsiChar; var DataLen: Integer);
 begin
-
+  //
 end;
 
 { TBotServer }
 
-constructor TBotServer.Create(const Handler: Classes.TGetStrProc);
+procedure TBotServer.Connect(const RemoteHost, RemotePort, NickName, UserName, FullName, HostName, ServerName: string);
+begin
+  FRemoteHost := RemoteHost;
+  FRemotePort := RemotePort;
+  FNickName := NickName;
+  FUserName := UserName;
+  FFullName := FullName;
+  FHostName := HostName;
+  FServerName := ServerName;
+  FThread.Resume;
+end;
+
+constructor TBotServer.Create(const Handler: TBotReceiveEvent);
 begin
   FHandler := Handler;
   FThread := TBotClientThread.Create(True);
-  FThread.Handler := ThreadHandler;
-  FThread.Resume;
+  FThread.Server := Self;
 end;
 
 destructor TBotServer.Destroy;
 begin
-
+  //
   inherited;
 end;
 
-procedure TBotServer.ThreadHandler(const S: string);
+procedure TBotServer.Send(const Msg: string);
 begin
-  if Assigned(FHandler) then
-    FHandler(S);
+  FThread.Send(Msg);
 end;
 
 { TBotServerArray }
@@ -297,7 +356,7 @@ begin
   FServers.Add(Result);
 end;
 
-constructor TBotServerArray.Create(const GlobalHandler: Classes.TGetStrProc);
+constructor TBotServerArray.Create(const GlobalHandler: TBotReceiveEvent);
 begin
   FGlobalHandler := GlobalHandler;
   FServers := Classes.TList.Create;
@@ -324,111 +383,6 @@ begin
     Result := FServers[Index]
   else
     Result := nil;
-end;
-
-{ TBotMessage }
-
-constructor TBotMessage.Create(const Data: string);
-var
-  S: string;
-  sub: string;
-  i: Integer;
-begin
-  FValid := False;
-  FTimeStamp := Now;
-  FData := Data;
-  S := Data;
-  // :<prefix> <command> <params> :<trailing>
-  // the only required part of the message is the command
-  // if there is no prefix, then the source of the message is the server for the current connection (such as for PING)
-  if Copy(Data, 1, 1) = ':' then
-  begin
-    i := Pos(' ', S);
-    if i > 0 then
-    begin
-      FPrefix := Copy(S, 2, i - 2);
-      S := Copy(S, i + 1, Length(S) - i);
-    end;
-  end;
-  i := Pos(' :', S);
-  if i > 0 then
-  begin
-    FTrailing := Copy(S, i + 2, Length(S) - i - 1);
-    S := Copy(S, 1, i - 1);
-  end;
-  i := Pos(' ', S);
-  if i > 0 then
-  begin
-    // params found
-    FParams := Copy(S, i + 1, Length(S) - i);
-    S := Copy(S, 1, i - 1);
-  end;
-  FCommand := S;
-  if FCommand = '' then
-    Exit;
-  FValid := True;
-  if FPrefix <> '' then
-  begin
-    // prefix format: nick!user@hostname
-    i := Pos('!', FPrefix);
-    if i > 0 then
-    begin
-      FNick := Copy(FPrefix, 1, i - 1);
-      sub := Copy(FPrefix, i + 1, Length(FPrefix) - i);
-      i := Pos('@', sub);
-      if i > 0 then
-      begin
-        FUser := Copy(sub, 1, i - 1);
-        FHostname := Copy(sub, i + 1, Length(sub) - i);
-      end;
-    end
-    else
-      FNick := FPrefix;
-  end;
-  i := Pos(' ', FParams);
-  if i <= 0 then
-    FDestination := FParams;
-end;
-
-{ TBotMessageArray }
-
-procedure TBotMessageArray.Add(const Data: string);
-var
-  NewMessage: TBotMessage;
-begin
-  NewMessage := TBotMessage.Create(Data);
-  FMessages.Add(NewMessage);
-end;
-
-procedure TBotMessageArray.Clear;
-var
-  i: Integer;
-begin
-  for i := 0 to Count - 1 do
-    Messages[i].Free;
-  FMessages.Clear;
-end;
-
-constructor TBotMessageArray.Create;
-begin
-  FMessages := TList.Create;
-end;
-
-destructor TBotMessageArray.Destroy;
-begin
-  Clear;
-  FMessages.Free;
-  inherited;
-end;
-
-function TBotMessageArray.GetCount: Integer;
-begin
-  Result := FMessages.Count;
-end;
-
-function TBotMessageArray.GetMessage(const Index: Integer): TBotMessage;
-begin
-  Result := FMessages[Index];
 end;
 
 { TBotChannel }

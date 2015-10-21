@@ -1,6 +1,6 @@
 object FormMain: TFormMain
-  Left = 383
-  Top = 229
+  Left = 334
+  Top = 178
   Width = 800
   Height = 500
   Caption = 'exec-irc-bot'
@@ -16,23 +16,24 @@ object FormMain: TFormMain
   PixelsPerInch = 96
   TextHeight = 14
   object MemoData: TMemo
-    Left = 41
-    Top = 35
-    Width = 422
-    Height = 272
+    Left = 172
+    Top = 0
+    Width = 620
+    Height = 473
+    Align = alClient
     ParentColor = True
     ReadOnly = True
     ScrollBars = ssBoth
     TabOrder = 0
     WordWrap = False
   end
-  object ButtonRunTests: TButton
-    Left = 513
-    Top = 65
-    Width = 75
-    Height = 25
-    Caption = 'Run Tests'
+  object Panel1: TPanel
+    Left = 0
+    Top = 0
+    Width = 172
+    Height = 473
+    Align = alLeft
+    BevelOuter = bvNone
     TabOrder = 1
-    OnClick = ButtonRunTestsClick
   end
 end

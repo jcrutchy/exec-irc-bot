@@ -17,21 +17,21 @@ uses
   Grids,
   ExtCtrls,
   Menus,
-  bot_data,
-  bot_test;
+  bot_data;
 
 type
 
   TFormMain = class(TForm)
     MemoData: TMemo;
-    ButtonRunTests: TButton;
+    Panel1: TPanel;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure ButtonRunTestsClick(Sender: TObject);
   private
     FServers: bot_data.TBotServerArray;
+    FNickServPasswordFileName: string;
   private
-    procedure ReceiveHandler(const S: string);
+    procedure ReceiveHandler(const Server: TBotServer; const Message: TBotMessage; const Data: string);
+    procedure Startup(const Server: TBotServer);
   end;
 
 var
@@ -46,6 +46,8 @@ implementation
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
   FServers := bot_data.TBotServerArray.Create(ReceiveHandler);
+  FNickServPasswordFileName := SysUtils.ExtractRelativePath(SysUtils.ExtractFilePath(ParamStr(0)), '..\..\pwd\exec');
+  FServers.Add.Connect('irc.sylnt.us', '6667', 'exec', 'exec', 'exec.bot', 'hostname', 'servername');
 end;
 
 procedure TFormMain.FormDestroy(Sender: TObject);
@@ -53,14 +55,30 @@ begin
   FServers.Free;
 end;
 
-procedure TFormMain.ReceiveHandler(const S: string);
+procedure TFormMain.ReceiveHandler(const Server: TBotServer; const Message: TBotMessage; const Data: string);
+var
+  S: Classes.TStrings;
 begin
-  MemoData.Lines.Add(S);
+  MemoData.Lines.Add(Data);
+  if Message.Trailing = 'You have 60 seconds to identify to your nickname before it is changed.' then
+  begin
+    S := Classes.TStringList.Create;
+    try
+      if SysUtils.FileExists(FNickServPasswordFileName) then
+      begin
+        S.LoadFromFile(FNickServPasswordFileName);
+        Server.Send('NickServ IDENTIFY ' + SysUtils.Trim(S.Text), False);
+      end;
+    finally
+      S.Free;
+    end;
+    Startup(Server);
+  end;
 end;
 
-procedure TFormMain.ButtonRunTestsClick(Sender: TObject);
+procedure TFormMain.Startup(const Server: TBotServer);
 begin
-  bot_test.RunTests;
+  Server.Send('JOIN #test');
 end;
 
 end.
