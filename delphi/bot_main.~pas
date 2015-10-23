@@ -59,7 +59,7 @@ begin
     FServers[i].Send('NickServ LOGOUT');
     FServers[i].Send('QUIT :dafuq');
   end;
-  ProcessSleep(500);
+  ProcessSleep(1000);
   FServers.Free;
 end;
 

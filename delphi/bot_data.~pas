@@ -36,12 +36,34 @@ type
     Params: string;
     Prefix: string;
     Server: string;
-    TimeStamp: TDateTime;    Trailing: string;
+    TimeStamp: TDateTime;
+    Trailing: string;
     User: string;
     Valid: Boolean;
   end;
 
-  TBotReceiveEvent = procedure(const Server: TBotServer; const Message: TBotMessage; const Data: string) of object;
+  TBotReceiveEvent = procedure(const Server: TBotServer; const Msg: TBotMessage; const Data: string) of object;
+
+  { TBotAddin }
+
+  TBotAddin = class(TObject)
+  end;
+
+  { TBotAddinArray }
+
+  TBotAddinArray = class(TObject)
+  private
+    FAddins: Classes.TList;
+  private
+    function GetCount: Integer;
+    function GetAddin(const Index: Integer): TBotAddin;
+  public
+    constructor Create;
+    destructor Destroy; override;
+  public
+    property Count: Integer read GetCount;
+    property Addins[const Index: Integer]: TBotAddin read GetAddin; default;
+  end;
 
   { TBotClientThread }
 
@@ -161,7 +183,7 @@ type
 
   end;
 
-procedure ProcessSleep(const Milliseconds: Integer);
+procedure ProcessSleep(const Milliseconds: Cardinal);
 function ParseMessage(const Data: string): TBotMessage;
 
 implementation
@@ -235,6 +257,36 @@ begin
   i := Pos(' ', Result.Params);
   if i <= 0 then
     Result.Destination := Result.Params;
+end;
+
+{ TBotAddinArray }
+
+constructor TBotAddinArray.Create;
+begin
+  FAddins := Classes.TList.Create;
+end;
+
+destructor TBotAddinArray.Destroy;
+var
+  i: Integer;
+begin
+  for i := 0 to Count - 1 do
+    Addins[i].Free;
+  FAddins.Free;
+  inherited;
+end;
+
+function TBotAddinArray.GetAddin(const Index: Integer): TBotAddin;
+begin
+  if (Index >= 0) and (Index < Count) then
+    Result := FAddins[Index]
+  else
+    Result := nil;
+end;
+
+function TBotAddinArray.GetCount: Integer;
+begin
+  Result := FAddins.Count;
 end;
 
 { TBotClientThread }
@@ -311,9 +363,14 @@ begin
 end;
 
 procedure TBotClientThread.Update;
+var
+  Msg: TBotMessage;
 begin
-  if Assigned(FServer.Handler) then
-    FServer.Handler(FServer, ParseMessage(FBuffer), FBuffer);
+  if Assigned(FServer.Handler) = False then
+    Exit;
+  Msg := ParseMessage(FBuffer);
+  Msg.Server := FServer.RemoteHost;
+  FServer.Handler(FServer, Msg, FBuffer);
 end;
 
 procedure TBotClientThread.ClientError(Sender: TObject; SocketError: Integer);

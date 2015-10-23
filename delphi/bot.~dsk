@@ -10,20 +10,20 @@ File_7=SourceModule,'C:\Users\Jared\Documents\GitHub\conquest\Main.pas',0,1,108,
 File_8=SourceModule,'C:\Users\Jared\Documents\GitHub\cIRC\Main.pas',0,1,196,30,220,1,0
 
 [Modules]
-Module0=C:\Users\Jared\Documents\GitHub\exec-irc-bot\delphi\bot_data.pas
-Module1=C:\Users\Jared\Documents\GitHub\exec-irc-bot\delphi\bot_main.pas
+Module0=C:\Users\Jared\Documents\GitHub\exec-irc-bot\delphi\bot_main.pas
+Module1=C:\Users\Jared\Documents\GitHub\exec-irc-bot\delphi\bot_data.pas
 Module2=C:\Users\Jared\Documents\GitHub\exec-irc-bot\delphi\bot.dpr
 Count=3
 EditWindowCount=1
 
-[C:\Users\Jared\Documents\GitHub\exec-irc-bot\delphi\bot_data.pas]
-ModuleType=SourceModule
-FormState=0
-FormOnTop=0
-
 [C:\Users\Jared\Documents\GitHub\exec-irc-bot\delphi\bot_main.pas]
 ModuleType=SourceModule
 FormState=1
+FormOnTop=0
+
+[C:\Users\Jared\Documents\GitHub\exec-irc-bot\delphi\bot_data.pas]
+ModuleType=SourceModule
+FormState=0
 FormOnTop=0
 
 [C:\Users\Jared\Documents\GitHub\exec-irc-bot\delphi\bot.dpr]
@@ -37,7 +37,7 @@ FormOnTop=0
 
 [EditWindow0]
 ViewCount=3
-CurrentView=1
+CurrentView=0
 View0=0
 View1=1
 View2=2
@@ -51,11 +51,11 @@ Top=150
 Width=1073
 Height=485
 MaxLeft=-4
-MaxTop=100
+MaxTop=97
 MaxWidth=1374
-MaxHeight=644
+MaxHeight=647
 ClientWidth=1366
-ClientHeight=617
+ClientHeight=620
 LeftPanelSize=171
 LeftPanelClients=CodeExplorer@EditWindow0
 LeftPanelData=000004000000000000000000000000000000000000000000000100000000000000000C000000436F64654578706C6F726572FFFFFFFF
@@ -73,9 +73,9 @@ LeftCol=1
 
 [View1]
 Module=C:\Users\Jared\Documents\GitHub\exec-irc-bot\delphi\bot_data.pas
-CursorX=32
-CursorY=57
-TopLine=5
+CursorX=13
+CursorY=65
+TopLine=54
 LeftCol=1
 
 [View2]
