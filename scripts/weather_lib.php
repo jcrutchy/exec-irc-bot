@@ -238,7 +238,12 @@ function process_weather(&$location,$nick,$getdata=False)
       $result=$result.", ";
     }
   }
-  $result=chr(3)."03".$result;
+  $color="10";
+  if (isset($prefs["color"])==True)
+  {
+    $color=$prefs["color"];
+  }
+  $result=chr(3).$color.$result;
   if ($getdata<>False)
   {
     $data=array();

@@ -6,7 +6,6 @@
 # TODO: PIPED SCRIPTS => ~alias1 trailing | ~alias2 trailing | ~alias3 trailing (stdout of left pipes to shellarg of right) ???
 
 require_once("irc_lib.php");
-require_once("scripts/lib_mysql.php");
 
 set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)
 ini_set("display_errors","on"); # output errors to stdout
@@ -32,6 +31,7 @@ if (isset($argv[1])==False)
   define("DEBUG_CHAN","#debug");
   define("NICKSERV_IDENTIFY_PROMPT","You have 60 seconds to identify to your nickname before it is changed.");
   define("ADMIN_ACCOUNTS","chromas,juggs,martyb");
+  define("MYSQL_LOG","1");
 }
 elseif (file_exists($argv[1])==True)
 {
@@ -55,6 +55,11 @@ elseif (file_exists($argv[1])==True)
 else
 {
   die("INVALID COMMAND LINE ARGUMENT\n");
+}
+
+if (MYSQL_LOG=="1")
+{
+  require_once("scripts/lib_mysql.php");
 }
 
 # TODO: ADD FLAG TO HAVE EXEC IGNORE ITSELF

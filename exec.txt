@@ -48,6 +48,9 @@ include test.php
 help ~addr|syntax: ~addr <host/ip>
 help ~addr|DNS lookup utility
 
+#~ping|5|0|1|0|*||||{ ping -c 1 '%%trailing%%' | head -1 ; } 2>&1
+#help ~ping|syntax: ~ping <host>
+
 # http://kedar.nitty-witty.com/blog/how-to-get-stock-quote-on-linux-using-google-curl-grep-awk
 ~nyse|30|0|1|0|*||||{ code='%%trailing%%' && curl --silent -X get "http://www.google.com/finance?q=nyse:$code" > /tmp/bgz && cat /tmp/bgz | grep -m1 -E 'span id="ref_' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' && sleep 2 && rm /tmp/bgz && echo "http://www.google.com/finance?q=nyse:$code" ; } 2>&1
 

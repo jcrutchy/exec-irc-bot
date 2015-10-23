@@ -16,7 +16,7 @@ $nick=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];
 
-define("API_WIKI_URL","http://wiki.soylentnews.org/wiki/ApiDocs");
+define("API_WIKI_URL","sylnt.us/api");
 
 if ($trailing=="")
 {
@@ -76,6 +76,9 @@ if ($element=="")
 else
 {
   $data=json_decode($content,True);
+  #$result=eval("return \$data$element;");
+  #privmsg(chr(3)."02".substr($result,0,650));
+  #return;
   if (isset($data[$element])==True)
   {
     privmsg(chr(3)."02".substr($data[$element],0,650));

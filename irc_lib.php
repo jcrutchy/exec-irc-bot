@@ -323,11 +323,14 @@ function handle_errors($data)
 
 function log_items($items)
 {
-  if ((BOT_SCHEMA=="") or (LOG_TABLE==""))
+  if (MYSQL_LOG=="1")
   {
-    return;
+    if ((BOT_SCHEMA=="") or (LOG_TABLE==""))
+    {
+      return;
+    }
+    sql_insert($items,LOG_TABLE);
   }
-  sql_insert($items,LOG_TABLE);
 }
 
 #####################################################################################################
