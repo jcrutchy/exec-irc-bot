@@ -52,6 +52,10 @@ if ($trailing=="")
     $last_parts[$last_n]=$replace;
     $replacements[]=$replace;
   }
+  for ($i=0;$i<count($last_parts);$i++)
+  {
+    $last_parts[$i]=strtolower($last_parts[$i]);
+  }
   $last="ciri: ".implode(" ",$last_parts);
   if ($dest=="")
   {

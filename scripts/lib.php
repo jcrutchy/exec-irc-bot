@@ -94,6 +94,15 @@ function load_settings($filename,$delim="=")
   $settings=array();
   for ($i=0;$i<count($data);$i++)
   {
+    if (trim($data[$i])=="")
+    {
+      continue;
+    }
+    $line=ltrim($data[$i]);
+    if ($line[0]=="#")
+    {
+      continue;
+    }
     $parts=explode($delim,$data[$i]);
     if (count($parts)<>2)
     {
