@@ -380,12 +380,14 @@ function wiki_spamctl($nick,$trailing,$bypass_auth=False)
 
 #####################################################################################################
 
-# 14[[07The Meaning Of Chopsticks In Chinese Food Culture14]]4 !N10 02http://wiki.soylentnews.org/w/index.php?oldid=9223&rcid=13180 5* 03Trey18553770 5* (+3741) 10Created page with "<br><br>I remember that, after i was little, there were lots of riddles for children. My grandma used to ask me time to time considered one of them in particular: 'There are t..."
-
 function wiki_autospamctl($trailing)
 {
+  if (file_exists(DATA_PATH."wiki_spam_users")==False)
+  {
+    return;
+  }
   $spam_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
-  delete_empty_elements($list,True);
+  delete_empty_elements($spam_user_list,True);
   $test_title=trim(extract_text_nofalse($trailing,"14[[07","14]]"));
   $test_nick=trim(extract_text_nofalse($trailing," 5* 03"," 5*"));
   if (($test_title=="") or ($test_nick==""))
@@ -396,6 +398,7 @@ function wiki_autospamctl($trailing)
   {
     return;
   }
+  privmsg("*** auto spamctl triggered for article \"$test_title\" edited by registered spam user account \"$test_nick\"");
   wiki_spamctl("",".spamctl $test_title",True);
 }
 
@@ -403,14 +406,23 @@ function wiki_autospamctl($trailing)
 
 function wiki_spamuser($nick,$trailing)
 {
+  if (file_exists(DATA_PATH."wiki_spam_users")==False)
+  {
+    $spam_user_list=array();
+  }
+  else
+  {
+    $spam_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
+  }
   $spam_user=trim(substr($trailing,strlen(".spamuser")));
-  $spam_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
-  delete_empty_elements($list,True);
+  var_dump($spam_user_list);
+  delete_empty_elements($spam_user_list,True);
   if (in_array($spam_user,$spam_user_list)==True)
   {
     privmsg("wiki user \"$spam_user\" already in spam user list file");
     return;
   }
+  $spam_user_list[]=$spam_user;
   if (file_put_contents(DATA_PATH."wiki_spam_users",implode("\n",$spam_user_list))===False)
   {
     privmsg("error adding wiki user \"$spam_user\" to spam user list file");
