@@ -4,6 +4,8 @@
 
 /*
 exec:~api|90|0|0|1|*|PRIVMSG|#dev,#Soylent,#,#journals||php scripts/sn_api.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
+help: ~api | example 1: ~api m=user op=get_nick uid=18 /nick
+help: ~api | example 2: ~api m=user op=get_uid nick=The Mighty Buzzard /uid
 */
 
 #####################################################################################################
