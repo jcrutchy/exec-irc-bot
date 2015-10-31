@@ -415,7 +415,6 @@ function wiki_spamuser($nick,$trailing)
     $spam_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
   }
   $spam_user=trim(substr($trailing,strlen(".spamuser")));
-  var_dump($spam_user_list);
   delete_empty_elements($spam_user_list,True);
   if (in_array($spam_user,$spam_user_list)==True)
   {
@@ -430,6 +429,35 @@ function wiki_spamuser($nick,$trailing)
   else
   {
     privmsg("wiki user \"$spam_user\" added to spam user list file");
+  }
+}
+
+#####################################################################################################
+
+function wiki_delspamuser($nick,$trailing)
+{
+  if (file_exists(DATA_PATH."wiki_spam_users")==False)
+  {
+    privmsg("spam user list file not found");
+    return;
+  }
+  $spam_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
+  $spam_user=trim(substr($trailing,strlen(".delspamuser")));
+  delete_empty_elements($spam_user_list,True);
+  if (in_array($spam_user,$spam_user_list)==False)
+  {
+    privmsg("wiki user \"$spam_user\" not found in spam user list file");
+    return;
+  }
+  $index=array_search($spam_user,$spam_user_list);
+  unset($spam_user_list[$index]);
+  if (file_put_contents(DATA_PATH."wiki_spam_users",implode("\n",$spam_user_list))===False)
+  {
+    privmsg("error deleting wiki user \"$spam_user\" from spam user list file");
+  }
+  else
+  {
+    privmsg("wiki user \"$spam_user\" deleted from spam user list file");
   }
 }
 

@@ -44,6 +44,12 @@ if ($alias=="~wiki-privmsg")
       wiki_spamctl($nick,$trailing);
       return;
     }
+    $cmd=".delspamuser";
+    if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
+    {
+      wiki_delspamuser($nick,$trailing);
+      return;
+    }
     $cmd=".spamuser";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
@@ -52,7 +58,8 @@ if ($alias=="~wiki-privmsg")
     }
     if ($nick=="WikiRC")
     {
-      if (users_get_account($nick)=="WikiRC")
+      $account=users_get_account($nick);
+      if ($account=="wikirc")
       {
         wiki_autospamctl($trailing);
       }
