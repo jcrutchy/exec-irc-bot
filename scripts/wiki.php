@@ -4,7 +4,7 @@
 
 /*
 exec:~wiki|40|0|0|0|*||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~wiki-privmsg|40|0|0|0|crutchy,mrcoolbp||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~wiki-privmsg|40|0|0|0|||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
 init:~wiki register-events
 */
 
@@ -36,14 +36,27 @@ if ($trailing=="register-events")
 
 if ($alias=="~wiki-privmsg")
 {
-  $spamctl=".spamctl";
-  if (strtolower(substr($trailing,0,strlen($spamctl)))==$spamctl)
-  {
-    wiki_spamctl($nick,$trailing);
-    return;
-  }
   if ($dest=="#wiki")
   {
+    $cmd=".spamctl";
+    if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
+    {
+      wiki_spamctl($nick,$trailing);
+      return;
+    }
+    $cmd=".spamuser";
+    if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
+    {
+      wiki_spamuser($nick,$trailing);
+      return;
+    }
+    if ($nick=="WikiRC")
+    {
+      if (users_get_account($nick)=="WikiRC")
+      {
+        wiki_autospamctl($trailing);
+      }
+    }
     return;
   }
   $delim1="[[";

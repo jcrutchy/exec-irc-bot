@@ -293,14 +293,17 @@ function wiki_privmsg($return,$msg)
 
 #####################################################################################################
 
-function wiki_spamctl($nick,$trailing)
+function wiki_spamctl($nick,$trailing,$bypass_auth=False)
 {
-  $account=users_get_account($nick);
-  $allowed=array("crutchy","chromas","mrcoolbp");
-  if (in_array($account,$allowed)==False)
+  if ($bypass_auth==False)
   {
-    privmsg("  error: not authorized");
-    return;
+    $account=users_get_account($nick);
+    $allowed=array("crutchy","chromas","mrcoolbp");
+    if (in_array($account,$allowed)==False)
+    {
+      privmsg("  error: not authorized");
+      return;
+    }
   }
   $title=trim(substr($trailing,strlen(".spamctl")));
   if ($title=="last")
@@ -373,6 +376,34 @@ function wiki_spamctl($nick,$trailing)
     privmsg("  http://wiki.soylentnews.org/wiki/".urlencode($title));
   }
   logout(True);
+}
+
+#####################################################################################################
+
+# 14[[07The Meaning Of Chopsticks In Chinese Food Culture14]]4 !N10 02http://wiki.soylentnews.org/w/index.php?oldid=9223&rcid=13180 5* 03Trey18553770 5* (+3741) 10Created page with "<br><br>I remember that, after i was little, there were lots of riddles for children. My grandma used to ask me time to time considered one of them in particular: 'There are t..."
+
+function wiki_autospamctl($trailing)
+{
+  $spam_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
+  delete_empty_elements($list,True);
+  $test_title=trim(extract_text_nofalse($trailing,"14[[07","14]]"));
+  $test_nick=trim(extract_text_nofalse($trailing," 5* 03"," 5*"));
+  if (($test_title=="") or ($test_nick==""))
+  {
+    return;
+  }
+  if (in_array($test_nick,$spam_user_list)==False)
+  {
+    return;
+  }
+  wiki_spamctl("",".spamctl ",True);
+}
+
+#####################################################################################################
+
+function wiki_spamuser($nick,$trailing)
+{
+  #privmsg($trailing);
 }
 
 #####################################################################################################
