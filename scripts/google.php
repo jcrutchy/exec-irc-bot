@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~google|20|0|0|0|||||php scripts/google.php %%trailing%%
-exec:~g|20|0|0|0|||||php scripts/google.php %%trailing%%
+exec:~google|20|0|0|1|||||php scripts/google.php %%trailing%%
+exec:~g|20|0|0|1|||||php scripts/google.php %%trailing%%
 */
 
 #####################################################################################################
