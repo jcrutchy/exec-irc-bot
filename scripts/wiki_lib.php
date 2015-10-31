@@ -396,14 +396,29 @@ function wiki_autospamctl($trailing)
   {
     return;
   }
-  wiki_spamctl("",".spamctl ",True);
+  wiki_spamctl("",".spamctl $test_title",True);
 }
 
 #####################################################################################################
 
 function wiki_spamuser($nick,$trailing)
 {
-  #privmsg($trailing);
+  $spam_user=trim(substr($trailing,strlen(".spamuser")));
+  $spam_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
+  delete_empty_elements($list,True);
+  if (in_array($spam_user,$spam_user_list)==True)
+  {
+    privmsg("wiki user \"$spam_user\" already in spam user list file");
+    return;
+  }
+  if (file_put_contents(DATA_PATH."wiki_spam_users",implode("\n",$spam_user_list))===False)
+  {
+    privmsg("error adding wiki user \"$spam_user\" to spam user list file");
+  }
+  else
+  {
+    privmsg("wiki user \"$spam_user\" added to spam user list file");
+  }
 }
 
 #####################################################################################################
