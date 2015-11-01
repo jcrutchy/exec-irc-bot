@@ -322,7 +322,14 @@ function wiki_spamctl($nick,$trailing,$bypass_auth=False)
   {
     # TODO: ACCEPT WIKI URLS
   }
-  $text="{{spam}}<br>if this automated spam flag is wrong, please join #wiki @ http://chat.soylentnews.org/ and let us know";
+  if ($bypass_auth==True)
+  {
+    $text="{{spam}}<br>if this automated spam flag is wrong, please join #wiki @ http://chat.soylentnews.org/ and let us know";
+  }
+  else
+  {
+    $text="{{spam}}<br>if this spam flag is wrong, please join #wiki @ http://chat.soylentnews.org/ and let us know";
+  }
   if (login(True)==False)
   {
     privmsg("  login error");
