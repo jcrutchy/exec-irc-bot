@@ -450,6 +450,11 @@ function wiki_spamuser($nick,$trailing)
     $spam_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
   }
   $spam_user=trim(substr($trailing,strlen(".spamuser")));
+  if ($spam_user=="")
+  {
+    privmsg("http://sylnt.us/wikispamctl");
+    return;
+  }
   delete_empty_elements($spam_user_list,True);
   if (in_array($spam_user,$spam_user_list)==True)
   {
@@ -485,6 +490,11 @@ function wiki_delspamuser($nick,$trailing)
   }
   $spam_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
   $spam_user=trim(substr($trailing,strlen(".delspamuser")));
+  if ($spam_user=="")
+  {
+    privmsg("http://sylnt.us/wikispamctl");
+    return;
+  }
   delete_empty_elements($spam_user_list,True);
   if (in_array($spam_user,$spam_user_list)==False)
   {
@@ -536,6 +546,11 @@ function wiki_delspamrule($nick,$trailing)
   }
   $spam_rule_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_rules"));
   $spam_rule=trim(substr($trailing,strlen(".delspamrule")));
+  if ($spam_rule=="")
+  {
+    privmsg("http://sylnt.us/wikispamctl");
+    return;
+  }
   delete_empty_elements($spam_rule_list,True);
   if (in_array($spam_rule,$spam_rule_list)==False)
   {
@@ -574,6 +589,11 @@ function wiki_spamrule($nick,$trailing)
     $spam_rule_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_rules"));
   }
   $spam_rule=trim(substr($trailing,strlen(".spamrule")));
+  if ($spam_rule=="")
+  {
+    privmsg("http://sylnt.us/wikispamctl");
+    return;
+  }
   delete_empty_elements($spam_rule_list,True);
   if (in_array($spam_rule,$spam_rule_list)==True)
   {
@@ -611,6 +631,11 @@ function wiki_safeuser($nick,$trailing)
     $safe_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_safe_users"));
   }
   $safe_user=trim(substr($trailing,strlen(".safeuser")));
+  if ($safe_user=="")
+  {
+    privmsg("http://sylnt.us/wikispamctl");
+    return;
+  }
   delete_empty_elements($safe_user_list,True);
   if (in_array($safe_user,$safe_user_list)==True)
   {
@@ -646,6 +671,11 @@ function wiki_delsafeuser($nick,$trailing)
   }
   $safe_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_safe_users"));
   $safe_user=trim(substr($trailing,strlen(".delsafeuser")));
+  if ($safe_user=="")
+  {
+    privmsg("http://sylnt.us/wikispamctl");
+    return;
+  }
   delete_empty_elements($safe_user_list,True);
   if (in_array($safe_user,$safe_user_list)==False)
   {
