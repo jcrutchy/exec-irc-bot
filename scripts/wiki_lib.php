@@ -298,7 +298,7 @@ function wiki_spamctl($nick,$trailing,$bypass_auth=False)
   if ($bypass_auth==False)
   {
     $account=users_get_account($nick);
-    $allowed=array("crutchy","chromas","mrcoolbp");
+    $allowed=array("crutchy","chromas","mrcoolbp","paulej72","juggs","martyb");
     if (in_array($account,$allowed)==False)
     {
       privmsg("  error: not authorized");
@@ -442,7 +442,7 @@ function wiki_autospamctl($trailing)
 function wiki_spamuser($nick,$trailing)
 {
   $account=users_get_account($nick);
-  $allowed=array("crutchy","chromas","mrcoolbp");
+  $allowed=array("crutchy","chromas","mrcoolbp","paulej72","juggs","martyb");
   if (in_array($account,$allowed)==False)
   {
     privmsg("  error: not authorized");
@@ -484,7 +484,7 @@ function wiki_spamuser($nick,$trailing)
 function wiki_delspamuser($nick,$trailing)
 {
   $account=users_get_account($nick);
-  $allowed=array("crutchy","chromas","mrcoolbp");
+  $allowed=array("crutchy","chromas","mrcoolbp","paulej72","juggs","martyb");
   if (in_array($account,$allowed)==False)
   {
     privmsg("  error: not authorized");
@@ -540,7 +540,7 @@ function wiki_testrule($nick,$trailing)
 function wiki_delspamrule($nick,$trailing)
 {
   $account=users_get_account($nick);
-  $allowed=array("crutchy","chromas","mrcoolbp");
+  $allowed=array("crutchy","chromas","mrcoolbp","paulej72","juggs","martyb");
   if (in_array($account,$allowed)==False)
   {
     privmsg("  error: not authorized");
@@ -581,7 +581,7 @@ function wiki_delspamrule($nick,$trailing)
 function wiki_spamrule($nick,$trailing)
 {
   $account=users_get_account($nick);
-  $allowed=array("crutchy","chromas","mrcoolbp");
+  $allowed=array("crutchy","chromas","mrcoolbp","paulej72","juggs","martyb");
   if (in_array($account,$allowed)==False)
   {
     privmsg("  error: not authorized");
@@ -623,7 +623,7 @@ function wiki_spamrule($nick,$trailing)
 function wiki_safeuser($nick,$trailing)
 {
   $account=users_get_account($nick);
-  $allowed=array("crutchy","chromas","mrcoolbp");
+  $allowed=array("crutchy","chromas","mrcoolbp","paulej72","juggs","martyb");
   if (in_array($account,$allowed)==False)
   {
     privmsg("  error: not authorized");
@@ -665,7 +665,7 @@ function wiki_safeuser($nick,$trailing)
 function wiki_delsafeuser($nick,$trailing)
 {
   $account=users_get_account($nick);
-  $allowed=array("crutchy","chromas","mrcoolbp");
+  $allowed=array("crutchy","chromas","mrcoolbp","paulej72","juggs","martyb");
   if (in_array($account,$allowed)==False)
   {
     privmsg("  error: not authorized");
