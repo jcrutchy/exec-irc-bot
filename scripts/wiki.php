@@ -38,10 +38,55 @@ if ($alias=="~wiki-privmsg")
 {
   if ($dest=="#wiki")
   {
+    if ($trailing==".listspamrules")
+    {
+      wiki_listspamrules();
+      return;
+    }
+    if ($trailing==".listspamusers")
+    {
+      wiki_listspamusers();
+      return;
+    }
+    if ($trailing==".listsafeusers")
+    {
+      wiki_listsafeusers();
+      return;
+    }
+    $cmd=".testrule";
+    if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
+    {
+      wiki_testrule($nick,$trailing);
+      return;
+    }
+    $cmd=".delspamrule";
+    if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
+    {
+      wiki_delspamrule($nick,$trailing);
+      return;
+    }
+    $cmd=".spamrule";
+    if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
+    {
+      wiki_spamrule($nick,$trailing);
+      return;
+    }
     $cmd=".spamctl";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_spamctl($nick,$trailing);
+      return;
+    }
+    $cmd=".delsafeuser";
+    if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
+    {
+      wiki_delsafeuser($nick,$trailing);
+      return;
+    }
+    $cmd=".safeuser";
+    if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
+    {
+      wiki_safeuser($nick,$trailing);
       return;
     }
     $cmd=".delspamuser";

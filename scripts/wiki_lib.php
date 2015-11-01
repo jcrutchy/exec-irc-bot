@@ -322,7 +322,7 @@ function wiki_spamctl($nick,$trailing,$bypass_auth=False)
   {
     # TODO: ACCEPT WIKI URLS
   }
-  $text="{{spam}}";
+  $text="{{spam}}<br>if this automated spam flag is wrong, please join #wiki @ http://chat.soylentnews.org/ and let us know";
   if (login(True)==False)
   {
     privmsg("  login error");
@@ -382,23 +382,51 @@ function wiki_spamctl($nick,$trailing,$bypass_auth=False)
 
 function wiki_autospamctl($trailing)
 {
-  if (file_exists(DATA_PATH."wiki_spam_users")==False)
+  $spam_user_list=array();
+  $safe_user_list=array();
+  $spam_rule_list=array();
+  if (file_exists(DATA_PATH."wiki_spam_users")==True)
   {
-    return;
+    $spam_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
+    delete_empty_elements($spam_user_list,True);
   }
-  $spam_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
-  delete_empty_elements($spam_user_list,True);
+  if (file_exists(DATA_PATH."wiki_safe_users")==True)
+  {
+    $safe_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_safe_users"));
+    delete_empty_elements($safe_user_list,True);
+  }
+  if (file_exists(DATA_PATH."wiki_spam_rules")==True)
+  {
+    $spam_rule_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_rules"));
+    delete_empty_elements($spam_rule_list,True);
+  }
   $test_title=trim(extract_text_nofalse($trailing,"14[[07","14]]"));
   $test_nick=trim(extract_text_nofalse($trailing," 5* 03"," 5*"));
   if (($test_title=="") or ($test_nick==""))
   {
     return;
   }
-  if (in_array($test_nick,$spam_user_list)==False)
+  if (in_array($test_nick,$safe_user_list)==True)
   {
     return;
   }
-  privmsg("*** auto spamctl triggered for article \"$test_title\" edited by registered spam user account \"$test_nick\"");
+  $rule_match=False;
+  for ($i=0;$i<count($spam_rule_list);$i++)
+  {
+    if (preg_match($spam_rule_list[$i],$test_nick)==1)
+    {
+      $rule_match=True;
+      break;
+    }
+  }
+  if ($rule_match==False)
+  {
+    if (in_array($test_nick,$spam_user_list)==False)
+    {
+      return;
+    }
+  }
+  privmsg("auto-spamctl for article \"$test_title\" by spam user \"$test_nick\"");
   wiki_spamctl("",".spamctl $test_title",True);
 }
 
@@ -406,6 +434,13 @@ function wiki_autospamctl($trailing)
 
 function wiki_spamuser($nick,$trailing)
 {
+  $account=users_get_account($nick);
+  $allowed=array("crutchy","chromas","mrcoolbp");
+  if (in_array($account,$allowed)==False)
+  {
+    privmsg("  error: not authorized");
+    return;
+  }
   if (file_exists(DATA_PATH."wiki_spam_users")==False)
   {
     $spam_user_list=array();
@@ -436,6 +471,13 @@ function wiki_spamuser($nick,$trailing)
 
 function wiki_delspamuser($nick,$trailing)
 {
+  $account=users_get_account($nick);
+  $allowed=array("crutchy","chromas","mrcoolbp");
+  if (in_array($account,$allowed)==False)
+  {
+    privmsg("  error: not authorized");
+    return;
+  }
   if (file_exists(DATA_PATH."wiki_spam_users")==False)
   {
     privmsg("spam user list file not found");
@@ -458,6 +500,244 @@ function wiki_delspamuser($nick,$trailing)
   else
   {
     privmsg("wiki user \"$spam_user\" deleted from spam user list file");
+  }
+}
+
+#####################################################################################################
+
+function wiki_testrule($nick,$trailing)
+{
+  $test=trim(substr($trailing,strlen(".testrule")));
+  if (preg_match("/^[A-Z]{1}[a-z]+[A-Z]{1}[a-z]+[0-9]+/",$test)==1)
+  {
+    privmsg("match");
+  }
+  else
+  {
+    privmsg("no match");
+  }
+}
+
+#####################################################################################################
+
+function wiki_delspamrule($nick,$trailing)
+{
+  $account=users_get_account($nick);
+  $allowed=array("crutchy","chromas","mrcoolbp");
+  if (in_array($account,$allowed)==False)
+  {
+    privmsg("  error: not authorized");
+    return;
+  }
+  if (file_exists(DATA_PATH."wiki_spam_rules")==False)
+  {
+    privmsg("spam rule list file not found");
+    return;
+  }
+  $spam_rule_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_rules"));
+  $spam_rule=trim(substr($trailing,strlen(".delspamrule")));
+  delete_empty_elements($spam_rule_list,True);
+  if (in_array($spam_rule,$spam_rule_list)==False)
+  {
+    privmsg("rule \"$spam_rule\" not found in wiki spam rule list file");
+    return;
+  }
+  $index=array_search($spam_rule,$spam_rule_list);
+  unset($spam_rule_list[$index]);
+  if (file_put_contents(DATA_PATH."wiki_spam_rules",implode("\n",$spam_rule_list))===False)
+  {
+    privmsg("error deleting rule \"$spam_rule\" from wiki spam rule list file");
+  }
+  else
+  {
+    privmsg("rule \"$spam_rule\" deleted from wiki spam rule list file");
+  }
+}
+
+#####################################################################################################
+
+function wiki_spamrule($nick,$trailing)
+{
+  $account=users_get_account($nick);
+  $allowed=array("crutchy","chromas","mrcoolbp");
+  if (in_array($account,$allowed)==False)
+  {
+    privmsg("  error: not authorized");
+    return;
+  }
+  if (file_exists(DATA_PATH."wiki_spam_rules")==False)
+  {
+    $spam_rule_list=array();
+  }
+  else
+  {
+    $spam_rule_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_rules"));
+  }
+  $spam_rule=trim(substr($trailing,strlen(".spamrule")));
+  delete_empty_elements($spam_rule_list,True);
+  if (in_array($spam_rule,$spam_rule_list)==True)
+  {
+    privmsg("rule \"$spam_rule\" already in wiki spam rule list file");
+    return;
+  }
+  $spam_rule_list[]=$spam_rule;
+  if (file_put_contents(DATA_PATH."wiki_spam_rules",implode("\n",$spam_rule_list))===False)
+  {
+    privmsg("error adding rule \"$spam_rule\" to wiki spam rule list file");
+  }
+  else
+  {
+    privmsg("rule \"$spam_rule\" added to wiki spam rule list file");
+  }
+}
+
+#####################################################################################################
+
+function wiki_safeuser($nick,$trailing)
+{
+  $account=users_get_account($nick);
+  $allowed=array("crutchy","chromas","mrcoolbp");
+  if (in_array($account,$allowed)==False)
+  {
+    privmsg("  error: not authorized");
+    return;
+  }
+  if (file_exists(DATA_PATH."wiki_safe_users")==False)
+  {
+    $safe_user_list=array();
+  }
+  else
+  {
+    $safe_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_safe_users"));
+  }
+  $safe_user=trim(substr($trailing,strlen(".safeuser")));
+  delete_empty_elements($safe_user_list,True);
+  if (in_array($safe_user,$safe_user_list)==True)
+  {
+    privmsg("wiki user \"$safe_user\" already in safe user list file");
+    return;
+  }
+  $safe_user_list[]=$safe_user;
+  if (file_put_contents(DATA_PATH."wiki_safe_users",implode("\n",$safe_user_list))===False)
+  {
+    privmsg("error adding wiki user \"$safe_user\" to safe user list file");
+  }
+  else
+  {
+    privmsg("wiki user \"$safe_user\" added to safe user list file");
+  }
+}
+
+#####################################################################################################
+
+function wiki_delsafeuser($nick,$trailing)
+{
+  $account=users_get_account($nick);
+  $allowed=array("crutchy","chromas","mrcoolbp");
+  if (in_array($account,$allowed)==False)
+  {
+    privmsg("  error: not authorized");
+    return;
+  }
+  if (file_exists(DATA_PATH."wiki_safe_users")==False)
+  {
+    privmsg("safe user list file not found");
+    return;
+  }
+  $safe_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_safe_users"));
+  $safe_user=trim(substr($trailing,strlen(".delsafeuser")));
+  delete_empty_elements($safe_user_list,True);
+  if (in_array($safe_user,$safe_user_list)==False)
+  {
+    privmsg("wiki user \"$safe_user\" not found in safe user list file");
+    return;
+  }
+  $index=array_search($safe_user,$safe_user_list);
+  unset($safe_user_list[$index]);
+  if (file_put_contents(DATA_PATH."wiki_safe_users",implode("\n",$safe_user_list))===False)
+  {
+    privmsg("error deleting wiki user \"$safe_user\" from safe user list file");
+  }
+  else
+  {
+    privmsg("wiki user \"$safe_user\" deleted from safe user list file");
+  }
+}
+
+#####################################################################################################
+
+function wiki_listspamrules()
+{
+  if (file_exists(DATA_PATH."wiki_spam_rules")==False)
+  {
+    privmsg("spam rules file not found");
+  }
+  else
+  {
+    $list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_rules"));
+    delete_empty_elements($list,True);
+    if (count($list)>0)
+    {
+      $max=4;
+      for ($i=0;$i<min($max,count($list));$i++)
+      {
+        privmsg(chr(3)."07".$list[$i]);
+      }
+      if (count($list)>$max)
+      {
+        privmsg(chr(3)."07".(count($list)-$max)." more");
+      }
+    }
+    else
+    {
+      privmsg("no spam rules");
+    }
+  }
+}
+
+#####################################################################################################
+
+function wiki_listspamusers()
+{
+  if (file_exists(DATA_PATH."wiki_spam_users")==False)
+  {
+    privmsg("spam users file not found");
+  }
+  else
+  {
+    $list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
+    delete_empty_elements($list,True);
+    if (count($list)>0)
+    {
+      privmsg("wiki spam users: ".implode(",",$list));
+    }
+    else
+    {
+      privmsg("no spam users");
+    }
+  }
+}
+
+#####################################################################################################
+
+function wiki_listsafeusers()
+{
+  if (file_exists(DATA_PATH."wiki_safe_users")==False)
+  {
+    privmsg("safe users file not found");
+  }
+  else
+  {
+    $list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_safe_users"));
+    delete_empty_elements($list,True);
+    if (count($list)>0)
+    {
+      privmsg("wiki safe users: ".implode(",",$list));
+    }
+    else
+    {
+      privmsg("no safe users");
+    }
   }
 }
 
