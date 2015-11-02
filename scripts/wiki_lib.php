@@ -525,7 +525,7 @@ function wiki_delspamuser($nick,$trailing)
 function wiki_testrule($nick,$trailing)
 {
   $test=trim(substr($trailing,strlen(".testrule")));
-  if (preg_match("/^[A-Z]{1}[a-z]+[A-Z]{1}[a-z]+[0-9]+/",$test)==1)
+  if (preg_match("/^[[:upper:]]{1}[[:lower:]]+[[:upper:]]{1}[[:lower:]]*[[:digit:]]+/",$test)==1)
   {
     privmsg("match");
   }

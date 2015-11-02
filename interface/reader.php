@@ -20,7 +20,7 @@ $alias=$argv[4];
 $cmd=$argv[5];*/
 
 #define("LISTEN_ADDRESS","192.168.1.25");
-define("LISTEN_ADDRESS","192.168.1.22");
+define("LISTEN_ADDRESS","10.0.2.15");
 define("BUFFER_FILE",__DIR__."/../../data/exec_iface");
 define("LISTEN_PORT",50000);
 define("CLIENT_TIMEOUT",60); # seconds
