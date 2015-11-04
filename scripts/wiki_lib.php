@@ -417,6 +417,11 @@ function wiki_autospamctl($trailing)
   {
     return;
   }
+  $prefix="Special:";
+  if (substr($test_title,0,strlen($prefix))==$prefix)
+  {
+    return;
+  }
   $rule_match=False;
   for ($i=0;$i<count($spam_rule_list);$i++)
   {
