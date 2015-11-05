@@ -529,14 +529,29 @@ function wiki_delspamuser($nick,$trailing)
 
 function wiki_testrule($nick,$trailing)
 {
-  $test=trim(substr($trailing,strlen(".testrule")));
-  if (preg_match("/^[[:upper:]]{1}[[:lower:]]+[[:upper:]]{1}[[:lower:]]*[[:digit:]]+/",$test)==1)
+  $spam_rule_list=array();
+  if (file_exists(DATA_PATH."wiki_spam_rules")==True)
   {
-    privmsg("match");
+    $spam_rule_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_rules"));
+    delete_empty_elements($spam_rule_list,True);
+  }
+  $test_nick=trim(substr($trailing,strlen(".testrule")));
+  $rule_match=False;
+  for ($i=0;$i<count($spam_rule_list);$i++)
+  {
+    if (preg_match($spam_rule_list[$i],$test_nick)==1)
+    {
+      $rule_match=True;
+      break;
+    }
+  }
+  if ($rule_match==False)
+  {
+    privmsg("no match");
   }
   else
   {
-    privmsg("no match");
+    privmsg("match");
   }
 }
 
