@@ -71,6 +71,18 @@ switch ($alias)
     set_location_alias($alias,$trailing);
     break;
   case "~weather":
+    if (strtolower($trailing)=="south pole")
+    {
+      require_once("wget_lib.php");
+      $result=quick_wget("http://www.timeanddate.com/weather/antarctica/south-pole <div class=h1>Now</div> <> </div");
+      if (($trailing==False) or (strlen($result)>300))
+      {
+        privmsg("error");
+        return;
+      }
+      privmsg("south pole temp: $result");
+      return;
+    }
     $data=process_weather($trailing,$nick);
     if ($data!==False)
     {
