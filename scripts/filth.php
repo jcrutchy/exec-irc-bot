@@ -56,7 +56,7 @@ if ($trailing=="")
   {
     $last_parts[$i]=strtolower($last_parts[$i]);
   }
-  $last="ciri: ".implode(" ",$last_parts);
+  $last="ciri: ".implode(" ",$last_parts)." without my pants";
   if ($dest=="")
   {
     pm("#",$last);

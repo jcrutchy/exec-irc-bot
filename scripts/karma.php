@@ -67,6 +67,10 @@ if ($alias<>"~karma")
   {
     $data[$server][$dest][$msg]=0;
   }
+  if ($msg==$nick)
+  {
+    return;
+  }
   switch ($operator)
   {
     case "++":
