@@ -13,6 +13,7 @@ exec:~log|60|0|0|1|||||php scripts/chromas_log.php %%trailing%% %%dest%% %%nick%
 #####################################################################################################
 
 require_once("lib.php");
+require_once("chromas_log_lib.php");
 
 $trailing=trim($argv[1]);
 $dest=$argv[2];
@@ -32,21 +33,9 @@ elseif ($trailing=="debug off")
   return;
 }
 
-$params=parse_parameters($trailing,"="," ");
+$lines=chromas_log($alias,$trailing,$dest);
 
-if ($params!==False)
-{
-  foreach ($params as $key => $value)
-  {
-    if (strpos($key," ")!==False)
-    {
-      $params=False;
-      break;
-    }
-  }
-}
-
-if ($params===False)
+if ($lines===False)
 {
   $response=wget("chromas.0x.no","/s/soylent_log.php",80);
   $html=trim(strip_headers($response));
@@ -56,72 +45,6 @@ if ($params===False)
   return;
 }
 
-# chromas, 23 march '15
-if (isset($params['until'])==False)
-{
-  date_default_timezone_set('UTC');
-  $params['until'] = strftime('%F %T', time()-5);
-}
-
-/*if (isset($params["channel"])==True)
-{
-  if ((substr($params["channel"],0,1)<>"#") and (substr($params["channel"],0,1)<>"&"))
-  {
-    $params["channel"]="#".$params["channel"];
-  }
-}*/
-
-/*if (isset($params["message"])==True)
-{
-  $params["message"]=preg_quote($params["message"]);
-}*/
-
-$paramstr="";
-foreach ($params as $key => $value)
-{
-  if ($paramstr<>"")
-  {
-    $paramstr=$paramstr."&";
-  }
-  $paramstr=$paramstr.urlencode($key)."=".urlencode($value);
-}
-
-if (isset($params["channel"])==False)
-{
-  $paramstr=$paramstr."&channel=".urlencode($dest);
-}
-
-if (isset($params["out"])==False)
-{
-  $paramstr=$paramstr."&out=irc-full";
-}
-
-if ($alias=="~log")
-{
-  $uri="/s/soylent_log.php?".$paramstr;
-}
-else
-{
-  $uri="/s/soylent_log.php?op=".$alias."&".$paramstr;
-}
-
-var_dump($uri);
-
-if (get_bucket("chromas_irc_log_debug")=="on")
-{
-  pm("chromas","http://chromas.0x.no".$uri);
-  pm("crutchy","http://chromas.0x.no".$uri);
-}
-
-$response=wget("chromas.0x.no",$uri,80,ICEWEASEL_UA,"",20,"",1024,False);
-$html=trim(strip_headers($response));
-
-if ($html=="")
-{
-  return;
-}
-
-$lines=explode("\n",trim($html));
 $cutoff_index=4;
 for ($i=0;$i<count($lines);$i++)
 {

@@ -234,6 +234,38 @@ switch ($action)
       privmsg("error: no script opened for editing by $nick in $dest");
     }
     return;
+    
+  case "line": # outputs selected line of code for currently open script
+    # ~x line [L]5
+    if ($script_name<>"")
+    {
+      if ($trailing=="")
+      {
+        privmsg("error: line number not specified");
+        break;
+      }
+      if (strtoupper($trailing[0])=="L")
+      {
+        $trailing=substr($trailing,1);
+      }
+      if (exec_is_integer($trailing)==False)
+      {
+        privmsg("error: invalid line number");
+        break;
+      }
+      if (isset($script_lines[$trailing-1])==False)
+      {
+        privmsg("error: line number not found");
+        break;
+      }
+      $L=$trailing;
+      privmsg("[L$L] ".$script_lines[$trailing-1]);
+    }
+    else
+    {
+      privmsg("error: no script opened for editing by $nick in $dest");
+    }
+    return;
   case "list":
     $n=count($scripts);
     if ($n==0)
