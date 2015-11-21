@@ -125,7 +125,7 @@ begin
     FClient.OnError := ClientError;
     FClient.OnSend := ClientSend;
     try
-      FClient.RemoteHost := '192.168.1.22';
+      FClient.RemoteHost := '10.0.2.15';
       FClient.RemotePort := '50000';
       if FClient.Connect = False then
       begin

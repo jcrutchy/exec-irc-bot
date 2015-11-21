@@ -330,9 +330,9 @@ begin
             MemoAliasTraffic.Lines.Add(Trim(Msg['buf'].StringData));
         end;
       except
-        MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE ACCESS EXCEPTION - START *******');
+        MemoTraffic.Lines.Add('******* MESSAGE STRUCTURE ACCESS EXCEPTION - START *******');
         MemoTraffic.Lines.Add(S);
-        MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE ACCESS EXCEPTION - FINISH *******');
+        MemoTraffic.Lines.Add('******* MESSAGE STRUCTURE ACCESS EXCEPTION - FINISH *******');
         LabelMessage.Caption := Msg.Serialized;
         FErrorCount := FErrorCount + 1;
         StatusBar1.Panels[3].Text := IntToStr(FErrorCount) + ' errors';
@@ -340,17 +340,17 @@ begin
     end
     else
     begin
-      MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE PARSE ERROR - START *******');
+      MemoTraffic.Lines.Add('******* MESSAGE STRUCTURE PARSE ERROR - START *******');
       MemoTraffic.Lines.Add(S);
-      MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE PARSE ERROR - FINISH *******');
+      MemoTraffic.Lines.Add('******* MESSAGE STRUCTURE PARSE ERROR - FINISH *******');
       LabelMessage.Caption := Msg.Serialized;
       FErrorCount := FErrorCount + 1;
       StatusBar1.Panels[3].Text := IntToStr(FErrorCount) + ' errors';
     end;
   except
-    MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE PARSE EXCEPTION - START *******');
+    MemoTraffic.Lines.Add('******* MESSAGE STRUCTURE PARSE EXCEPTION - START *******');
     MemoTraffic.Lines.Add(S);
-    MemoTraffic.Lines.Add('******* MESSAGE STRUCTRURE PARSE EXCEPTION - FINISH *******');
+    MemoTraffic.Lines.Add('******* MESSAGE STRUCTURE PARSE EXCEPTION - FINISH *******');
     LabelMessage.Caption := Msg.Serialized;
     FErrorCount := FErrorCount + 1;
     StatusBar1.Panels[3].Text := IntToStr(FErrorCount) + ' errors';

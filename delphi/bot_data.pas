@@ -126,14 +126,17 @@ type
   private
     function GetCount: Integer;
     function GetServer(const Index: Integer): TBotServer;
+    function GetHostName(const HostName: string): TBotServer;
   public
     constructor Create(const GlobalHandler: TBotReceiveEvent);
     destructor Destroy; override;
   public
     function Add: TBotServer;
+    function IndexOf(const HostName: string): Integer;
   public
     property Count: Integer read GetCount;
-    property Servers[const Index: Integer]: TBotServer read GetServer; default;
+    property Servers[const Index: Integer]: TBotServer read GetServer;
+    property HostNames[const HostName: string]: TBotServer read GetHostName; default;
   end;
 
   { TBotChannel }
@@ -447,12 +450,36 @@ begin
   Result := FServers.Count;
 end;
 
+function TBotServerArray.GetHostName(const HostName: string): TBotServer;
+var
+  i: Integer;
+begin
+  i := IndexOf(HostName);
+  if i >= 0 then
+    Result := Servers[i]
+  else
+    Result := nil;
+end;
+
 function TBotServerArray.GetServer(const Index: Integer): TBotServer;
 begin
   if (Index >= 0) and (Index < Count) then
     Result := FServers[Index]
   else
     Result := nil;
+end;
+
+function TBotServerArray.IndexOf(const HostName: string): Integer;
+var
+  i: Integer;
+begin
+  for i := 0 to Count - 1 do
+    if Servers[i].HostName = HostName then
+    begin
+      Result := i;
+      Exit;
+    end;
+  Result := -1;
 end;
 
 { TBotChannel }

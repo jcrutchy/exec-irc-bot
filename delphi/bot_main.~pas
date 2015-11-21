@@ -28,6 +28,7 @@ type
     procedure FormDestroy(Sender: TObject);
   private
     FServers: bot_data.TBotServerArray;
+    FAddins: bot_data.TBotAddinArray;
     FNickServPasswordFileName: string;
   private
     procedure ReceiveHandler(const Server: TBotServer; const Message: TBotMessage; const Data: string);
@@ -46,6 +47,7 @@ implementation
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
   FServers := bot_data.TBotServerArray.Create(ReceiveHandler);
+  FAddins := bot_data.TBotAddinArray.Create;
   FNickServPasswordFileName := SysUtils.ExtractRelativePath(SysUtils.ExtractFilePath(ParamStr(0)), '..\..\pwd\exec');
   FServers.Add.Connect('irc.sylnt.us', '6667', 'exec', 'exec', 'exec.bot', 'hostname', 'servername');
 end;
@@ -61,6 +63,7 @@ begin
   end;
   ProcessSleep(1000);
   FServers.Free;
+  FAddins.Free;
 end;
 
 procedure TFormMain.ReceiveHandler(const Server: TBotServer; const Message: TBotMessage; const Data: string);

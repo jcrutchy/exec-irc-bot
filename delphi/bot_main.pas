@@ -58,8 +58,8 @@ var
 begin
   for i := 0 to FServers.Count - 1 do
   begin
-    FServers[i].Send('NickServ LOGOUT');
-    FServers[i].Send('QUIT :dafuq');
+    FServers.Servers[i].Send('NickServ LOGOUT');
+    FServers.Servers[i].Send('QUIT :dafuq');
   end;
   ProcessSleep(1000);
   FServers.Free;
