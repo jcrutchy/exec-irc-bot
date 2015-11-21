@@ -5,6 +5,8 @@
 # TODO: PRIVMSG EVENTS APPEAR IN CHANNEL WITH ANY ALIAS LOCK
 # TODO: PIPED SCRIPTS => ~alias1 trailing | ~alias2 trailing | ~alias3 trailing (stdout of left pipes to shellarg of right) ???
 
+# TODO: OPTION TO REDIRECT PRIVMSG OUTPUT FROM SCRIPTS TO A BUCKET
+
 require_once("irc_lib.php");
 
 set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)
