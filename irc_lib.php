@@ -38,7 +38,10 @@ function initialize_socket()
 function finalize_socket()
 {
   global $socket;
-  rawmsg("NickServ LOGOUT");
+  if (NICKSERV_IDENTIFY==="1")
+  {
+    rawmsg("NickServ LOGOUT");
+  }
   rawmsg("QUIT :dafuq");
   fclose($socket);
 }
@@ -454,6 +457,10 @@ function free_bucket_locks($pid)
 
 function write_out_buffer($buf)
 {
+  if (IFACE_ENABLE!=="1")
+  {
+    return;
+  }
   # use "cat exec_iface" to follow (tail -f no worka for some reason)
   global $out_buffer;
   if (flock($out_buffer,LOCK_EX)==True)
@@ -1667,7 +1674,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
     }
     if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]==NICKSERV_IDENTIFY_PROMPT))
     {
-      if (file_exists(PASSWORD_FILE)==True)
+      if ((file_exists(PASSWORD_FILE)==True) and (NICKSERV_IDENTIFY==="1"))
       {
         rawmsg("NickServ IDENTIFY ".trim(file_get_contents(PASSWORD_FILE)),True);
       }
@@ -2213,7 +2220,6 @@ function doquit()
   global $handles;
   global $socket;
   global $argv;
-  global $out_buffer;
   sleep(3);
   $n=count($handles);
   for ($i=0;$i<$n;$i++)
@@ -2228,7 +2234,11 @@ function doquit()
   }
   term_echo("QUITTING SCRIPT");
   finalize_socket();
-  fclose($out_buffer);
+  if (IFACE_ENABLE==="1")
+  {
+    global $out_buffer;
+    fclose($out_buffer);
+  }
   if (defined("RESTART")==True)
   {
     pcntl_exec($_SERVER["_"],$argv);

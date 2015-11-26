@@ -18,14 +18,14 @@ define("START_TIME",microtime(True)); # used for %%start%% template
 if (isset($argv[1])==False)
 {
   # default installation-specific settings
-  define("NICK","exec");
-  define("USER_NAME","exec");
+  define("NICK","dogfart");
+  define("USER_NAME","dogfart");
   define("FULL_NAME","exec.bot");
   define("PASSWORD_FILE","../pwd/".NICK);
   define("BUCKETS_FILE","../data/buckets");
   define("IGNORE_FILE","../data/ignore");
   define("EXEC_FILE","exec.txt");
-  define("INIT_CHAN_LIST","#exec,#debug"); # comma delimited
+  define("INIT_CHAN_LIST","#crutchy,#debug"); # comma delimited
   define("IRC_HOST_CONNECT","irc.sylnt.us");
   define("IRC_HOST","irc.sylnt.us");
   define("IRC_PORT","6667");
@@ -34,6 +34,8 @@ if (isset($argv[1])==False)
   define("NICKSERV_IDENTIFY_PROMPT","You have 60 seconds to identify to your nickname before it is changed.");
   define("ADMIN_ACCOUNTS","chromas,juggs,martyb");
   define("MYSQL_LOG","1");
+  define("NICKSERV_IDENTIFY","0");
+  define("IFACE_ENABLE","0");
 }
 elseif (file_exists($argv[1])==True)
 {
@@ -280,18 +282,22 @@ if (file_exists(EXEC_OUTPUT_BUFFER_FILE)==True)
 {
   unlink(EXEC_OUTPUT_BUFFER_FILE);
 }
-if (posix_mkfifo(EXEC_OUTPUT_BUFFER_FILE,0700)==False)
+
+if (IFACE_ENABLE==="1")
 {
-  term_echo("error creating output buffer file");
-  return;
+  if (posix_mkfifo(EXEC_OUTPUT_BUFFER_FILE,0700)==False)
+  {
+    term_echo("error creating output buffer file");
+    return;
+  }
+  $out_buffer=fopen(EXEC_OUTPUT_BUFFER_FILE,"a+");
+  if ($out_buffer===False)
+  {
+    term_echo("error opening output buffer file for writing");
+    return;
+  }
+  stream_set_blocking($out_buffer,0);
 }
-$out_buffer=fopen(EXEC_OUTPUT_BUFFER_FILE,"a+");
-if ($out_buffer===False)
-{
-  term_echo("error opening output buffer file for writing");
-  return;
-}
-stream_set_blocking($out_buffer,0);
 
 init();
 
