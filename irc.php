@@ -18,8 +18,8 @@ define("START_TIME",microtime(True)); # used for %%start%% template
 if (isset($argv[1])==False)
 {
   # default installation-specific settings
-  define("NICK","dogfart");
-  define("USER_NAME","dogfart");
+  define("NICK","tugger");
+  define("USER_NAME","tugger");
   define("FULL_NAME","exec.bot");
   define("PASSWORD_FILE","../pwd/".NICK);
   define("BUCKETS_FILE","../data/buckets");
@@ -146,7 +146,7 @@ define("PREFIX_READER_HANDLES",PREFIX_DELIM."READER_HANDLES");
 
 # internal aliases (can also use in exec file with alias locking, but that would be just weird)
 define("ALIAS_INTERNAL_RESTART","~restart-internal");
-define("ALIAS_ADMIN_QUIT","~q");
+define("ALIAS_ADMIN_QUIT","~quit");
 define("ALIAS_ADMIN_PS","~ps");
 define("ALIAS_ADMIN_KILL","~kill");
 define("ALIAS_ADMIN_KILLALL","~killall");

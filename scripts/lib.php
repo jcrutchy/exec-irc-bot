@@ -8,7 +8,7 @@ require_once("lib_buckets.php");
 require_once("lib_http.php");
 require_once("users_lib.php");
 
-define("NICK_EXEC","dogfart");
+define("NICK_EXEC","tugger");
 
 define("DATA_PATH","../data/");
 

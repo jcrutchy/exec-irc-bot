@@ -3,7 +3,7 @@
 #####################################################################################################
 
 /*
-exec:~api|90|0|0|1|*|PRIVMSG|#dev,#Soylent,#,#journals||php scripts/sn_api.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
+exec:~api|90|0|0|1|*|PRIVMSG|#dev,#Soylent,#,#crutchy||php scripts/sn_api.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
 help: ~api | example 1: ~api m=user op=get_nick uid=18 /nick
 help: ~api | example 2: ~api m=user op=get_uid nick=The Mighty Buzzard /uid
 */
@@ -25,6 +25,18 @@ if ($trailing=="")
   privmsg(API_WIKI_URL);
   return;
 }
+
+$element=array();
+$parts=explode("/",$trailing);
+if (count($parts)>1)
+{
+  for ($i=1;$i<count($parts);$i++)
+  {
+    $element[]=$parts[$i];
+  }
+  $trailing=$parts[0];
+}
+
 $params=parse_parameters($trailing,"="," ",False);
 if ($params!==False)
 {
@@ -42,17 +54,9 @@ if ($params===False)
   privmsg(API_WIKI_URL);
   return;
 }
-$element="";
 $paramstr="";
 foreach ($params as $key => $value)
 {
-  $parts=explode("/",$value);
-  if (count($parts)>1)
-  {
-    $value=trim($parts[0]);
-    array_shift($parts);
-    $element=implode("/",$parts);
-  }
   if ($paramstr<>"")
   {
     $paramstr=$paramstr."&";
@@ -70,7 +74,7 @@ if ($content=="")
   privmsg("  no data returned");
   return;
 }
-if ($element=="")
+if (count($element)==0)
 {
   $content=clean_text($content);
   privmsg(chr(3)."02".substr($content,0,650));
@@ -78,18 +82,15 @@ if ($element=="")
 else
 {
   $data=json_decode($content,True);
-  #$result=eval("return \$data$element;");
-  #privmsg(chr(3)."02".substr($result,0,650));
-  #return;
-  if (isset($data[$element])==True)
+  for ($i=0;$i<count($data);$i++)
   {
-    privmsg(chr(3)."02".substr($data[$element],0,650));
+    if (isset($data[$element[$i]])==True)
+    {
+      $data=$data[$element[$i]];
+    }
   }
-  else
-  {
-    privmsg(chr(3)."02  api error: element \"$element\" not found");
-    #var_dump($data);
-  }
+  $data=json_encode($data);
+  privmsg(chr(3)."02".substr($data,0,650));
 }
 
 #####################################################################################################
