@@ -89,7 +89,10 @@ else
       $data=$data[$element[$i]];
     }
   }
-  $data=json_encode($data);
+  if (is_array($data)==True)
+  {
+    $data=json_encode($data);
+  }
   privmsg(chr(3)."02".substr($data,0,650));
 }
 
