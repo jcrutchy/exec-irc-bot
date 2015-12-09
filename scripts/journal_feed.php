@@ -5,7 +5,7 @@
 /*
 exec:~journals|1700|0|0|1|crutchy||||php scripts/journal_feed.php
 #exec:~journals-internal|1700|3600|0|1||INTERNAL|||php scripts/journal_feed.php
-startup:~join #journals
+#startup:~join #journals
 */
 
 #####################################################################################################
