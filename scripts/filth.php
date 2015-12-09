@@ -21,6 +21,10 @@ if ($trailing=="")
 {
   $records=fetch_query("SELECT * FROM exec_irc_bot.irc_log WHERE ((destination='#') AND (nick!='irc.sylnt.us') AND (server='irc.sylnt.us') AND (nick!='exec') AND (cmd='PRIVMSG') AND (`trailing` not like '%--%') AND (`trailing` not like '%++%') AND (`trailing` not like '%karma%') AND (`trailing` not like '^%') AND (`trailing` not like '=%') AND (`trailing` not like '!%') AND (`trailing` not like '$%') AND (`trailing` not like '~%') AND (`trailing` not like 'ACTION%')) ORDER BY id");
   $i=count($records);
+  if ($i==0)
+  {
+    return;
+  }
   do
   {
     $i--;
