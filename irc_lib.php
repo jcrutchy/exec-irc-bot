@@ -71,7 +71,6 @@ function initialize_buckets()
   $buckets[BUCKET_EVENT_HANDLERS]=serialize($empty);
   $buckets[BUCKET_CONNECTION_ESTABLISHED]="0";
   $buckets[BUCKET_USERS]=serialize($empty);
-  $buckets[BUCKET_USERS]=serialize($empty);
   $buckets[BUCKET_BOT_NICK]=DEFAULT_NICK;
 }
 
