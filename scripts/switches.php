@@ -64,7 +64,7 @@ function handle_switch($alias,$dest,$nick,$trailing,$channels_bucket,$switch_ali
       case "kick":
         if (count($parts)==2)
         {
-          if ($parts[1]==NICK_EXEC)
+          if ($parts[1]==get_bot_nick())
           {
             channel_off($channels,$parts[0],$channels_bucket);
             return 5;
@@ -72,20 +72,20 @@ function handle_switch($alias,$dest,$nick,$trailing,$channels_bucket,$switch_ali
         }
         break;
       case "part":
-        if ($nick==NICK_EXEC)
+        if ($nick==get_bot_nick())
         {
           channel_off($channels,$msg,$channels_bucket);
           return 6;
         }
         break;
       case "privmsg":
-        if ((in_array($dest,$channels)==True) and ($nick<>NICK_EXEC))
+        if ((in_array($dest,$channels)==True) and ($nick<>get_bot_nick()))
         {
           return 7;
         }
         return 8;
       case "join":
-        if ((in_array($dest,$channels)==True) and ($nick<>NICK_EXEC))
+        if ((in_array($dest,$channels)==True) and ($nick<>get_bot_nick()))
         {
           return 9;
         }

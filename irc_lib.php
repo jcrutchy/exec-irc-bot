@@ -2,9 +2,25 @@
 
 #####################################################################################################
 
+function get_bot_nick()
+{
+  global $buckets;
+  return $buckets[BUCKET_BOT_NICK];
+}
+
+#####################################################################################################
+
+function set_bot_nick($nick)
+{
+  global $buckets;
+  $buckets[BUCKET_BOT_NICK]=$nick;
+}
+
+#####################################################################################################
+
 function initialize_irc_connection()
 {
-  rawmsg("NICK ".NICK);
+  rawmsg("NICK ".get_bot_nick());
   rawmsg("USER ".USER_NAME." hostname servername :".FULL_NAME);
 }
 
@@ -55,6 +71,8 @@ function initialize_buckets()
   $buckets[BUCKET_EVENT_HANDLERS]=serialize($empty);
   $buckets[BUCKET_CONNECTION_ESTABLISHED]="0";
   $buckets[BUCKET_USERS]=serialize($empty);
+  $buckets[BUCKET_USERS]=serialize($empty);
+  $buckets[BUCKET_BOT_NICK]=DEFAULT_NICK;
 }
 
 #####################################################################################################
@@ -138,7 +156,7 @@ function process_exec_inits()
     for ($i=0;$i<count($commands);$i++)
     {
       term_echo("FILE INIT: $filename =>".$commands[$i]);
-      handle_data(":".NICK." ".CMD_INTERNAL." :".$commands[$i]."\n",False,False,True);
+      handle_data(":".get_bot_nick()." ".CMD_INTERNAL." :".$commands[$i]."\n",False,False,True);
     }
   }
   unset($file_lines);
@@ -171,7 +189,7 @@ function process_exec_startups()
     for ($i=0;$i<count($commands);$i++)
     {
       term_echo("FILE STARTUP: ".$commands[$i]);
-      handle_data(":".NICK." ".CMD_INTERNAL." :".$commands[$i]."\n",False,False,True);
+      handle_data(":".get_bot_nick()." ".CMD_INTERNAL." :".$commands[$i]."\n",False,False,True);
     }
   }
   unset($file_lines);
@@ -317,7 +335,7 @@ function handle_errors($data)
     # TODO: only output if occurs at the start of line
     if ((strpos($lmsg,"php parse error:")!==False) or (strpos($lmsg,"php warning:")!==False) or (strpos($lmsg,"php fatal error:")!==False) or (strpos($lmsg,"php notice:")!==False))
     {
-      rawmsg(":".NICK." PRIVMSG ".DEBUG_CHAN." :$msg");
+      rawmsg(":".get_bot_nick()." PRIVMSG ".DEBUG_CHAN." :$msg");
     }
   }
 }
@@ -360,8 +378,7 @@ function handle_direct_stdin()
         rawmsg($prefix_msg);
         return;
       case PREFIX_INTERNAL:
-        $nick=NICK;
-        handle_data(":$nick ".CMD_INTERNAL." :".$prefix_msg."\n",False,False,True);
+        handle_data(":".get_bot_nick()." ".CMD_INTERNAL." :".$prefix_msg."\n",False,False,True);
         return;
       case PREFIX_PAUSE:
         $irc_pause=True;
@@ -696,7 +713,7 @@ function handle_stdout($handle)
           $nick=$handle["nick"];
           if ($nick=="")
           {
-            $nick=NICK;
+            $nick=get_bot_nick();
           }
           if ($handle["destination"]=="")
           {
@@ -1562,7 +1579,7 @@ function handle_events(&$items)
 function script_event_handlers($cmd,&$items)
 {
   global $buckets;
-  if (($cmd=="PRIVMSG") and ($items["nick"]==NICK))
+  if (($cmd=="PRIVMSG") and ($items["nick"]==get_bot_nick()))
   {
     if (isset($buckets[BUCKET_SELF_TRIGGER_EVENTS_FLAG])==True)
     {
@@ -1653,7 +1670,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
     {
       return;
     }
-    if ((isset($buckets[BUCKET_IGNORE_NEXT])==True) and ($items["nick"]==NICK))
+    if ((isset($buckets[BUCKET_IGNORE_NEXT])==True) and ($items["nick"]==get_bot_nick()))
     {
       unset($buckets[BUCKET_IGNORE_NEXT]);
       return;
@@ -1696,6 +1713,13 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
     handle_events($items);
     switch ($alias)
     {
+      case ALIAS_ADMIN_NICK:
+        if (count($args)==2)
+        {
+          rawmsg(":".get_bot_nick()." NICK :".trim($args[1]));
+          set_bot_nick(trim($args[1]));
+        }
+        break;
       case ALIAS_ADMIN_QUIT:
         if (count($args)==1)
         {
@@ -1794,7 +1818,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
           if (in_array($args[1],$ignore_list)==False)
           {
             write_out_buffer_command($items,"ignore");
-            privmsg($items["destination"],$items["nick"],NICK." set to ignore ".$args[1]);
+            privmsg($items["destination"],$items["nick"],get_bot_nick()." set to ignore ".$args[1]);
             $ignore_list[]=$args[1];
             if (file_put_contents(IGNORE_FILE,implode("\n",$ignore_list))===False)
             {
@@ -1816,7 +1840,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
             if ($i!==False)
             {
               write_out_buffer_command($items,"unignore");
-              privmsg($items["destination"],$items["nick"],NICK." set to listen to ".$args[1]);
+              privmsg($items["destination"],$items["nick"],get_bot_nick()." set to listen to ".$args[1]);
               unset($ignore_list[$i]);
               $ignore_list=array_values($ignore_list);
               if (file_put_contents(IGNORE_FILE,implode("\n",$ignore_list))===False)
@@ -1826,7 +1850,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
             }
             else
             {
-              privmsg($items["destination"],$items["nick"],$args[1]." not found in ".NICK." ignore list");
+              privmsg($items["destination"],$items["nick"],$args[1]." not found in ".get_bot_nick()." ignore list");
             }
           }
         }
@@ -1839,11 +1863,11 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         if (count($ignore_list)>0)
         {
           write_out_buffer_command($items,"ignorelist");
-          privmsg($items["destination"],$items["nick"],NICK." ignore list: ".implode(", ",$ignore_list));
+          privmsg($items["destination"],$items["nick"],get_bot_nick()." ignore list: ".implode(", ",$ignore_list));
         }
         else
         {
-          privmsg($items["destination"],$items["nick"],NICK." isn't ignoring anyone");
+          privmsg($items["destination"],$items["nick"],get_bot_nick()." isn't ignoring anyone");
         }
         break;
       case ALIAS_ADMIN_REHASH:
@@ -1861,7 +1885,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
             process_exec_inits();
             process_exec_startups();
             $users=get_users();
-            foreach ($users[NICK]["channels"] as $channel => $timestamp)
+            foreach ($users[get_bot_nick()]["channels"] as $channel => $timestamp)
             {
               rawmsg("NAMES $channel");
             }
@@ -2138,9 +2162,9 @@ function load_exec_line($line,$filename,$saved=True)
     else
     {
       $accounts=explode(",",$accounts_str); # comma-delimited list of NickServ accounts authorised to run script (or empty)
-      if (in_array(NICK,$accounts)==False)
+      if (in_array(get_bot_nick(),$accounts)==False)
       {
-        $accounts[]=NICK;
+        $accounts[]=get_bot_nick();
       }
     }
   }
@@ -2525,7 +2549,7 @@ function process_scripts($items,$reserved="")
 function check_nick($items,$alias)
 {
   global $time_deltas;
-  if (($items["nick"]==NICK) or ($alias=="*"))
+  if (($items["nick"]==get_bot_nick()) or ($alias=="*"))
   {
     return True;
   }
@@ -2635,7 +2659,7 @@ function authenticate($items)
   $parts=explode(" ",$items["params"]);
   if ($admin_data<>"")
   {
-    if ((count($parts)==3) and ($parts[0]==NICK))
+    if ((count($parts)==3) and ($parts[0]==get_bot_nick()))
     {
       $nick=$parts[1];
       $account=$parts[2];

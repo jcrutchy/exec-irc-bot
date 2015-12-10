@@ -18,10 +18,10 @@ define("START_TIME",microtime(True)); # used for %%start%% template
 if (isset($argv[1])==False)
 {
   # default installation-specific settings
-  define("NICK","tugger");
+  define("DEFAULT_NICK","tugger");
   define("USER_NAME","tugger");
   define("FULL_NAME","exec.bot");
-  define("PASSWORD_FILE","../pwd/".NICK);
+  define("PASSWORD_FILE","../pwd/".DEFAULT_NICK);
   define("BUCKETS_FILE","../data/buckets");
   define("IGNORE_FILE","../data/ignore");
   define("EXEC_FILE","exec.txt");
@@ -96,6 +96,7 @@ define("BUCKET_EVENT_HANDLERS","<<EXEC_EVENT_HANDLERS>>");
 define("BUCKET_CONNECTION_ESTABLISHED","<<IRC_CONNECTION_ESTABLISHED>>");
 define("BUCKET_SELF_TRIGGER_EVENTS_FLAG","<<SELF_TRIGGER_EVENTS_FLAG>>");
 define("BUCKET_EXEC_LIST","<<EXEC_LIST>>");
+define("BUCKET_BOT_NICK","<<BOT_NICK>>");
 
 $internal_bucket_indexes=array(
   "BUCKET_IGNORE_NEXT",
@@ -103,7 +104,8 @@ $internal_bucket_indexes=array(
   "BUCKET_EVENT_HANDLERS",
   "BUCKET_CONNECTION_ESTABLISHED",
   "BUCKET_SELF_TRIGGER_EVENTS_FLAG",
-  "BUCKET_EXEC_LIST");
+  "BUCKET_EXEC_LIST",
+  "BUCKET_BOT_NICK");
 
 # reserved aliases
 define("ALIAS_ALL","*");
@@ -147,6 +149,7 @@ define("PREFIX_READER_HANDLES",PREFIX_DELIM."READER_HANDLES");
 # internal aliases (can also use in exec file with alias locking, but that would be just weird)
 define("ALIAS_INTERNAL_RESTART","~restart-internal");
 define("ALIAS_ADMIN_QUIT","~quit");
+define("ALIAS_ADMIN_NICK","~nick");
 define("ALIAS_ADMIN_PS","~ps");
 define("ALIAS_ADMIN_KILL","~kill");
 define("ALIAS_ADMIN_KILLALL","~killall");
@@ -211,6 +214,7 @@ $operator_aliases=array(); # aliases that may only be executed by the bot operat
 
 $admin_aliases=array(
   ALIAS_ADMIN_QUIT,
+  ALIAS_ADMIN_NICK,
   ALIAS_ADMIN_RESTART,
   ALIAS_ADMIN_PS,
   ALIAS_ADMIN_KILL,
@@ -253,8 +257,7 @@ $init=array();
 $startup=array();
 $help=array();
 
-$socket=initialize_socket();
-initialize_irc_connection();
+initialize_buckets();
 
 $exec_errors=array(); # stores exec load errors
 $exec_list=exec_load();
@@ -300,6 +303,9 @@ if (IFACE_ENABLE==="1")
 }
 
 init();
+
+$socket=initialize_socket();
+initialize_irc_connection();
 
 $antiflog=True;
 
@@ -353,19 +359,19 @@ function privmsg($destination,$nick,$msg)
   $msg=substr($msg,0,MAX_MSG_LENGTH);
   if (isset($dest_overrides[$nick][$destination])==True)
   {
-    $data=":".NICK." PRIVMSG ".$dest_overrides[$nick][$destination]." :$msg";
+    $data=":".get_bot_nick()." PRIVMSG ".$dest_overrides[$nick][$destination]." :$msg";
     rawmsg($data);
   }
   else
   {
     if (substr($destination,0,1)=="#")
     {
-      $data=":".NICK." PRIVMSG $destination :$msg";
+      $data=":".get_bot_nick()." PRIVMSG $destination :$msg";
       rawmsg($data);
     }
     else
     {
-      $data=":".NICK." PRIVMSG $nick :$msg";
+      $data=":".get_bot_nick()." PRIVMSG $nick :$msg";
       rawmsg($data);
     }
   }

@@ -3,9 +3,9 @@
 #####################################################################################################
 
 /*
-exec:~karma|10|0|0|1|*||||php scripts/karma.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
-exec:~karma-internal|10|0|0|1|*|INTERNAL||<<EXEC_KARMA>>|php scripts/karma.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
-init:~karma-internal register-events
+#exec:~karma|10|0|0|1|*||||php scripts/karma.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
+#exec:~karma-internal|10|0|0|1|*|INTERNAL||<<EXEC_KARMA>>|php scripts/karma.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
+#init:~karma-internal register-events
 */
 
 #####################################################################################################

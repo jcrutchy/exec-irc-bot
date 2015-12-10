@@ -63,7 +63,7 @@ $data_changed=False;
 switch ($action)
 {
   case "register-events":
-    register_event_handler("PRIVMSG",":".NICK_EXEC." INTERNAL :~x event-privmsg %%nick%% %%dest%% %%trailing%%");
+    register_event_handler("PRIVMSG",":".get_bot_nick()." INTERNAL :~x event-privmsg %%nick%% %%dest%% %%trailing%%");
     break;
   case "event-privmsg":
     # trailing = crutchy # test
@@ -80,7 +80,7 @@ switch ($action)
       array_shift($parts);
       $trailing=trim(implode(" ",$parts));
     }
-    if ($dest==NICK_EXEC)
+    if ($dest==get_bot_nick())
     {
       return;
     }

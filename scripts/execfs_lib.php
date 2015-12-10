@@ -46,7 +46,7 @@ function set_fs()
   }
   $fs["modified"]=False;
   set_array_bucket($fs,BUCKET_FS,True);
-  echo "/IRC :".NICK_EXEC." INTERNAL :~execfs sync\n";
+  echo "/IRC :".get_bot_nick()." INTERNAL :~execfs sync\n";
 }
 
 #####################################################################################################

@@ -8,8 +8,6 @@ require_once("lib_buckets.php");
 require_once("lib_http.php");
 require_once("users_lib.php");
 
-define("NICK_EXEC","tugger");
-
 define("DATA_PATH","../data/");
 
 define("VALID_UPPERCASE","ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -19,6 +17,13 @@ define("VALID_NUMERIC","0123456789");
 # VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC
 
 define("BUCKET_IGNORE_NEXT","<<BOT_IGNORE_NEXT>>");
+
+#####################################################################################################
+
+function get_bot_nick()
+{
+  return get_bucket("<<BOT_NICK>>");
+}
 
 #####################################################################################################
 
@@ -139,7 +144,7 @@ function internal_macro($commands,$sleep=0)
   $n=count($commands);
   for ($i=0;$i<$n;$i++)
   {
-    echo "/IRC :".NICK_EXEC." INTERNAL :".$commands[$i]."\n";
+    echo "/IRC :".get_bot_nick()." INTERNAL :".$commands[$i]."\n";
     if (($sleep>0) and ($i<($n-1)))
     {
       sleep($sleep);
@@ -292,7 +297,7 @@ function rawmsg($msg)
 
 function pm($nick,$msg)
 {
-  echo "/IRC :".NICK_EXEC." PRIVMSG $nick :$msg\n";
+  echo "/IRC :".get_bot_nick()." PRIVMSG $nick :$msg\n";
 }
 
 #####################################################################################################
@@ -306,7 +311,7 @@ function pm_action($nick,$msg)
 
 function notice($nick,$msg)
 {
-  echo "/IRC :".NICK_EXEC." NOTICE $nick :$msg\n";
+  echo "/IRC :".get_bot_nick()." NOTICE $nick :$msg\n";
 }
 
 #####################################################################################################

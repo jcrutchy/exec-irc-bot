@@ -43,13 +43,13 @@ if (get_bucket("<<IRC_CONNECTION_ESTABLISHED>>")<>"1")
 }
 $items=unserialize($argv[1]);
 $nick=$items["nick"];
-if (users_get_account($nick)==NICK_EXEC)
+if (users_get_account($nick)==get_bot_nick())
 {
   return;
 }
 $trailing=$items["trailing"];
 $dest=strtolower($items["destination"]);
-$exec=users_get_data(NICK_EXEC);
+$exec=users_get_data(get_bot_nick());
 if (isset($exec["channels"][$dest])==True)
 {
   if (strpos($exec["channels"][$dest],"@")===False)

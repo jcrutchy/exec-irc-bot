@@ -3,7 +3,7 @@
 #####################################################################################################
 
 /*
-exec:~bitbucket-feed|60|300|0|1|||||php scripts/bitbucket_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#exec:~bitbucket-feed|60|300|0|1|||||php scripts/bitbucket_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################

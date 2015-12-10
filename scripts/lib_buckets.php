@@ -53,14 +53,14 @@ function load_array_bucket_element_from_file($index,$key,$filename)
 
 function register_all_events($alias,$privmsg=False)
 {
-  register_event_handler("JOIN",":".NICK_EXEC." INTERNAL :$alias event-join %%nick%% %%params%%");
-  register_event_handler("KICK",":".NICK_EXEC." INTERNAL :$alias event-kick %%params%%");
-  register_event_handler("NICK",":".NICK_EXEC." INTERNAL :$alias event-nick %%nick%% %%trailing%%");
-  register_event_handler("PART",":".NICK_EXEC." INTERNAL :$alias event-part %%nick%% %%params%%");
-  register_event_handler("QUIT",":".NICK_EXEC." INTERNAL :$alias event-quit %%nick%%");
+  register_event_handler("JOIN",":".get_bot_nick()." INTERNAL :$alias event-join %%nick%% %%params%%");
+  register_event_handler("KICK",":".get_bot_nick()." INTERNAL :$alias event-kick %%params%%");
+  register_event_handler("NICK",":".get_bot_nick()." INTERNAL :$alias event-nick %%nick%% %%trailing%%");
+  register_event_handler("PART",":".get_bot_nick()." INTERNAL :$alias event-part %%nick%% %%params%%");
+  register_event_handler("QUIT",":".get_bot_nick()." INTERNAL :$alias event-quit %%nick%%");
   if ($privmsg==True)
   {
-    register_event_handler("PRIVMSG",":".NICK_EXEC." INTERNAL :$alias event-privmsg %%nick%% %%dest%% %%trailing%%");
+    register_event_handler("PRIVMSG",":".get_bot_nick()." INTERNAL :$alias event-privmsg %%nick%% %%dest%% %%trailing%%");
   }
 }
 

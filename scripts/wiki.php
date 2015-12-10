@@ -53,10 +53,10 @@ if ($alias=="~wiki-privmsg")
       wiki_listsafeusers();
       return;
     }
-    $cmd=".testrule";
+    $cmd=".testrules";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
-      wiki_testrule($nick,$trailing);
+      wiki_testrules($nick,$trailing);
       return;
     }
     $cmd=".delspamrule";
@@ -108,8 +108,8 @@ if ($alias=="~wiki-privmsg")
       {
         wiki_autospamctl($trailing);
       }
+      return;
     }
-    return;
   }
   $delim1="[[";
   $delim2="]]";

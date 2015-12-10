@@ -166,7 +166,7 @@ function users_nick_exists($nick)
 
 function users_broadcast($msg)
 {
-  $channels=users_get_channels(NICK_EXEC);
+  $channels=users_get_channels(get_bot_nick());
   for ($i=0;$i<count($channels);$i++)
   {
     pm($channels[$i],chr(3)."13".$msg);

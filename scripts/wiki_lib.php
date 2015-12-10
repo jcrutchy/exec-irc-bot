@@ -527,7 +527,7 @@ function wiki_delspamuser($nick,$trailing)
 
 #####################################################################################################
 
-function wiki_testrule($nick,$trailing)
+function wiki_testrules($nick,$trailing)
 {
   $spam_rule_list=array();
   if (file_exists(DATA_PATH."wiki_spam_rules")==True)

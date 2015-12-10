@@ -291,7 +291,7 @@ function handle_macros($nick,$channel,$trailing)
             $command=str_replace("%%channel%%",$channel,$data["command"]);
             $command=str_replace("%%nick%%",$nick,$command);
             $command=str_replace("%%trailing%%",$trailing,$command);
-            echo "/IRC :".NICK_EXEC." $cmd $channel :$command\n";
+            echo "/IRC :".get_bot_nick()." $cmd $channel :$command\n";
           }
         }
         return;

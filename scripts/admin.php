@@ -39,7 +39,7 @@ switch ($alias)
     rawmsg("MODE $dest +o $target");
     break;
   case "~deop":
-    if ($target<>NICK_EXEC)
+    if ($target<>get_bot_nick())
     {
       rawmsg("MODE $dest -o $target");
     }
@@ -48,7 +48,7 @@ switch ($alias)
     rawmsg("MODE $dest +v $target");
     break;
   case "~devoice":
-    if ($target<>NICK_EXEC)
+    if ($target<>get_bot_nick())
     {
       rawmsg("MODE $dest -v $target");
     }
@@ -60,13 +60,13 @@ switch ($alias)
     }
     break;
   /*case ".kick":
-    if (($target==$nick) and ($target<>NICK_EXEC))
+    if (($target==$nick) and ($target<>get_bot_nick()))
     {
       rawmsg("KICK $dest $target :$nick kicked self");
     }
     break;*/
   case "~kick":
-    if (($target<>$nick) and ($target<>NICK_EXEC))
+    if (($target<>$nick) and ($target<>get_bot_nick()))
     {
       rawmsg("KICK $dest $target :commanded by $nick");
     }

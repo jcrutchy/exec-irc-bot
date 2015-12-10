@@ -27,7 +27,7 @@ $alias=trim($argv[2]);
 $dest=$argv[3];
 $nick=$argv[4];
 
-if (($nick==NICK_EXEC) and ($alias<>"~title-internal") and ($trailing<>"register-events"))
+if (($nick==get_bot_nick()) and ($alias<>"~title-internal") and ($trailing<>"register-events"))
 {
   return;
 }

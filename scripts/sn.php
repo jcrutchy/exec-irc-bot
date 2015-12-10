@@ -4,14 +4,14 @@
 
 /*
 #exec:~comment|30|0|0|1|crutchy||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~verifier-nick-change|30|0|0|1||INTERNAL|||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~verifier-nick|30|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~funding|150|900|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#exec:~verifier-nick-change|30|0|0|1||INTERNAL|||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#exec:~verifier-nick|30|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#exec:~funding|150|900|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~queue|15|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~uid|15|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~sn-internal|15|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
-init:~bucket <<verifier_nick>> NetCraft
-init:~sn-internal register-events
+#exec:~sn-internal|15|0|0|1|||||php scripts/sn.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#init:~bucket <<verifier_nick>> NetCraft
+#init:~sn-internal register-events
 */
 
 #####################################################################################################
@@ -38,7 +38,7 @@ define("BUCKET_VERIFIER_NICK","<<verifier_nick>>");
 switch ($alias)
 {
   case "~sn-internal":
-    register_event_handler("NICK",":".NICK_EXEC." INTERNAL :~verifier-nick-change %%nick%% %%trailing%%");
+    register_event_handler("NICK",":".get_bot_nick()." INTERNAL :~verifier-nick-change %%nick%% %%trailing%%");
     return;
   case "~uid":
     $host="www.soylentnews.org";

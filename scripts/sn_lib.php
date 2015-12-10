@@ -313,7 +313,7 @@ function sn_submit($url)
   $params=array();
   $params["reskey"]=$reskey;
   #$params["name"]=trim(substr($nick,0,50));
-  $params["name"]=NICK_EXEC;
+  $params["name"]=get_bot_nick();
   $params["email"]="";
   $params["subj"]=trim(substr($source_title,0,100));
   $params["primaryskid"]="1";

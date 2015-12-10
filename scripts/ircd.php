@@ -3,7 +3,7 @@
 #####################################################################################################
 
 /*
-exec:~ircd|20|0|0|1|crutchy||||php scripts/ircd.php %%trailing%% %%dest%% %%nick%%
+#exec:~ircd|20|0|0|1|crutchy||||php scripts/ircd.php %%trailing%% %%dest%% %%nick%%
 */
 
 /*
