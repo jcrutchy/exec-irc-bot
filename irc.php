@@ -7,6 +7,8 @@
 
 # TODO: OPTION TO REDIRECT PRIVMSG OUTPUT FROM SCRIPTS TO A BUCKET
 
+# TODO: DON'T UPDATE BOT NICK BUCKET IF IRC COMMAND FAILS
+
 require_once("irc_lib.php");
 
 set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)

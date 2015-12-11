@@ -461,7 +461,7 @@ function wiki_spamuser($nick,$trailing)
   {
     $spam_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
   }
-  $spam_user=trim(substr($trailing,strlen(".spamuser")));
+  $spam_user=trim(substr($trailing,strlen(".spamuser")+1));
   if ($spam_user=="")
   {
     privmsg("http://sylnt.us/wikispamctl");
@@ -501,7 +501,7 @@ function wiki_delspamuser($nick,$trailing)
     return;
   }
   $spam_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_users"));
-  $spam_user=trim(substr($trailing,strlen(".delspamuser")));
+  $spam_user=trim(substr($trailing,strlen(".delspamuser")+1));
   if ($spam_user=="")
   {
     privmsg("http://sylnt.us/wikispamctl");
@@ -572,7 +572,7 @@ function wiki_delspamrule($nick,$trailing)
     return;
   }
   $spam_rule_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_rules"));
-  $spam_rule=trim(substr($trailing,strlen(".delspamrule")));
+  $spam_rule=trim(substr($trailing,strlen(".delspamrule")+1));
   if ($spam_rule=="")
   {
     privmsg("http://sylnt.us/wikispamctl");
@@ -615,7 +615,7 @@ function wiki_spamrule($nick,$trailing)
   {
     $spam_rule_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_rules"));
   }
-  $spam_rule=trim(substr($trailing,strlen(".spamrule")));
+  $spam_rule=trim(substr($trailing,strlen(".spamrule")+1));
   if ($spam_rule=="")
   {
     privmsg("http://sylnt.us/wikispamctl");
@@ -657,7 +657,7 @@ function wiki_safeuser($nick,$trailing)
   {
     $safe_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_safe_users"));
   }
-  $safe_user=trim(substr($trailing,strlen(".safeuser")));
+  $safe_user=trim(substr($trailing,strlen(".safeuser")+1));
   if ($safe_user=="")
   {
     privmsg("http://sylnt.us/wikispamctl");
@@ -697,7 +697,7 @@ function wiki_delsafeuser($nick,$trailing)
     return;
   }
   $safe_user_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_safe_users"));
-  $safe_user=trim(substr($trailing,strlen(".delsafeuser")));
+  $safe_user=trim(substr($trailing,strlen(".delsafeuser")+1));
   if ($safe_user=="")
   {
     privmsg("http://sylnt.us/wikispamctl");
