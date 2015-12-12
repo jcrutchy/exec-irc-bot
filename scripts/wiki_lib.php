@@ -355,7 +355,7 @@ function wiki_delpage($nick,$trailing,$return=False,$bypass_auth=False)
   {
     if (isset($data["delete"]["logid"])==True)
     {
-      $msg="wiki: delpage=".$data["delete"]["logid"];
+      $msg="wiki: delpage=logid ".$data["delete"]["logid"];
       wiki_privmsg($return,$msg);
       return True;
     }
