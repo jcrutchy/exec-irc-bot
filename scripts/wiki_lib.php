@@ -300,19 +300,28 @@ function wiki_privmsg($return,$msg)
 
 #####################################################################################################
 
-function wiki_delpage($nick,$title)
+function wiki_delpage($nick,$trailing,$return=False,$bypass_auth=False)
 {
-  $account=users_get_account($nick);
-  $allowed=array("crutchy","mrcoolbp","paulej72");
-  if (in_array($account,$allowed)==False)
+  if ($bypass_auth==False)
   {
-    privmsg("  error: not authorized");
-    return;
+    $account=users_get_account($nick);
+    $allowed=array("crutchy","mrcoolbp","paulej72");
+    if (in_array($account,$allowed)==False)
+    {
+      privmsg("  error: not authorized");
+      return;
+    }
   }
+  $title=trim(substr($trailing,strlen(".delpage")+1));
   if ($title=="")
   {
     wiki_privmsg($return,"wiki: delpage=invalid title");
     return False;
+  }
+  if (login($nick,True)==False)
+  {
+    privmsg("  login error");
+    return;
   }
   $cookieprefix=get_bucket("wiki_login_cookieprefix");
   $sessionid=get_bucket("wiki_login_sessionid");
@@ -331,75 +340,31 @@ function wiki_delpage($nick,$title)
     return False;
   }
   $token=$data["query"]["tokens"]["csrftoken"];
-  
-  /*$uri="/w/api.php?action=parse&format=php&page=".urlencode($title)."&prop=sections";
-  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
-  $data=unserialize(strip_headers($response));
-  if (isset($data["parse"]["sections"])==False)
-  {
-    wiki_privmsg($return,"wiki: edit=error getting sections for page \"".$title."\"");
-    return False;
-  }
-  #var_dump($data);
-  $sections=$data["parse"]["sections"];
-  $index=-1;
-  for ($i=0;$i<count($sections);$i++)
-  {
-    $line=$sections[$i]["line"];
-    if ($section==$line)
-    {
-      $index=$i;
-      break;
-    }
-  }
-  if ($index<0)
-  {
-    $index="new";
-  }
-  else
-  {
-    if (isset($sections[$index]["index"])==False)
-    {
-      wiki_privmsg($return,"wiki: edit=section not found");
-      return False;
-    }
-    $index=$sections[$index]["index"];
-    if ($text<>"")
-    {
-      $text="==$section==\n$text";
-    }
-  }
-  $uri="/w/api.php?action=edit";
-  # http://www.mediawiki.org/wiki/API:Edit#Parameters
-  $params=array(
-    "format"=>"php",
-    "title"=>$title,
-    "section"=>$index,
-    "summary"=>$section,
-    "text"=>$text,
-    "contentformat"=>"text/x-wiki",
-    "contentmodel"=>"wikitext",
-    "bot"=>"",
-    "token"=>$token);
-  #var_dump($params);
+  $uri="/w/api.php?action=delete&title=".urlencode($title)."&format=php&reason=spamctl";
+  $params=array("token"=>$token);
   $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
   $data=unserialize(strip_headers($response));
-  #var_dump($data);
+  logout(True);
   if (isset($data["error"])==True)
   {
-    wiki_privmsg($return,"wiki: edit=".$data["error"]["code"]);
+    wiki_privmsg($return,"wiki: delpage=".$data["error"]["code"]);
     return False;
   }
   else
   {
-    $msg="wiki: edit=".$data["edit"]["result"];
-    if ($data["edit"]["result"]=="Success")
+    if (isset($data["delete"]["logid"])==True)
     {
-      $msg=$msg.", oldrevid=".$data["edit"]["oldrevid"].", newrevid=".$data["edit"]["newrevid"];
+      $msg="wiki: delpage=".$data["delete"]["logid"];
+      wiki_privmsg($return,$msg);
+      return True;
     }
-    wiki_privmsg($return,$msg);
-    return True;
-  }*/
+    else
+    {
+      $msg="wiki: delpage=logid not found";
+      wiki_privmsg($return,$msg);
+      return False;
+    }
+  }
 }
 
 #####################################################################################################
