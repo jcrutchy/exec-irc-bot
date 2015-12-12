@@ -153,7 +153,7 @@ $login=get_bucket("wiki_login_cookieprefix");
 
 if (strtolower($trailing)=="login")
 {
-  login();
+  login($nick);
 }
 elseif ($login<>"")
 {

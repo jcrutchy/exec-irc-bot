@@ -40,8 +40,15 @@ function logout($return=False)
 
 #####################################################################################################
 
-function login($return=False)
+function login($nick,$return=False)
 {
+  $account=users_get_account($nick);
+  $allowed=array("crutchy","mrcoolbp","paulej72");
+  if (in_array($account,$allowed)==False)
+  {
+    privmsg("  error: not authorized");
+    return;
+  }
   $user_params=explode("\n",file_get_contents("../pwd/wiki.bot"));
   $params["lgname"]=$user_params[0];
   $params["lgpassword"]=$user_params[1];
@@ -293,6 +300,115 @@ function wiki_privmsg($return,$msg)
 
 #####################################################################################################
 
+function delete($title)
+{
+  $account=users_get_account($nick);
+  $allowed=array("crutchy","mrcoolbp","paulej72");
+  if (in_array($account,$allowed)==False)
+  {
+    privmsg("  error: not authorized");
+    return;
+  }
+  if ($title=="")
+  {
+    wiki_privmsg($return,"wiki: delete=invalid title");
+    return False;
+  }
+  $cookieprefix=get_bucket("wiki_login_cookieprefix");
+  $sessionid=get_bucket("wiki_login_sessionid");
+  if (($cookieprefix=="") or ($sessionid==""))
+  {
+    wiki_privmsg($return,"wiki: delete=not logged in");
+    return False;
+  }
+  $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
+
+  $uri="/w/api.php?action=query&meta=tokens&format=php&type=csrf";
+
+
+
+  /*$uri="/w/api.php?action=tokens&format=php";
+  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
+  $data=unserialize(strip_headers($response));
+  #var_dump($data);
+  if (isset($data["tokens"]["edittoken"])==False)
+  {
+    wiki_privmsg($return,"wiki: edit=error getting edittoken");
+    return False;
+  }
+  $token=$data["tokens"]["edittoken"];
+  $uri="/w/api.php?action=parse&format=php&page=".urlencode($title)."&prop=sections";
+  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
+  $data=unserialize(strip_headers($response));
+  if (isset($data["parse"]["sections"])==False)
+  {
+    wiki_privmsg($return,"wiki: edit=error getting sections for page \"".$title."\"");
+    return False;
+  }
+  #var_dump($data);
+  $sections=$data["parse"]["sections"];
+  $index=-1;
+  for ($i=0;$i<count($sections);$i++)
+  {
+    $line=$sections[$i]["line"];
+    if ($section==$line)
+    {
+      $index=$i;
+      break;
+    }
+  }
+  if ($index<0)
+  {
+    $index="new";
+  }
+  else
+  {
+    if (isset($sections[$index]["index"])==False)
+    {
+      wiki_privmsg($return,"wiki: edit=section not found");
+      return False;
+    }
+    $index=$sections[$index]["index"];
+    if ($text<>"")
+    {
+      $text="==$section==\n$text";
+    }
+  }
+  $uri="/w/api.php?action=edit";
+  # http://www.mediawiki.org/wiki/API:Edit#Parameters
+  $params=array(
+    "format"=>"php",
+    "title"=>$title,
+    "section"=>$index,
+    "summary"=>$section,
+    "text"=>$text,
+    "contentformat"=>"text/x-wiki",
+    "contentmodel"=>"wikitext",
+    "bot"=>"",
+    "token"=>$token);
+  #var_dump($params);
+  $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
+  $data=unserialize(strip_headers($response));
+  #var_dump($data);
+  if (isset($data["error"])==True)
+  {
+    wiki_privmsg($return,"wiki: edit=".$data["error"]["code"]);
+    return False;
+  }
+  else
+  {
+    $msg="wiki: edit=".$data["edit"]["result"];
+    if ($data["edit"]["result"]=="Success")
+    {
+      $msg=$msg.", oldrevid=".$data["edit"]["oldrevid"].", newrevid=".$data["edit"]["newrevid"];
+    }
+    wiki_privmsg($return,$msg);
+    return True;
+  }*/
+}
+
+#####################################################################################################
+
 function wiki_spamctl($nick,$trailing,$bypass_auth=False)
 {
   if ($bypass_auth==False)
@@ -330,7 +446,7 @@ function wiki_spamctl($nick,$trailing,$bypass_auth=False)
   {
     $text="{{spam}}<br>if this spam flag is wrong, please join #wiki @ http://chat.soylentnews.org/ and let us know";
   }
-  if (login(True)==False)
+  if (login($nick,True)==False)
   {
     privmsg("  login error");
     return;

@@ -20,8 +20,8 @@ define("START_TIME",microtime(True)); # used for %%start%% template
 if (isset($argv[1])==False)
 {
   # default installation-specific settings
-  define("DEFAULT_NICK","tugger");
-  define("USER_NAME","tugger");
+  define("DEFAULT_NICK","x");
+  define("USER_NAME","x");
   define("FULL_NAME","exec.bot");
   define("PASSWORD_FILE","../pwd/".DEFAULT_NICK);
   define("BUCKETS_FILE","../data/buckets");
@@ -36,7 +36,7 @@ if (isset($argv[1])==False)
   define("NICKSERV_IDENTIFY_PROMPT","You have 60 seconds to identify to your nickname before it is changed.");
   define("ADMIN_ACCOUNTS","chromas,juggs,martyb");
   define("MYSQL_LOG","1");
-  define("NICKSERV_IDENTIFY","0");
+  define("NICKSERV_IDENTIFY","1");
   define("IFACE_ENABLE","0");
 }
 elseif (file_exists($argv[1])==True)
