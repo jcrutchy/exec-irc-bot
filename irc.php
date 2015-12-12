@@ -23,7 +23,7 @@ if (isset($argv[1])==False)
   define("DEFAULT_NICK","x");
   define("USER_NAME","x");
   define("FULL_NAME","exec.bot");
-  define("PASSWORD_FILE","../pwd/".DEFAULT_NICK);
+  define("PASSWORD_FILE","../pwd/exec");
   define("BUCKETS_FILE","../data/buckets");
   define("IGNORE_FILE","../data/ignore");
   define("EXEC_FILE","exec.txt");

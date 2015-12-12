@@ -300,7 +300,7 @@ function wiki_privmsg($return,$msg)
 
 #####################################################################################################
 
-function delete($title)
+function wiki_delpage($nick,$title)
 {
   $account=users_get_account($nick);
   $allowed=array("crutchy","mrcoolbp","paulej72");
@@ -311,33 +311,28 @@ function delete($title)
   }
   if ($title=="")
   {
-    wiki_privmsg($return,"wiki: delete=invalid title");
+    wiki_privmsg($return,"wiki: delpage=invalid title");
     return False;
   }
   $cookieprefix=get_bucket("wiki_login_cookieprefix");
   $sessionid=get_bucket("wiki_login_sessionid");
   if (($cookieprefix=="") or ($sessionid==""))
   {
-    wiki_privmsg($return,"wiki: delete=not logged in");
+    wiki_privmsg($return,"wiki: delpage=not logged in");
     return False;
   }
   $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
-
   $uri="/w/api.php?action=query&meta=tokens&format=php&type=csrf";
-
-
-
-  /*$uri="/w/api.php?action=tokens&format=php";
   $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
   $data=unserialize(strip_headers($response));
-  #var_dump($data);
-  if (isset($data["tokens"]["edittoken"])==False)
+  if (isset($data["query"]["tokens"]["csrftoken"])==False)
   {
-    wiki_privmsg($return,"wiki: edit=error getting edittoken");
+    wiki_privmsg($return,"wiki: delpage=error getting csrftoken");
     return False;
   }
-  $token=$data["tokens"]["edittoken"];
-  $uri="/w/api.php?action=parse&format=php&page=".urlencode($title)."&prop=sections";
+  $token=$data["query"]["tokens"]["csrftoken"];
+  
+  /*$uri="/w/api.php?action=parse&format=php&page=".urlencode($title)."&prop=sections";
   $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
   $data=unserialize(strip_headers($response));
   if (isset($data["parse"]["sections"])==False)
