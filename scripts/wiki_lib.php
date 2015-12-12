@@ -302,6 +302,7 @@ function wiki_privmsg($return,$msg)
 
 function wiki_delpage($nick,$trailing,$return=False,$bypass_auth=False)
 {
+  # TODO: MAKE IT SO THAT ANOTHER LIST OF USERS CAN PROPOSE/CONFIRM DELETIONS (USE FILE TO STORE PROPOSED DELETIONS, NOT BUCKETS)
   if ($bypass_auth==False)
   {
     $account=users_get_account($nick);
