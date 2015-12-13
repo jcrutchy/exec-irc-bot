@@ -44,6 +44,12 @@ if ($alias=="~wiki-privmsg")
       wiki_delpage($nick,$trailing);
       return;
     }
+    $cmd=".undelpage";
+    if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
+    {
+      wiki_undelpage($nick,$trailing);
+      return;
+    }
     if ($trailing==".listspamrules")
     {
       wiki_listspamrules();
