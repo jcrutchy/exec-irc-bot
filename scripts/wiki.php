@@ -38,6 +38,18 @@ if ($alias=="~wiki-privmsg")
 {
   if ($dest=="#wiki")
   {
+    $cmd=".banuser";
+    if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
+    {
+      #wiki_banuser($nick,$trailing);
+      return;
+    }
+    $cmd=".unbanuser";
+    if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
+    {
+      #wiki_unbanuser($nick,$trailing);
+      return;
+    }
     $cmd=".delpage";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {

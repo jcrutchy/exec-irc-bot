@@ -448,7 +448,7 @@ function wiki_undelpage($nick,$trailing)
   $title=trim(substr($trailing,strlen(".undelpage")+1));
   if ($title=="")
   {
-    wiki_privmsg(False,"wiki: undelpage=invalid title");
+    wiki_privmsg(False,"http://sylnt.us/wikispamctl");
     return;
   }
   $allowed1=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
