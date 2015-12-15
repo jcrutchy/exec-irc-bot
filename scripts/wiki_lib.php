@@ -736,7 +736,7 @@ function wiki_testrules($nick,$trailing)
     $spam_rule_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_spam_rules"));
     delete_empty_elements($spam_rule_list,True);
   }
-  $test_nick=trim(substr($trailing,strlen(".testrule")));
+  $test_nick=trim(substr($trailing,strlen(".testrules")));
   $rule_match=False;
   for ($i=0;$i<count($spam_rule_list);$i++)
   {
