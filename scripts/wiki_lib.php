@@ -40,17 +40,14 @@ function logout($return=False)
 
 #####################################################################################################
 
-function login($nick,$return=False,$bypass_auth=False)
+function login($nick,$return=False)
 {
-  if ($bypass_auth==False)
+  $account=users_get_account($nick);
+  $allowed=array("wikirc","ncommander","funpika","mrcoolbp","paulej72","juggs","crutchy","chromas","themightybuzzard","martyb");
+  if (in_array($account,$allowed)==False)
   {
-    $account=users_get_account($nick);
-    $allowed=array("ncommander","funpika","mrcoolbp","paulej72","juggs","crutchy","chromas","themightybuzzard","martyb");
-    if (in_array($account,$allowed)==False)
-    {
-      privmsg("  error: not authorized (login)");
-      return;
-    }
+    privmsg("  error: not authorized (login)");
+    return;
   }
   $user_params=explode("\n",file_get_contents("../pwd/wiki.bot"));
   $params["lgname"]=$user_params[0];
@@ -303,7 +300,7 @@ function wiki_privmsg($return,$msg)
 
 #####################################################################################################
 
-function wiki_delpage($nick,$trailing,$return=False,$bypass_auth=False)
+function wiki_delpage($nick,$trailing,$return=False)
 {
   $title=trim(substr($trailing,strlen(".delpage")+1));
   if ($title=="")
@@ -311,71 +308,68 @@ function wiki_delpage($nick,$trailing,$return=False,$bypass_auth=False)
     wiki_privmsg($return,"wiki: delpage=invalid title");
     return False;
   }
-  if ($bypass_auth==False)
+  $account=users_get_account($nick);
+  $allowed=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
+  if (in_array($account,$allowed)==False)
   {
-    $account=users_get_account($nick);
-    $allowed=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
-    if (in_array($account,$allowed)==False)
+    $allowed=array("juggs","crutchy","chromas","themightybuzzard","martyb"); # trusted irc nickserv accounts
+    if (in_array($account,$allowed)==True)
     {
-      $allowed=array("juggs","crutchy","chromas","themightybuzzard","martyb"); # trusted irc nickserv accounts
-      if (in_array($account,$allowed)==True)
+      $del_pages_list=array();
+      $auth=False;
+      if (file_exists(DATA_PATH."wiki_del_pages")==True)
       {
-        $del_pages_list=array();
-        $auth=False;
-        if (file_exists(DATA_PATH."wiki_del_pages")==True)
+        $del_pages_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_del_pages"));
+        delete_empty_elements($del_pages_list,True);
+        $title_exists=False;
+        for ($i=0;$i<count($del_pages_list);$i++)
         {
-          $del_pages_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_del_pages"));
-          delete_empty_elements($del_pages_list,True);
-          $title_exists=False;
-          for ($i=0;$i<count($del_pages_list);$i++)
+          $parts=explode(" ",$del_pages_list[$i]);
+          $del_page_account=trim($parts[0]);
+          array_shift($parts);
+          $del_page_title=implode(" ",$parts);
+          if ($del_page_title===$title)
           {
-            $parts=explode(" ",$del_pages_list[$i]);
-            $del_page_account=trim($parts[0]);
-            array_shift($parts);
-            $del_page_title=implode(" ",$parts);
-            if ($del_page_title===$title)
+            $title_exists=True;
+            if ($del_page_account<>$account)
             {
-              $title_exists=True;
-              if ($del_page_account<>$account)
-              {
-                $auth=True;
-                unset($del_pages_list[$i]);
-                break;
-              }
+              $auth=True;
+              unset($del_pages_list[$i]);
+              break;
             }
           }
-          if ($auth==False)
-          {
-            if ($title_exists==False)
-            {
-              $del_pages_list[]=$account." ".$title;
-              privmsg("page with title \"$title\" added to wiki del pages file. need another authorized account to finalize page deletion [1]");
-            }
-            else
-            {
-              privmsg("page with title \"$title\" already added to wiki del pages file. need a different authorized account to finalize page deletion");
-            }
-          }
-        }
-        else
-        {
-          $del_pages_list[]=$account." ".$title;
-          privmsg("page with title \"$title\" added to wiki del pages file. need another authorized account to finalize page deletion [2]");
-        }
-        if (file_put_contents(DATA_PATH."wiki_del_pages",implode(PHP_EOL,$del_pages_list))===False)
-        {
-          privmsg("error writing del pages list file");
         }
         if ($auth==False)
         {
-          return False;
+          if ($title_exists==False)
+          {
+            $del_pages_list[]=$account." ".$title;
+            privmsg("page with title \"$title\" added to wiki del pages file. need another authorized account to finalize page deletion [1]");
+          }
+          else
+          {
+            privmsg("page with title \"$title\" already added to wiki del pages file. need a different authorized account to finalize page deletion");
+          }
         }
       }
       else
       {
-        privmsg("  error: not authorized");
+        $del_pages_list[]=$account." ".$title;
+        privmsg("page with title \"$title\" added to wiki del pages file. need another authorized account to finalize page deletion [2]");
+      }
+      if (file_put_contents(DATA_PATH."wiki_del_pages",implode(PHP_EOL,$del_pages_list))===False)
+      {
+        privmsg("error writing del pages list file");
+      }
+      if ($auth==False)
+      {
         return False;
       }
+    }
+    else
+    {
+      privmsg("  error: not authorized");
+      return False;
     }
   }
   # make sure title not in del pages file
@@ -498,17 +492,14 @@ function wiki_undelpage($nick,$trailing)
 
 #####################################################################################################
 
-function wiki_spamctl($nick,$trailing,$bypass_auth=False)
+function wiki_spamctl($nick,$trailing)
 {
-  if ($bypass_auth==False)
+  $account=users_get_account($nick);
+  $allowed=array("wikirc","crutchy","chromas","mrcoolbp","paulej72","juggs","martyb");
+  if (in_array($account,$allowed)==False)
   {
-    $account=users_get_account($nick);
-    $allowed=array("crutchy","chromas","mrcoolbp","paulej72","juggs","martyb");
-    if (in_array($account,$allowed)==False)
-    {
-      privmsg("  error: not authorized");
-      return;
-    }
+    privmsg("  error: not authorized");
+    return;
   }
   $title=trim(substr($trailing,strlen(".spamctl")));
   if ($title=="last")
@@ -527,7 +518,7 @@ function wiki_spamctl($nick,$trailing,$bypass_auth=False)
   {
     # TODO: ACCEPT WIKI URLS
   }
-  if ($bypass_auth==True)
+  if ($nick=="wikirc")
   {
     $text="{{spam}}<br>if this automated spam flag is wrong, please join #wiki @ http://chat.soylentnews.org/ and let us know";
   }
@@ -535,7 +526,7 @@ function wiki_spamctl($nick,$trailing,$bypass_auth=False)
   {
     $text="{{spam}}<br>if this spam flag is wrong, please join #wiki @ http://chat.soylentnews.org/ and let us know";
   }
-  if (login($nick,True,$bypass_auth)==False)
+  if (login($nick,True)==False)
   {
     return;
   }
@@ -591,7 +582,78 @@ function wiki_spamctl($nick,$trailing,$bypass_auth=False)
 
 #####################################################################################################
 
-function wiki_autospamctl($trailing)
+function wiki_unspamctl($nick,$trailing) # TODO
+{
+  $account=users_get_account($nick);
+  $allowed=array("crutchy","chromas","mrcoolbp","paulej72","juggs","martyb");
+  if (in_array($account,$allowed)==False)
+  {
+    privmsg("  error: not authorized");
+    return;
+  }
+  $title=trim(substr($trailing,strlen(".unspamctl")));
+  if ($title=="")
+  {
+    privmsg("  syntax: .unspamctl <page title>");
+    return;
+  }
+  if (login($nick,True)==False)
+  {
+    return;
+  }
+  $cookieprefix=get_bucket("wiki_login_cookieprefix");
+  $sessionid=get_bucket("wiki_login_sessionid");
+  if (($cookieprefix=="") or ($sessionid==""))
+  {
+    privmsg("  not logged in");
+    return;
+  }
+  $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
+  $uri="/w/api.php?action=tokens&format=php";
+  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
+  $data=unserialize(strip_headers($response));
+  if (isset($data["tokens"]["edittoken"])==False)
+  {
+    privmsg("  error getting edittoken");
+    logout(True);
+    return;
+  }
+  $token=$data["tokens"]["edittoken"];
+  /*$uri="/w/api.php?action=edit";
+  $params=array(
+    "format"=>"php",
+    "title"=>$title,
+    "text"=>$text,
+    "contentformat"=>"text/x-wiki",
+    "contentmodel"=>"wikitext",
+    "bot"=>"",
+    "token"=>$token);
+  $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
+  $data=unserialize(strip_headers($response));
+  if (isset($data["error"])==True)
+  {
+    privmsg("  error: ".$data["error"]["code"]);
+  }
+  else
+  {
+    $msg=$data["edit"]["result"];
+    if ($data["edit"]["result"]=="Success")
+    {
+      if ((isset($data["edit"]["oldrevid"])==True) and (isset($data["edit"]["newrevid"])==True))
+      {
+        $msg=$msg.", oldrevid=".$data["edit"]["oldrevid"].", newrevid=".$data["edit"]["newrevid"];
+      }
+    }
+    privmsg("  $msg");
+    $title=str_replace(" ","_",$title);
+    privmsg("  http://wiki.soylentnews.org/wiki/".urlencode($title));
+  }*/
+  logout(True);
+}
+
+#####################################################################################################
+
+function wiki_autospamctl($nick,$trailing)
 {
   $spam_user_list=array();
   $safe_user_list=array();
@@ -643,7 +705,7 @@ function wiki_autospamctl($trailing)
     }
   }
   privmsg("auto-spamctl for article \"$test_title\" by spam user \"$test_nick\"");
-  wiki_spamctl("",".spamctl $test_title",True);
+  wiki_spamctl($nick,".spamctl $test_title");
 }
 
 #####################################################################################################
@@ -1004,7 +1066,7 @@ function wiki_listsafeusers()
 
 #####################################################################################################
 
-function wiki_blockuser($nick,$trailing,$return=False,$bypass_auth=False)
+function wiki_blockuser($nick,$trailing,$return=False)
 {
   $title=trim(substr($trailing,strlen(".delpage")+1));
   if ($title=="")
@@ -1012,71 +1074,68 @@ function wiki_blockuser($nick,$trailing,$return=False,$bypass_auth=False)
     wiki_privmsg($return,"wiki: delpage=invalid title");
     return False;
   }
-  if ($bypass_auth==False)
+  $account=users_get_account($nick);
+  $allowed=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
+  if (in_array($account,$allowed)==False)
   {
-    $account=users_get_account($nick);
-    $allowed=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
-    if (in_array($account,$allowed)==False)
+    $allowed=array("juggs","crutchy","chromas","themightybuzzard","martyb"); # trusted irc nickserv accounts
+    if (in_array($account,$allowed)==True)
     {
-      $allowed=array("juggs","crutchy","chromas","themightybuzzard","martyb"); # trusted irc nickserv accounts
-      if (in_array($account,$allowed)==True)
+      $del_pages_list=array();
+      $auth=False;
+      if (file_exists(DATA_PATH."wiki_del_pages")==True)
       {
-        $del_pages_list=array();
-        $auth=False;
-        if (file_exists(DATA_PATH."wiki_del_pages")==True)
+        $del_pages_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_del_pages"));
+        delete_empty_elements($del_pages_list,True);
+        $title_exists=False;
+        for ($i=0;$i<count($del_pages_list);$i++)
         {
-          $del_pages_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_del_pages"));
-          delete_empty_elements($del_pages_list,True);
-          $title_exists=False;
-          for ($i=0;$i<count($del_pages_list);$i++)
+          $parts=explode(" ",$del_pages_list[$i]);
+          $del_page_account=trim($parts[0]);
+          array_shift($parts);
+          $del_page_title=implode(" ",$parts);
+          if ($del_page_title===$title)
           {
-            $parts=explode(" ",$del_pages_list[$i]);
-            $del_page_account=trim($parts[0]);
-            array_shift($parts);
-            $del_page_title=implode(" ",$parts);
-            if ($del_page_title===$title)
+            $title_exists=True;
+            if ($del_page_account<>$account)
             {
-              $title_exists=True;
-              if ($del_page_account<>$account)
-              {
-                $auth=True;
-                unset($del_pages_list[$i]);
-                break;
-              }
+              $auth=True;
+              unset($del_pages_list[$i]);
+              break;
             }
           }
-          if ($auth==False)
-          {
-            if ($title_exists==False)
-            {
-              $del_pages_list[]=$account." ".$title;
-              privmsg("page with title \"$title\" added to wiki del pages file. need another authorized account to finalize page deletion [1]");
-            }
-            else
-            {
-              privmsg("page with title \"$title\" already added to wiki del pages file. need a different authorized account to finalize page deletion");
-            }
-          }
-        }
-        else
-        {
-          $del_pages_list[]=$account." ".$title;
-          privmsg("page with title \"$title\" added to wiki del pages file. need another authorized account to finalize page deletion [2]");
-        }
-        if (file_put_contents(DATA_PATH."wiki_del_pages",implode(PHP_EOL,$del_pages_list))===False)
-        {
-          privmsg("error writing del pages list file");
         }
         if ($auth==False)
         {
-          return False;
+          if ($title_exists==False)
+          {
+            $del_pages_list[]=$account." ".$title;
+            privmsg("page with title \"$title\" added to wiki del pages file. need another authorized account to finalize page deletion [1]");
+          }
+          else
+          {
+            privmsg("page with title \"$title\" already added to wiki del pages file. need a different authorized account to finalize page deletion");
+          }
         }
       }
       else
       {
-        privmsg("  error: not authorized");
+        $del_pages_list[]=$account." ".$title;
+        privmsg("page with title \"$title\" added to wiki del pages file. need another authorized account to finalize page deletion [2]");
+      }
+      if (file_put_contents(DATA_PATH."wiki_del_pages",implode(PHP_EOL,$del_pages_list))===False)
+      {
+        privmsg("error writing del pages list file");
+      }
+      if ($auth==False)
+      {
         return False;
       }
+    }
+    else
+    {
+      privmsg("  error: not authorized");
+      return False;
     }
   }
   # make sure title not in del pages file
@@ -1147,7 +1206,7 @@ function wiki_blockuser($nick,$trailing,$return=False,$bypass_auth=False)
 
 #####################################################################################################
 
-function wiki_unblockuser($nick,$trailing,$return=False,$bypass_auth=False)
+function wiki_unblockuser($nick,$trailing,$return=False)
 {
   $username=trim(substr($trailing,strlen(".unblockuser")+1));
   if ($username=="")
