@@ -1,5 +1,7 @@
 <?php
 
+# TODO: POSSIBLY RELEASE THIS AS A SEPARATE PROJECT (THAT RUNS AS A SIMPLE IRC BOT)
+
 #####################################################################################################
 
 /*
