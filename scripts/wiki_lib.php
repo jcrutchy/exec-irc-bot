@@ -475,6 +475,7 @@ function wiki_undelpage($nick,$trailing)
     if ($del_page_title===$title)
     {
       $title_exists=True;
+      unset($del_pages_list[$i]);
     }
   }
   if ($title_exists==False)
@@ -996,6 +997,201 @@ function wiki_listsafeusers()
     {
       privmsg("no safe users");
     }
+  }
+}
+
+#####################################################################################################
+
+function wiki_blockuser($nick,$trailing,$return=False,$bypass_auth=False)
+{
+  $title=trim(substr($trailing,strlen(".delpage")+1));
+  if ($title=="")
+  {
+    wiki_privmsg($return,"wiki: delpage=invalid title");
+    return False;
+  }
+  if ($bypass_auth==False)
+  {
+    $account=users_get_account($nick);
+    $allowed=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
+    if (in_array($account,$allowed)==False)
+    {
+      $allowed=array("juggs","crutchy","chromas","themightybuzzard","martyb"); # trusted irc nickserv accounts
+      if (in_array($account,$allowed)==True)
+      {
+        $del_pages_list=array();
+        $auth=False;
+        if (file_exists(DATA_PATH."wiki_del_pages")==True)
+        {
+          $del_pages_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_del_pages"));
+          delete_empty_elements($del_pages_list,True);
+          $title_exists=False;
+          for ($i=0;$i<count($del_pages_list);$i++)
+          {
+            $parts=explode(" ",$del_pages_list[$i]);
+            $del_page_account=trim($parts[0]);
+            array_shift($parts);
+            $del_page_title=implode(" ",$parts);
+            if ($del_page_title===$title)
+            {
+              $title_exists=True;
+              if ($del_page_account<>$account)
+              {
+                $auth=True;
+                unset($del_pages_list[$i]);
+                break;
+              }
+            }
+          }
+          if ($auth==False)
+          {
+            if ($title_exists==False)
+            {
+              $del_pages_list[]=$account." ".$title;
+              privmsg("page with title \"$title\" added to wiki del pages file. need another authorized account to finalize page deletion [1]");
+            }
+            else
+            {
+              privmsg("page with title \"$title\" already added to wiki del pages file. need a different authorized account to finalize page deletion");
+            }
+          }
+        }
+        else
+        {
+          $del_pages_list[]=$account." ".$title;
+          privmsg("page with title \"$title\" added to wiki del pages file. need another authorized account to finalize page deletion [2]");
+        }
+        if (file_put_contents(DATA_PATH."wiki_del_pages",implode(PHP_EOL,$del_pages_list))===False)
+        {
+          privmsg("error writing del pages list file");
+        }
+        if ($auth==False)
+        {
+          return False;
+        }
+      }
+      else
+      {
+        privmsg("  error: not authorized");
+        return False;
+      }
+    }
+  }
+  # make sure title not in del pages file
+  if (file_exists(DATA_PATH."wiki_del_pages")==True)
+  {
+    $del_pages_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_del_pages"));
+    delete_empty_elements($del_pages_list,True);
+    for ($i=0;$i<count($del_pages_list);$i++)
+    {
+      $parts=explode(" ",$del_pages_list[$i]);
+      array_shift($parts);
+      $del_page_title=implode(" ",$parts);
+      if ($del_page_title===$title)
+      {
+        unset($del_pages_list[$i]);
+      }
+    }
+    file_put_contents(DATA_PATH."wiki_del_pages",implode("\n",$del_pages_list));
+  }
+  /*if (login($nick,True)==False)
+  {
+    privmsg("  login error");
+    return;
+  }
+  $cookieprefix=get_bucket("wiki_login_cookieprefix");
+  $sessionid=get_bucket("wiki_login_sessionid");
+  if (($cookieprefix=="") or ($sessionid==""))
+  {
+    wiki_privmsg($return,"wiki: delpage=not logged in");
+    return False;
+  }
+  $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
+  $uri="/w/api.php?action=query&meta=tokens&format=php&type=csrf";
+  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
+  $data=unserialize(strip_headers($response));
+  if (isset($data["query"]["tokens"]["csrftoken"])==False)
+  {
+    wiki_privmsg($return,"wiki: delpage=error getting csrftoken");
+    return False;
+  }
+  $token=$data["query"]["tokens"]["csrftoken"];
+  $uri="/w/api.php?action=delete&title=".urlencode($title)."&format=php&reason=spamctl";
+  $params=array("token"=>$token);
+  $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
+  $data=unserialize(strip_headers($response));
+  logout(True);
+  if (isset($data["error"])==True)
+  {
+    wiki_privmsg($return,"wiki: delpage=".$data["error"]["code"]);
+    return False;
+  }
+  else
+  {
+    if (isset($data["delete"]["logid"])==True)
+    {
+      $msg="wiki: delpage=logid ".$data["delete"]["logid"];
+      wiki_privmsg($return,$msg);
+      return True;
+    }
+    else
+    {
+      $msg="wiki: delpage=logid not found";
+      wiki_privmsg($return,$msg);
+      return False;
+    }
+  }*/
+}
+
+#####################################################################################################
+
+function wiki_unblockuser($nick,$trailing,$return=False,$bypass_auth=False)
+{
+  $username=trim(substr($trailing,strlen(".unblockuser")+1));
+  if ($username=="")
+  {
+    wiki_privmsg(False,"http://sylnt.us/wikispamctl");
+    return;
+  }
+  $allowed1=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
+  $allowed2=array("juggs","crutchy","chromas","themightybuzzard","martyb"); # trusted irc nickserv accounts
+  $account=users_get_account($nick);
+  if ((in_array($account,$allowed1)==False) and (in_array($account,$allowed2)==False))
+  {
+    wiki_privmsg(False,"wiki: unblockuser=not authorized");
+    return;
+  }
+  if (file_exists(DATA_PATH."wiki_block_users")==False)
+  {
+    wiki_privmsg(False,"wiki: unblockuser=wiki_block_users file not found");
+    return;
+  }
+  $block_users_list=explode(PHP_EOL,file_get_contents(DATA_PATH."wiki_block_users"));
+  delete_empty_elements($block_users_list,True);
+  $username_exists=False;
+  for ($i=0;$i<count($block_users_list);$i++)
+  {
+    $parts=explode(" ",$block_users_list[$i]);
+    array_shift($parts);
+    $block_username=implode(" ",$parts);
+    if ($block_username===$username)
+    {
+      $username_exists=True;
+      unset($block_users_list[$i]);
+    }
+  }
+  if ($username_exists==False)
+  {
+    wiki_privmsg(False,"wiki: unblockuser=username not found in wiki_block_users file");
+    return;
+  }
+  if (file_put_contents(DATA_PATH."wiki_block_users",implode(PHP_EOL,$block_users_list))===False)
+  {
+    wiki_privmsg(False,"wiki: unblockuser=error writing wiki_block_users file");
+  }
+  else
+  {
+    wiki_privmsg(False,"  deleted \"$username\" from wiki_block_users file");
   }
 }
 
