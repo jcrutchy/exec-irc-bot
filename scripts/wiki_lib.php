@@ -40,14 +40,17 @@ function logout($return=False)
 
 #####################################################################################################
 
-function login($nick,$return=False)
+function login($nick,$return=False,$bypass_auth=False)
 {
-  $account=users_get_account($nick);
-  $allowed=array("ncommander","funpika","mrcoolbp","paulej72","juggs","crutchy","chromas","themightybuzzard","martyb");
-  if (in_array($account,$allowed)==False)
+  if ($bypass_auth==False)
   {
-    privmsg("  error: not authorized (login)");
-    return;
+    $account=users_get_account($nick);
+    $allowed=array("ncommander","funpika","mrcoolbp","paulej72","juggs","crutchy","chromas","themightybuzzard","martyb");
+    if (in_array($account,$allowed)==False)
+    {
+      privmsg("  error: not authorized (login)");
+      return;
+    }
   }
   $user_params=explode("\n",file_get_contents("../pwd/wiki.bot"));
   $params["lgname"]=$user_params[0];
@@ -532,9 +535,8 @@ function wiki_spamctl($nick,$trailing,$bypass_auth=False)
   {
     $text="{{spam}}<br>if this spam flag is wrong, please join #wiki @ http://chat.soylentnews.org/ and let us know";
   }
-  if (login($nick,True)==False)
+  if (login($nick,True,$bypass_auth)==False)
   {
-    privmsg("  login error");
     return;
   }
   $cookieprefix=get_bucket("wiki_login_cookieprefix");
