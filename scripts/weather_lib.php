@@ -220,7 +220,7 @@ function process_weather(&$location,$nick,$getdata=False)
   {
     $result=$location." - currently ".$temps[0].", ".$conds[0].$wind_caption.", humidity ".$humidity." - ";
   }
-  $fulldays=array("Sun"=>"Sunday","Mon"=>"Monday","Tue"=>"Tuesday","Wed"=>"Wednesday","Thu"=>"Thursday","Fri"=>"Friday","Sat"=>"Saturday");
+  $fulldays=array("Sun."=>"Sunday","Mon."=>"Monday","Tue."=>"Tuesday","Wed."=>"Wednesday","Thu."=>"Thursday","Fri."=>"Friday","Sat."=>"Saturday");
   for ($i=1;$i<=4;$i++)
   {
     $day=$days[$i-1];
