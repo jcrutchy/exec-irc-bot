@@ -89,7 +89,9 @@ if (($alias=="~slashcode-issue") or ($alias=="~rehash-issue") or ($alias=="~exec
   return;
 }
 
-$list=array(
+$list=exec_file_read(DATA_PATH."github_feed_repos");
+
+/*$list=array(
   "crutchy-/exec-irc-bot",
   "crutchy-/ircd",
   "crutchy-/iiterm",
@@ -142,7 +144,7 @@ $list=array(
   "Lagg/tinyfeeds",
   "Lagg/weechat-scripts",
   "Lagg/steam-tracker",
-  "Lagg/steam-swissapiknife");
+  "Lagg/steam-swissapiknife");*/
 
 sort($list,SORT_STRING);
 
