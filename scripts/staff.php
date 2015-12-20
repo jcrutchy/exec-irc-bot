@@ -24,7 +24,7 @@ switch ($alias)
     {
       $reason=" (reason: ".$trailing.")";
     }
-    privmsg("editor ping for $nick$reason: janrinok LaminatorX n1 nick martyb Bytram Azrael mrcoolbp");
+    privmsg("editor ping for $nick$reason: janrinok LaminatorX n1 nick martyb Bytram Azrael mrcoolbp cmn32480 coolhand takyon cmn32480|away bytram|away");
     return;
   case "~devs":
     $reason="";
