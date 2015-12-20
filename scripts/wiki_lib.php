@@ -427,6 +427,7 @@ function wiki_delpage($nick,$trailing,$return=False)
     {
       $msg="wiki: delpage=logid ".$data["delete"]["logid"];
       wiki_privmsg($return,$msg);
+      wiki_privmsg($return,"http://sylnt.us/delpagelog");
       return True;
     }
     else
