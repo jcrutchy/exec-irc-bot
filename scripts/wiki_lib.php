@@ -43,7 +43,7 @@ function logout($return=False)
 function login($nick,$return=False)
 {
   $account=users_get_account($nick);
-  $allowed=array("wikirc","ncommander","funpika","mrcoolbp","paulej72","juggs","crutchy","chromas","themightybuzzard","martyb");
+  $allowed=array("wikirc","ncommander","funpika","mrcoolbp","paulej72","juggs","crutchy","chromas","themightybuzzard","martyb","cmn32480");
   if (in_array($account,$allowed)==False)
   {
     privmsg("  error: not authorized (login)");
@@ -312,7 +312,7 @@ function wiki_delpage($nick,$trailing,$return=False)
   $allowed=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
   if (in_array($account,$allowed)==False)
   {
-    $allowed=array("juggs","crutchy","chromas","themightybuzzard","martyb"); # trusted irc nickserv accounts
+    $allowed=array("juggs","crutchy","chromas","themightybuzzard","martyb","cmn32480"); # trusted irc nickserv accounts
     if (in_array($account,$allowed)==True)
     {
       $del_pages_list=array();
@@ -1079,7 +1079,7 @@ function wiki_blockuser($nick,$trailing,$return=False)
   $allowed=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
   if (in_array($account,$allowed)==False)
   {
-    $allowed=array("juggs","crutchy","chromas","themightybuzzard","martyb"); # trusted irc nickserv accounts
+    $allowed=array("juggs","crutchy","chromas","themightybuzzard","martyb","cmn32480"); # trusted irc nickserv accounts
     if (in_array($account,$allowed)==True)
     {
       $del_pages_list=array();
