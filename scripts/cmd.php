@@ -119,6 +119,9 @@ switch (strtoupper($cmd))
   case "322":
     # :irc.sylnt.us 322 crutchy # 8 :exec's home base and proving ground. testing of other bots and general chit chat welcome :-)
     break;
+  case "432":
+    # :irc.sylnt.us 432 x :: :Erroneous Nickname
+    break;
 }
 
 handle_macros($nick,$dest,$trailing);
