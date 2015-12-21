@@ -40,6 +40,13 @@ if (($alias=="~github-add") or ($alias=="~github-del"))
   }
   if ($alias=="~github-add")
   {
+    $list=exec_file_read("github_feed_repos");
+    $index=array_search($trailing,$list);
+    if ($index!==False)
+    {
+      privmsg(chr(3)."07"."repo \"$trailing\" already exists in github feed repo list file");
+      return;
+    }
     if (file_put_contents(DATA_PATH."github_feed_repos",$trailing,FILE_APPEND)!==False)
     {
       privmsg(chr(3)."07"."added \"$trailing\" to github feed repo list file");

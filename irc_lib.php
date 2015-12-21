@@ -1680,13 +1680,17 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
       $throttle_time=microtime(True);
       return;
     }
-    if ($items["cmd"]==330) # is logged in as
+    if ($items["cmd"]=="330") # is logged in as
     {
       authenticate($items);
     }
-    if ($items["cmd"]==376) # RPL_ENDOFMOTD (RFC1459)
+    if ($items["cmd"]=="376") # RPL_ENDOFMOTD (RFC1459)
     {
       dojoin(INIT_CHAN_LIST);
+    }
+    if (($items["cmd"]=="NICK") and ($items["nick"]==get_bot_nick()))
+    {
+      set_bot_nick(trim($items["trailing"]));
     }
     if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]==NICKSERV_IDENTIFY_PROMPT))
     {
@@ -1716,7 +1720,6 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         if (count($args)==2)
         {
           rawmsg(":".get_bot_nick()." NICK :".trim($args[1]));
-          set_bot_nick(trim($args[1]));
         }
         break;
       case ALIAS_ADMIN_QUIT:
