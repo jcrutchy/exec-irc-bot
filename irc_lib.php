@@ -1696,6 +1696,15 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
     {
       set_bot_nick(trim($items["params"]));
     }
+    if ($items["cmd"]=="432") # Erroneous Nickname
+    {
+      set_bot_nick(trim($items["params"]));
+    }
+    if ($items["cmd"]=="043") # Nick collision
+    {
+      $parts=explode(" ",trim($items["params"]));
+      set_bot_nick($parts[0]);
+    }
     if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]==NICKSERV_IDENTIFY_PROMPT))
     {
       if ((file_exists(PASSWORD_FILE)==True) and (NICKSERV_IDENTIFY==="1"))
