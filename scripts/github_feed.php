@@ -3,14 +3,16 @@
 #####################################################################################################
 
 /*
+exec:~github-add|60|0|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~github-del|60|0|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~github-list|60|0|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~github-feed|1700|1800|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~slashcode-issue|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~slashcode-find|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~rehash-issue|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~exec-issue|60|0|0|1|*||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #exec:~epoch-feed|1700|1800|0|1|||||php scripts/github_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #startup:~join #github
+help:~github-add|syntax: ~github-add %username%/%repo%
+help:~github-del|syntax: ~github-del %username%/%repo%
 */
 
 #####################################################################################################
@@ -21,20 +23,61 @@ require_once("lib.php");
 
 define("TIME_LIMIT_SEC",1800); # 30 mins
 
-$trailing=$argv[1];
+$trailing=trim($argv[1]);
 $dest=$argv[2];
 $nick=$argv[3];
 $alias=strtolower(trim($argv[4]));
 
-if ($alias=="~slashcode-find")
-{
-  return;
-}
+$allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs","TheMightyBuzzard","paulej72","Bytram","cmn32480");
 
-if (($alias=="~slashcode-issue") or ($alias=="~rehash-issue") or ($alias=="~exec-issue"))
+if (($alias=="~github-add") or ($alias=="~github-del"))
 {
   $account=users_get_account($nick);
-  $allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs","TheMightyBuzzard","paulej72","Bytram");
+  if (in_array($account,$allowed)==False)
+  {
+    privmsg(chr(3)."07"."not authorized");
+    return;
+  }
+  if ($alias=="~github-add")
+  {
+    if (file_put_contents(DATA_PATH."github_feed_repos",$trailing,FILE_APPEND)!==False)
+    {
+      privmsg(chr(3)."07"."added \"$trailing\" to github feed repo list file");
+    }
+    else
+    {
+      privmsg(chr(3)."07"."error appending to github feed repo list file");
+    }
+    return;
+  }
+  if ($alias=="~github-del")
+  {
+    $list=exec_file_read("github_feed_repos");
+    $index=array_search($trailing,$list);
+    if ($index!==False)
+    {
+      unset($list[$index]);
+      $list=array_values($list);
+      if (file_put_contents(DATA_PATH."github_feed_repos",implode("\n",$list))!==False)
+      {
+        privmsg(chr(3)."07"."deleted \"$trailing\" from github feed repo list file");
+      }
+      else
+      {
+        privmsg(chr(3)."07"."error writing to github feed repo list file");
+      }
+    }
+    else
+    {
+      privmsg(chr(3)."07"."repo \"$trailing\" not found in github feed repo list file");
+    }
+    return;
+  }
+}
+
+if (($alias=="~rehash-issue") or ($alias=="~exec-issue"))
+{
+  $account=users_get_account($nick);
   if (in_array($account,$allowed)==False)
   {
     return;
@@ -45,7 +88,7 @@ if (($alias=="~slashcode-issue") or ($alias=="~rehash-issue") or ($alias=="~exec
   $body=trim(implode(",",$parts));
   if (($title=="") or ($body==""))
   {
-    privmsg("syntax: ~slashcode/rehash/exec-issue <title>, <body>");
+    privmsg("syntax: ~rehash|exec-issue <title>, <body>");
     return;
   }
   $host="api.github.com";
@@ -54,11 +97,6 @@ if (($alias=="~slashcode-issue") or ($alias=="~rehash-issue") or ($alias=="~exec
   {
     $username="SoylentNews";
     $repo="rehash";
-  }
-  elseif ($alias=="~slashcode-issue")
-  {
-    $username="SoylentNews";
-    $repo="slashcode";
   }
   else
   {
@@ -89,69 +127,14 @@ if (($alias=="~slashcode-issue") or ($alias=="~rehash-issue") or ($alias=="~exec
   return;
 }
 
-$list=array(
-  "crutchy-/exec-irc-bot",
-  "crutchy-/ircd",
-  "crutchy-/iiterm",
-  "crutchy-/irciv",
-  "crutchy-/conquest",
-  "TheMightyBuzzard/slashcode",
-  "TheMightyBuzzard/api-testing",
-  "chromatos/pas",
-  "Subsentient/aqu4bot",
-  "Subsentient/epoch",
-  "trohrt/kosaki-chan",
-  "Dhs92/kosaki-chan",
-  "Subsentient/bricktick",
-  "Subsentient/wzblue",
-  "Subsentient/nexus",
-  "Subsentient/substrings",
-  "marty-b/rehash",
-  "marty-b/slashcode",
-  "NSAKEY/happy-dance",
-  "NSAKEY/not-paranoid-prosody",
-  "NSAKEY/paranoid-prosody",
-  "SoylentNews/slashcode",
-  "SoylentNews/slashcode_vm",
-  "SoylentNews/rehash",
-  "davidtseng/rehash",
-  "iwantedue/rehash",
-  "NCommander/rehash",
-  "paulej72/rehash",
-  "TheMightyBuzzard/rehash",
-  "cosurgi/trunk",
-  "dimkr/LoginKit",
-  "paulej72/slashcode",
-  "NCommander/slashcode",
-  "arachnist/dsd",
-  "arachnist/repost",
-  "idies/pyJHTDB",
-  "mrcoolbp/slashcode",
-  "pipedot/pipecode",
-  "devuan/devuan-baseconf",
-  "devuan/devuan-keyring",
-  "devuan/website-debianfork",
-  "lfowles/drunken-bugfixes",
-  "lfowles/jsonbot",
-  "lfowles/tripping-robot",
-  "lfowles/shirokuma",
-  "Lagg/userscripts",
-  "Lagg/dotfiles",
-  "Lagg/steamodd",
-  "Lagg/c3-code",
-  "Lagg/tinyfeeds",
-  "Lagg/weechat-scripts",
-  "Lagg/steam-tracker",
-  "Lagg/steam-swissapiknife");
+$list=exec_file_read("github_feed_repos");
 
 sort($list,SORT_STRING);
 
 if ($alias=="~epoch-feed")
 {
   $list=array("Subsentient/epoch");
-  #$list=array("crutchy-/exec-irc-bot");
   define("FEED_CHAN","#epoch");
-  #define("FEED_CHAN","#sylnt");
 }
 else
 {
@@ -337,10 +320,6 @@ function get_api_data($uri)
 function github_msg($repo,$msg)
 {
   pm(FEED_CHAN,$msg);
-  /*if ((strpos(strtolower($repo),"slashcode")!==False) or (strpos(strtolower($repo),"soylentcode")!==False))
-  {
-    pm("#dev",$msg);
-  }*/
 }
 
 #####################################################################################################

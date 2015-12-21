@@ -427,6 +427,7 @@ function wiki_delpage($nick,$trailing,$return=False)
     {
       $msg="wiki: delpage=logid ".$data["delete"]["logid"];
       wiki_privmsg($return,$msg);
+      wiki_privmsg($return,"http://sylnt.us/delpagelog");
       return True;
     }
     else
@@ -582,7 +583,7 @@ function wiki_spamctl($nick,$trailing)
 
 #####################################################################################################
 
-function wiki_unspamctl($nick,$trailing) # TODO
+function wiki_unspamctl($nick,$trailing)
 {
   $account=users_get_account($nick);
   $allowed=array("crutchy","chromas","mrcoolbp","paulej72","juggs","martyb");
@@ -609,16 +610,16 @@ function wiki_unspamctl($nick,$trailing) # TODO
     return;
   }
   $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
-  $uri="/w/api.php?action=tokens&format=php";
+  $uri="/w/api.php?action=query&format=php&meta=tokens&type=rollback";
   $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
   $data=unserialize(strip_headers($response));
-  if (isset($data["tokens"]["edittoken"])==False)
+  if (isset($data["query"]["tokens"]["rollbacktoken"])==False)
   {
-    privmsg("  error getting edittoken");
+    privmsg("  error getting rollbacktoken");
     logout(True);
     return;
   }
-  $token=$data["tokens"]["edittoken"];
+  $token=$data["query"]["tokens"]["rollbacktoken"];
   /*$uri="/w/api.php?action=edit";
   $params=array(
     "format"=>"php",

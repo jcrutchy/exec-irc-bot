@@ -13,6 +13,8 @@ require_once("wget_lib.php");
 
 $trailing=trim($argv[1]);
 
+term_echo("wget: $trailing");
+
 if ($trailing=="")
 {
   privmsg("syntax: ~wget url delim 1 <> delim 2");
@@ -21,7 +23,7 @@ if ($trailing=="")
 
 $result=quick_wget($trailing);
 
-if ($trailing==False)
+if ($result==False)
 {
   privmsg("syntax: ~wget url delim 1 <> delim 2");
   return;
