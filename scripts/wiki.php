@@ -36,6 +36,10 @@ if ($trailing=="register-events")
   return;
 }
 
+$wiki_admin_users=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
+$wiki_trusted_users=array("juggs","crutchy","chromas","themightybuzzard","martyb","cmn32480"); # trusted irc nickserv accounts
+$wiki_bot_user="wikirc";
+
 if ($alias=="~wiki-privmsg")
 {
   if ($dest=="#wiki")
