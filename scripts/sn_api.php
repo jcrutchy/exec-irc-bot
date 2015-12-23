@@ -4,8 +4,9 @@
 
 /*
 exec:~api|90|0|0|1|*|PRIVMSG|#dev,#Soylent,#,#crutchy||php scripts/sn_api.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
-help: ~api | example 1: ~api m=user op=get_nick uid=18 /nick
+help: ~api | syntax: ~api param1=value 1 param2=value 2 /depth 1/depth 2
 help: ~api | example 2: ~api m=user op=get_uid nick=The Mighty Buzzard /uid
+help: ~api | example 3: ~api m=story op=latest /0/title
 */
 
 #####################################################################################################
@@ -74,14 +75,14 @@ if ($content=="")
   privmsg("  no data returned");
   return;
 }
+$data=json_decode($content,True);
 if (count($element)==0)
 {
-  $content=clean_text($content);
-  privmsg(chr(3)."02".substr($content,0,650));
+  $data=json_encode($data,JSON_UNESCAPED_SLASHES);
+  privmsg(chr(3)."02".substr($data,0,650));
 }
 else
 {
-  $data=json_decode($content,True);
   for ($i=0;$i<count($data);$i++)
   {
     if (isset($data[$element[$i]])==True)
@@ -91,49 +92,9 @@ else
   }
   if (is_array($data)==True)
   {
-    $data=json_encode($data);
+    $data=json_encode($data,JSON_UNESCAPED_SLASHES);
   }
   privmsg(chr(3)."02".substr($data,0,650));
-}
-
-#####################################################################################################
-
-function get_uid($name)
-{
-  global $host;
-  global $port;
-  $uri="/api.pl?m=user&op=get_uid&nick=".urlencode($name);
-  $response=wget($host,$uri,$port);
-  $content=strip_headers($response);
-  $data=json_decode($content,True);
-  if (isset($data["uid"])==True)
-  {
-    return $data["uid"];
-  }
-  else
-  {
-    return False;
-  }
-}
-
-#####################################################################################################
-
-function get_name($uid)
-{
-  global $host;
-  global $port;
-  $uri="/api.pl?m=user&op=get_nick&uid=$uid";
-  $response=wget($host,$uri,$port);
-  $content=strip_headers($response);
-  $data=json_decode($content,True);
-  if (isset($data["nick"])==True)
-  {
-    return $data["nick"];
-  }
-  else
-  {
-    return False;
-  }
 }
 
 #####################################################################################################

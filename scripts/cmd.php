@@ -234,8 +234,15 @@ function handle_macros($nick,$channel,$trailing)
     $chanlist=trim($parts[2]);
     if ($chanlist=="-")
     {
-      unset($macros[$trigger]);
-      privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" deleted");
+      if (isset($macros[$trigger])==False)
+      {
+        privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" not found");
+      }
+      else
+      {
+        unset($macros[$trigger]);
+        privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" deleted");
+      }
     }
     elseif (count($parts)>=5)
     {
