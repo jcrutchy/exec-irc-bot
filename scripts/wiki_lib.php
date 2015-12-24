@@ -2,8 +2,14 @@
 
 #####################################################################################################
 
+require_once("lib.php");
+
 define("WIKI_USER_AGENT","exec-irc-bot (https://github.com/crutchy-/exec-irc-bot)");
 define("WIKI_HOST","wiki.soylentnews.org");
+
+$wiki_admin_users=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
+$wiki_trusted_users=array("juggs","crutchy","chromas","themightybuzzard","martyb","cmn32480"); # trusted irc nickserv accounts
+$wiki_bot_user="wikirc";
 
 #####################################################################################################
 
@@ -45,10 +51,8 @@ function login($nick,$return=False)
   global $wiki_admin_users;
   global $wiki_trusted_users;
   global $wiki_bot_user;
-  
   $account=users_get_account($nick);
-  $allowed=array("wikirc","ncommander","funpika","mrcoolbp","paulej72","juggs","crutchy","chromas","themightybuzzard","martyb","cmn32480");
-  if (in_array($account,$allowed)==False)
+  if ((in_array($account,$wiki_admin_users)==False) and (in_array($account,$wiki_trusted_users)==False) and ($account<>$wiki_bot_user))
   {
     privmsg("  error: not authorized (login)");
     return;
@@ -315,11 +319,9 @@ function wiki_delpage($nick,$trailing,$return=False)
     return False;
   }
   $account=users_get_account($nick);
-  $allowed=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
-  if (in_array($account,$allowed)==False)
+  if (in_array($account,$wiki_admin_users)==False)
   {
-    $allowed=array("juggs","crutchy","chromas","themightybuzzard","martyb","cmn32480"); # trusted irc nickserv accounts
-    if (in_array($account,$allowed)==True)
+    if (in_array($account,$wiki_trusted_users)==True)
     {
       $del_pages_list=array();
       $auth=False;
@@ -449,16 +451,16 @@ function wiki_delpage($nick,$trailing,$return=False)
 
 function wiki_undelpage($nick,$trailing)
 {
+  global $wiki_admin_users;
+  global $wiki_trusted_users;
   $title=trim(substr($trailing,strlen(".undelpage")+1));
   if ($title=="")
   {
     wiki_privmsg(False,"http://sylnt.us/wikispamctl");
     return;
   }
-  $allowed1=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
-  $allowed2=array("juggs","crutchy","chromas","themightybuzzard","martyb","cmn32480"); # trusted irc nickserv accounts
   $account=users_get_account($nick);
-  if ((in_array($account,$allowed1)==False) and (in_array($account,$allowed2)==False))
+  if ((in_array($account,$wiki_admin_users)==False) and (in_array($account,$wiki_trusted_users)==False))
   {
     wiki_privmsg(False,"wiki: undelpage=not authorized");
     return;
@@ -501,9 +503,11 @@ function wiki_undelpage($nick,$trailing)
 
 function wiki_spamctl($nick,$trailing)
 {
+  global $wiki_admin_users;
+  global $wiki_trusted_users;
+  global $wiki_bot_user;
   $account=users_get_account($nick);
-  $allowed=array("wikirc","crutchy","chromas","mrcoolbp","paulej72","juggs","martyb","cmn32480");
-  if (in_array($account,$allowed)==False)
+  if ((in_array($account,$wiki_admin_users)==False) and (in_array($account,$wiki_trusted_users)==False) and ($account<>$wiki_bot_user))
   {
     privmsg("  error: not authorized");
     return;
@@ -591,9 +595,10 @@ function wiki_spamctl($nick,$trailing)
 
 function wiki_unspamctl($nick,$trailing)
 {
+  global $wiki_admin_users;
+  global $wiki_trusted_users;
   $account=users_get_account($nick);
-  $allowed=array("crutchy","chromas","mrcoolbp","paulej72","juggs","martyb","cmn32480");
-  if (in_array($account,$allowed)==False)
+  if ((in_array($account,$wiki_admin_users)==False) and (in_array($account,$wiki_trusted_users)==False))
   {
     privmsg("  error: not authorized");
     return;

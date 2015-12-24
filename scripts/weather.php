@@ -26,7 +26,9 @@ switch ($alias)
     # TODO: registered nick personalised settings (units, default location, private msg, formatting, etc)
     if ($trailing=="")
     {
-      privmsg("syntax: ~weather-prefs unit metric|imperial|both");
+      privmsg("syntax: ~weather-prefs pref value");
+      privmsg("unit => metric|imperial|both");
+      privmsg("color => fg[,bg]");
       return;
     }
     $parts=explode(" ",$trailing);
@@ -42,6 +44,50 @@ switch ($alias)
     if (isset($prefs[$nick])==True)
     {
       $nick_prefs=unserialize($prefs[$nick]);
+    }
+    switch ($pref)
+    {
+      case "unit":
+        switch ($trailing)
+        {
+          case "metric":
+            break;
+          case "imperial":
+            break;
+          case "both":
+            break;
+          default:
+            privmsg("  unknown unit");
+            return;
+        }
+        break;
+      case "color":
+        $color_parts=explode(",",$trailing);
+        if (count($color_parts)==2)
+        {
+          if ((exec_is_integer($color_parts[0])==False) or (exec_is_integer($color_parts[1])==False))
+          {
+            privmsg("  color value error");
+            return;
+          }
+        }
+        elseif (count($color_parts)==1)
+        {
+          if (exec_is_integer($color_parts[0])==False)
+          {
+            privmsg("  color value error");
+            return;
+          }
+        }
+        else
+        {
+          privmsg("  color value error");
+          return;
+        }
+        break;
+      default:
+        privmsg("  unknown pref");
+        return;
     }
     $nick_prefs[$pref]=$trailing;
     $prefs[$nick]=serialize($nick_prefs);

@@ -22,7 +22,6 @@ init:~wiki register-events
 
 #####################################################################################################
 
-require_once("lib.php");
 require_once("wiki_lib.php");
 
 $trailing=trim(strip_tags($argv[1]));
@@ -35,10 +34,6 @@ if ($trailing=="register-events")
   register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~wiki-privmsg %%trailing%%");
   return;
 }
-
-$wiki_admin_users=array("ncommander","funpika","mrcoolbp","paulej72"); # official wiki admins
-$wiki_trusted_users=array("juggs","crutchy","chromas","themightybuzzard","martyb","cmn32480"); # trusted irc nickserv accounts
-$wiki_bot_user="wikirc";
 
 if ($alias=="~wiki-privmsg")
 {
