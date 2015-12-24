@@ -158,7 +158,12 @@ if ($alias=="~github-list")
   $gh_users=array();
   for ($i=0;$i<count($list);$i++)
   {
-    $a=explode("/",$list[$i]);
+    $item=trim($list[$i]);
+    if ($item=="")
+    {
+      continue;
+    }
+    $a=explode("/",$item);
     $gh_username=$a[0];
     $gh_repo=$a[1];
     if (isset($gh_users[$a[0]])==False)
