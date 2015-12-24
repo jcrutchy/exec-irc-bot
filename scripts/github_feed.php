@@ -60,6 +60,7 @@ if (($alias=="~github-add") or ($alias=="~github-del"))
   if ($alias=="~github-del")
   {
     $list=exec_file_read("github_feed_repos");
+    delete_empty_elements($list);
     $index=array_search($trailing,$list);
     if ($index!==False)
     {
