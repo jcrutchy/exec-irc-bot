@@ -1014,6 +1014,23 @@ function wiki_delsafeuser($nick,$trailing)
 
 #####################################################################################################
 
+function is_sn_nick($nick)
+{
+  $uri="/api.pl?".$paramstr;
+  $host="soylentnews.org";
+  $port=443;
+  $response=wget($host,$uri,$port,ICEWEASEL_UA,"",20,"",1024,False);
+  $content=trim(strip_headers($response));
+  if ($content=="")
+  {
+    privmsg("  no data returned");
+    return;
+  }
+  $data=json_decode($content,True);
+}
+
+#####################################################################################################
+
 function wiki_listspamrules()
 {
   if (file_exists(DATA_PATH."wiki_spam_rules")==False)
