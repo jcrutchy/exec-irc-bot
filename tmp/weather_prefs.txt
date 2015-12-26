@@ -1,6 +1,0 @@
-crutchy=a:4:{s:4:"unit";s:6:"metric";s:5:"units";s:6:"metric";s:0:"";s:0:"";s:5:"color";s:2:"11";}
-ar=a:1:{s:4:"unit";s:6:"metric";}
-TheMightyBuzzard=a:1:{s:4:"unit";s:8:"imperial";}
-crutchy_=a:1:{s:4:"unit";s:6:"metric";}
-Bytram=a:1:{s:4:"unit";s:8:"imperial";}
-Yukiku=a:1:{s:4:"unit";s:8:"imperial";}
