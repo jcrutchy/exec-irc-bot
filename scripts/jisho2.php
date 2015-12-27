@@ -46,7 +46,24 @@ for ($i=0;$i<min(2,count($results["data"]));$i++)
     {
       $out=$out."[".($j+1)."] ";
     }
-    $out=$out.$results["data"][$i]["japanese"][$j]["word"]." (".$results["data"][$i]["japanese"][$j]["reading"].")";
+    $word="";
+    if (isset($results["data"][$i]["japanese"][$j]["word"])==True)
+    {
+      $word=$results["data"][$i]["japanese"][$j]["word"];
+    }
+    $reading="";
+    if (isset($results["data"][$i]["japanese"][$j]["reading"])==True)
+    {
+      $reading=$results["data"][$i]["japanese"][$j]["reading"];
+    }
+    if (($word<>"") and ($reading<>""))
+    {
+      $out=$out.$word." (".$reading.")";
+    }
+    else
+    {
+      $out=$out.$word.$reading;
+    }
   }
   if (count($results["data"][$i]["senses"])>0)
   {

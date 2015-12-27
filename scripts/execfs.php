@@ -11,7 +11,7 @@ exec:~cd|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%al
 exec:~md|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~mkdir|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~rmdir|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:~execfs|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+#exec:~execfs|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################
