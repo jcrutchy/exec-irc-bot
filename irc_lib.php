@@ -264,7 +264,7 @@ function get_list($items)
   for ($i=0;$i<count($aliases);$i++)
   {
     $alias=$aliases[$i];
-    if (($exec_list[$alias]["accounts_wildcard"]<>"@") and (count($exec_list[$alias]["accounts"])==0) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False) and ((count($exec_list[$alias]["cmds"])==0) or (in_array("PRIVMSG",$exec_list[$alias]["cmds"])==True)))
+    if (($exec_list[$alias]["accounts_wildcard"]<>"@") and ($exec_list[$alias]["accounts_wildcard"]<>"+") and (count($exec_list[$alias]["accounts"])==0) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False) and ((count($exec_list[$alias]["cmds"])==0) or (in_array("PRIVMSG",$exec_list[$alias]["cmds"])==True)))
     {
       if (strlen($msg.$alias)>(MAX_MSG_LENGTH-1))
       {
@@ -298,7 +298,7 @@ function get_list_auth($items)
   for ($i=0;$i<count($aliases);$i++)
   {
     $alias=$aliases[$i];
-    if ((($exec_list[$alias]["accounts_wildcard"]=="@") or (count($exec_list[$alias]["accounts"])>0)) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False) and ((count($exec_list[$alias]["cmds"])==0) or (in_array("PRIVMSG",$exec_list[$alias]["cmds"])==True)))
+    if ((($exec_list[$alias]["accounts_wildcard"]=="@") or ($exec_list[$alias]["accounts_wildcard"]=="+") or (count($exec_list[$alias]["accounts"])>0)) and (strlen($alias)<=20) and (in_array($alias,$reserved_aliases)==False) and ((count($exec_list[$alias]["cmds"])==0) or (in_array("PRIVMSG",$exec_list[$alias]["cmds"])==True)))
     {
       if (strlen($msg.$alias)>(MAX_MSG_LENGTH-1))
       {
@@ -1639,7 +1639,6 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
   global $admin_accounts;
   global $admin_data;
   global $admin_is_sock;
-  global $admin_aliases;
   global $exec_errors;
   global $exec_list;
   global $throttle_time;
@@ -1710,7 +1709,7 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
       startup();
     }
     $args=explode(" ",$items["trailing"]);
-    if ((in_array($args[0],$admin_aliases)==True) or (has_account_list($args[0])==True))
+    if ((is_operator_alias($args[0])==True) or (is_admin_alias($args[0])==True) or (has_account_list($args[0])==True))
     {
       if (($auth==False) and ($is_sock==True))
       {
@@ -1958,7 +1957,6 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         if (count($args)==1)
         {
           # TODO
-          # $admin_aliases $reserved_aliases
         }
         break;
       case ALIAS_ADMIN_EXEC_LIST:
@@ -2166,7 +2164,7 @@ function load_exec_line($line,$filename,$saved=True)
   $accounts_str=trim($parts[5]);
   if ($accounts_str<>"")
   {
-    if (($accounts_str=="@") or ($accounts_str=="*"))
+    if (($accounts_str=="@") or ($accounts_str=="+") or ($accounts_str=="*"))
     {
       $accounts_wildcard=$accounts_str;
     }
@@ -2658,14 +2656,32 @@ function is_operator_alias($alias)
 
 #####################################################################################################
 
+function is_admin_alias($alias)
+{
+  global $exec_list;
+  global $admin_aliases;
+  if (in_array($alias,$admin_aliases)==True)
+  {
+    return True;
+  }
+  if (isset($exec_list[$alias]["accounts_wildcard"])==True)
+  {
+    if ($exec_list[$alias]["accounts_wildcard"]=="+")
+    {
+      return True;
+    }
+  }
+  return False;
+}
+
+#####################################################################################################
+
 function authenticate($items)
 {
   global $exec_list;
   global $admin_data;
   global $admin_is_sock;
   global $admin_accounts;
-  global $admin_aliases;
-  global $operator_aliases;
   term_echo("\033[32mdetected cmd 330: $admin_data\033[0m");
   $parts=explode(" ",$items["params"]);
   if ($admin_data<>"")
@@ -2695,7 +2711,7 @@ function authenticate($items)
             return;
           }
         }
-        elseif (in_array($alias,$admin_aliases)==True)
+        elseif (is_admin_alias($alias)==True)
         {
           if (($account<>OPERATOR_ACCOUNT) and (in_array($account,$admin_accounts)==False))
           {

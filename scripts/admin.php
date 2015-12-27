@@ -4,13 +4,15 @@
 
 /*
 exec:~exec-irc-raw|5|0|0|1|@||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~op|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~deop|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~voice|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~devoice|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~invite|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~kick|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~topic|5|0|0|1|crutchy||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~op|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~deop|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~voice|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~devoice|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~invite|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~kick|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~topic|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~mode|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~lockdown|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 #exec:.kick|5|0|0|1|||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
@@ -76,6 +78,15 @@ switch ($alias)
     {
       rawmsg("TOPIC $dest :$trailing");
     }
+    break;
+  case "~mode":
+    if ($trailing<>"")
+    {
+      rawmsg("MODE $dest $trailing");
+    }
+    break;
+  case "~lockdown":
+    rawmsg("MODE $dest +ntipm");
     break;
 }
 
