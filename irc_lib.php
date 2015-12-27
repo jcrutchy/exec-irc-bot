@@ -1696,10 +1696,6 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
     {
       set_bot_nick(trim($items["params"]));
     }
-    if ($items["cmd"]=="432") # Erroneous Nickname
-    {
-      set_bot_nick(trim($items["params"]));
-    }
     if ($items["cmd"]=="043") # Nick collision
     {
       $parts=explode(" ",trim($items["params"]));

@@ -23,6 +23,12 @@ if ($trailing=="register-events")
   return;
 }
 
+if (strtolower($trailing)==get_bot_nick().": help")
+{
+  privmsg("http://sylnt.us/exec");
+  return;
+}
+
 if (strtolower(substr($trailing,0,5))=="!isr ")
 {
   $parts=explode(" ",$trailing);
