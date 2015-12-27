@@ -152,7 +152,7 @@ function minion_talk($nick,$channel,$trailing)
   if ($nick<>"")
   {
     $account=users_get_account($nick);
-    $allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs","TheMightyBuzzard");
+    $allowed=array("crutchy","chromas","mrcoolbp","NCommander","juggs","TheMightyBuzzard","cmn32480");
     if (in_array($account,$allowed)==True)
     {
       if ($trailing==".relays")

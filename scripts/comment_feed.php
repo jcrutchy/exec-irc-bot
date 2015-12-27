@@ -3,9 +3,9 @@
 #####################################################################################################
 
 /*
-#exec:~comments|1700|0|0|1|||||php scripts/comment_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-#exec:~comments-internal|1700|3600|0|1||INTERNAL|||php scripts/comment_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
-#startup:~join #comments
+exec:~comments|1700|0|0|1|||||php scripts/comment_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~comments-internal|1700|3600|0|1||INTERNAL|||php scripts/comment_feed.php %%trailing%% %%dest%% %%nick%% %%alias%%
+startup:~join #comments
 */
 
 #####################################################################################################
@@ -56,22 +56,11 @@ if ($alias=="~comments")
   switch ($action)
   {
     case "feed":
-      if (users_get_account($nick)=="crutchy")
+      $account=users_get_account($nick);
+      $allowed=array("crutchy","cmn32480","chromas","juggs");
+      if (in_array($account,$allowed)==True)
       {
         break;
-      }
-      return;
-    case "test":
-      if (users_get_account($nick)=="crutchy")
-      {
-        if (preg_match("~$trailing~","stuff")==1)
-        {
-          privmsg("1");
-        }
-        else
-        {
-          privmsg("not 1");
-        }
       }
       return;
     case "filter-list":

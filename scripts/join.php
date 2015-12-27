@@ -17,17 +17,24 @@ for ($i=0;$i<count($parts);$i++)
   $parts[$i]=trim($parts[$i]);
   if (strpos($prefixes,substr($parts[$i],0,1))===False)
   {
-    return;
+    privmsg("invalid channel: \"".$parts[$i]."\" (skipping)");
+    unset($parts[$i]);
   }
 }
-$chans=trim(implode(",",$parts));
-if ($chans<>"")
+$parts=array_values($parts);
+$exec_channels=users_get_channels("exec");
+for ($i=0;$i<count($parts);$i++)
 {
-  echo "/IRC JOIN $chans\n";
+  if (in_array($parts[$i],$exec_channels)==True)
+  {
+    privmsg("exec is in channel \"".$parts[$i]."\" (skipping)");
+    unset($parts[$i]);
+  }
 }
-else
+$parts=array_values($parts);
+for ($i=0;$i<count($parts);$i++)
 {
-  privmsg("syntax: ~join <channel>[,<channel>[,<channel>]]");
+  echo "/IRC JOIN ".$parts[$i]."\n";
 }
 
 #####################################################################################################
