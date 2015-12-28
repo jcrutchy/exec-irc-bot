@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <Version Value="9"/>
+    <BuildModes Active="Default"/>
+    <Units Count="3">
+      <Unit0>
+        <Filename Value="bot.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="20" Y="3"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="bot_main.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="62"/>
+        <CursorPos X="57" Y="80"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="/usr/share/fpcsrc/2.6.4/utils/fppkg/lnet/lnet.pp"/>
+        <UnitName Value="lNet"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="47" Y="17"/>
+        <UsageCount Value="10"/>
+      </Unit2>
+    </Units>
+    <JumpHistory Count="25" HistoryIndex="24">
+      <Position1>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="20" TopLine="7"/>
+      </Position1>
+      <Position2>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="6"/>
+      </Position2>
+      <Position3>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="12" Column="12" TopLine="2"/>
+      </Position3>
+      <Position4>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="9" Column="12" TopLine="2"/>
+      </Position4>
+      <Position5>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="19" TopLine="2"/>
+      </Position5>
+      <Position6>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="16" Column="3" TopLine="2"/>
+      </Position6>
+      <Position7>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="9" Column="12" TopLine="2"/>
+      </Position7>
+      <Position8>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="133" Column="22" TopLine="119"/>
+      </Position8>
+      <Position9>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="138" Column="11" TopLine="124"/>
+      </Position9>
+      <Position10>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="128" Column="22" TopLine="115"/>
+      </Position10>
+      <Position11>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="77" Column="22" TopLine="72"/>
+      </Position11>
+      <Position12>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="85" Column="9" TopLine="76"/>
+      </Position12>
+      <Position13>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="240" Column="6" TopLine="226"/>
+      </Position13>
+      <Position14>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="312" Column="5" TopLine="305"/>
+      </Position14>
+      <Position15>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="366" Column="19" TopLine="360"/>
+      </Position15>
+      <Position16>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="367" Column="5" TopLine="360"/>
+      </Position16>
+      <Position17>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="127" Column="18" TopLine="115"/>
+      </Position17>
+      <Position18>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="393" Column="48" TopLine="379"/>
+      </Position18>
+      <Position19>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="403" Column="5" TopLine="381"/>
+      </Position19>
+      <Position20>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="393" TopLine="384"/>
+      </Position20>
+      <Position21>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="392" TopLine="383"/>
+      </Position21>
+      <Position22>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="126" Column="10" TopLine="112"/>
+      </Position22>
+      <Position23>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="391" Column="11" TopLine="382"/>
+      </Position23>
+      <Position24>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="395" Column="41" TopLine="382"/>
+      </Position24>
+      <Position25>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="407" Column="5" TopLine="383"/>
+      </Position25>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>
