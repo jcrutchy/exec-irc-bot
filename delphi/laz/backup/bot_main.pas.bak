@@ -78,7 +78,6 @@ type
     FThread: TSocketThread;
   public
     constructor Create(const Handler: TBotReceiveEvent);
-    destructor Destroy; override;
   public
     procedure Connect(const RemoteHost, NickName, UserName, FullName, HostName, ServerName: string; const RemotePort: Integer);
     procedure Send(const Msg: string; const Obfuscate: Boolean = False);
@@ -120,7 +119,10 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    Button1: TButton;
+    Edit1: TEdit;
     MemoData: TMemo;
+    procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
@@ -204,29 +206,47 @@ procedure TSocketThread.SocketConnect(aSocket: TLSocket);
 begin
   FBuffer := '<< CONNECTED >>';
   Synchronize(@Update);
+  FBuffer := '';
 end;
 
 procedure TSocketThread.SocketDisconnect(aSocket: TLSocket);
 begin
   FBuffer := '<< SOCKET DISCONNECTED >>';
   Synchronize(@Update);
+  FBuffer := '';
 end;
 
 procedure TSocketThread.SocketError(const msg: string; aSocket: TLSocket);
 begin
   FBuffer := '<< SOCKET ERROR >>';
   Synchronize(@Update);
+  FBuffer := '';
 end;
 
 procedure TSocketThread.SocketReceive(aSocket: TLSocket);
+var
+  i: Integer;
+  S: string;
+  Lines: TStrings;
 begin
-  aSocket.GetMessage(FBuffer);
-  if Copy(FBuffer, 1, 4) = 'PING' then
-  begin
-    Send('PONG ' + Trim(Copy(FBuffer, 5, Length(FBuffer) - 5)));
-    Exit;
+  aSocket.GetMessage(S);
+  Lines := TStringList.Create;
+  try
+    Lines.Text := FBuffer + S;
+    for i := 0 to Lines.Count - 2 do
+    begin
+      FBuffer := Lines[i];
+      Synchronize(@Update);
+    end;
+    FBuffer := Lines[Lines.Count - 1];
+    if Copy(S, Length(S) - 1, 2) = #13#10 then
+    begin
+      Synchronize(@Update);
+      FBuffer := '';
+    end;
+  finally
+    Lines.Free;
   end;
-  Synchronize(@Update);
 end;
 
 constructor TSocketThread.Create(CreateSuspended: Boolean);
@@ -257,16 +277,20 @@ var
   i: Integer;
 begin
   try
+    FBuffer := '<< INITIALIZING SOCKET >>';
+    Synchronize(@Update);
+    FBuffer := '';
     FSocket := lNet.TLTcp.Create(nil);
     FSocket.OnReceive := @SocketReceive;
     FSocket.OnConnect := @SocketConnect;
     FSocket.OnDisconnect := @SocketDisconnect;
     FSocket.OnError := @SocketError;
     try
-      if FSocket.Connect('72.14.184.41', 6667) = False then
+      if FSocket.Connect(FServer.RemoteHost, FServer.RemotePort) = False then
       begin
         FBuffer := '<< CONNECTION ERROR >>';
         Synchronize(@Update);
+        FBuffer := '';
         Exit;
       end;
       i := 1000;
@@ -279,9 +303,10 @@ begin
       begin
         FBuffer := '<< CONNECTION TIMEOUT >>';
         Synchronize(@Update);
+        FBuffer := '';
       end;
-      Send('NICK z');
-      Send('USER z hostname servername :z.bot');
+      Send('NICK ' + FServer.NickName);
+      Send('USER ' + FServer.UserName + ' ' + FServer.HostName + ' ' + FServer.ServerName + ' :' + FServer.FullName);
       while (Application.Terminated = False) and (Self.Terminated = False) and (FSocket.Connected = True) do
       begin
         FSocket.CallAction;
@@ -290,6 +315,8 @@ begin
     finally
       Send('NickServ LOGOUT');
       Send('QUIT :dafuq');
+      FSocket.CallAction;
+      Sleep(500);
       FSocket.Free;
     end;
   except
@@ -393,7 +420,17 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   FServers := TBotServerArray.Create(@ReceiveHandler);
-  FServers.Add.Connect('72.14.184.41', 'z', 'z', 'z.bot', 'hostname', 'servername', 6667);
+  FServers.Add.Connect('irc.sylnt.us', 'z', 'z', 'z.bot', 'hostname', 'servername', 6667);
+end;
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  if Edit1.Text = '' then
+    Exit;
+  FServers.Servers[0].Send(Edit1.Text);
+  Edit1.Text := '';
+  while MemoData.Lines.Count > 500 do
+    MemoData.Lines.Delete(0);
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
@@ -403,7 +440,9 @@ end;
 
 procedure TForm1.ReceiveHandler(const Server: TBotServer; const Message: TBotMessage; const Data: string);
 begin
-  MemoData.Lines.Add(Data);
+  MemoData.Lines.Add(FormatDateTime('yyyy-mm-dd hh:nn:ss.zzz', Now) + Trim(Data));
+  while MemoData.Lines.Count > 500 do
+    MemoData.Lines.Delete(0);
 end;
 
 end.
