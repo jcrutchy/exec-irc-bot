@@ -6,6 +6,7 @@ interface
 
 uses
   Classes,
+  process,
   SysUtils,
   lNet; // add '/usr/share/fpcsrc/2.6.4/utils/fppkg/lnet/' to include files paths under project options -> compiler options -> paths
 
@@ -56,6 +57,26 @@ type
     property Server: TBotServer read FServer write FServer;
   end;
 
+  { TProcessThread }
+
+  TProcessThread = class(Classes.TThread)
+  private
+    FOutputBuffer: string;
+    FStderrBuffer: string;
+  private
+    FOnOutputChanged: TGetStrProc;
+    FOnStderrChanged: TGetStrProc;
+  public
+    constructor Create(CreateSuspended: Boolean);
+  public
+    procedure OutputChanged;
+    procedure StderrChanged;
+    procedure Execute; override;
+  public
+    property OnOutputChanged: TGetStrProc read FOnOutputChanged write FOnOutputChanged;
+    property OnStderrChanged: TGetStrProc read FOnStderrChanged write FOnStderrChanged;
+  end;
+
   { TBotServer }
 
   TBotServer = class(TObject)
@@ -72,6 +93,7 @@ type
     FThread: TSocketThread;
   public
     constructor Create(const Handler: TBotReceiveEvent);
+    destructor Destroy; override;
   public
     procedure Connect(const RemoteHost, NickName, UserName, FullName, HostName, ServerName: string; const RemotePort: Integer);
     procedure Send(const Msg: string; const Obfuscate: Boolean = False);
@@ -240,6 +262,58 @@ begin
   end;
 end;
 
+{ TProcessThread }
+
+constructor TProcessThread.Create(CreateSuspended: Boolean);
+begin
+  FreeOnTerminate := True;
+  inherited Create(CreateSuspended);
+end;
+
+procedure TProcessThread.OutputChanged;
+begin
+  if Assigned(FOnOutputChanged) = False then
+    Exit;
+  FOnOutputChanged(FOutputBuffer);
+end;
+
+procedure TProcessThread.StderrChanged;
+begin
+  if Assigned(FOnStderrChanged) = False then
+    Exit;
+  FOnStderrChanged(FStderrBuffer);
+end;
+
+procedure TProcessThread.Execute;
+const
+  BUF_SIZE = 2048;
+var
+  Proc: TProcess;
+  bytes_read_out: Integer;
+  bytes_read_err: Integer;
+  Buffer: array[1..BUF_SIZE] of Byte;
+  i: Integer;
+begin
+  Proc := TProcess.Create(nil);
+  Proc.Executable := '/bin/ls';
+  Proc.Parameters.Add('-l');
+  Proc.Options := [poUsePipes];
+  Proc.Execute;
+  FOutputBuffer := '';
+  FStderrBuffer := '';
+  repeat
+    bytes_read_out := Proc.Output.Read(Buffer, BUF_SIZE);
+    for i := 1 to bytes_read_out do
+      FOutputBuffer := FOutputBuffer + Chr(Buffer[i]);
+    bytes_read_err := Proc.Stderr.Read(Buffer, BUF_SIZE);
+    for i := 1 to bytes_read_err do
+      FStderrBuffer := FStderrBuffer + Chr(Buffer[i]);
+  until (bytes_read_out = 0) and (bytes_read_err = 0);
+  Proc.Free;
+  Synchronize(OutputChanged);
+  Synchronize(StderrChanged);
+end;
+
 { TBotServer }
 
 procedure TBotServer.Connect(const RemoteHost, NickName, UserName, FullName, HostName, ServerName: string; const RemotePort: Integer);
@@ -259,6 +333,13 @@ begin
   FHandler := Handler;
   FThread := TSocketThread.Create(True);
   FThread.Server := Self;
+end;
+
+destructor TBotServer.Destroy;
+begin
+  if Assigned(FThread) then
+    FThread.Terminate;
+  inherited Destroy;
 end;
 
 procedure TBotServer.Send(const Msg: string; const Obfuscate: Boolean = False);

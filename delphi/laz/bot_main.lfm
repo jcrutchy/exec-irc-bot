@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 2371
+  Left = 2221
   Height = 608
-  Top = 276
+  Top = 209
   Width = 1281
   Caption = 'Form1'
   ClientHeight = 608
@@ -49,20 +49,13 @@ object Form1: TForm1
     TabOrder = 3
     WordWrap = False
   end
-  object Process1: TProcess
-    Active = False
-    Options = []
-    Priority = ppNormal
-    StartupOptions = []
-    ShowWindow = swoNone
-    WindowColumns = 0
-    WindowHeight = 0
-    WindowLeft = 0
-    WindowRows = 0
-    WindowTop = 0
-    WindowWidth = 0
-    FillAttribute = 0
-    left = 1171
-    top = 176
+  object Button2: TButton
+    Left = 912
+    Height = 25
+    Top = 536
+    Width = 75
+    Caption = 'Button2'
+    OnClick = Button2Click
+    TabOrder = 4
   end
 end
