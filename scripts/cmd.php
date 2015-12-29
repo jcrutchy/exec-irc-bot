@@ -44,7 +44,7 @@ switch (strtoupper($cmd))
   case "JOIN":
     # :exec!~exec@709-27-2-01.cust.aussiebb.net JOIN #
     echo "/INTERNAL ~welcome-internal JOIN $params\n";
-    if ($nick=="exec")
+    if (($nick=="exec") and (get_bot_nick()<>"exec"))
     {
       echo "/INTERNAL ~part $dest\n";
     }

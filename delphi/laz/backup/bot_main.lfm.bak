@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 2327
+  Left = 2371
   Height = 608
-  Top = 224
+  Top = 276
   Width = 1281
   Caption = 'Form1'
   ClientHeight = 608
@@ -9,11 +9,11 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   LCLVersion = '1.4.4.0'
-  object MemoData: TMemo
+  object MemoData1: TMemo
     Left = 24
     Height = 455
     Top = 32
-    Width = 1070
+    Width = 536
     Font.Name = 'Liberation Mono'
     ParentFont = False
     ReadOnly = True
@@ -36,5 +36,33 @@ object Form1: TForm1
     Caption = 'Send'
     OnClick = Button1Click
     TabOrder = 2
+  end
+  object MemoData2: TMemo
+    Left = 584
+    Height = 455
+    Top = 32
+    Width = 536
+    Font.Name = 'Liberation Mono'
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 3
+    WordWrap = False
+  end
+  object Process1: TProcess
+    Active = False
+    Options = []
+    Priority = ppNormal
+    StartupOptions = []
+    ShowWindow = swoNone
+    WindowColumns = 0
+    WindowHeight = 0
+    WindowLeft = 0
+    WindowRows = 0
+    WindowTop = 0
+    WindowWidth = 0
+    FillAttribute = 0
+    left = 1171
+    top = 176
   end
 end

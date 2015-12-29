@@ -22,13 +22,16 @@ for ($i=0;$i<count($parts);$i++)
   }
 }
 $parts=array_values($parts);
-$exec_channels=users_get_channels("exec");
-for ($i=0;$i<count($parts);$i++)
+if (get_bot_nick()<>"exec")
 {
-  if (in_array($parts[$i],$exec_channels)==True)
+  $exec_channels=users_get_channels("exec");
+  for ($i=0;$i<count($parts);$i++)
   {
-    privmsg("exec is in channel \"".$parts[$i]."\" (skipping)");
-    unset($parts[$i]);
+    if (in_array($parts[$i],$exec_channels)==True)
+    {
+      privmsg("exec is in channel \"".$parts[$i]."\" (skipping)");
+      unset($parts[$i]);
+    }
   }
 }
 $parts=array_values($parts);

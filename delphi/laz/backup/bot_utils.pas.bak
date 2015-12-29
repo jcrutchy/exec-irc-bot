@@ -1,0 +1,14 @@
+unit bot_utils;
+
+{$mode delphi}
+
+interface
+
+uses
+  Classes,
+  SysUtils;
+
+implementation
+
+end.
+

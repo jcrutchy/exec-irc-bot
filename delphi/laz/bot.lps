@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="8">
+    <Units Count="10">
       <Unit0>
         <Filename Value="bot.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -15,12 +15,14 @@
         <Filename Value="bot_main.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="422"/>
-        <CursorPos X="78" Y="443"/>
+        <TopLine Value="38"/>
+        <CursorPos X="38" Y="52"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="/usr/share/fpcsrc/2.6.4/utils/fppkg/lnet/lnet.pp"/>
@@ -58,114 +60,152 @@
       </Unit6>
       <Unit7>
         <Filename Value="/usr/share/fpcsrc/2.6.4/rtl/objpas/sysutils/sysstrh.inc"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="14"/>
         <CursorPos X="36" Y="25"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit7>
+      <Unit8>
+        <Filename Value="bot_classes.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="226"/>
+        <CursorPos X="20" Y="235"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="bot_utils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="11" Y="8"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit9>
     </Units>
-    <JumpHistory Count="25" HistoryIndex="24">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="128" Column="22" TopLine="115"/>
+        <Caret Line="367" Column="5" TopLine="360"/>
       </Position1>
       <Position2>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="77" Column="22" TopLine="72"/>
+        <Caret Line="127" Column="18" TopLine="115"/>
       </Position2>
       <Position3>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="85" Column="9" TopLine="76"/>
+        <Caret Line="393" Column="48" TopLine="379"/>
       </Position3>
       <Position4>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="240" Column="6" TopLine="226"/>
+        <Caret Line="403" Column="5" TopLine="381"/>
       </Position4>
       <Position5>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="312" Column="5" TopLine="305"/>
+        <Caret Line="393" TopLine="384"/>
       </Position5>
       <Position6>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="366" Column="19" TopLine="360"/>
+        <Caret Line="392" TopLine="383"/>
       </Position6>
       <Position7>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="367" Column="5" TopLine="360"/>
+        <Caret Line="126" Column="10" TopLine="112"/>
       </Position7>
       <Position8>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="127" Column="18" TopLine="115"/>
+        <Caret Line="391" Column="11" TopLine="382"/>
       </Position8>
       <Position9>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="393" Column="48" TopLine="379"/>
+        <Caret Line="395" Column="41" TopLine="382"/>
       </Position9>
       <Position10>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="403" Column="5" TopLine="381"/>
+        <Caret Line="407" Column="5" TopLine="383"/>
       </Position10>
       <Position11>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="393" TopLine="384"/>
+        <Caret Line="268" Column="30" TopLine="266"/>
       </Position11>
       <Position12>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="392" TopLine="383"/>
+        <Caret Line="269" Column="30" TopLine="267"/>
       </Position12>
       <Position13>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="126" Column="10" TopLine="112"/>
+        <Caret Line="271" Column="30" TopLine="269"/>
       </Position13>
       <Position14>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="391" Column="11" TopLine="382"/>
+        <Caret Line="406" Column="34" TopLine="395"/>
       </Position14>
       <Position15>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="395" Column="41" TopLine="382"/>
+        <Caret Line="15" Column="11"/>
       </Position15>
       <Position16>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="407" Column="5" TopLine="383"/>
+        <Caret Line="14" Column="11"/>
       </Position16>
       <Position17>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="268" Column="30" TopLine="266"/>
+        <Caret Line="215" Column="5" TopLine="216"/>
       </Position17>
       <Position18>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="269" Column="30" TopLine="267"/>
+        <Caret Line="229" Column="55" TopLine="219"/>
       </Position18>
       <Position19>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="271" Column="30" TopLine="269"/>
+        <Caret Line="444" Column="38" TopLine="422"/>
       </Position19>
       <Position20>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="406" Column="34" TopLine="395"/>
+        <Caret Line="439" Column="6" TopLine="430"/>
       </Position20>
       <Position21>
         <Filename Value="bot_main.pas"/>
-        <Caret Line="15" Column="11"/>
+        <Caret Line="311" Column="16" TopLine="302"/>
       </Position21>
       <Position22>
-        <Filename Value="bot_main.pas"/>
-        <Caret Line="14" Column="11"/>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="168" Column="6" TopLine="269"/>
       </Position22>
       <Position23>
-        <Filename Value="bot_main.pas"/>
-        <Caret Line="215" Column="5" TopLine="216"/>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="120" Column="28" TopLine="110"/>
       </Position23>
       <Position24>
-        <Filename Value="bot_main.pas"/>
-        <Caret Line="229" Column="55" TopLine="219"/>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="154" Column="19" TopLine="132"/>
       </Position24>
       <Position25>
-        <Filename Value="/usr/share/fpcsrc/2.6.4/rtl/objpas/sysutils/sysstrh.inc"/>
-        <Caret Line="218" Column="10" TopLine="205"/>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="162" Column="10" TopLine="162"/>
       </Position25>
+      <Position26>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="186" Column="12" TopLine="183"/>
+      </Position26>
+      <Position27>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="195" Column="30" TopLine="186"/>
+      </Position27>
+      <Position28>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="203" Column="8" TopLine="195"/>
+      </Position28>
+      <Position29>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="220" Column="29" TopLine="207"/>
+      </Position29>
+      <Position30>
+        <Filename Value="bot_main.pas"/>
+        <Caret Line="10" Column="11"/>
+      </Position30>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

@@ -8,7 +8,7 @@ uses
   {$ENDIF}
   Interfaces,
   Forms,
-  bot_main;
+  bot_main, bot_classes, bot_utils;
 
 {$R *.res}
 
