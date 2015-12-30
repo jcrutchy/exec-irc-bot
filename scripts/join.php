@@ -25,10 +25,16 @@ $parts=array_values($parts);
 if (get_bot_nick()<>"exec")
 {
   $exec_channels=users_get_channels("exec");
+  if (count($exec_channels)==0)
+  {
+    users_get_account("exec"); # force a whois command
+    $exec_channels=users_get_channels("exec");
+  }
   for ($i=0;$i<count($parts);$i++)
   {
     if (in_array($parts[$i],$exec_channels)==True)
     {
+      term_echo("exec is in channel \"".$parts[$i]."\" (skipping)");
       privmsg("exec is in channel \"".$parts[$i]."\" (skipping)");
       unset($parts[$i]);
     }

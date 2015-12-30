@@ -175,7 +175,7 @@ function handle_macros($nick,$channel,$trailing)
     "<init>",
     "<quit>",
     "<startup>");
-  $allowed=array("crutchy","chromas","TheMightyBuzzard","Bytram","arti","paulej72","mrcoolbp","juggs");
+  $allowed=array("crutchy","chromas","TheMightyBuzzard","Bytram","arti","paulej72","mrcoolbp","juggs","cmn32480");
   if (($nick=="") or ($channel=="") or ($trailing==""))
   {
     return;
