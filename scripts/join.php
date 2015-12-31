@@ -38,7 +38,7 @@ if (get_bot_nick()<>"exec")
   while ((microtime(True)-$start)<5.0);
   for ($i=0;$i<count($parts);$i++)
   {
-    if ((in_array($parts[$i],$exec_channels)==True) and ($parts[$i]<>"#exec"))
+    if ((in_array($parts[$i],$exec_channels)==True) and ($parts[$i]<>"#debug"))
     {
       term_echo("exec is in channel \"".$parts[$i]."\" (skipping)");
       privmsg("exec is in channel \"".$parts[$i]."\" (skipping)");
