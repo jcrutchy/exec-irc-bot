@@ -21,18 +21,24 @@ for ($i=0;$i<count($parts);$i++)
     unset($parts[$i]);
   }
 }
-$parts=array_values($parts);
 if (get_bot_nick()<>"exec")
 {
-  $exec_channels=users_get_channels("exec");
-  if (count($exec_channels)==0)
+  $parts=array_values($parts);
+  $start=microtime(True);
+  rawmsg("WHOIS exec");
+  do
   {
-    users_get_account("exec"); # force a whois command
     $exec_channels=users_get_channels("exec");
+    if (count($exec_channels)>0)
+    {
+      break;
+    }
+    sleep(1);
   }
+  while ((microtime(True)-$start)<5.0);
   for ($i=0;$i<count($parts);$i++)
   {
-    if (in_array($parts[$i],$exec_channels)==True)
+    if ((in_array($parts[$i],$exec_channels)==True) and ($parts[$i]<>"#exec"))
     {
       term_echo("exec is in channel \"".$parts[$i]."\" (skipping)");
       privmsg("exec is in channel \"".$parts[$i]."\" (skipping)");
