@@ -295,8 +295,8 @@ var
   i: Integer;
 begin
   Proc := TProcess.Create(nil);
-  Proc.Executable := '/bin/ls';
-  Proc.Parameters.Add('-l');
+  Proc.Executable := '/usr/bin/php';
+  Proc.Parameters.Add('/home/jared/git/exec-irc-bot/delphi/laz/scripts/test.php');
   Proc.Options := [poUsePipes];
   Proc.Execute;
   FOutputBuffer := '';
@@ -305,13 +305,13 @@ begin
     bytes_read_out := Proc.Output.Read(Buffer, BUF_SIZE);
     for i := 1 to bytes_read_out do
       FOutputBuffer := FOutputBuffer + Chr(Buffer[i]);
+    Synchronize(OutputChanged);
     bytes_read_err := Proc.Stderr.Read(Buffer, BUF_SIZE);
     for i := 1 to bytes_read_err do
       FStderrBuffer := FStderrBuffer + Chr(Buffer[i]);
+    Synchronize(StderrChanged);
   until (bytes_read_out = 0) and (bytes_read_err = 0);
   Proc.Free;
-  Synchronize(OutputChanged);
-  Synchronize(StderrChanged);
 end;
 
 { TBotServer }
