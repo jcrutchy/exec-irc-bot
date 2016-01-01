@@ -295,8 +295,8 @@ var
   i: Integer;
 begin
   Proc := TProcess.Create(nil);
-  Proc.Executable := '/bin/ls';
-  Proc.Parameters.Add('-l');
+  Proc.Executable := '/usr/bin/php';
+  Proc.Parameters.Add('/home/jared/git/exec-irc-bot/delphi/laz/scripts/test.php');
   Proc.Options := [poUsePipes];
   Proc.Execute;
   repeat
