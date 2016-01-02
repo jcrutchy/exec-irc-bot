@@ -7,6 +7,8 @@
 
 # TODO: OPTION TO REDIRECT PRIVMSG OUTPUT FROM SCRIPTS TO A BUCKET
 
+# TODO: /WAIT COMMAND THAT ALLOWS INDIVIDUAL SCRIPTS TO BE HALTED TILL A CERTAIN COMMAND IS RECEIVED BY THE BOT (SIMILAR USAGE TO BUCKET_GET)
+
 require_once("irc_lib.php");
 
 set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)

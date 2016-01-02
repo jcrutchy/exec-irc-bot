@@ -71,10 +71,9 @@ function users_get_account($nick)
     {
       break;
     }
-    sleep(1);
+    usleep(0.2*1e6);
   }
   while ((microtime(True)-$start)<5.0);
-  #return False;
   return "";
 }
 
