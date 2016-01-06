@@ -86,7 +86,7 @@ switch ($alias)
     execfs_rd($nick,$trailing);
     break;
   case "~ls":
-    # ~ls %path%
+    # ~ls [%path%]
     execfs_ls($nick,$trailing);
     break;
   case "~cd":
