@@ -12,7 +12,7 @@
 # ONLY ONE ALIAS DEFINITION ALLOWED FOR EACH RESERVED ALIAS SO ADD TO COMMANDS USING &&
 
 # RESERVED ALIAS TRIGGERED ON ALL LINES
-*|20|0|0|1|||||php scripts/cmd.php %%items%%
+*|20|0|0|1|||||php scripts/cmd.php %%trailing%% %%dest%% %%nick%% %%cmd%% %%data%% %%params%%
 
 # RESERVED ALIAS TRIGGERED BEFORE IRC CONNECTION
 <init>|10|0|0|1|||||php scripts/init.php

@@ -95,7 +95,7 @@ function load_settings($filename,$delim="=")
     term_echo("*** ERROR READING FILE: $filename");
     return False;
   }
-  $data=explode("\n",$data);
+  $data=explode(PHP_EOL,$data);
   $settings=array();
   for ($i=0;$i<count($data);$i++)
   {
@@ -103,17 +103,19 @@ function load_settings($filename,$delim="=")
     {
       continue;
     }
-    $line=ltrim($data[$i]);
+    $line=trim($data[$i]);
     if ($line[0]=="#")
     {
       continue;
     }
     $parts=explode($delim,$data[$i]);
-    if (count($parts)<>2)
+    if (count($parts)<2)
     {
       continue;
     }
-    $settings[trim($parts[0])]=trim($parts[1]);
+    $key=trim($parts[0]);
+    array_shift($parts);
+    $settings[$key]=trim(implode($delim,$parts));
   }
   return $settings;
 }
@@ -144,7 +146,7 @@ function internal_macro($commands,$sleep=0)
   $n=count($commands);
   for ($i=0;$i<$n;$i++)
   {
-    echo "/IRC :".get_bot_nick()." INTERNAL :".$commands[$i]."\n";
+    echo "/INTERNAL ".$commands[$i]."\n";
     if (($sleep>0) and ($i<($n-1)))
     {
       sleep($sleep);

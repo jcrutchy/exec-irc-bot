@@ -340,8 +340,8 @@ function execfs_ls($nick,$path)
 {
   global $fs;
   global $false;
-  $path=get_absolute_path($nick,$path);
-  $directory=&get_directory($path);
+  $abspath=get_absolute_path($nick,$path);
+  $directory=&get_directory($abspath);
   if ($directory==$false)
   {
     execfs_privmsg("error: invalid path");
@@ -349,8 +349,15 @@ function execfs_ls($nick,$path)
   }
   $children=array_keys($directory["children"]);
   $vars=array_keys($directory["vars"]);
-  $path=get_path($directory);
-  execfs_privmsg("current path for $nick: $path");
+  $dirpath=get_path($directory);
+  if ($path<>$abspath)
+  {
+    execfs_privmsg("current path for $nick: $dirpath");
+  }
+  else
+  {
+    execfs_privmsg("path: $dirpath");
+  }
   if (count($children)>0)
   {
     execfs_privmsg("children: └─".implode(" └─",$children));

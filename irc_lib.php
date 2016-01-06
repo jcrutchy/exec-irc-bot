@@ -874,14 +874,19 @@ function handle_buckets($data,$handle)
         $process_template=substr($index,strlen(TEMPLATE_ACCESS_PREFIX));
         if (isset($handle[$process_template])==True)
         {
-          $result=handle_stdin($handle,$handle[$process_template]);
+          $out=$handle[$process_template];
+          if (is_array($handle[$process_template])==True)
+          {
+            $out=serialize($handle[$process_template]);
+          }
+          $result=handle_stdin($handle,$out);
           if ($result===False)
           {
             term_echo("process template \"".$process_template."\" failed for pid ".$handle["pid"]);
           }
           else
           {
-            term_echo("process template \"".$process_template."\" returned successfully for pid ".$handle["pid"]);
+            #term_echo("process template \"".$process_template."\" returned successfully for pid ".$handle["pid"]);
           }
           handle_stdin($handle,"\n");
           return True;
@@ -2547,6 +2552,7 @@ function process_scripts($items,$reserved="")
     "destination"=>$items["destination"],
     "trailing"=>$trailing,
     "exec"=>$exec_list[$alias],
+    "server"=>$items["server"],
     "items"=>$items);
   write_out_buffer_proc($handles[count($handles)-1],"","proc_start");
   stream_set_blocking($pipes[1],0);

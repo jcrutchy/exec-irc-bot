@@ -15,14 +15,12 @@
 
 require_once("lib.php");
 
-$items=unserialize(base64_decode($argv[1]));
-
-$cmd=$items["cmd"];
-$data=$items["data"];
-$trailing=$items["trailing"];
-$dest=$items["destination"];
-$params=$items["params"];
-$nick=$items["nick"];
+$trailing=$argv[1];
+$dest=$argv[2];
+$nick=$argv[3];
+$cmd=$argv[4];
+$data=$argv[5];
+$params=$argv[6];
 
 switch (strtoupper($cmd))
 {
@@ -186,24 +184,51 @@ function handle_macros($nick,$channel,$trailing)
     pm($channel,chr(3)."02"."  syntax to delete: .macro <trigger> -");
     #pm($channel,chr(3)."02"."  <chanlist> is comma-separated or * for any");
   }
-  $macro_file=DATA_PATH."exec_macros.txt";
-  $macros=load_settings($macro_file,"=");
-  if (($macros!==False) and ($trailing==".macro-list"))
+  $server=get_bucket("process_template_server");
+  if ($server=="")
   {
-    foreach ($macros as $trigger => $data)
-    {
-      $data=unserialize($data);
-      $cmd="INTERNAL";
-      if (isset($data["cmd"])==True)
-      {
-        $cmd=$data["cmd"];
-      }
-      pm($channel,chr(3)."13"."  $trigger [".$data["chanlist"]."] $cmd ".$data["command"]);
-    }
+    term_echo("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ERROR GETTING SERVER PROCESS TEMPLATE BUCKET ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
   }
+  $macro_file=DATA_PATH."exec_macros.txt";
+  if ($server<>"irc.sylnt.us")
+  {
+    $macro_file=DATA_PATH."exec_macros_$server.txt";
+  }
+  $macros=load_settings($macro_file,"=");
   if ($macros===False)
   {
     $macros=array();
+  }
+  if ($trailing==".macro-list")
+  {
+    $account=users_get_account($nick);
+    if (in_array($account,$allowed)==False)
+    {
+      privmsg(chr(3)."02"."  *** not authorized");
+      return;
+    }
+    if (count($macros)==0)
+    {
+      pm($channel,chr(3)."13"."  no macros");
+    }
+    else
+    {
+      foreach ($macros as $trigger => $data)
+      {
+        $data=unserialize($data);
+        if ($data===False)
+        {
+          pm($channel,chr(3)."13"."  $trigger macro has been corrupted (unserialize error)");
+          continue;
+        }
+        $cmd="INTERNAL";
+        if (isset($data["cmd"])==True)
+        {
+          $cmd=$data["cmd"];
+        }
+        pm($channel,chr(3)."13"."  $trigger [".$data["chanlist"]."] $cmd ".$data["command"]);
+      }
+    }
   }
   $parts=explode(" ",$trailing);
   delete_empty_elements($parts);
@@ -216,6 +241,7 @@ function handle_macros($nick,$channel,$trailing)
     $account=users_get_account($nick);
     if (in_array($account,$allowed)==False)
     {
+      privmsg(chr(3)."02"."  *** not authorized");
       return;
     }
     $trigger=trim($parts[1]);
@@ -229,7 +255,24 @@ function handle_macros($nick,$channel,$trailing)
       privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" not permitted");
       return;
     }
-    $exec_list=unserialize(base64_decode(trim(get_bucket("<<EXEC_LIST>>"))));
+    $exec_list_bucket=get_bucket("<<EXEC_LIST>>");
+    if ($exec_list_bucket=="")
+    {
+      privmsg(chr(3)."02"."  *** error getting exec list bucket");
+      return;
+    }
+    $exec_list_bucket=base64_decode($exec_list_bucket);
+    if ($exec_list_bucket===False)
+    {
+      privmsg(chr(3)."02"."  *** error decoding exec list bucket");
+      return;
+    }
+    $exec_list=unserialize($exec_list_bucket);
+    if ($exec_list===False)
+    {
+      privmsg(chr(3)."02"."  *** error unserializing exec list bucket");
+      return;
+    }
     if (isset($exec_list[$trigger])==True)
     {
       privmsg(chr(3)."02"."  *** error: macro with trigger that is the same as existing alias is not permitted");
@@ -247,8 +290,9 @@ function handle_macros($nick,$channel,$trailing)
         unset($macros[$trigger]);
         privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" deleted");
       }
+      return;
     }
-    elseif (count($parts)>=5)
+    if (count($parts)>=5)
     {
       array_shift($parts);
       array_shift($parts);
@@ -282,6 +326,7 @@ function handle_macros($nick,$channel,$trailing)
       privmsg(chr(3)."02"."  *** macro with trigger \"$trigger\" and $cmd command template \"$command\" saved");
     }
     save_settings($macros,$macro_file,"=");
+    return;
   }
   else
   {
@@ -289,22 +334,31 @@ function handle_macros($nick,$channel,$trailing)
     {
       if (trim($parts[0])==$trigger)
       {
+        term_echo("******************************************************************");
+        term_echo($data);
         $data=unserialize($data);
+        if ($data===False)
+        {
+          term_echo("****************************************************************** $trigger macro corrupted");
+        }
         if (($data["chanlist"]=="*") or (in_array(strtolower($channel),explode(",",strtolower($data["chanlist"])))==True))
         {
-          $account=users_get_account($nick);
-          if ($account<>"")
+          $cmd="INTERNAL";
+          if (isset($data["cmd"])==True)
           {
-            $cmd="INTERNAL";
-            if (isset($data["cmd"])==True)
-            {
-              $cmd=$data["cmd"];
-            }
-            $trailing=trim(substr($trailing,strlen($trigger)));
-            # TODO: MAKE MORE TRAILING PARSING REPLACE ARGS
-            $command=str_replace("%%channel%%",$channel,$data["command"]);
-            $command=str_replace("%%nick%%",$nick,$command);
-            $command=str_replace("%%trailing%%",$trailing,$command);
+            $cmd=$data["cmd"];
+          }
+          $trailing=trim(substr($trailing,strlen($trigger)));
+          # TODO: MAKE MORE TRAILING PARSING REPLACE ARGS
+          $command=str_replace("%%channel%%",$channel,$data["command"]);
+          $command=str_replace("%%nick%%",$nick,$command);
+          $command=str_replace("%%trailing%%",$trailing,$command);
+          if ($cmd=="INTERNAL")
+          {
+            echo "/INTERNAL $command\n";
+          }
+          else
+          {
             echo "/IRC :".get_bot_nick()." $cmd $channel :$command\n";
           }
         }
