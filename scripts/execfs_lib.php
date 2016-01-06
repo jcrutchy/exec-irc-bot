@@ -46,7 +46,7 @@ function set_fs()
   }
   $fs["modified"]=False;
   set_array_bucket($fs,BUCKET_FS,True);
-  echo "/IRC :".get_bot_nick()." INTERNAL :~execfs sync\n";
+  #echo "/IRC :".get_bot_nick()." INTERNAL :~execfs sync\n";
 }
 
 #####################################################################################################
@@ -112,11 +112,11 @@ function &get_directory($path)
 function directory_fix(&$directory) # use this function to update existing directory structures
 {
   global $fs;
-  if (isset($directory["data"])==False)
+  /*if (isset($directory["data"])==False)
   {
     $directory["data"]=array();
     $fs["modified"]=True;
-  }
+  }*/
 }
 
 #####################################################################################################
@@ -206,6 +206,10 @@ function get_absolute_path($nick,$path)
   {
     term_echo("*** get_relative_directory: get_current_directory returned false");
     return $false;
+  }
+  if ($path=="")
+  {
+    return get_path($directory);
   }
   if (substr($path,strlen($path)-1)==PATH_DELIM)
   {
@@ -349,11 +353,11 @@ function execfs_ls($nick,$path)
   execfs_privmsg("current path for $nick: $path");
   if (count($children)>0)
   {
-    execfs_privmsg("children: ".implode(" ",$children));
+    execfs_privmsg("children: └─".implode(" └─",$children));
   }
   if (count($vars)>0)
   {
-    execfs_privmsg("vars: ".implode(" ",$vars));
+    execfs_privmsg("vars: └─".implode(" └─",$vars));
   }
   unset($directory);
 }

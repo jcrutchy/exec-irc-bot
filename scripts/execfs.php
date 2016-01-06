@@ -11,7 +11,7 @@ exec:~cd|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%al
 exec:~md|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~mkdir|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 exec:~rmdir|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
-#exec:~execfs|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
+exec:~execfs|20|0|0|1|||||php scripts/execfs.php %%trailing%% %%nick%% %%dest%% %%alias%%
 */
 
 #####################################################################################################
@@ -34,7 +34,7 @@ $privmsg=True;
 switch ($alias)
 {
   case "~execfs":
-    if ($trailing=="sync")
+    /*if ($trailing=="sync")
     {
       $data=get_bucket(BUCKET_FS);
       $fp=fsockopen("irciv.us.to",80);
@@ -52,7 +52,8 @@ switch ($alias)
         }
        fclose($fp);
       }
-    }
+    }*/
+    var_dump($fs);
     break;
   case "~cat":
   case "~get":
@@ -87,7 +88,6 @@ switch ($alias)
   case "~ls":
     # ~ls %path%
     execfs_ls($nick,$trailing);
-    #var_dump($fs);
     break;
   case "~cd":
     # ~cd %path%

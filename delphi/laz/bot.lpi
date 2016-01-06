@@ -50,12 +50,10 @@
       <Unit2>
         <Filename Value="bot_classes.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="bot_classes"/>
       </Unit2>
       <Unit3>
         <Filename Value="bot_utils.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="bot_utils"/>
       </Unit3>
     </Units>
   </ProjectOptions>
@@ -66,6 +64,8 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir);/usr/share/fpcsrc/2.6.4/utils/fppkg/lnet/"/>
+      <Libraries Value="/usr/share/fpcsrc/2.6.4/utils/fppkg/lnet/"/>
+      <OtherUnitFiles Value="/usr/share/fpcsrc/2.6.4/utils/fppkg/lnet/"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
@@ -80,9 +80,6 @@
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

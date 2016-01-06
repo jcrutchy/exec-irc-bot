@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <Version Value="9"/>
+    <BuildModes Active="Default"/>
+    <Units Count="5">
+      <Unit0>
+        <Filename Value="bot.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UsageCount Value="25"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="bot_main.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <TopLine Value="46"/>
+        <CursorPos Y="21"/>
+        <UsageCount Value="25"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="bot_classes.pas"/>
+        <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="12" Y="10"/>
+        <UsageCount Value="25"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="bot_utils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="2"/>
+        <CursorPos X="15" Y="10"/>
+        <UsageCount Value="25"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="/usr/share/fpcsrc/2.6.4/utils/fppkg/lnet/lnet.pp"/>
+        <UnitName Value="lNet"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit4>
+    </Units>
+    <JumpHistory Count="6" HistoryIndex="5">
+      <Position1>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="9" Column="11" TopLine="70"/>
+      </Position1>
+      <Position2>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="62" Column="3" TopLine="49"/>
+      </Position2>
+      <Position3>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="299" Column="49" TopLine="290"/>
+      </Position3>
+      <Position4>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="16" Column="22"/>
+      </Position4>
+      <Position5>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="11" Column="32"/>
+      </Position5>
+      <Position6>
+        <Filename Value="bot_classes.pas"/>
+        <Caret Line="13" Column="5"/>
+      </Position6>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>

@@ -1,0 +1,61 @@
+object Form1: TForm1
+  Left = 2221
+  Height = 608
+  Top = 209
+  Width = 1281
+  Caption = 'Form1'
+  ClientHeight = 608
+  ClientWidth = 1281
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  LCLVersion = '1.4.4.0'
+  object MemoData1: TMemo
+    Left = 24
+    Height = 455
+    Top = 32
+    Width = 536
+    Font.Name = 'Liberation Mono'
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 0
+    WordWrap = False
+  end
+  object Edit1: TEdit
+    Left = 40
+    Height = 25
+    Top = 536
+    Width = 584
+    TabOrder = 1
+  end
+  object Button1: TButton
+    Left = 640
+    Height = 25
+    Top = 536
+    Width = 75
+    Caption = 'Send'
+    OnClick = Button1Click
+    TabOrder = 2
+  end
+  object MemoData2: TMemo
+    Left = 584
+    Height = 455
+    Top = 32
+    Width = 536
+    Font.Name = 'Liberation Mono'
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 3
+    WordWrap = False
+  end
+  object Button2: TButton
+    Left = 912
+    Height = 25
+    Top = 536
+    Width = 75
+    Caption = 'Button2'
+    OnClick = Button2Click
+    TabOrder = 4
+  end
+end
