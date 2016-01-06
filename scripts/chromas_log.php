@@ -51,7 +51,7 @@ for ($i=0;$i<count($lines);$i++)
   if ($i>$cutoff_index)
   {
     $n=count($lines)-$cutoff_index-1;
-    privmsg(chr(3)."03$n records not shown - refer to http://chromas.0x.no$uri");
+    privmsg(chr(3)."03$n records not shown - refer to http://chromas.0x.no/s/soylent_log.php");
     break;
   }
   $msg=trim($lines[$i]);
