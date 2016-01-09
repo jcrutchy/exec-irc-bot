@@ -13,8 +13,8 @@ function get_time($location)
   $html=wget_ssl("www.google.com.au","/search?gbv=1&q=time+".urlencode($location),ICEWEASEL_UA,"",60);
   $html=strip_headers($html);
   $result="";
-  $delim1="<div id=\"ires\">";
-  $delim2="</li>";
+  $delim1="<div data-hveid=\"27\">";
+  $delim2="</div>";
   $i=strpos($html,$delim1);
   if ($i!==False)
   {
