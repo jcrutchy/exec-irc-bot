@@ -2797,12 +2797,14 @@ function killall($items)
     {
       $messages[]="terminated pid ".$handle["pid"].": ".$handle["command"];
       unset($handles[$index]);
+      
     }
     else
     {
       $messages[]="error terminating pid ".$handle["pid"].": ".$handle["command"];
     }
   }
+  $handles=array_values($handles);
   for ($i=0;$i<count($messages);$i++)
   {
     privmsg($items["destination"],$items["nick"],$messages[$i]);

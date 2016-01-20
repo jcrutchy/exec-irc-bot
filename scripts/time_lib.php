@@ -9,12 +9,12 @@ require_once("lib.php");
 function get_time($location)
 {
   $location=trim($location);
-  term_echo("*** TIME: http://www.google.com/search?gbv=1&q=time+".urlencode($location));
+  term_echo("*** TIME: https://www.google.com/search?gbv=1&q=time+".urlencode($location));
   $html=wget_ssl("www.google.com.au","/search?gbv=1&q=time+".urlencode($location),ICEWEASEL_UA,"",60);
   $html=strip_headers($html);
   $result="";
-  $delim1="<div data-hveid=\"27\">";
-  $delim2="</div>";
+  $delim1="<div id=\"ires\">";
+  $delim2="</div></div></div>";
   $i=strpos($html,$delim1);
   if ($i!==False)
   {

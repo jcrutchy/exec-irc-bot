@@ -28,7 +28,7 @@ function quick_wget($trailing)
   {
     return False;
   }
-  $response=wget_ssl($host,$uri,$port);
+  $response=wget($host,$uri,$port);
   $result=extract_text($response,$delim1,$delim2);
   if ($result===False)
   {
