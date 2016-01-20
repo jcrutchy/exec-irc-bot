@@ -2797,7 +2797,6 @@ function killall($items)
     {
       $messages[]="terminated pid ".$handle["pid"].": ".$handle["command"];
       unset($handles[$index]);
-      
     }
     else
     {
