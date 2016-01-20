@@ -9,6 +9,31 @@ delete_empty_elements($url_blacklist,True);
 
 #####################################################################################################
 
+function output_ixio_paste($data)
+{
+  $id="nAz";
+  $fn=tempnam("/tmp","exec_");
+  $h=fopen($fn,"w");
+  fwrite($h,$data);
+  fclose($h);
+  $out=shell_exec("cat $fn | curl -F 'f:1=<-' -F 'id:1=$id' exec:exec@ix.io 2>&1");
+  var_dump($out);
+  $out=clean_text($out);
+  $out=explode("curl: (",trim($out));
+  array_shift($out);
+  if (count($out)==1)
+  {
+    privmsg("curl: (".$out[0]);
+  }
+  else
+  {
+    privmsg("http://ix.io/".$id);
+  }
+  unlink($fn);
+}
+
+#####################################################################################################
+
 function authorization_header_value($uname,$passwd,$prefix)
 {
   return "$prefix ".base64_encode("$uname:$passwd");
