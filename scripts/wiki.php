@@ -39,25 +39,27 @@ if ($alias=="~wiki-privmsg")
 {
   if ($dest=="#wiki")
   {
-    $cmd=".blockuser";
+    #$cmd=".blockuser ";
+    $cmd=".buttuser ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_blockuser($nick,$trailing);
       return;
     }
-    $cmd=".unblockuser";
+    #$cmd=".unblockuser ";
+    $cmd=".unbuttuser ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_unblockuser($nick,$trailing);
       return;
     }
-    $cmd=".delpage";
+    /*$cmd=".delpage ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_delpage($nick,$trailing);
       return;
     }
-    $cmd=".undelpage";
+    $cmd=".undelpage ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_undelpage($nick,$trailing);
@@ -78,55 +80,55 @@ if ($alias=="~wiki-privmsg")
       wiki_listsafeusers();
       return;
     }
-    $cmd=".testrules";
+    $cmd=".testrules ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_testrules($nick,$trailing);
       return;
     }
-    $cmd=".delspamrule";
+    $cmd=".delspamrule ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_delspamrule($nick,$trailing);
       return;
     }
-    $cmd=".spamrule";
+    $cmd=".spamrule ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_spamrule($nick,$trailing);
       return;
     }
-    $cmd=".unspamctl";
+    $cmd=".unspamctl ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_unspamctl($nick,$trailing);
       return;
     }
-    $cmd=".spamctl";
+    $cmd=".spamctl ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_spamctl($nick,$trailing);
       return;
     }
-    $cmd=".delsafeuser";
+    $cmd=".delsafeuser ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_delsafeuser($nick,$trailing);
       return;
     }
-    $cmd=".safeuser";
+    $cmd=".safeuser ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_safeuser($nick,$trailing);
       return;
     }
-    $cmd=".delspamuser";
+    $cmd=".delspamuser ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_delspamuser($nick,$trailing);
       return;
     }
-    $cmd=".spamuser";
+    $cmd=".spamuser ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_spamuser($nick,$trailing);
@@ -136,7 +138,7 @@ if ($alias=="~wiki-privmsg")
     {
       wiki_autospamctl($nick,$trailing);
       return;
-    }
+    }*/
   }
   $delim1="[[";
   $delim2="]]";
