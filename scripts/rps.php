@@ -31,9 +31,14 @@ if (valid_rps_sequence($trailing)==True)
   {
     $data["rounds"]=1;
   }
-  if (strlen($trailing)>($data["rounds"]+1))
+  if (isset($data["users"][$account]["sequence"])==False)
   {
-    $trailing=substr($trailing,0,$data["rounds"]+1);
+    $data["users"][$account]["sequence"]="";
+  }
+  if (strlen($data["users"][$account]["sequence"].$trailing)>($data["rounds"]+1))
+  {
+    $trailing=substr($trailing,0,$data["rounds"]-strlen($data["users"][$account]["sequence"])+1);
+    privmsg("additional sequence trimmed to: $trailing");
   }
   if (isset($data["users"])==False)
   {
@@ -54,12 +59,8 @@ if (valid_rps_sequence($trailing)==True)
     }
   }
   $data["users"][$account]["timestamp"]=$ts;
-  if (isset($data["users"][$account]["sequence"])==False)
-  {
-    $data["users"][$account]["sequence"]="";
-  }
   $data["users"][$account]["sequence"]=$data["users"][$account]["sequence"].$trailing;
-  $data["rounds"]=max($data["rounds"],strlen($trailing));
+  $data["rounds"]=max($data["rounds"],strlen($data["users"][$account]["sequence"]));
   set_array_bucket($data,"<<EXEC_RPS_DATA>>");
   $ranks=update_ranking($data);
   privmsg("rank for $account: ".$data["users"][$account]["rank"]);
@@ -81,7 +82,7 @@ function valid_rps_sequence($trailing)
 {
   for ($i=0;$i<strlen($trailing);$i++)
   {
-    switch ($trailing)
+    switch ($trailing[$i])
     {
       case "r":
       case "p":
@@ -98,7 +99,7 @@ function valid_rps_sequence($trailing)
 
 function update_ranking(&$data)
 {
-  $out="";
+  $out="rankings after ".$data["rounds"]." rounds:\n\n";
   foreach ($data["users"] as $account => $user_data)
   {
     $data["users"][$account]["rank"]=0;
