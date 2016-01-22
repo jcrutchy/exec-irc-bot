@@ -42,13 +42,15 @@ if (valid_rps_sequence($trailing)==True)
   if (isset($data["users"][$account])==False)
   {
     $data["users"][$account]=array();
+    $data["users"][$account]["rank"]="ERROR";
   }
   $ts=microtime(True);
   if (isset($data["users"][$account]["timestamp"])==True)
   {
-    if (($ts-$data["users"][$account]["timestamp"])<5.0)
+    if (($ts-$data["users"][$account]["timestamp"])<mt_rand(3,8))
     {
-      privmsg();
+      privmsg("please wait a few seconds before trying again");
+      return;
     }
   }
   $data["users"][$account]["timestamp"]=$ts;
@@ -59,7 +61,9 @@ if (valid_rps_sequence($trailing)==True)
   $data["users"][$account]["sequence"]=$data["users"][$account]["sequence"].$trailing;
   $data["rounds"]=max($data["rounds"],strlen($trailing));
   set_array_bucket($data,"<<EXEC_RPS_DATA>>");
-  output_ixio_paste(get_ranking($data));
+  $ranks=update_ranking($data);
+  privmsg("rank for $account: ".$data["users"][$account]["rank"]);
+  output_ixio_paste($ranks);
   return;
 }
 
@@ -92,13 +96,15 @@ function valid_rps_sequence($trailing)
 
 #####################################################################################################
 
-function get_ranking($data)
+function update_ranking(&$data)
 {
   $out="";
   foreach ($data["users"] as $account => $user_data)
   {
-    $out=$out.$account."\t".$user_data["sequence"]."\n";
+    $data["users"][$account]["rank"]=0;
+    $out=$out.$account."\t".$data["users"][$account]["sequence"]."\t".$data["users"][$account]["rank"]."\n";
   }
+  return $out;
 }
 
 #####################################################################################################
