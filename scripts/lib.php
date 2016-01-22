@@ -3,6 +3,8 @@
 #####################################################################################################
 
 ini_set("display_errors","on");
+ini_set("error_reporting",E_ALL);
+date_default_timezone_set("UTC");
 
 require_once("lib_buckets.php");
 require_once("lib_http.php");

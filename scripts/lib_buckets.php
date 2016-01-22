@@ -116,7 +116,7 @@ function append_array_bucket($index,$value)
 
 #####################################################################################################
 
-function set_array_bucket($array,$bucket,$unset=True)
+function set_array_bucket($array,$bucket,$unset=False)
 {
   $bucket_data=serialize($array);
   if ($bucket_data===False)

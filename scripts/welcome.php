@@ -42,6 +42,8 @@ switch ($flag)
 
 #####################################################################################################
 
+# TODO: ADD LAST SEEN TIMESTAMP TO WELCOME MESSAGE
+
 function show_welcome($nick)
 {
   $location=get_location($nick);
