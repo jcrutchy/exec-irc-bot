@@ -21,6 +21,8 @@ if ($trailing=="")
   return;
 }
 
+# TODO: MAKE IT SO THAT YOU CAN ADD/EDIT/DELETE THESE IN IRC
+
 $adverbs=array(
   "brazenly",
   "spontaneously",
