@@ -197,7 +197,7 @@ function update_ranking(&$data)
   {
     $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".strlen($data["users"][$account]["sequence"])."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$data["users"][$account]["wins"]/$data["users"][$account]["losses"]*100)."\t".$data["users"][$account]["rank"]."\t".str_pad(sprintf("%.1f",$rankings[$account]/$data["rounds"]),strlen("handicap")," ",STR_PAD_LEFT)."\n";
   }
-  $out=$out."\nhandicap = losses/wins/turns*rounds*100";
+  $out=$out."\nhandicap = losses/wins/turns*rounds*100\n\nhelp: http://wiki.soylentnews.org/wiki/IRC:exec_aliases#.7Erps\nsource: https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/rps.php";
   return $out;
 }
 
