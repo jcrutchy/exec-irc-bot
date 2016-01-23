@@ -168,7 +168,7 @@ function update_ranking(&$data)
   foreach ($data["users"] as $account => $user_data)
   {
     $data["users"][$account]["rank"]=0;
-    $rankings[$account]=$data["users"][$account]["losses"]-$data["users"][$account]["wins"]*100*$data["rounds"];
+    $rankings[$account]=$data["users"][$account]["losses"]/$data["users"][$account]["wins"]*100*$data["rounds"]*$data["rounds"]/strlen($data["users"][$account]["sequence"]);
   }
   ksort($rankings);
   uasort($rankings,"ranking_sort_callback");
@@ -187,11 +187,12 @@ function update_ranking(&$data)
     }
   }
   $head_account="account";
-  $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\tturns\twins\tloss\tties\t% wins\trank\n";
+  $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\tturns\twins\tloss\tties\t% wins\trank\thandicap\n";
   foreach ($rankings as $account => $rank)
   {
-    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".strlen($data["users"][$account]["sequence"])."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$data["users"][$account]["wins"]/$data["users"][$account]["losses"]*100)."\t".$data["users"][$account]["rank"]."\n";
+    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".strlen($data["users"][$account]["sequence"])."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$data["users"][$account]["wins"]/$data["users"][$account]["losses"]*100)."\t".$data["users"][$account]["rank"]."\t".sprintf("%.0f",$rankings[$account])."\n";
   }
+  $out=$out."\nhandicap = losses/wins*100*sqr(rounds)/turns";
   return $out;
 }
 
