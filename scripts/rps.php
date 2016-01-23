@@ -99,15 +99,6 @@ function valid_rps_sequence($trailing)
 
 #####################################################################################################
 
-/*
-r > s
-s > p
-p > r
-r = r
-p = p
-s = s
-*/
-
 function update_ranking(&$data)
 {
   foreach ($data["users"] as $account => $user_data)
