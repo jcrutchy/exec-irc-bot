@@ -2,12 +2,14 @@
 
 # TODO: POSSIBLY RELEASE THIS AS A SEPARATE PROJECT (THAT RUNS AS A SIMPLE IRC BOT)
 
+# NOT REQUIRED FOR SN WIKI @ JAN '16 (WIKI ACCOUNT CREATION CHANGED TO ON REQUEST ONLY)
+
 #####################################################################################################
 
 /*
-exec:~wiki|40|0|0|0|*||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~wiki-privmsg|40|0|0|0|||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
-init:~wiki register-events
+#exec:~wiki|40|0|0|0|*||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#exec:~wiki-privmsg|40|0|0|0|||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#init:~wiki register-events
 */
 
 #####################################################################################################

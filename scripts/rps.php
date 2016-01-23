@@ -78,6 +78,7 @@ if ($trailing=="ranks")
 
 privmsg("syntax: ~rps [ranks|r|p|s]");
 privmsg("rankings: http://ix.io/nAz");
+privmsg("help: http://wiki.soylentnews.org/wiki/IRC:exec_aliases#.7Erps");
 
 #####################################################################################################
 
@@ -180,7 +181,7 @@ function update_ranking(&$data)
   {
     $data["users"][$account]["rank"]=array_search($account,$ranking_keys)+1;
   }
-  $out="rankings for $server after ".$data["rounds"]." rounds:\n\n";
+  $out="infinite asynchronous play-by-irc rock/paper/scissors rankings for $server after ".$data["rounds"]." rounds:\n\n";
   $actlen=0;
   foreach ($data["users"] as $account => $user_data)
   {
