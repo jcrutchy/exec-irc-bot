@@ -64,8 +64,8 @@ if ((valid_rps_sequence($trailing)==True) and ($trailing<>""))
   $data["rounds"]=max($data["rounds"],strlen($data["users"][$account]["sequence"]));
   set_array_bucket($data,"<<EXEC_RPS_DATA>>");
   $ranks=update_ranking($data);
-  privmsg("rank for $account: ".$data["users"][$account]["rank"]);
-  output_ixio_paste($ranks);
+  privmsg("rank for $account: ".$data["users"][$account]["rank"]." - http://ix.io/nAz");
+  output_ixio_paste($ranks,False);
   return;
 }
 
@@ -76,6 +76,7 @@ if ($trailing=="ranks")
 }
 
 privmsg("syntax: ~rps [ranks|r|p|s]");
+privmsg("rankings: http://ix.io/nAz");
 
 #####################################################################################################
 
@@ -187,6 +188,7 @@ function update_ranking(&$data)
     }
   }
   $head_account="account";
+  $actlen=max($actlen,strlen($head_account));
   $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\tturns\twins\tloss\tties\t% wins\trank\thandicap\n";
   foreach ($rankings as $account => $rank)
   {
