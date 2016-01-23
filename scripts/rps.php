@@ -5,7 +5,7 @@
 #####################################################################################################
 
 /*
-exec:~rps|10|0|0|1||PRIVMSG|||php scripts/rps.php %%trailing%% %%dest%% %%nick%% %%alias%% %%params%%
+exec:~rps|10|0|0|1||PRIVMSG|||php scripts/rps.php %%trailing%% %%dest%% %%nick%% %%alias%% %%params%% %%server%%
 */
 
 #####################################################################################################
@@ -17,6 +17,7 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 $params=$argv[5];
+$server=$argv[6];
 
 $data=get_array_bucket("<<EXEC_RPS_DATA>>");
 
@@ -101,6 +102,7 @@ function valid_rps_sequence($trailing)
 
 function update_ranking(&$data)
 {
+  global $server;
   foreach ($data["users"] as $account => $user_data)
   {
     $data["users"][$account]["wins"]=0;
@@ -178,7 +180,7 @@ function update_ranking(&$data)
   {
     $data["users"][$account]["rank"]=array_search($account,$ranking_keys)+1;
   }
-  $out="rankings after ".$data["rounds"]." rounds:\n\n";
+  $out="rankings for $server after ".$data["rounds"]." rounds:\n\n";
   $actlen=0;
   foreach ($data["users"] as $account => $user_data)
   {
