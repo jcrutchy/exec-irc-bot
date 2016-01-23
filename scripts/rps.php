@@ -5,7 +5,6 @@
 #####################################################################################################
 
 /*
-#exec:~rps|10|0|0|1|*|PRIVMSG|||php scripts/rps.php %%trailing%% %%dest%% %%nick%% %%alias%% %%params%%
 exec:~rps|10|0|0|1||PRIVMSG|||php scripts/rps.php %%trailing%% %%dest%% %%nick%% %%alias%% %%params%%
 */
 
@@ -23,10 +22,11 @@ $data=get_array_bucket("<<EXEC_RPS_DATA>>");
 
 if (valid_rps_sequence($trailing)==True)
 {
-  #$account=users_get_account($nick);
-  $account=$nick;
+  $account=users_get_account($nick);
+  #$account=$nick;
   if ($account=="")
   {
+    privmsg("you need to identify with nickserv to play");
     return;
   }
   if (isset($data["rounds"])==False)
