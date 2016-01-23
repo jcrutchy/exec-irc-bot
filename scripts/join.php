@@ -24,7 +24,8 @@ for ($i=0;$i<count($parts);$i++)
 if (get_bot_nick()<>"exec")
 {
   $parts=array_values($parts);
-  users_get_account("exec"); # force wait till after 319
+  users_get_account("exec");
+  sleep(3);
   $exec_channels=users_get_channels("exec");
   for ($i=0;$i<count($parts);$i++)
   {
