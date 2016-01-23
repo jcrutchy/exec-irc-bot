@@ -134,7 +134,7 @@ handle_macros($nick,$dest,$trailing);
 
 function handle_macros($nick,$channel,$trailing)
 {
-  $reserved_triggers=array(".macro",".macro-list");
+  $reserved_triggers=array("~macro","~macro-list");
   $reserved_commands=array(
     "~restart-internal",
     "~q",
@@ -178,10 +178,10 @@ function handle_macros($nick,$channel,$trailing)
   {
     return;
   }
-  if ($trailing==".macro")
+  if ($trailing=="~macro")
   {
-    pm($channel,chr(3)."02"."  syntax to add: .macro <trigger> <chanlist> PRIVMSG|INTERNAL <command_template>");
-    pm($channel,chr(3)."02"."  syntax to delete: .macro <trigger> -");
+    pm($channel,chr(3)."02"."  syntax to add: ~macro <trigger> <chanlist> PRIVMSG|INTERNAL <command_template>");
+    pm($channel,chr(3)."02"."  syntax to delete: ~macro <trigger> -");
     #pm($channel,chr(3)."02"."  <chanlist> is comma-separated or * for any");
   }
   $server=get_bucket("process_template_server");
@@ -199,7 +199,7 @@ function handle_macros($nick,$channel,$trailing)
   {
     $macros=array();
   }
-  if ($trailing==".macro-list")
+  if ($trailing=="~macro-list")
   {
     $account=users_get_account($nick);
     if (in_array($account,$allowed)==False)
@@ -236,7 +236,7 @@ function handle_macros($nick,$channel,$trailing)
   {
     return;
   }
-  if ((trim($parts[0])==".macro") and (count($parts)>2))
+  if ((trim($parts[0])=="~macro") and (count($parts)>2))
   {
     $account=users_get_account($nick);
     if (in_array($account,$allowed)==False)

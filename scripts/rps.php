@@ -97,11 +97,24 @@ function valid_rps_sequence($trailing)
 
 #####################################################################################################
 
+/*
+r > s
+s > p
+p > r
+r = r
+p = p
+s = s
+*/
+
 function update_ranking(&$data)
 {
   $out="rankings after ".$data["rounds"]." rounds:\n\n";
   foreach ($data["users"] as $account => $user_data)
   {
+    for ($i=0;$i<strlen($data["users"][$account]["sequence"]);$i++)
+    {
+      
+    }
     $data["users"][$account]["rank"]=0;
     $out=$out.$account."\t".$data["users"][$account]["sequence"]."\t".$data["users"][$account]["rank"]."\n";
   }

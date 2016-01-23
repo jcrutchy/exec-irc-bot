@@ -66,7 +66,7 @@ foreach ($params as $key => $value)
 }
 $uri="/api.pl?".$paramstr;
 $host="soylentnews.org";
-var_dump($host.$uri);
+privmsg($host.$uri);
 $port=443;
 $response=wget($host,$uri,$port,ICEWEASEL_UA,"",20,"",1024,False);
 $content=trim(strip_headers($response));
