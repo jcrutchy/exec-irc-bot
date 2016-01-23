@@ -20,15 +20,24 @@ $params=$argv[5];
 
 $data=get_array_bucket("<<EXEC_RPS_DATA>>");
 
-if (valid_rps_sequence($trailing)==True)
+if ((valid_rps_sequence($trailing)==True) and ($trailing<>""))
 {
   $account=users_get_account($nick);
-  #$account=$nick;
   if ($account=="")
   {
     privmsg("you need to identify with nickserv to play");
     return;
   }
+  $ts=microtime(True);
+  if (isset($data["users"][$account]["timestamp"])==True)
+  {
+    if (($ts-$data["users"][$account]["timestamp"])<mt_rand(3,8))
+    {
+      privmsg("please wait a few seconds before trying again");
+      return;
+    }
+  }
+  $data["users"][$account]["timestamp"]=$ts;
   if (isset($data["rounds"])==False)
   {
     $data["rounds"]=1;
@@ -51,16 +60,6 @@ if (valid_rps_sequence($trailing)==True)
     $data["users"][$account]=array();
     $data["users"][$account]["rank"]="ERROR";
   }
-  $ts=microtime(True);
-  if (isset($data["users"][$account]["timestamp"])==True)
-  {
-    if (($ts-$data["users"][$account]["timestamp"])<mt_rand(3,8))
-    {
-      privmsg("please wait a few seconds before trying again");
-      return;
-    }
-  }
-  $data["users"][$account]["timestamp"]=$ts;
   $data["users"][$account]["sequence"]=$data["users"][$account]["sequence"].$trailing;
   $data["rounds"]=max($data["rounds"],strlen($data["users"][$account]["sequence"]));
   set_array_bucket($data,"<<EXEC_RPS_DATA>>");
@@ -169,7 +168,7 @@ function update_ranking(&$data)
   foreach ($data["users"] as $account => $user_data)
   {
     $data["users"][$account]["rank"]=0;
-    $rankings[$account]=$data["users"][$account]["losses"]-$data["users"][$account]["wins"];
+    $rankings[$account]=$data["users"][$account]["losses"]-$data["users"][$account]["wins"]*100*$data["rounds"];
   }
   ksort($rankings);
   uasort($rankings,"ranking_sort_callback");
@@ -188,10 +187,10 @@ function update_ranking(&$data)
     }
   }
   $head_account="account";
-  $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\tturns\twins\tloss\tties\trank\n";
+  $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\tturns\twins\tloss\tties\t% wins\trank\n";
   foreach ($rankings as $account => $rank)
   {
-    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".strlen($data["users"][$account]["sequence"])."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".$data["users"][$account]["rank"]."\n";
+    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".strlen($data["users"][$account]["sequence"])."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$data["users"][$account]["wins"]/$data["users"][$account]["losses"]*100)."\t".$data["users"][$account]["rank"]."\n";
   }
   return $out;
 }
