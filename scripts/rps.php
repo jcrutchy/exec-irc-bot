@@ -190,9 +190,9 @@ function update_ranking(&$data)
   $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\tturns\twins\tloss\tties\t% wins\trank\thandicap\n";
   foreach ($rankings as $account => $rank)
   {
-    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".strlen($data["users"][$account]["sequence"])."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$data["users"][$account]["wins"]/$data["users"][$account]["losses"]*100)."\t".$data["users"][$account]["rank"]."\t".sprintf("%.0f",$rankings[$account])."\n";
+    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".strlen($data["users"][$account]["sequence"])."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$data["users"][$account]["wins"]/$data["users"][$account]["losses"]*100)."\t".$data["users"][$account]["rank"]."\t".sprintf("%.1f",$rankings[$account]/$data["rounds"])."\n";
   }
-  $out=$out."\nhandicap = losses/wins*100*sqr(rounds)/turns";
+  $out=$out."\nhandicap = losses/wins/turns*rounds*100";
   return $out;
 }
 
