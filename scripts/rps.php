@@ -192,7 +192,7 @@ function update_ranking(&$data)
   }
   $head_account="account";
   $actlen=max($actlen,strlen($head_account));
-  $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\tturns\twins\tloss\tties\t% wins\trank\thandicap\n";
+  $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\tturns\twins\tlosses\tties\t% wins\trank\thandicap\n";
   foreach ($rankings as $account => $rank)
   {
     $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".strlen($data["users"][$account]["sequence"])."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$data["users"][$account]["wins"]/$data["users"][$account]["losses"]*100)."\t".$data["users"][$account]["rank"]."\t".str_pad(sprintf("%.1f",$rankings[$account]/$data["rounds"]),strlen("handicap")," ",STR_PAD_LEFT)."\n";
