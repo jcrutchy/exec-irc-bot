@@ -171,11 +171,12 @@ function update_ranking(&$data)
     $data["users"][$account]["rank"]=0;
     $rankings[$account]=$data["users"][$account]["losses"]-$data["users"][$account]["wins"];
   }
+  ksort($rankings);
   uasort($rankings,"ranking_sort_callback");
   $ranking_keys=array_keys($rankings);
   foreach ($data["users"] as $account => $user_data)
   {
-    $data["users"][$account]["rank"]=array_search($account,$ranking_keys);
+    $data["users"][$account]["rank"]=array_search($account,$ranking_keys)+1;
   }
   $out="rankings after ".$data["rounds"]." rounds:\n\n";
   $actlen=0;
@@ -187,11 +188,10 @@ function update_ranking(&$data)
     }
   }
   $head_account="account";
-  $head_sequence="sequence";
-  $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\t".$head_sequence.str_repeat(" ",$data["rounds"]-strlen($head_sequence))."\twins\tloss\tties\trank\n";
-  foreach ($data["users"] as $account => $user_data)
+  $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\tturns\twins\tloss\tties\trank\n";
+  foreach ($rankings as $account => $rank)
   {
-    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".$data["users"][$account]["sequence"].str_repeat(" ",$data["rounds"]-strlen($data["users"][$account]["sequence"]))."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".$data["users"][$account]["rank"]."\n";
+    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".strlen($data["users"][$account]["sequence"])."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".$data["users"][$account]["rank"]."\n";
   }
   return $out;
 }
