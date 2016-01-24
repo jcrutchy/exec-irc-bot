@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~welcome|10|0|0|0|||||php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
-exec:~welcome-internal|30|0|0|1||INTERNAL|||php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%%
+exec:~welcome|10|0|0|0|||||php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%% %%server%%
+exec:~welcome-internal|30|0|0|1||INTERNAL|||php scripts/welcome.php %%nick%% %%dest%% %%alias%% %%trailing%% %%server%%
 */
 
 #####################################################################################################
@@ -18,6 +18,8 @@ $nick=$argv[1];
 $dest=$argv[2];
 $alias=$argv[3];
 $trailing=$argv[4];
+$server=$argv[5];
+
 $msg="";
 $flag=handle_switch($alias,$dest,$nick,$trailing,"<<EXEC_WELCOME_CHANNELS>>","~welcome","~welcome-internal",$msg);
 
@@ -36,15 +38,13 @@ switch ($flag)
     privmsg("welcome already disabled for ".chr(3)."10$dest");
     return;
   case 9:
-    show_welcome($nick);
+    show_welcome($nick,$dest,$server);
     return;
 }
 
 #####################################################################################################
 
-# TODO: ADD LAST SEEN TIMESTAMP TO WELCOME MESSAGE
-
-function show_welcome($nick)
+function show_welcome($nick,$dest,$server)
 {
   $location=get_location($nick);
   if ($location===False)
@@ -66,6 +66,7 @@ function show_welcome($nick)
   {
     return;
   }
+  # TODO: ADD LAST SEEN TIMESTAMP TO WELCOME MESSAGE (need to work on seen_lib.php)
   privmsg("welcome $nick: ".trim($arr["location"]).", ".$data["tempC"]."/".$data["tempF"].", ".date("g:i a",$arr["timestamp"])." ".$arr["timezone"].", ".date("l, j F Y",$arr["timestamp"]));
 }
 
