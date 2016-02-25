@@ -21,82 +21,220 @@ if ($trailing=="")
   return;
 }
 
-# TODO: MAKE IT SO THAT YOU CAN ADD/EDIT/DELETE THESE IN IRC
+$fn=DATA_PATH."gday_data";
+if (file_exists($fn)==True)
+{
+  $data=json_decode(file_get_contents($fn),True);
+}
+else
+{
+  $data=array();
+  $data["adverbs"]=array(
+    "brazenly",
+    "spontaneously",
+    "prematurely",
+    "unjustifiably",
+    "insatiably",
+    "abnormally",
+    "abrasively",
+    "accidentally",
+    "allegedly",
+    "clumsily",
+    "cohesively",
+    "covertly",
+    "dexterously",
+    "diabolically",
+    "fanatically",
+    "suspiciously");
+  $data["actions"]=array(
+    "cracks open"=>"for",
+    "passes"=>"to",
+    "throws"=>"at",
+    "slides"=>"to",
+    "hurls"=>"at",
+    "poops"=>"for",
+    "drops"=>"on",
+    "blows"=>"at",
+    "pours"=>"for",
+    "flings"=>"at",
+    "offers"=>"to",
+    "tosses"=>"to",
+    "postulates"=>"towards");
+  $data["containers"]=array(
+    "a cold can",
+    "a used franger",
+    "a pair of used panties full",
+    "a cheap plastic cup",
+    "a wine flute",
+    "a bathtub",
+    "a spoon",
+    "a socket",
+    "a caravan",
+    "a buzz saw",
+    "a blagoblag",
+    "a DD cup",
+    "a tinfoil hat",
+    "an assfull",
+    "a bucket",
+    "a wad",
+    "an anvil",
+    "a toilet bowl",
+    "a coffee++ mug");
+  $data["beverages"]=array(
+    "beer",
+    "g'day juice",
+    "coffee",
+    "NCommander",
+    "milo",
+    "boogers",
+    "bewb",
+    "red cordial",
+    "splodge",
+    "skittles",
+    "vibrating rooster sammich",
+    "glowballs",
+    "spew",
+    "pancakes",
+    "\$insert_beverage_here",
+    "toilet water",
+    "ciri poo",
+    "bacon",
+    "dag",
+    "Debian",
+    "coffee++",
+    "Soylent Green");
+}
 
-$adverbs=array(
-  "brazenly",
-  "spontaneously",
-  "prematurely",
-  "unjustifiably",
-  "insatiably",
-  "abnormally",
-  "abrasively",
-  "accidentally",
-  "allegedly",
-  "clumsily",
-  "cohesively",
-  "covertly",
-  "dexterously",
-  "diabolically",
-  "fanatically",
-  "suspiciously");
-$actions=array(
-  "cracks open"=>"for",
-  "passes"=>"to",
-  "throws"=>"at",
-  "slides"=>"to",
-  "hurls"=>"at",
-  "poops"=>"for",
-  "drops"=>"on",
-  "blows"=>"at",
-  "pours"=>"for",
-  "flings"=>"at",
-  "offers"=>"to",
-  "tosses"=>"to",
-  "postulates"=>"towards");
-$containers=array(
-  "a cold can",
-  "a used franger",
-  "a pair of used panties full",
-  "a cheap plastic cup",
-  "a wine flute",
-  "a bathtub",
-  "a spoon",
-  "a socket",
-  "a caravan",
-  "a buzz saw",
-  "a blagoblag",
-  "a DD cup",
-  "a tinfoil hat",
-  "an assfull",
-  "a bucket",
-  "a wad",
-  "an anvil",
-  "a toilet bowl",
-  "a coffee++ mug");
-$beverages=array(
-  "beer",
-  "g'day juice",
-  "coffee",
-  "NCommander",
-  "milo",
-  "boogers",
-  "bewb",
-  "red cordial",
-  "splodge",
-  "skittles",
-  "vibrating rooster sammich",
-  "glowballs",
-  "spew",
-  "pancakes",
-  "\$insert_beverage_here",
-  "toilet water",
-  "ciri poo",
-  "bacon",
-  "dag",
-  "Debian",
-  "coffee++",
-  "Soylent Green");
+$parts=explode(" ",$trailing);
+$action=strtolower($parts[0]);
+array_shift($parts);
+$parts=array_values($parts);
+$arg=implode(" ",$parts);
+$save_data=False;
+switch ($action)
+{
+  case ">adverb":
+    if (in_array($arg,$data["adverbs"])==False)
+    {
+      $data["adverbs"][]=$arg;
+      privmsg("added to adverbs");
+      $save_data=True;
+    }
+    else
+    {
+      privmsg("error: adverb already exists");
+      return;
+    }
+    break;
+  case "<adverb":
+    $index=array_search($arg,$data["adverbs"]);
+    if ($index!==False)
+    {
+      unset($data["adverbs"][$index]);
+      $data["adverbs"]=array_values($data["adverbs"]);
+      $save_data=True;
+    }
+    else
+    {
+      privmsg("error: adverb not found");
+      return;
+    }
+    break;
+  case ">action":
+    $action2=array_pop($parts);
+    $action1=implode(" ",$parts);
+    if (isset($data["actions"][$action1])===False)
+    {
+      $data["actions"][$action1]=$action2;
+      privmsg("added to actions");
+      $save_data=True;
+    }
+    else
+    {
+      privmsg("error: action already exists");
+    }
+    break;
+  case "<action":
+    $index=array_search($arg,$data["actions"]);
+    if ($index!==False)
+    {
+      unset($data["actions"][$index]);
+      $data["actions"]=array_values($data["actions"]);
+      $save_data=True;
+    }
+    else
+    {
+      privmsg("error: action not found");
+      return;
+    }
+    break;
+  case ">container":
+    if (in_array($arg,$data["containers"])==False)
+    {
+      $data["containers"][]=$arg;
+      privmsg("added to containers");
+      $save_data=True;
+    }
+    else
+    {
+      privmsg("error: container already exists");
+      return;
+    }
+    break;
+  case "<container":
+    $index=array_search($arg,$data["containers"]);
+    if ($index!==False)
+    {
+      unset($data["containers"][$index]);
+      $data["containers"]=array_values($data["containers"]);
+      $save_data=True;
+    }
+    else
+    {
+      privmsg("error: container not found");
+      return;
+    }
+    break;
+  case ">beverage":
+    if (in_array($arg,$data["beverages"])==False)
+    {
+      $data["beverages"][]=$arg;
+      privmsg("added to beverages");
+      $save_data=True;
+    }
+    else
+    {
+      privmsg("error: beverage already exists");
+      return;
+    }
+    break;
+  case "<beverage":
+    $index=array_search($arg,$data["beverages"]);
+    if ($index!==False)
+    {
+      unset($data["beverages"][$index]);
+      $data["beverages"]=array_values($data["beverages"]);
+      $save_data=True;
+    }
+    else
+    {
+      privmsg("error: beverage not found");
+      return;
+    }
+    break;
+}
+if ($save_data==True)
+{
+  if (file_put_contents($fn,json_encode($data,JSON_PRETTY_PRINT))===False)
+  {
+    privmsg("error writing data file");
+  }
+}
+
+$adverbs=$data["adverbs"];
+$actions=$data["actions"];
+$containers=$data["containers"];
+$beverages=$data["beverages"];
 
 $last_adverb=get_bucket("<<GDAY_LAST_ADVERB>>");
 $last_action=get_bucket("<<GDAY_LAST_ACTION>>");

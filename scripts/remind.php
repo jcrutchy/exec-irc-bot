@@ -8,6 +8,11 @@ exec:~remind|9999|0|0|0|||||php scripts/remind.php %%trailing%% %%nick%% %%dest%
 
 #####################################################################################################
 
+set_time_limit(0); # script needs to run for indefinite time (overrides setting in php.ini)
+ini_set("display_errors","on");
+ini_set("error_reporting",E_ALL);
+date_default_timezone_set("UTC");
+
 require_once("lib.php");
 
 $trailing=$argv[1];

@@ -129,7 +129,7 @@ function save_settings(&$data,$filename,$delim="=")
   $content="";
   foreach ($data as $key => $value)
   {
-    $content=$content.$key.$delim.$value."\n";
+    $content=$content.$key.$delim.$value.PHP_EOL;
   }
   if (file_put_contents($filename,$content)===False)
   {
@@ -175,14 +175,14 @@ function exec_file_delete($filename)
 
 function exec_file_append($filename,$data)
 {
-  file_put_contents(DATA_PATH.$filename,$data."\n",FILE_APPEND);
+  file_put_contents(DATA_PATH.$filename,$data.PHP_EOL,FILE_APPEND);
 }
 
 #####################################################################################################
 
 function exec_file_write($filename,$data)
 {
-  file_put_contents(DATA_PATH.$filename,implode("\n",$data));
+  file_put_contents(DATA_PATH.$filename,implode(PHP_EOL,$data));
 }
 
 #####################################################################################################
@@ -193,7 +193,7 @@ function exec_file_read($filename)
   if (file_exists($fn)==True)
   {
     $data=file_get_contents($fn);
-    return explode("\n",$data);
+    return explode(PHP_EOL,$data);
   }
   return array();
 }

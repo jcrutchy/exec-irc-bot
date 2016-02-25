@@ -4,14 +4,28 @@
 
 function save_bucket_to_file($index,$filename)
 {
-  # TODO
+  $bucket=get_array_bucket($index);
+  $data=json_encode($bucket,JSON_PRETTY_PRINT);
+  file_put_contents(DATA_PATH.$filename,$data);
 }
 
 #####################################################################################################
 
 function load_bucket_from_file($index,$filename)
 {
-  # TODO
+  $fn=DATA_PATH.$filename;
+  if (file_exists($fn)==False)
+  {
+    return False;
+  }
+  $data=file_get_contents($fn);
+  $bucket=json_decode($data,True);
+  if ($bucket==NULL)
+  {
+    return False;
+  }
+  set_array_bucket($bucket,$index,True);
+  return $bucket;
 }
 
 #####################################################################################################

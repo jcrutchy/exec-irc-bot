@@ -10,6 +10,8 @@ init:~tell-internal register-events
 
 #####################################################################################################
 
+ini_set("display_errors","on");
+ini_set("error_reporting",E_ALL);
 date_default_timezone_set("UTC");
 
 require_once("lib.php");
@@ -36,6 +38,22 @@ if ($alias=="~tell")
   $target=strtolower($parts[0]);
   array_shift($parts);
   $trailing=trim(implode(" ",$parts));
+  $tell_ignore_list=get_array_bucket("TELL_IGNORE_".$server."_".$nick);
+  if ($target==">ignore")
+  {
+    $tell_ignore_list[]=strtolower($target);
+    set_array_bucket($tell_ignore_list,"TELL_IGNORE_".$server."_".$nick);
+    return;
+  }
+  if ($target=="<ignore")
+  {
+    set_array_bucket($tell_ignore_list,"TELL_IGNORE_".$server."_".$nick);
+    return;
+  }
+  if (in_array(strtolower($target),$tell_ignore_list)==True)
+  {
+    return;
+  }
   append_array_bucket("TELL_MESSAGES_".$server."_".$target,$target.", at ".date("Y-m-d H:i:s",microtime(True))." (UTC), ".$nick." left message from ".$dest.": ".$trailing);
   privmsg("message saved");
   return;
