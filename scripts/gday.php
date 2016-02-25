@@ -11,6 +11,10 @@ exec:~gnight|5|0|0|1|||||php scripts/gday.php %%trailing%% %%nick%%
 
 #####################################################################################################
 
+ini_set("display_errors","on");
+ini_set("error_reporting",E_ALL);
+date_default_timezone_set("UTC");
+
 require_once("lib.php");
 
 $trailing=trim($argv[1]);
@@ -133,6 +137,7 @@ switch ($action)
       unset($data["adverbs"][$index]);
       $data["adverbs"]=array_values($data["adverbs"]);
       $save_data=True;
+      privmsg("deleted adverb");
     }
     else
     {
@@ -152,15 +157,15 @@ switch ($action)
     else
     {
       privmsg("error: action already exists");
+      return;
     }
     break;
   case "<action":
-    $index=array_search($arg,$data["actions"]);
-    if ($index!==False)
+    if (isset($data["actions"][$arg])===True)
     {
-      unset($data["actions"][$index]);
-      $data["actions"]=array_values($data["actions"]);
+      unset($data["actions"][$arg]);
       $save_data=True;
+      privmsg("deleted action");
     }
     else
     {
@@ -188,6 +193,7 @@ switch ($action)
       unset($data["containers"][$index]);
       $data["containers"]=array_values($data["containers"]);
       $save_data=True;
+      privmsg("deleted container");
     }
     else
     {
@@ -222,6 +228,9 @@ switch ($action)
       return;
     }
     break;
+  case "<list>":
+    output_ixio_paste(file_get_contents($fn));
+    return;
 }
 if ($save_data==True)
 {
@@ -229,6 +238,7 @@ if ($save_data==True)
   {
     privmsg("error writing data file");
   }
+  return;
 }
 
 $adverbs=$data["adverbs"];

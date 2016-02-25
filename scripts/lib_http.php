@@ -9,7 +9,7 @@ delete_empty_elements($url_blacklist,True);
 
 #####################################################################################################
 
-function output_ixio_paste($data,$out=True,$id="nAz")
+function output_ixio_paste($data,$msg=True,$id="nAz")
 {
   $fn=tempnam("/tmp","exec_");
   $h=fopen($fn,"w");
@@ -19,7 +19,7 @@ function output_ixio_paste($data,$out=True,$id="nAz")
   $out=clean_text($out);
   $out=explode("curl: (",trim($out));
   array_shift($out);
-  if ($out==True)
+  if ($msg==True)
   {
     if (count($out)==1)
     {
