@@ -19,7 +19,12 @@ $alias=$argv[4];
 $params=$argv[5];
 $server=$argv[6];
 
-$data=get_array_bucket("<<EXEC_RPS_DATA>>");
+$data=array();
+$fn=DATA_PATH."rps_data";
+if (file_exists($fn)==True)
+{
+  $data=json_decode(file_get_contents($fn),True);
+}
 
 if ((valid_rps_sequence($trailing)==True) and ($trailing<>""))
 {
@@ -63,7 +68,11 @@ if ((valid_rps_sequence($trailing)==True) and ($trailing<>""))
   }
   $data["users"][$account]["sequence"]=$data["users"][$account]["sequence"].$trailing;
   $data["rounds"]=max($data["rounds"],strlen($data["users"][$account]["sequence"]));
-  set_array_bucket($data,"<<EXEC_RPS_DATA>>");
+  if (file_put_contents($fn,json_encode($data,JSON_PRETTY_PRINT))===False)
+  {
+    privmsg("error writing data file");
+    return;
+  }
   $ranks=update_ranking($data);
   privmsg($data["users"][$account]["last"]." - rank for $account: ".$data["users"][$account]["rank"]." - http://ix.io/nAz");
   output_ixio_paste($ranks,False);
@@ -72,8 +81,15 @@ if ((valid_rps_sequence($trailing)==True) and ($trailing<>""))
 
 if ($trailing=="ranks")
 {
-  output_ixio_paste(get_ranking($data));
-  return;
+  if (isset($data["users"])==True)
+  {
+    output_ixio_paste(update_ranking($data));
+    return;
+  }
+  else
+  {
+    privmsg("no players registered yet");
+  }
 }
 
 privmsg("syntax: ~rps [ranks|r|p|s]");
