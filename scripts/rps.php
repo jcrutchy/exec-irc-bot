@@ -186,7 +186,14 @@ function update_ranking(&$data)
   foreach ($data["users"] as $account => $user_data)
   {
     $data["users"][$account]["rank"]=0;
-    $rankings[$account]=$data["users"][$account]["losses"]/$data["users"][$account]["wins"]*100*$data["rounds"]*$data["rounds"]/strlen($data["users"][$account]["sequence"]);
+    if ($data["users"][$account]["wins"]>0)
+    {
+      $rankings[$account]=$data["users"][$account]["losses"]/$data["users"][$account]["wins"]*100*$data["rounds"]*$data["rounds"]/strlen($data["users"][$account]["sequence"]);
+    }
+    else
+    {
+      $rankings[$account]=0;
+    }
   }
   ksort($rankings);
   uasort($rankings,"ranking_sort_callback");
@@ -207,9 +214,15 @@ function update_ranking(&$data)
   $head_account="account";
   $actlen=max($actlen,strlen($head_account));
   $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\tturns\twins\tlosses\tties\t% wins\trank\thandicap\n";
+  $out=$out.str_repeat("=",strlen($head_account))."\t=====\t====\t======\t====\t======\t====\t========\n";
   foreach ($rankings as $account => $rank)
   {
-    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".strlen($data["users"][$account]["sequence"])."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$data["users"][$account]["wins"]/$data["users"][$account]["losses"]*100)."\t".$data["users"][$account]["rank"]."\t".str_pad(sprintf("%.1f",$rankings[$account]/$data["rounds"]),strlen("handicap")," ",STR_PAD_LEFT)."\n";
+    $wins=0;
+    if ($data["users"][$account]["losses"]>0)
+    {
+      $wins=$data["users"][$account]["wins"]/$data["users"][$account]["losses"]*100;
+    }
+    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".strlen($data["users"][$account]["sequence"])."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$wins)."\t".$data["users"][$account]["rank"]."\t".str_pad(sprintf("%.1f",$rankings[$account]/$data["rounds"]),strlen("handicap")," ",STR_PAD_LEFT)."\n";
   }
   $out=$out."\nhandicap = losses/wins/turns*rounds*100\n\nhelp: http://wiki.soylentnews.org/wiki/IRC:exec_aliases#.7Erps\nsource: https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/rps.php";
   return $out;
