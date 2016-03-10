@@ -214,7 +214,7 @@ function update_ranking(&$data)
   $head_account="account";
   $actlen=max($actlen,strlen($head_account));
   $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\tturns\twins\tlosses\tties\t% wins\trank\thandicap\n";
-  $out=$out.str_repeat("=",strlen($head_account))."\t=====\t====\t======\t====\t======\t====\t========\n";
+  $out=$out."=======".str_repeat(" ",$actlen-strlen($head_account))."\t=====\t====\t======\t====\t======\t====\t========\n";
   foreach ($rankings as $account => $rank)
   {
     $wins=0;
