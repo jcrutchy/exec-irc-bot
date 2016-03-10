@@ -20,7 +20,7 @@ $params=$argv[5];
 $server=$argv[6];
 
 $data=array();
-$fn=DATA_PATH."rps_data";
+$fn=DATA_PATH."rps_data_".$server;
 if (file_exists($fn)==True)
 {
   $data=json_decode(file_get_contents($fn),True);
