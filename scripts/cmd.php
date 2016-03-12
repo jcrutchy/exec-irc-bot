@@ -309,6 +309,14 @@ function handle_macros($nick,$channel,$trailing)
         privmsg(chr(3)."02"."  *** error: triggering other macros is not permitted");
         return;
       }
+      if ($cmd=="INTERNAL")
+      {
+        if (isset($exec_list_bucket[$parts[0]])==False)
+        {
+          privmsg(chr(3)."02"."  *** error: internal command must trigger a valid alias");
+          return;
+        }
+      }
       $command=implode(" ",$parts);
       for ($i=0;$i<count($reserved_commands);$i++)
       {
@@ -355,7 +363,7 @@ function handle_macros($nick,$channel,$trailing)
           $command=str_replace("%%trailing%%",$trailing,$command);
           if ($cmd=="INTERNAL")
           {
-            echo "/INTERNAL $command\n";
+            echo "/INTERNAL :$nick INTERNAL $channel :$command\n";
           }
           else
           {

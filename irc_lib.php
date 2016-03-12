@@ -628,7 +628,7 @@ function handle_stdout($handle)
     $prefix=strtoupper($parts[0]);
     array_shift($parts);
     $prefix_msg=implode(" ",$parts);
-    if ($prefix_msg<>"")
+    if (($prefix_msg<>"") and ($prefix_msg<>""))
     {
       switch ($prefix)
       {
@@ -709,18 +709,26 @@ function handle_stdout($handle)
           handle_buckets(CMD_BUCKET_APPEND." :".$prefix_msg."\n",$handle);
           return;
         case PREFIX_INTERNAL:
-          $nick=$handle["nick"];
-          if ($nick=="")
+          $test=trim($prefix_msg);
+          if ($test[0]==":")
           {
-            $nick=get_bot_nick();
-          }
-          if ($handle["destination"]=="")
-          {
-            handle_data(":$nick ".CMD_INTERNAL." :".$prefix_msg."\n");
+            handle_data($test."\n");
           }
           else
           {
-            handle_data(":$nick ".CMD_INTERNAL." ".$handle["destination"]." :".$prefix_msg."\n");
+            $nick=$handle["nick"];
+            if ($nick=="")
+            {
+              $nick=get_bot_nick();
+            }
+            if ($handle["destination"]=="")
+            {
+              handle_data(":$nick ".CMD_INTERNAL." :".$prefix_msg."\n");
+            }
+            else
+            {
+              handle_data(":$nick ".CMD_INTERNAL." ".$handle["destination"]." :".$prefix_msg."\n");
+            }
           }
           return;
         case PREFIX_PAUSE:
@@ -866,6 +874,18 @@ function handle_buckets($data,$handle)
       {
         $exec_list_data=base64_encode(serialize($exec_list));
         $result=handle_stdin($handle,$exec_list_data);
+        handle_stdin($handle,"\n");
+        return True;
+      }
+      if ($index==BUCKET_ADMIN_ACCOUNTS_LIST)
+      {
+        $result=handle_stdin($handle,ADMIN_ACCOUNTS);
+        handle_stdin($handle,"\n");
+        return True;
+      }
+      if ($index==BUCKET_OPERATOR_ACCOUNT)
+      {
+        $result=handle_stdin($handle,OPERATOR_ACCOUNT);
         handle_stdin($handle,"\n");
         return True;
       }
