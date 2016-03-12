@@ -233,7 +233,14 @@ function update_ranking(&$data)
   $out=$out."=======".str_repeat(" ",$actlen-strlen($head_account))."\t=====\t====\t======\t====\t======\t====\t========\n";
   foreach ($rankings as $account => $rank)
   {
-    $wins=0;
+    if ($data["users"][$account]["wins"]>0)
+    {
+      $wins=100;
+    }
+    else
+    {
+      $wins=0;
+    }
     if ($data["users"][$account]["losses"]>0)
     {
       $wins=$data["users"][$account]["wins"]/$data["users"][$account]["losses"]*100;
