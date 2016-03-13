@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~antispam-internal|10|0|0|1||INTERNAL|||php scripts/antispam.php %%trailing%%
-init:~antispam-internal register-events
+#exec:~antispam-internal|10|0|0|1||INTERNAL|||php scripts/antispam.php %%trailing%%
+#init:~antispam-internal register-events
 */
 
 #####################################################################################################
@@ -68,7 +68,7 @@ if (isset($user["channels"][$dest])==False)
 }
 
 var_dump($items);
-return;
+return; # TODO
 
 $timestamp=$items["time"];
 $index="ANTISPAM_DATA_".$dest."_".$nick;

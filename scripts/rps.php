@@ -55,7 +55,7 @@ if ((valid_rps_sequence($trailing)==True) and ($trailing<>""))
   if (strlen($data["users"][$account]["sequence"].$trailing)>($data["rounds"]+1))
   {
     $trailing=substr($trailing,0,$data["rounds"]-strlen($data["users"][$account]["sequence"])+1);
-    privmsg("additional sequence trimmed to: $trailing");
+    privmsg("sequence trimmed");
   }
   if (isset($data["users"])==False)
   {
@@ -201,13 +201,16 @@ function update_ranking(&$data)
   $rankings=array();
   foreach ($data["users"] as $account => $user_data)
   {
+    $data["users"][$account]["rounds"]=$data["users"][$account]["wins"]+$data["users"][$account]["losses"]+$data["users"][$account]["ties"];
     $data["users"][$account]["rank"]=0;
-    if ($data["users"][$account]["wins"]>0)
+    if ($data["users"][$account]["rounds"]>0)
     {
-      $rankings[$account]=$data["users"][$account]["losses"]/$data["users"][$account]["wins"]*100*$data["rounds"]*$data["rounds"]/strlen($data["users"][$account]["sequence"]);
+      $data["users"][$account]["fraction_wins"]=$data["users"][$account]["wins"]/$data["users"][$account]["rounds"];
+      $rankings[$account]=$data["users"][$account]["fraction_wins"]/$data["rounds"]*strlen($data["users"][$account]["sequence"])*1000;
     }
     else
     {
+      $data["users"][$account]["fraction_wins"]=0;
       $rankings[$account]=0;
     }
   }
@@ -218,7 +221,7 @@ function update_ranking(&$data)
   {
     $data["users"][$account]["rank"]=array_search($account,$ranking_keys)+1;
   }
-  $out="infinite asynchronous play-by-irc rock/paper/scissors rankings for $server after ".$data["rounds"]." rounds:\n\n";
+  $out="infinite asynchronous play-by-irc rock/paper/scissors rankings for $server:\n\n";
   $actlen=0;
   foreach ($data["users"] as $account => $user_data)
   {
@@ -229,25 +232,13 @@ function update_ranking(&$data)
   }
   $head_account="account";
   $actlen=max($actlen,strlen($head_account));
-  $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\tturns\twins\tlosses\tties\t% wins\trank\thandicap\n";
-  $out=$out."=======".str_repeat(" ",$actlen-strlen($head_account))."\t=====\t====\t======\t====\t======\t====\t========\n";
+  $out=$out.$head_account.str_repeat(" ",$actlen-strlen($head_account))."\trounds\twins\tlosses\tties\twins\trank\thandicap\n";
+  $out=$out."=======".str_repeat(" ",$actlen-strlen($head_account))."\t======\t====\t======\t====\t====\t====\t========\n";
   foreach ($rankings as $account => $rank)
   {
-    if ($data["users"][$account]["wins"]>0)
-    {
-      $wins=100;
-    }
-    else
-    {
-      $wins=0;
-    }
-    if ($data["users"][$account]["losses"]>0)
-    {
-      $wins=$data["users"][$account]["wins"]/$data["users"][$account]["losses"]*100;
-    }
-    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".strlen($data["users"][$account]["sequence"])."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$wins)."\t".$data["users"][$account]["rank"]."\t".str_pad(sprintf("%.1f",$rankings[$account]/$data["rounds"]),strlen("handicap")," ",STR_PAD_LEFT)."\n";
+    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".$data["users"][$account]["rounds"]."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$data["users"][$account]["fraction_wins"]*100)."%\t".$data["users"][$account]["rank"]."\t".str_pad(sprintf("%.3f",$rankings[$account]/1000),strlen("handicap")," ",STR_PAD_LEFT)."\n";
   }
-  $out=$out."\nhandicap = losses/wins/turns*rounds*100\n\nhelp: http://wiki.soylentnews.org/wiki/IRC:exec_aliases#.7Erps\nsource: https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/rps.php";
+  $out=$out."\nhandicap = wins/rounds/max_turns*turns\nturns is the length of the player's sequence of r/p/s characters and max_turns is the maximum length for all players (not shown in table)\n\nhelp: http://wiki.soylentnews.org/wiki/IRC:exec_aliases#.7Erps\nsource: https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/rps.php";
   return $out;
 }
 
@@ -255,7 +246,7 @@ function update_ranking(&$data)
 
 function ranking_sort_callback($a,$b)
 {
-  return ($a-$b);
+  return ($b-$a);
 }
 
 #####################################################################################################
