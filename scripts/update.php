@@ -3,7 +3,7 @@
 #####################################################################################################
 
 /*
-#exec:~update|60|0|0|1|@||||php scripts/update.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
+exec:~update|60|0|0|1|@||||php scripts/update.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
 */
 
 #####################################################################################################
@@ -41,6 +41,25 @@ if ((strpos($lines[0],"404")!==False) or (strpos($lines[0],"Error")!==False))
   return;
 }
 $content=strip_headers($response);
+$outfile=realpath(__DIR__."/../".$trailing);
+$bakfile=$outfile."_bak";
+if (rename($outfile,$bakfile)===False)
+{
+  privmsg("error backing up existing file \"$outfile\" as \"$bakfile\"");
+  return;
+}
+else
+{
+  privmsg("successfully backed up existing file \"$outfile\" as \"$bakfile\"");
+}
+if (file_put_contents($outfile,$content)===False)
+{
+  privmsg("error downloading file (3)");
+}
+else
+{
+  privmsg("error saving to file \"$outfile\"");
+}
 
 #####################################################################################################
 
