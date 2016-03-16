@@ -22,7 +22,7 @@ switch ($alias)
   case "~update-exec-file":
     if ($trailing=="")
     {
-      privmsg("syntax: ~update <filename> (operator only command)");
+      privmsg("syntax: ~update-exec-file <filename> (operator only command)");
       return;
     }
     privmsg("attempting to download https://raw.githubusercontent.com/crutchy-/exec-irc-bot/master/".$trailing);
