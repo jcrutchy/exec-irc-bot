@@ -21,13 +21,14 @@ if ($trailing=="")
   privmsg("syntax: ~update <filename> (operator only command)");
   return;
 }
-
+privmsg("attempting to download https://raw.githubusercontent.com/crutchy-/exec-irc-bot/master/".$trailing);
 $response=wget_ssl("raw.githubusercontent.com","/crutchy-/exec-irc-bot/master/".$trailing);
 if ($response=="")
 {
   privmsg("error downloading file (1)");
   return;
 }
+var_dump($response);
 $headers=exec_get_headers($response);
 if ($headers===False)
 {
@@ -58,7 +59,7 @@ if (file_put_contents($outfile,$content)===False)
 }
 else
 {
-  privmsg("error saving to file \"$outfile\"");
+  privmsg("successfully saved downloaded content to \"$outfile\"");
 }
 
 #####################################################################################################

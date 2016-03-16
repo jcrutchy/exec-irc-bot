@@ -74,7 +74,7 @@ if ((valid_rps_sequence($trailing)==True) and ($trailing<>""))
     return;
   }
   $ranks=update_ranking($data);
-  privmsg($data["users"][$account]["last"]." - rank for $account: ".$data["users"][$account]["rank"]." - http://ix.io/nAz");
+  privmsg("rank for $account: ".$data["users"][$account]["rank"]." - http://ix.io/nAz");
   output_ixio_paste($ranks,False);
   return;
 }
@@ -125,7 +125,6 @@ function update_ranking(&$data)
     $data["users"][$account]["wins"]=0;
     $data["users"][$account]["losses"]=0;
     $data["users"][$account]["ties"]=0;
-    $data["users"][$account]["last"]="currently @ highest turn";
     for ($i=0;$i<strlen($data["users"][$account]["sequence"]);$i++)
     {
       foreach ($data["users"] as $sub_account => $sub_user_data)
@@ -143,15 +142,12 @@ function update_ranking(&$data)
               {
                 case "r":
                   $data["users"][$account]["ties"]=$data["users"][$account]["ties"]+1;
-                  $data["users"][$account]["last"]="scored a tie";
                   break;
                 case "p":
                   $data["users"][$account]["losses"]=$data["users"][$account]["losses"]+1;
-                  $data["users"][$account]["last"]="scored a loss";
                   break;
                 case "s":
                   $data["users"][$account]["wins"]=$data["users"][$account]["wins"]+1;
-                  $data["users"][$account]["last"]="scored a win";
                   break;
               }
               break;
@@ -160,15 +156,12 @@ function update_ranking(&$data)
               {
                 case "r":
                   $data["users"][$account]["wins"]=$data["users"][$account]["wins"]+1;
-                  $data["users"][$account]["last"]="scored a win";
                   break;
                 case "p":
                   $data["users"][$account]["ties"]=$data["users"][$account]["ties"]+1;
-                  $data["users"][$account]["last"]="scored a tie";
                   break;
                 case "s":
                   $data["users"][$account]["losses"]=$data["users"][$account]["losses"]+1;
-                  $data["users"][$account]["last"]="scored a loss";
                   break;
               }
               break;
@@ -177,23 +170,16 @@ function update_ranking(&$data)
               {
                 case "r":
                   $data["users"][$account]["losses"]=$data["users"][$account]["losses"]+1;
-                  $data["users"][$account]["last"]="scored a loss";
                   break;
                 case "p":
                   $data["users"][$account]["wins"]=$data["users"][$account]["wins"]+1;
-                  $data["users"][$account]["last"]="scored a win";
                   break;
                 case "s":
                   $data["users"][$account]["ties"]=$data["users"][$account]["ties"]+1;
-                  $data["users"][$account]["last"]="scored a tie";
                   break;
               }
               break;
           }
-        }
-        else
-        {
-          $data["users"][$account]["last"]="currently @ highest turn";
         }
       }
     }
