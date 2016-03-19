@@ -222,7 +222,7 @@ function update_ranking(&$data)
   $out=$out."=======".str_repeat(" ",$actlen-strlen($head_account))."\t======\t====\t======\t====\t====\t====\t========\n";
   foreach ($rankings as $account => $rank)
   {
-    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".$data["users"][$account]["rounds"]."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$data["users"][$account]["fraction_wins"]*100)."%\t".$data["users"][$account]["rank"]."\t".str_pad(sprintf("%.3f",$rankings[$account]/1000),strlen("handicap")," ",STR_PAD_LEFT)."\n";
+    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".$data["users"][$account]["rounds"]."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$data["users"][$account]["fraction_wins"]*100)."%\t".$data["users"][$account]["rank"]."\t".str_pad(sprintf("%.6f",$rankings[$account]/1000),strlen("handicap")," ",STR_PAD_LEFT)."\n";
   }
   $out=$out."\nhandicap = wins/rounds*turns/max_turns\nturns is the length of the player's sequence of r/p/s characters and max_turns is the maximum length for all players (not shown in table)\n\nhelp: http://wiki.soylentnews.org/wiki/IRC:exec_aliases#.7Erps\nsource: https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/rps.php";
   return $out;

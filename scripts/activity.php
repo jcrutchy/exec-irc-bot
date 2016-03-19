@@ -22,8 +22,6 @@ $start=trim($argv[4]);
 $alias=strtolower(trim($argv[5]));
 $cmd=strtoupper(trim($argv[6]));
 
-$channel_data=get_array_bucket("channel_data");
-
 if ($trailing=="")
 {
   return;
@@ -56,15 +54,13 @@ switch ($action)
     break;
   case "event-privmsg":
     # trailing = <nick> <channel> <trailing>
-    handle_privmsg($parts,$channel_data);
+    handle_privmsg($parts);
     break;
 }
 
-set_array_bucket($channel_data,"channel_data");
-
 #####################################################################################################
 
-function handle_privmsg($parts,&$channel_data)
+function handle_privmsg($parts)
 {
   if (count($parts)<3)
   {
