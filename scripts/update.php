@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-#exec:~update-exec-file|60|0|0|1|+||||php scripts/update.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
-#exec:~delete-exec-file|60|0|0|1|+||||php scripts/update.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
+exec:~update-exec-file|60|0|0|1|+||||php scripts/update.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
+exec:~delete-exec-file|60|0|0|1|+||||php scripts/update.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
 */
 
 #####################################################################################################
