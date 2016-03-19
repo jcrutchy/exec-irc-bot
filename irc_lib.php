@@ -68,9 +68,9 @@ function initialize_buckets()
 {
   global $buckets;
   $empty=array();
-  $buckets[BUCKET_EVENT_HANDLERS]=serialize($empty);
+  $buckets[BUCKET_EVENT_HANDLERS]=base64_encode(serialize($empty));
   $buckets[BUCKET_CONNECTION_ESTABLISHED]="0";
-  $buckets[BUCKET_USERS]=serialize($empty);
+  $buckets[BUCKET_USERS]=base64_encode(serialize($empty));
   $buckets[BUCKET_BOT_NICK]=DEFAULT_NICK;
 }
 
@@ -747,7 +747,7 @@ function handle_stdout($handle)
           $cmd=strtoupper(trim($parts[0]));
           array_shift($parts);
           $data=trim(implode("=>",$parts));
-          $handlers=unserialize($buckets[BUCKET_EVENT_HANDLERS]);
+          $handlers=unserialize(base64_decode($buckets[BUCKET_EVENT_HANDLERS]));
           for ($i=0;$i<count($handlers);$i++)
           {
             $handler=unserialize($handlers[$i]);
@@ -761,7 +761,7 @@ function handle_stdout($handle)
                   unset($handlers[$i]);
                   $handlers=array_values($handlers);
                 }
-                $buckets[BUCKET_EVENT_HANDLERS]=serialize($handlers);
+                $buckets[BUCKET_EVENT_HANDLERS]=base64_encode(serialize($handlers));
                 term_echo("*** DELETE EVENT-HANDLER: $cmd => $data (SUCCESS)");
                 return;
               }
@@ -1066,7 +1066,7 @@ function buckets_dump($items)
 function buckets_save($items)
 {
   global $buckets;
-  $data=serialize($buckets);
+  $data=base64_encode(serialize($buckets));
   if ($data===False)
   {
     privmsg($items["destination"],$items["nick"],"error serializing buckets");
@@ -1100,7 +1100,7 @@ function buckets_load($items)
     privmsg($items["destination"],$items["nick"],"error reading buckets file");
     return;
   }
-  $data=unserialize($data);
+  $data=unserialize(base64_decode($data));
   if ($data===False)
   {
     privmsg($items["destination"],$items["nick"],"error unserializing buckets file");
@@ -1184,7 +1184,7 @@ function get_users($nick="")
   $users=array();
   if (isset($buckets[BUCKET_USERS])==True)
   {
-    $users=unserialize($buckets[BUCKET_USERS]);
+    $users=unserialize(base64_decode($buckets[BUCKET_USERS]));
   }
   if ($nick<>"")
   {
@@ -1205,7 +1205,7 @@ function get_users($nick="")
 function set_users($users)
 {
   global $buckets;
-  $buckets[BUCKET_USERS]=serialize($users);
+  $buckets[BUCKET_USERS]=base64_encode(serialize($users));
 }
 
 #####################################################################################################
@@ -1623,7 +1623,7 @@ function script_event_handlers($cmd,&$items)
   $event_handlers=array();
   if (isset($buckets[BUCKET_EVENT_HANDLERS])==True)
   {
-    $event_handlers=unserialize($buckets[BUCKET_EVENT_HANDLERS]);
+    $event_handlers=unserialize(base64_decode($buckets[BUCKET_EVENT_HANDLERS]));
   }
   if ($event_handlers===False)
   {
