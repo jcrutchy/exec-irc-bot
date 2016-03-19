@@ -108,14 +108,22 @@ function get_array_bucket($bucket)
   }
   else
   {
-    $bucket_array=unserialize($array_bucket);
-    if ($bucket_array===False)
+    $array_bucket=base64_decode($array_bucket);
+    if ($array_bucket===False)
     {
-      term_echo("error unserializing \"$bucket\" bucket data");
+      term_echo("error decoding \"$bucket\" bucket data");
     }
     else
     {
-      $array=$bucket_array;
+      $bucket_array=unserialize($array_bucket);
+      if ($bucket_array===False)
+      {
+        term_echo("error unserializing \"$bucket\" bucket data");
+      }
+      else
+      {
+        $array=$bucket_array;
+      }
     }
   }
   return $array;
@@ -132,7 +140,7 @@ function append_array_bucket($index,$value)
 
 function set_array_bucket($array,$bucket,$unset=False)
 {
-  $bucket_data=serialize($array);
+  $bucket_data=base64_encode(serialize($array));
   if ($bucket_data===False)
   {
     term_echo("error serializing \"$bucket\" bucket");

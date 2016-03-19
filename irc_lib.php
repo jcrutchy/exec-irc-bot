@@ -998,7 +998,13 @@ function handle_buckets($data,$handle)
         $bucket_array=array();
         if (isset($buckets[$index])==True)
         {
-          $bucket_array=unserialize($buckets[$index]);
+          $bucket_array=base64_decode($buckets[$index]);
+          if ($bucket_array===False)
+          {
+            term_echo("BUCKET_APPEND [$index]: DECODE ERROR");
+            return True;
+          }
+          $bucket_array=unserialize($bucket_array);
           if ($bucket_array===False)
           {
             term_echo("BUCKET_APPEND [$index]: UNSERIALIZE ERROR");
@@ -1010,7 +1016,7 @@ function handle_buckets($data,$handle)
           term_echo("BUCKET_APPEND [$index]: NEW ARRAY BUCKET CREATED");
         }
         $bucket_array[]=$trailing;
-        $bucket_string=serialize($bucket_array);
+        $bucket_string=base64_encode(serialize($bucket_array));
         if ($bucket_string!==False)
         {
           $buckets[$index]=$bucket_string;
