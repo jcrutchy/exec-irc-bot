@@ -236,6 +236,33 @@ function handle_macros($nick,$channel,$trailing)
   {
     return;
   }
+  if ((trim($parts[0])=="~macro") and (count($parts)==2))
+  {
+    $account=users_get_account($nick);
+    if (in_array($account,$allowed)==False)
+    {
+      privmsg(chr(3)."02"."  *** not authorized");
+      return;
+    }
+    $trigger=trim($parts[1]);
+    if (isset($macros[$trigger])===False)
+    {
+      pm($channel,chr(3)."13"."  $trigger macro not found");
+      return;
+    }
+    $data=unserialize($macros[$trigger]);
+    if ($data===False)
+    {
+      pm($channel,chr(3)."13"."  $trigger macro has been corrupted (unserialize error)");
+      return;
+    }
+    $cmd="INTERNAL";
+    if (isset($data["cmd"])==True)
+    {
+      $cmd=$data["cmd"];
+    }
+    pm($channel,chr(3)."13"."  $trigger [".$data["chanlist"]."] $cmd ".$data["command"]);
+  }
   if ((trim($parts[0])=="~macro") and (count($parts)>2))
   {
     $account=users_get_account($nick);
