@@ -13,7 +13,7 @@ exec:~kick|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%a
 exec:~topic|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~mode|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~lockdown|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
-#exec:.kick|5|0|0|1|||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~info|5|0|0|1|+||||php scripts/admin.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
 #####################################################################################################
@@ -61,12 +61,6 @@ switch ($alias)
       rawmsg("INVITE $trailing :$dest");
     }
     break;
-  /*case ".kick":
-    if (($target==$nick) and ($target<>get_bot_nick()))
-    {
-      rawmsg("KICK $dest $target :$nick kicked self");
-    }
-    break;*/
   case "~kick":
     if (($target<>$nick) and ($target<>get_bot_nick()))
     {
@@ -88,6 +82,38 @@ switch ($alias)
   case "~lockdown":
     rawmsg("MODE $dest +ntipm");
     break;
+  case "~info":
+    if ($trailing==="")
+    {
+      privmsg(chr(3)."02"."syntax: ~info <alias>");
+      return;
+    }
+    $exec_list_bucket=get_bucket("<<EXEC_LIST>>");
+    if ($exec_list_bucket=="")
+    {
+      privmsg(chr(3)."02"."  *** error getting exec list bucket");
+      return;
+    }
+    $exec_list_bucket=base64_decode($exec_list_bucket);
+    if ($exec_list_bucket===False)
+    {
+      privmsg(chr(3)."02"."  *** error decoding exec list bucket");
+      return;
+    }
+    $exec_list=unserialize($exec_list_bucket);
+    if ($exec_list===False)
+    {
+      privmsg(chr(3)."02"."  *** error unserializing exec list bucket");
+      return;
+    }
+    if (isset($exec_list[$trailing])===False)
+    {
+      privmsg(chr(3)."02"."  *** error: alias not found");
+      return;
+    }
+    privmsg(chr(3)."02"."exec: ".$exec_list[$trailing]["line"]);
+    privmsg(chr(3)."02"."file: ".$exec_list[$trailing]["file"]);
+    return;
 }
 
 #####################################################################################################

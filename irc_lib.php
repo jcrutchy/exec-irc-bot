@@ -71,6 +71,7 @@ function initialize_buckets()
   $buckets[BUCKET_EVENT_HANDLERS]=base64_encode(serialize($empty));
   $buckets[BUCKET_CONNECTION_ESTABLISHED]="0";
   $buckets[BUCKET_USERS]=base64_encode(serialize($empty));
+  $buckets[BUCKET_OUTPUT_CONTROL]=base64_encode(serialize($empty));
   $buckets[BUCKET_BOT_NICK]=DEFAULT_NICK;
 }
 
@@ -606,6 +607,11 @@ function handle_stdout($handle)
   if ($buf===False)
   {
     return;
+  }
+  $output_control=unserialize(base64_decode($buckets[BUCKET_OUTPUT_CONTROL]));
+  if (isset($output_control[$handle["alias"]])==True)
+  {
+    # TODO: PROCESS OPTIONAL OUTPUT BUFFERING
   }
   write_out_buffer_proc($handle,$buf,"stdout");
   if (trim($buf)==DIRECTIVE_QUIT)
@@ -2084,7 +2090,7 @@ function exec_load()
     return False;
   }
   $empty=array();
-  $buckets[BUCKET_EVENT_HANDLERS]=serialize($empty);
+  $buckets[BUCKET_EVENT_HANDLERS]=base64_encode(serialize($empty));
   $data=explode("\n",$data);
   for ($i=0;$i<count($data);$i++)
   {

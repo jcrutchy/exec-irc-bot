@@ -32,10 +32,10 @@ if (isset($argv[1])==False)
   define("IRC_HOST_CONNECT","irc.sylnt.us");
   define("IRC_HOST","irc.sylnt.us");
   define("IRC_PORT","6667");
-  define("OPERATOR_ACCOUNT","dogfart");
+  define("OPERATOR_ACCOUNT","crutchy");
   define("DEBUG_CHAN","#debug");
   define("NICKSERV_IDENTIFY_PROMPT","You have 60 seconds to identify to your nickname before it is changed.");
-  define("ADMIN_ACCOUNTS","crutchy,chromas,juggs,martyb,cmn32480");
+  define("ADMIN_ACCOUNTS","chromas,juggs,martyb,cmn32480");
   define("MYSQL_LOG","1");
   define("NICKSERV_IDENTIFY","1");
   define("IFACE_ENABLE","0");
@@ -102,6 +102,7 @@ define("BUCKET_EXEC_LIST","<<EXEC_LIST>>");
 define("BUCKET_BOT_NICK","<<BOT_NICK>>");
 define("BUCKET_ADMIN_ACCOUNTS_LIST","<<ADMIN_ACCOUNTS_LIST>>");
 define("BUCKET_OPERATOR_ACCOUNT","<<OPERATOR_ACCOUNT>>");
+define("BUCKET_OUTPUT_CONTROL","<<OUTPUT_CONTROL>>");
 
 $internal_bucket_indexes=array(
   "BUCKET_IGNORE_NEXT",

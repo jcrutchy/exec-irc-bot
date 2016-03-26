@@ -11,3 +11,10 @@ not to be set for exec:
 +successor
 +founder
 +banned
+
+/cs flags #feeds crutchy -O
+/cs flags #crutchy crutchy -O
+/cs flags #comments crutchy -O
+/cs flags #github crutchy -O
+/cs flags #freenode crutchy -O
+/cs flags #exec crutchy -O
