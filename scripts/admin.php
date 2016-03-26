@@ -112,7 +112,15 @@ switch ($alias)
       return;
     }
     privmsg(chr(3)."02"."exec: ".$exec_list[$trailing]["line"]);
-    privmsg(chr(3)."02"."file: ".$exec_list[$trailing]["file"]);
+    if (file_exists($exec_list[$trailing]["file"])==True)
+    {
+      $stat=stat($exec_list[$trailing]["file"]);
+      privmsg(chr(3)."02"."file: ".$exec_list[$trailing]["file"]." [modified: ".date("Y-m-d H:i:s",$stat["mtime"]).", size: ".$stat["size"]." bytes]");
+    }
+    else
+    {
+      privmsg(chr(3)."02"."file: ".$exec_list[$trailing]["file"]." [FILE NOT FOUND]");
+    }
     return;
 }
 
