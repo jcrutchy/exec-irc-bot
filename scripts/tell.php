@@ -27,6 +27,9 @@ if ($trailing=="register-events")
   register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~tell-internal %%trailing%%");
   return;
 }
+
+$fn=DATA_PATH."tell_data";
+
 if ($alias=="~tell")
 {
   if ($trailing=="")
@@ -34,40 +37,118 @@ if ($alias=="~tell")
     privmsg("syntax: ~tell <nick> <message>");
     return;
   }
+  if (file_exists($fn)==True)
+  {
+    $data=json_decode(file_get_contents($fn),True);
+  }
+  else
+  {
+    $data=array();
+  }
   $parts=explode(" ",$trailing);
   $target=strtolower($parts[0]);
   array_shift($parts);
   $trailing=trim(implode(" ",$parts));
-  $tell_ignore_list=get_array_bucket("TELL_IGNORE_".$server."_".$nick);
+  $save_data=False;
+  if (isset($data[$server])==False)
+  {
+    $data[$server]=array();
+    $save_data=True;
+  }
+  if (isset($data[$server][$nick]["ignore"])==False)
+  {
+    $data[$server][$nick]["ignore"]=array();
+    $save_data=True;
+  }
+  if (isset($data[$server][$nick]["messages"])==False)
+  {
+    $data[$server][$nick]["messages"]=array();
+    $save_data=True;
+  }
   if ($target==">ignore")
   {
-    $tell_ignore_list[]=strtolower($target);
-    set_array_bucket($tell_ignore_list,"TELL_IGNORE_".$server."_".$nick);
-    return;
+    if (in_array($trailing,$data[$server][$nick]["ignore"])==False)
+    {
+      $data[$server][$nick]["ignore"][]=$trailing;
+      $save_data=True;
+      notice($nick,"added nick \"$trailing\" to ~tell ignore list for $nick");
+    }
+    else
+    {
+      notice($nick,"nick \"$trailing\" already in ~tell ignore list for $nick");
+    }
   }
-  if ($target=="<ignore")
+  elseif ($target=="<ignore")
   {
-    set_array_bucket($tell_ignore_list,"TELL_IGNORE_".$server."_".$nick);
-    return;
+    $index=array_search($trailing,$data[$server][$nick]["ignore"],True);
+    if ($index!==False)
+    {
+      unset($data[$server][$nick]["ignore"][$index]);
+      $save_data=True;
+      notice($nick,"deleted nick \"$trailing\" from ~tell ignore list for $nick");
+    }
+    else
+    {
+      notice($nick,"nick \"$trailing\" not found in ~tell ignore list for $nick");
+    }
   }
-  if (in_array(strtolower($target),$tell_ignore_list)==True)
+  else
   {
-    return;
+    if (isset($data[$server][$target]["ignore"])==False)
+    {
+      $data[$server][$target]["ignore"]=array();
+      $save_data=True;
+    }
+    if (isset($data[$server][$target]["messages"])==False)
+    {
+      $data[$server][$target]["messages"]=array();
+      $save_data=True;
+    }
+    $index=array_search($nick,$data[$server][$target]["ignore"],True);
+    if ($index===False)
+    {
+      $data[$server][$target]["messages"][]=$target.", at ".date("Y-m-d H:i:s",microtime(True))." (UTC), ".$nick." left message from ".$dest.": ".$trailing;
+      notice($nick,"message saved. i'll pm $target next time they say something");
+      $save_data=True;
+    }
+    else
+    {
+      notice($nick,"$target has chosen to ignore messages from you");
+    }
   }
-  append_array_bucket("TELL_MESSAGES_".$server."_".$target,$target.", at ".date("Y-m-d H:i:s",microtime(True))." (UTC), ".$nick." left message from ".$dest.": ".$trailing);
-  privmsg("message saved");
+  if ($save_data==True)
+  {
+    if (file_put_contents($fn,json_encode($data,JSON_PRETTY_PRINT))===False)
+    {
+      pm("crutchy","error writing ~tell data file");
+      pm("#debug","error writing ~tell data file");
+    }
+  }
   return;
 }
-if (substr($trailing,0,5)=="~tell")
+if ($alias=="~tell-internal")
 {
-  return;
+  if (file_exists($fn)==True)
+  {
+    $data=json_decode(file_get_contents($fn),True);
+    if (isset($data[$server][$nick]["messages"])==True)
+    {
+      if (count($data[$server][$nick]["messages"])>0)
+      {
+        for ($i=0;$i<count($data[$server][$nick]["messages"]);$i++)
+        {
+          notice($nick,$data[$server][$nick]["messages"][$i]);
+        }
+        $data[$server][$nick]["messages"]=array();
+        if (file_put_contents($fn,json_encode($data,JSON_PRETTY_PRINT))===False)
+        {
+          pm("crutchy","error writing ~tell data file");
+          pm("#debug","error writing ~tell data file");
+        }
+      }
+    }
+  }
 }
-$messages=get_array_bucket("TELL_MESSAGES_".$server."_".$nick);
-for ($i=0;$i<count($messages);$i++)
-{
-  notice($nick,$messages[$i]);
-}
-unset_bucket("TELL_MESSAGES_".$server."_".$nick);
 
 #####################################################################################################
 

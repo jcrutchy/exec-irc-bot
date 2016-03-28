@@ -131,7 +131,7 @@ switch ($action)
     }
     break;
   case "<adverb":
-    $index=array_search($arg,$data["adverbs"]);
+    $index=array_search($arg,$data["adverbs"],True);
     if ($index!==False)
     {
       unset($data["adverbs"][$index]);
@@ -187,7 +187,7 @@ switch ($action)
     }
     break;
   case "<container":
-    $index=array_search($arg,$data["containers"]);
+    $index=array_search($arg,$data["containers"],True);
     if ($index!==False)
     {
       unset($data["containers"][$index]);
@@ -215,7 +215,7 @@ switch ($action)
     }
     break;
   case "<beverage":
-    $index=array_search($arg,$data["beverages"]);
+    $index=array_search($arg,$data["beverages"],True);
     if ($index!==False)
     {
       unset($data["beverages"][$index]);

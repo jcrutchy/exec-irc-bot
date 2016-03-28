@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-#exec:~antispam-internal|10|0|0|1||INTERNAL|||php scripts/antispam.php %%trailing%%
-#init:~antispam-internal register-events
+exec:~antispam-internal|10|0|0|1||INTERNAL|||php scripts/antispam.php %%trailing%%
+init:~antispam-internal register-events
 */
 
 #####################################################################################################
@@ -17,9 +17,26 @@ $trailing=trim($argv[1]);
 
 if ($trailing=="register-events")
 {
-  register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~antispam-internal %%nick%% %%dest%% %%trailing%%");
+  register_all_events("~antispam-internal",True);
   return;
 }
+
+#var_dump($trailing);
+return;
+
+# event-privmsg crutchy #crutchy fart
+# event-part crutchy #crutchy
+# event-join crutchy #crutchy
+# event-nick fromnick tonick
+
+/*
+  register_event_handler("JOIN",":".get_bot_nick()." INTERNAL :$alias event-join %%nick%% %%params%%");
+  register_event_handler("KICK",":".get_bot_nick()." INTERNAL :$alias event-kick %%params%%");
+  register_event_handler("NICK",":".get_bot_nick()." INTERNAL :$alias event-nick %%nick%% %%trailing%%");
+  register_event_handler("PART",":".get_bot_nick()." INTERNAL :$alias event-part %%nick%% %%params%%");
+  register_event_handler("QUIT",":".get_bot_nick()." INTERNAL :$alias event-quit %%nick%%");
+  register_event_handler("PRIVMSG",":".get_bot_nick()." INTERNAL :$alias event-privmsg %%nick%% %%dest%% %%trailing%%");
+*/
 
 $parts=explode(" ",$trailing);
 

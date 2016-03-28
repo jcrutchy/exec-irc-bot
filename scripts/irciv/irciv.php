@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~civ|300|0|0|1|||||php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
-init:~civ load-data
+#exec:~civ|300|0|0|1|||||php scripts/irciv/irciv.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
+#init:~civ load-data
 #startup:~join #civ
 */
 
