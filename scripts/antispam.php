@@ -30,12 +30,12 @@ return;
 # event-nick fromnick tonick
 
 /*
-  register_event_handler("JOIN",":".get_bot_nick()." INTERNAL :$alias event-join %%nick%% %%params%%");
-  register_event_handler("KICK",":".get_bot_nick()." INTERNAL :$alias event-kick %%params%%");
-  register_event_handler("NICK",":".get_bot_nick()." INTERNAL :$alias event-nick %%nick%% %%trailing%%");
-  register_event_handler("PART",":".get_bot_nick()." INTERNAL :$alias event-part %%nick%% %%params%%");
-  register_event_handler("QUIT",":".get_bot_nick()." INTERNAL :$alias event-quit %%nick%%");
-  register_event_handler("PRIVMSG",":".get_bot_nick()." INTERNAL :$alias event-privmsg %%nick%% %%dest%% %%trailing%%");
+event-join %%nick%% %%params%%");
+event-kick %%params%%");
+event-nick %%nick%% %%trailing%%");
+event-part %%nick%% %%params%%");
+event-quit %%nick%%");
+event-privmsg %%nick%% %%dest%% %%trailing%%");
 */
 
 $parts=explode(" ",$trailing);
