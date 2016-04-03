@@ -338,7 +338,7 @@ function handle_macros($nick,$channel,$trailing)
       }
       if ($cmd=="INTERNAL")
       {
-        if (isset($exec_list_bucket[$parts[0]])==False)
+        if (isset($exec_list[$parts[0]])==False)
         {
           privmsg(chr(3)."02"."  *** error: internal command must trigger a valid alias");
           return;

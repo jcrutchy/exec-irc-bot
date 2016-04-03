@@ -3,9 +3,9 @@
 #####################################################################################################
 
 /*
-#exec:~karma|10|0|0|1|*||||php scripts/karma.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
-#exec:~karma-internal|10|0|0|1|*|INTERNAL||<<EXEC_KARMA>>|php scripts/karma.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
-#init:~karma-internal register-events
+exec:~karma|10|0|0|1|*||||php scripts/karma.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
+exec:~karma-internal|10|0|0|1|*|INTERNAL||<<EXEC_KARMA>>|php scripts/karma.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
+init:~karma-internal register-events
 */
 
 #####################################################################################################
@@ -18,6 +18,11 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 $server=$argv[5];
+
+if ($server<>"banks.freenode.net")
+{
+  return;
+}
 
 if (($trailing=="register-events") and ($alias=="~karma-internal"))
 {

@@ -5,7 +5,7 @@
 #####################################################################################################
 
 /*
-exec:~rps|10|0|0|1||PRIVMSG|||php scripts/rps.php %%trailing%% %%dest%% %%nick%% %%alias%% %%params%% %%server%%
+exec:~rps|10|0|0|1|||||php scripts/rps.php %%trailing%% %%dest%% %%nick%% %%alias%% %%params%% %%server%%
 */
 
 /*

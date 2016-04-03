@@ -23,13 +23,13 @@ include ./scripts/location.php
 include ./scripts/translate.php
 include ./scripts/japanese.php
 include ./scripts/jisho2.php
+include ./scripts/users.php
 
 include ./scripts/rps.php
 
 help ./scripts
 
 init ./scripts
-startup ./scripts
 
 ~calc|5|0|1|1|||||/usr/bin/units -t %%trailing%%
 help ~calc|syntax: ~calc <expression>
