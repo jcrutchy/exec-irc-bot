@@ -2,9 +2,17 @@
 
 #####################################################################################################
 
-function google_search($query)
+function google_search($query,$override_uri=False)
 {
-  $response=wget_ssl("www.google.com.au","/search?source=hp&q=".urlencode($query));
+  if ($override_uri==True)
+  {
+    $uri=$query;
+  }
+  else
+  {
+    $uri="/search?source=hp&q=".urlencode($query);
+  }
+  $response=wget_ssl("www.google.com.au",$uri);
   $html=strip_headers($response);
   strip_all_tag($html,"head");
   strip_all_tag($html,"script");

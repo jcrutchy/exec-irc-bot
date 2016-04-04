@@ -221,6 +221,7 @@ switch ($action)
       unset($data["beverages"][$index]);
       $data["beverages"]=array_values($data["beverages"]);
       $save_data=True;
+      privmsg("deleted beverage");
     }
     else
     {
