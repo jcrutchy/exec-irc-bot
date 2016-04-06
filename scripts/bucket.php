@@ -5,15 +5,9 @@ exec:~bucket|5|0|0|1|@||||php scripts/bucket.php %%trailing%% %%nick%% %%dest%% 
 
 exec:alias=~bucket
 exec:timeout=5
-exec:repeat=0
-exec:auto-privmsg=0
 exec:empty-trailing-allowed=1
 exec:account-list=@
-exec:cmd-list=
-exec:dest-list=
-exec:bucket-lock=
 exec:shell-cmd=php scripts/bucket.php %%trailing%% %%nick%% %%dest%% %%alias%%
-exec:server-list=irc.sylnt.us
 
 */
 
