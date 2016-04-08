@@ -2,6 +2,58 @@
 
 #####################################################################################################
 
+function exec_alias_config_value($alias,$name)
+{
+  $exec_list_bucket=get_bucket("<<EXEC_LIST>>");
+  if ($exec_list_bucket=="")
+  {
+    term_echo("*** exec_alias_config_value: error getting exec list bucket");
+    return False;
+  }
+  $exec_list_bucket=base64_decode($exec_list_bucket);
+  if ($exec_list_bucket===False)
+  {
+    term_echo("*** exec_alias_config_value: error decoding exec list bucket");
+    return False;
+  }
+  $exec_list=unserialize($exec_list_bucket);
+  if ($exec_list===False)
+  {
+    term_echo("*** exec_alias_config_value: error unserializing exec list bucket");
+    return False;
+  }
+  if (isset($exec_list[$alias])==False)
+  {
+    term_echo("*** exec_alias_config_value: alias not found");
+    return False;
+  }
+  if (isset($exec_list[$alias][$name])==False)
+  {
+    term_echo("*** exec_alias_config_value: name not found");
+    return False;
+  }
+  return $exec_list[$alias][$name];
+}
+
+#####################################################################################################
+
+function exec_alias_config_macro($action,$alias,$name,$value="")
+{
+  if ($value<>"")
+  {
+    echo "/INTERNAL ~exec-alias-config $action $alias $name $value\n";
+    return;
+  }
+  if ($name<>"")
+  {
+    echo "/INTERNAL ~exec-alias-config $action $alias $name\n";
+    return;
+  }
+  echo "/INTERNAL ~exec-alias-config $action $alias\n";
+}
+
+#####################################################################################################
+
 function save_bucket_to_file($index,$filename)
 {
   $bucket=get_array_bucket($index);

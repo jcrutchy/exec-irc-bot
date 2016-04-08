@@ -2092,6 +2092,9 @@ function exec_load()
   $empty=array();
   $buckets[BUCKET_EVENT_HANDLERS]=base64_encode(serialize($empty));
   $data=explode("\n",$data);
+  /*
+  LOAD EXEC SECTIONS IN EXEC.TXT
+  */
   for ($i=0;$i<count($data);$i++)
   {
     $line=trim($data[$i]);
@@ -2183,6 +2186,9 @@ function load_exec_line($line,$filename,$saved=True)
   {
     return False;
   }
+  /*
+  PROCESS NEW EXEC: LINES (ALIAS MUST BE FIRST)
+  */
   $parts=explode(EXEC_DELIM,$line);
   if (count($parts)<10)
   {

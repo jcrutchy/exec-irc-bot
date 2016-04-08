@@ -9,6 +9,16 @@
 
 #####################################################################################################
 
+#[~calc]
+#timeout=5
+#auto-privmsg=1
+#empty-trailing-allowed=1
+#shell-cmd=/usr/bin/units -t %%trailing%%
+#help=syntax: ~calc <expression>
+#help=evaluates math expression
+
+#####################################################################################################
+
 # ONLY ONE ALIAS DEFINITION ALLOWED FOR EACH RESERVED ALIAS SO ADD TO COMMANDS USING &&
 
 # RESERVED ALIAS TRIGGERED ON ALL LINES
