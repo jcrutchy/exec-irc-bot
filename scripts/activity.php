@@ -73,6 +73,7 @@ function handle_privmsg($parts)
   array_shift($parts);
   $trailing=trim(implode(" ",$parts));
   term_echo("*** activity: nick=$nick, channel=$channel, trailing=$trailing");
+  pm("crutchy","*** activity: nick=$nick, channel=$channel, trailing=$trailing");
   nick_follow($nick,$channel,$trailing);
   minion_talk($nick,$channel,$trailing);
 }
