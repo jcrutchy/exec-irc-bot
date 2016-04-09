@@ -222,7 +222,15 @@ function update_ranking(&$data)
     $data["users"][$account]["rank"]=0;
     if ($data["users"][$account]["rounds"]>0)
     {
-      $rankings[$account]=($data["users"][$account]["wins"]-$data["users"][$account]["losses"])*$data["users"][$account]["rounds"];
+      $delta=$data["users"][$account]["wins"]-$data["users"][$account]["losses"];
+      if ($delta>=0)
+      {
+        $rankings[$account]=$delta*$data["users"][$account]["rounds"];
+      }
+      else
+      {
+        $rankings[$account]=$delta/$data["users"][$account]["rounds"];
+      }
     }
     else
     {
@@ -259,9 +267,9 @@ function update_ranking(&$data)
     {
       $win_frac=0;
     }
-    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".$data["users"][$account]["rounds"]."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$win_frac)."%\t".$data["users"][$account]["rank"]."\t".str_pad(sprintf("%.0f",$rankings[$account]),strlen("handicap")," ",STR_PAD_LEFT)."\n";
+    $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".$data["users"][$account]["rounds"]."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$win_frac)."%\t".$data["users"][$account]["rank"]."\t".str_pad(sprintf("%.3f",$rankings[$account]),strlen("handicap")," ",STR_PAD_LEFT)."\n";
   }
-  $out=$out."\nhandicap = (wins-losses)*rounds\n\nhelp: http://wiki.soylentnews.org/wiki/IRC:exec_aliases#.7Erps\nsource: https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/rps.php";
+  $out=$out."\nhandicap = (wins-losses)*rounds for more wins than losses\nhandicap = (wins-losses)/rounds for more losses than wins\n\nhelp: http://wiki.soylentnews.org/wiki/IRC:exec_aliases#.7Erps\nsource: https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/rps.php";
   return $out;
 }
 

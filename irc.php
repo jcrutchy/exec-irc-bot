@@ -154,6 +154,7 @@ define("PREFIX_READER_HANDLES",PREFIX_DELIM."READER_HANDLES");
 
 # internal aliases (can also use in exec file with alias locking, but that would be just weird)
 define("ALIAS_INTERNAL_RESTART","~restart-internal");
+define("ALIAS_ADMIN_ALIAS_MACRO","~alias-macro");
 define("ALIAS_ADMIN_QUIT","~quit");
 define("ALIAS_ADMIN_NICK","~nick");
 define("ALIAS_ADMIN_PS","~ps");
@@ -216,7 +217,9 @@ $irc_pause=False;
 $throttle_time=False; # set when "throttled" is detected in a message from the server
 $rawmsg_times=array();
 
-$operator_aliases=array(); # aliases that may only be executed by the bot operator account
+# aliases that may only be executed by the bot operator account
+$operator_aliases=array(
+  ALIAS_ADMIN_ALIAS_MACRO);
 
 $admin_aliases=array(
   ALIAS_ADMIN_QUIT,

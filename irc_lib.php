@@ -1767,6 +1767,13 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
           rawmsg(":".get_bot_nick()." NICK :".trim($args[1]));
         }
         break;
+      case ALIAS_ADMIN_ALIAS_MACRO:
+        $msg="";
+        if (process_alias_config_macro($items["trailing"],$msg)==False)
+        {
+          privmsg($items["destination"],$items["nick"],"alias config macro error: $msg");
+        }
+        break;
       case ALIAS_ADMIN_QUIT:
         if (count($args)==1)
         {
@@ -2170,32 +2177,73 @@ function load_include($filename,&$lines,$directive)
 
 #####################################################################################################
 
-function process_alias_config_macro($macro)
+function process_alias_config_macro($macro,&$msg);
 {
   global $exec_list;
   term_echo("@@@@@@@@@@@@@@@@@@@@@@ EXEC ALIAS CONFIG MACRO: ".$macro);
-  # TODO
-  /*
-  $result=array();
-  $result["alias"]=$alias;
-  $result["timeout"]=$timeout;
-  $result["repeat"]=$repeat;
-  $result["auto"]=$auto;
-  $result["empty"]=$empty;
-  $result["accounts"]=$accounts;
-  $result["accounts_wildcard"]=$accounts_wildcard;
-  $result["cmds"]=$cmds;
-  $result["dests"]=$dests;
-  $result["bucket_locks"]=$locks;
-  $result["cmd"]=$cmd;
-  $result["saved"]=$saved;
-  $result["line"]=$line;
-  $result["file"]=$filename;
-  $result["help"]=array();
-  $exec_list[$alias]=$result;
-  term_echo("SUCCESS: $line");
-  return $result;
-  */
+  $parts=explode(" ",$macro);
+  delete_empty_elements($parts);
+  if (count($parts)<2)
+  {
+    $msg="needs at least an action and an alias";
+    return False;
+  }
+  $action=strtolower(array_shift($parts));
+  $alias=strtolower(array_shift($parts));
+  if (count($parts)==2)
+  {
+    # enable/disable/edit/add/delete alias
+    switch ($action)
+    {
+      case "enable":
+      
+        break;
+      case "disable":
+      
+        break;
+      case "add":
+      
+        break;
+      case "edit":
+      
+        break;
+      case "delete":
+      
+        break;
+      default:
+      
+        break;
+    }
+  }
+  elseif (count($parts)==3)
+  {
+    # delete element
+    switch ($action)
+    {
+      case "delete":
+      
+        break;
+      default:
+      
+        break;
+    }
+  }
+  else
+  {
+    # add/edit element
+    switch ($action)
+    {
+      case "add":
+      
+        break;
+      case "edit":
+      
+        break;
+      default:
+      
+        break;
+    }
+  }
   return False;
 }
 
@@ -2214,7 +2262,8 @@ function load_exec_line($line,$filename,$saved=True)
   {
     return False;
   }
-  $result=process_alias_config_macro($line);
+  $msg="";
+  $result=process_alias_config_macro($line,$msg);
   if ($result!==False)
   {
     term_echo("EXEC ALIAS CONFIG MACRO SUCCESS: $line");
@@ -2316,6 +2365,7 @@ function load_exec_line($line,$filename,$saved=True)
   $result["line"]=$line;
   $result["file"]=$filename;
   $result["help"]=array();
+  $result["enabled"]=True;
   $exec_list[$alias]=$result;
   term_echo("SUCCESS: $line");
   return $result;
