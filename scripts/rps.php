@@ -229,7 +229,7 @@ function update_ranking(&$data)
       }
       else
       {
-        $rankings[$account]=$delta/$data["users"][$account]["rounds"]*10000;
+        $rankings[$account]=$delta/$data["users"][$account]["rounds"]*100000;
       }
     }
     else
@@ -269,7 +269,7 @@ function update_ranking(&$data)
     }
     $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".$data["users"][$account]["rounds"]."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$win_frac)."%\t".$data["users"][$account]["rank"]."\t".str_pad(sprintf("%.0f",$rankings[$account]),strlen("handicap")," ",STR_PAD_LEFT)."\n";
   }
-  $out=$out."\nhandicap = (wins-losses)*rounds for more wins than losses\nhandicap = (wins-losses)/rounds*10000 for more losses than wins\n\nhelp: http://wiki.soylentnews.org/wiki/IRC:exec_aliases#.7Erps\nsource: https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/rps.php";
+  $out=$out."\nhandicap = (wins-losses)*rounds for more wins than losses\nhandicap = (wins-losses)/rounds*100000 for more losses than wins\n\nhelp: http://wiki.soylentnews.org/wiki/IRC:exec_aliases#.7Erps\nsource: https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/rps.php";
   return $out;
 }
 
