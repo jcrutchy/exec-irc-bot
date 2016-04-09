@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-#exec:~activity|60|0|0|1|||||php scripts/activity.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
-#init:~activity register-events
+exec:~activity|60|0|0|1|||||php scripts/activity.php %%nick%% %%trailing%% %%dest%% %%start%% %%alias%% %%cmd%%
+init:~activity register-events
 */
 
 #####################################################################################################

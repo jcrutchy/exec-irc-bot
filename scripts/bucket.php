@@ -2,13 +2,6 @@
 
 /*
 exec:~bucket|5|0|0|1|@||||php scripts/bucket.php %%trailing%% %%nick%% %%dest%% %%alias%%
-
-exec:alias=~bucket
-exec:timeout=5
-exec:empty-trailing-allowed=1
-exec:account-list=@
-exec:shell-cmd=php scripts/bucket.php %%trailing%% %%nick%% %%dest%% %%alias%%
-
 */
 
 #####################################################################################################

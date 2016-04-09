@@ -2092,9 +2092,6 @@ function exec_load()
   $empty=array();
   $buckets[BUCKET_EVENT_HANDLERS]=base64_encode(serialize($empty));
   $data=explode("\n",$data);
-  /*
-  LOAD EXEC SECTIONS IN EXEC.TXT
-  */
   for ($i=0;$i<count($data);$i++)
   {
     $line=trim($data[$i]);
@@ -2173,6 +2170,37 @@ function load_include($filename,&$lines,$directive)
 
 #####################################################################################################
 
+function process_alias_config_macro($macro)
+{
+  global $exec_list;
+  term_echo("@@@@@@@@@@@@@@@@@@@@@@ EXEC ALIAS CONFIG MACRO: ".$macro);
+  # TODO
+  /*
+  $result=array();
+  $result["alias"]=$alias;
+  $result["timeout"]=$timeout;
+  $result["repeat"]=$repeat;
+  $result["auto"]=$auto;
+  $result["empty"]=$empty;
+  $result["accounts"]=$accounts;
+  $result["accounts_wildcard"]=$accounts_wildcard;
+  $result["cmds"]=$cmds;
+  $result["dests"]=$dests;
+  $result["bucket_locks"]=$locks;
+  $result["cmd"]=$cmd;
+  $result["saved"]=$saved;
+  $result["line"]=$line;
+  $result["file"]=$filename;
+  $result["help"]=array();
+  $exec_list[$alias]=$result;
+  term_echo("SUCCESS: $line");
+  return $result;
+  */
+  return False;
+}
+
+#####################################################################################################
+
 function load_exec_line($line,$filename,$saved=True)
 {
   global $exec_errors;
@@ -2186,9 +2214,12 @@ function load_exec_line($line,$filename,$saved=True)
   {
     return False;
   }
-  /*
-  PROCESS NEW EXEC: LINES (ALIAS MUST BE FIRST)
-  */
+  $result=process_alias_config_macro($line);
+  if ($result!==False)
+  {
+    term_echo("EXEC ALIAS CONFIG MACRO SUCCESS: $line");
+    return $result;
+  }
   $parts=explode(EXEC_DELIM,$line);
   if (count($parts)<10)
   {
@@ -2269,6 +2300,7 @@ function load_exec_line($line,$filename,$saved=True)
       }
     }
   }
+  $result=array();
   $result["alias"]=$alias;
   $result["timeout"]=$timeout;
   $result["repeat"]=$repeat;
