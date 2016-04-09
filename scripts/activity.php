@@ -215,7 +215,7 @@ function minion_talk($nick,$channel,$trailing)
 
 function minion_relay($nick,$channel,$trailing)
 {
-  if ($channel=="##vibratingbuttplugsandhorsedildos")
+  if (($channel=="##vibratingbuttplugsandhorsedildos") and ($nick!==get_bot_nick()))
   {
     echo "/INTERNAL ~minion privmsg sylnt ##vibratingbuttplugsandhorsedildos ".chr(3)."05"."[$nick] $trailing\n";
   }
