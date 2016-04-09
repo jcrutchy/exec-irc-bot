@@ -75,6 +75,7 @@ function handle_privmsg($parts)
   term_echo("*** activity: nick=$nick, channel=$channel, trailing=$trailing");
   nick_follow($nick,$channel,$trailing);
   minion_talk($nick,$channel,$trailing);
+  minion_relay($nick,$channel,$trailing);
 }
 
 #####################################################################################################
@@ -207,6 +208,16 @@ function minion_talk($nick,$channel,$trailing)
   if ($save_bucket==True)
   {
     set_array_bucket($relays,$relays_bucket);
+  }
+}
+
+#####################################################################################################
+
+function minion_relay($nick,$channel,$trailing)
+{
+  if ($channel=="##vibratingbuttplugsandhorsedildos")
+  {
+    echo "/INTERNAL ~minion privmsg sylnt ##vibratingbuttplugsandhorsedildos ".chr(3)."05"."$trailing\n";
   }
 }
 
