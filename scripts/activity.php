@@ -217,7 +217,7 @@ function minion_relay($nick,$channel,$trailing)
 {
   if ($channel=="##vibratingbuttplugsandhorsedildos")
   {
-    echo "/INTERNAL ~minion privmsg sylnt ##vibratingbuttplugsandhorsedildos ".chr(3)."05"."$trailing\n";
+    echo "/INTERNAL ~minion privmsg sylnt ##vibratingbuttplugsandhorsedildos ".chr(3)."05"."[$nick] $trailing\n";
   }
 }
 
