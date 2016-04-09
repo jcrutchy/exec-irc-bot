@@ -73,7 +73,6 @@ function handle_privmsg($parts)
   array_shift($parts);
   $trailing=trim(implode(" ",$parts));
   term_echo("*** activity: nick=$nick, channel=$channel, trailing=$trailing");
-  pm("crutchy","*** activity: nick=$nick, channel=$channel, trailing=$trailing");
   nick_follow($nick,$channel,$trailing);
   minion_talk($nick,$channel,$trailing);
 }
@@ -89,8 +88,7 @@ function nick_follow($nick,$channel,$trailing)
     "Henzell"=>array("from"=>"##crawl","to"=>"#crawl"),
     "Sizzell"=>array("from"=>"##crawl","to"=>"#crawl"),
     "Cheibriados"=>array("from"=>"##crawl","to"=>"#crawl"),
-    "*"=>array("from"=>"##vibratingbuttplugsandhorsedildos","to"=>"##vibratingbuttplugsandhorsedildos"),
-    "*"=>array("from"=>"#systemd","to"=>"#systemd"));
+    "*"=>array("from"=>"##vibratingbuttplugsandhorsedildos","to"=>"##vibratingbuttplugsandhorsedildos"));
   $highlight_follows=array("NCommander"=>array("from"=>"#NetHack","to"=>"#Soylent"));
   foreach ($freenode_follows as $freenode_nick => $follow_channels)
   {
