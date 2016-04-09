@@ -106,12 +106,13 @@ function nick_follow($nick,$channel,$trailing)
     }
     else
     {
-      if (strpos($trailing,$landing)===False)
+      $i=strpos($trailing,$landing);
+      if ($i===False)
       {
         continue;
       }
-      $msg=substr($trailing,strlen($landing));
-      $out="[".substr($trailing,0,strpos($trailing,$landing))."] ".$msg;
+      $msg=$trailing;
+      $out=$trailing;
     }
     if (($nick=="") and ($channel==$landing_channel))
     {
