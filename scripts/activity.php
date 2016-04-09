@@ -88,12 +88,12 @@ function nick_follow($nick,$channel,$trailing)
     "Henzell"=>array("from"=>"##crawl","to"=>"#crawl"),
     "Sizzell"=>array("from"=>"##crawl","to"=>"#crawl"),
     "Cheibriados"=>array("from"=>"##crawl","to"=>"#crawl"),
-    "*"=>array("from"=>"##vibratingbuttplugsandhorsedildos","to"=>"##vibratingbuttplugsandhorsedildos"));
+    "##vibratingbuttplugsandhorsedildos"=>array("from"=>"##vibratingbuttplugsandhorsedildos","to"=>"##vibratingbuttplugsandhorsedildos"));
   $highlight_follows=array("NCommander"=>array("from"=>"#NetHack","to"=>"#Soylent"));
   foreach ($freenode_follows as $freenode_nick => $follow_channels)
   {
     $landing=chr(3)." [".chr(3)."02".$follow_channels["from"].chr(3)."] ".chr(3)."05";
-    if ($freenode_nick<>"*")
+    if ($freenode_nick<>$follow_channels["from"])
     {
       $landing=chr(3)."03".$freenode_nick.$landing;
       if (substr($trailing,0,strlen($landing))<>$landing)
