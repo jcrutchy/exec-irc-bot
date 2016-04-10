@@ -2196,19 +2196,53 @@ function process_alias_config_macro($macro,&$msg);
     switch ($action)
     {
       case "enable":
-      
+        if (isset($exec_list[$alias])==True)
+        {
+          $exec_list[$alias]["enabled"]=True;
+          $msg="alias \"$alias\" successfully enabled";
+        }
+        else
+        {
+          $msg="alias \"$alias\" not found";
+          return False;
+        }
         break;
       case "disable":
-      
+        if (isset($exec_list[$alias])==True)
+        {
+          $exec_list[$alias]["enabled"]=False;
+          $msg="alias \"$alias\" successfully disabled";
+        }
+        else
+        {
+          $msg="alias \"$alias\" not found";
+          return False;
+        }
         break;
       case "add":
       
         break;
       case "edit":
-      
+        if (isset($exec_list[$alias])==True)
+        {
+        
+        }
+        else
+        {
+          $msg="alias not found";
+          return False;
+        }
         break;
       case "delete":
-      
+        if (isset($exec_list[$alias])==True)
+        {
+        
+        }
+        else
+        {
+          $msg="alias not found";
+          return False;
+        }
         break;
       default:
       
@@ -2587,6 +2621,10 @@ function process_scripts($items,$reserved="")
     $alias=$reserved;
   }
   if (isset($exec_list[$alias])==False)
+  {
+    return;
+  }
+  if (isset($exec_list[$alias]["enabled")==False)
   {
     return;
   }
