@@ -2177,7 +2177,7 @@ function load_include($filename,&$lines,$directive)
 
 #####################################################################################################
 
-function process_alias_config_macro($macro,&$msg);
+function process_alias_config_macro($macro,&$msg)
 {
   global $exec_list;
   term_echo("@@@@@@@@@@@@@@@@@@@@@@ EXEC ALIAS CONFIG MACRO: ".$macro);
@@ -2192,74 +2192,94 @@ function process_alias_config_macro($macro,&$msg);
   $alias=strtolower(array_shift($parts));
   if (count($parts)==2)
   {
-    # enable/disable/edit/add/delete alias
+    # enable/disable/add/delete alias
     switch ($action)
     {
       case "enable":
-        if (isset($exec_list[$alias])==True)
-        {
-          $exec_list[$alias]["enabled"]=True;
-          $msg="alias \"$alias\" successfully enabled";
-        }
-        else
+        if (isset($exec_list[$alias])==False)
         {
           $msg="alias \"$alias\" not found";
           return False;
         }
-        break;
+        $exec_list[$alias]["enabled"]=True;
+        $msg="alias \"$alias\" successfully enabled";
+        return True;
       case "disable":
-        if (isset($exec_list[$alias])==True)
-        {
-          $exec_list[$alias]["enabled"]=False;
-          $msg="alias \"$alias\" successfully disabled";
-        }
-        else
+        if (isset($exec_list[$alias])==False)
         {
           $msg="alias \"$alias\" not found";
           return False;
         }
-        break;
+        $exec_list[$alias]["enabled"]=False;
+        $msg="alias \"$alias\" successfully disabled";
+        return True;
       case "add":
-      
-        break;
-      case "edit":
         if (isset($exec_list[$alias])==True)
         {
-        
-        }
-        else
-        {
-          $msg="alias not found";
+          $msg="alias already exists";
           return False;
         }
-        break;
+        $record=array();
+        $record["alias"]=$alias;
+        $record["timeout"]=5;
+        $record["repeat"]=0;
+        $record["auto"]=0;
+        $record["empty"]=1;
+        $record["accounts"]=array();
+        $record["accounts_wildcard"]="";
+        $record["cmds"]=array();
+        $record["dests"]=array();
+        $record["bucket_locks"]=array();
+        $record["cmd"]="";
+        $record["saved"]=False;
+        $record["line"]=$alias."|".$record["timeout"]."|0|0|1|||||";
+        $record["file"]="";
+        $record["help"]=array();
+        $record["enabled"]=False;
+        $exec_list[$alias]=$record;
+        $msg="alias \"$alias\" successfully added";
+        return True;
       case "delete":
-        if (isset($exec_list[$alias])==True)
-        {
-        
-        }
-        else
+        if (isset($exec_list[$alias])==False)
         {
           $msg="alias not found";
           return False;
         }
-        break;
+        
+        return True;
       default:
-      
-        break;
+        $msg="invalid action";
+        return False;
     }
   }
   elseif (count($parts)==3)
   {
-    # delete element
+    
     switch ($action)
     {
+      # delete element
       case "delete":
       
         break;
+      # edit (rename) alias
+      case "edit":
+        if (isset($exec_list[$alias])==False)
+        {
+          $msg="alias not found";
+          return False;
+        }
+        if ($parts[2]===$alias)
+        {
+          $msg="good one you idiot";
+          return False;
+        }
+        $exec_list[$parts[2]]=$exec_list[$alias];
+        unset($exec_list[$alias]);
+        $msg="alias \"$alias\" successfully renamed";
+        return True;
       default:
-      
-        break;
+        $msg="invalid action";
+        return False;
     }
   }
   else
@@ -2274,8 +2294,8 @@ function process_alias_config_macro($macro,&$msg);
       
         break;
       default:
-      
-        break;
+        $msg="invalid action";
+        return False;
     }
   }
   return False;
