@@ -2181,6 +2181,7 @@ function process_alias_config_macro($macro,&$msg)
 {
   global $exec_list;
   term_echo("@@@@@@@@@@@@@@@@@@@@@@ EXEC ALIAS CONFIG MACRO: ".$macro);
+  $reserved=array("alias","timeout","repeat","auto","empty","accounts","accounts_wildcard","cmds","dests","bucket_locks","cmd","saved","line","file","help","enabled");
   $parts=explode(" ",$macro);
   delete_empty_elements($parts);
   if (count($parts)<2)
@@ -2245,7 +2246,8 @@ function process_alias_config_macro($macro,&$msg)
           $msg="alias not found";
           return False;
         }
-        
+        unset($exec_list[$alias]);
+        $msg="alias \"$alias\" successfully deleted";
         return True;
       default:
         $msg="invalid action";
@@ -2258,8 +2260,24 @@ function process_alias_config_macro($macro,&$msg)
     {
       # delete element
       case "delete":
-      
-        break;
+        if (in_array($parts[2],$reserved)==True)
+        {
+          $msg="unabled to delete reserved element \"".$parts[2]."\"";
+          return False;
+        }
+        if (isset($exec_list[$alias])==False)
+        {
+          $msg="alias not found";
+          return False;
+        }
+        if (isset($exec_list[$alias][$parts[2]])==True)
+        {
+          $msg="element \"".$parts[2]."\" not found";
+          return False;
+        }
+        unset($exec_list[$alias][$parts[2]]);
+        $msg="element \"".$parts[2]."\" successfully deleted";
+        return True;
       # edit (rename) alias
       case "edit":
         if (isset($exec_list[$alias])==False)
