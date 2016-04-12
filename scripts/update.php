@@ -45,7 +45,7 @@ switch ($alias)
       return;
     }
     $content=strip_headers($response);
-    $outfile=realpath(__DIR__."/../").$trailing;
+    $outfile=realpath(__DIR__."/../")."/".$trailing;
     if (file_put_contents($outfile,$content)===False)
     {
       privmsg("error downloading file (3)");
