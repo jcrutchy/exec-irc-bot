@@ -2254,7 +2254,6 @@ function process_alias_config_macro($macro,&$msg)
   }
   elseif (count($parts)==3)
   {
-    
     switch ($action)
     {
       # delete element
@@ -2644,7 +2643,7 @@ function process_scripts($items,$reserved="")
   {
     return;
   }
-  if (isset($exec_list[$alias]["enabled")==False)
+  if (isset($exec_list[$alias]["enabled"])==False)
   {
     return;
   }

@@ -23,7 +23,7 @@ if ($trailing=="")
 
 $result=quick_wget($trailing);
 
-if ($result==False)
+if ($result===False)
 {
   privmsg("syntax: ~wget url delim 1 <> delim 2");
   return;
