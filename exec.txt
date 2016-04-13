@@ -15,6 +15,7 @@
 # reserved array keys: accounts, cmds, dests, bucket_locks, help
 
 # you can't edit reserved arrays with macros
+# TODO: NEED SOME WAY TO EDIT ARRAYS
 # you can't delete reserved keys
 # after adding/editing, the affected alias will be disabled (enable should be last macro)
 # alias keys must not contain spaces, but can be anything
@@ -27,7 +28,10 @@
 # exec:delete %%alias%%
 
 # enable an existing alias
-# exec:delete %%alias%%
+# exec:enable %%alias%%
+
+# disable an existing alias
+# exec:disable %%alias%%
 
 # rename an existing alias
 # exec:rename %%exist_alias%% %%new_alias%%
