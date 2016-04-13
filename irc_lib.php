@@ -895,24 +895,48 @@ function handle_buckets($data,$handle)
         handle_stdin($handle,"\n");
         return True;
       }
-      if (substr($index,0,strlen(TEMPLATE_ACCESS_PREFIX))==TEMPLATE_ACCESS_PREFIX)
+      if (substr($index,0,strlen(BUCKET_ALIAS_ELEMENT_PREFIX))==BUCKET_ALIAS_ELEMENT_PREFIX)
       {
-        $process_template=substr($index,strlen(TEMPLATE_ACCESS_PREFIX));
+        $parts_str=substr($index,strlen(BUCKET_ALIAS_ELEMENT_PREFIX));
+        $parts=explode("_",$parts_str);
+        if (count($parts)<=1)
+        {
+          handle_stdin($handle,"\n");
+          return True;
+        }
+        $alias=array_shift($parts);
+        array_values($parts);
+        $key=implode("_",$parts);
+        if (isset($exec_list[$alias][$key])==True)
+        {
+          $out=$exec_list[$alias][$key];
+          if (is_array($exec_list[$alias][$key])==True)
+          {
+            $out=base64_encode(serialize($exec_list[$alias][$key]));
+          }
+          $result=handle_stdin($handle,$out);
+          if ($result===False)
+          {
+            term_echo("alias element failed for pid ".$handle["pid"]);
+          }
+          handle_stdin($handle,"\n");
+          return True;
+        }
+      }
+      if (substr($index,0,strlen(BUCKET_PROCESS_TEMPLATE_PREFIX))==BUCKET_PROCESS_TEMPLATE_PREFIX)
+      {
+        $process_template=substr($index,strlen(BUCKET_PROCESS_TEMPLATE_PREFIX));
         if (isset($handle[$process_template])==True)
         {
           $out=$handle[$process_template];
           if (is_array($handle[$process_template])==True)
           {
-            $out=serialize($handle[$process_template]);
+            $out=base64_encode(serialize($handle[$process_template]));
           }
           $result=handle_stdin($handle,$out);
           if ($result===False)
           {
             term_echo("process template \"".$process_template."\" failed for pid ".$handle["pid"]);
-          }
-          else
-          {
-            #term_echo("process template \"".$process_template."\" returned successfully for pid ".$handle["pid"]);
           }
           handle_stdin($handle,"\n");
           return True;
@@ -1769,9 +1793,14 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
         break;
       case ALIAS_ADMIN_ALIAS_MACRO:
         $msg="";
-        if (process_alias_config_macro($items["trailing"],$msg)==False)
+        $macro=explode(" ",$items["trailing"]);
+        array_shift($macro);
+        array_values($macro);
+        $macro=implode(" ",$macro);
+        process_alias_config_macro($macro,$msg);
+        if ($msg<>"")
         {
-          privmsg($items["destination"],$items["nick"],"alias config macro error: $msg");
+          privmsg($items["destination"],$items["nick"],"alias config macro: $msg");
         }
         break;
       case ALIAS_ADMIN_QUIT:
@@ -2180,8 +2209,8 @@ function load_include($filename,&$lines,$directive)
 function process_alias_config_macro($macro,&$msg)
 {
   global $exec_list;
-  term_echo("@@@@@@@@@@@@@@@@@@@@@@ EXEC ALIAS CONFIG MACRO: ".$macro);
   $reserved=array("alias","timeout","repeat","auto","empty","accounts","accounts_wildcard","cmds","dests","bucket_locks","cmd","saved","line","file","help","enabled");
+  $reserved_arrays=array("accounts","cmds","dests","bucket_locks","help");
   $parts=explode(" ",$macro);
   delete_empty_elements($parts);
   if (count($parts)<2)
@@ -2191,7 +2220,8 @@ function process_alias_config_macro($macro,&$msg)
   }
   $action=strtolower(array_shift($parts));
   $alias=strtolower(array_shift($parts));
-  if (count($parts)==2)
+  array_values($parts);
+  if (count($parts)==0)
   {
     # enable/disable/add/delete alias
     switch ($action)
@@ -2233,7 +2263,7 @@ function process_alias_config_macro($macro,&$msg)
         $record["bucket_locks"]=array();
         $record["cmd"]="";
         $record["saved"]=False;
-        $record["line"]=$alias."|".$record["timeout"]."|0|0|1|||||";
+        $record["line"]="";
         $record["file"]="";
         $record["help"]=array();
         $record["enabled"]=False;
@@ -2254,15 +2284,16 @@ function process_alias_config_macro($macro,&$msg)
         return False;
     }
   }
-  elseif (count($parts)==3)
+  elseif (count($parts)==1)
   {
+    $key=$parts[0];
     switch ($action)
     {
       # delete element
       case "delete":
-        if (in_array($parts[2],$reserved)==True)
+        if (in_array($key,$reserved)==True)
         {
-          $msg="unabled to delete reserved element \"".$parts[2]."\"";
+          $msg="unable to delete reserved element \"$key\"";
           return False;
         }
         if (isset($exec_list[$alias])==False)
@@ -2270,51 +2301,86 @@ function process_alias_config_macro($macro,&$msg)
           $msg="alias not found";
           return False;
         }
-        if (isset($exec_list[$alias][$parts[2]])==True)
+        if (isset($exec_list[$alias][$key])==True)
         {
-          $msg="element \"".$parts[2]."\" not found";
+          $msg="element \"$key\" not found";
           return False;
         }
-        unset($exec_list[$alias][$parts[2]]);
-        $msg="element \"".$parts[2]."\" successfully deleted";
+        unset($exec_list[$alias][$key]);
+        $msg="element \"$key\" successfully deleted";
         return True;
-      # edit (rename) alias
-      case "edit":
+      # rename alias
+      case "rename":
         if (isset($exec_list[$alias])==False)
         {
           $msg="alias not found";
           return False;
         }
-        if ($parts[2]===$alias)
+        if ($key===$alias)
         {
           $msg="good one you idiot";
           return False;
         }
-        $exec_list[$parts[2]]=$exec_list[$alias];
+        $exec_list[$key]=$exec_list[$alias];
+        $exec_list[$key]["enabled"]=False;
         unset($exec_list[$alias]);
-        $msg="alias \"$alias\" successfully renamed";
+        $msg="alias \"$alias\" successfully renamed (and disabled)";
         return True;
       default:
         $msg="invalid action";
         return False;
     }
   }
-  else
+  elseif (count($parts)>1)
   {
     # add/edit element
+    $key=$parts[0];
+    array_shift($parts);
+    array_values($parts);
+    $value=implode(" ",$parts);
     switch ($action)
     {
       case "add":
-      
-        break;
+        if (isset($exec_list[$alias])==False)
+        {
+          $msg="alias not found";
+          return False;
+        }
+        if (isset($exec_list[$alias][$key])==True)
+        {
+          $msg="element already exists";
+          return False;
+        }
+        if (in_array($key,$reserved)==True)
+        {
+          $msg="unable to add reserved element \"$key\"";
+          return False;
+        }
+        $exec_list[$alias][$key]=$value;
+        $exec_list[$alias]["enabled"]=False;
+        $msg="element successfully added (and alias disabled)";
+        return True;
       case "edit":
-      
-        break;
+        if (isset($exec_list[$alias][$key])==False)
+        {
+          $msg="element not found";
+          return False;
+        }
+        if (in_array($key,$reserved_arrays)==True)
+        {
+          $msg="unable to edit reserved array element \"$key\"";
+          return False;
+        }
+        $exec_list[$alias][$key]=$value;
+        $exec_list[$alias]["enabled"]=False;
+        $msg="alias \"$alias\" element \"$key\" successfully updated with value \"$value\" (and alias disabled)";
+        return True;
       default:
         $msg="invalid action";
         return False;
     }
   }
+  $msg="error";
   return False;
 }
 
@@ -2337,7 +2403,7 @@ function load_exec_line($line,$filename,$saved=True)
   $result=process_alias_config_macro($line,$msg);
   if ($result!==False)
   {
-    term_echo("EXEC ALIAS CONFIG MACRO SUCCESS: $line");
+    term_echo("EXEC ALIAS CONFIG MACRO SUCCESS: $line => $msg");
     return $result;
   }
   $parts=explode(EXEC_DELIM,$line);
@@ -2661,7 +2727,7 @@ function process_scripts($items,$reserved="")
   {
     return;
   }
-  if (isset($exec_list[$alias]["enabled"])==False)
+  if ($exec_list[$alias]["enabled"]!==True)
   {
     return;
   }

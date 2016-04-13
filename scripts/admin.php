@@ -111,7 +111,13 @@ switch ($alias)
       privmsg(chr(3)."02"."  *** error: alias not found");
       return;
     }
-    privmsg(chr(3)."02"."exec: ".$exec_list[$trailing]["line"]);
+    $enabled_str="enabled";
+    if ($exec_list[$trailing]["enabled"]==False)
+    {
+      $enabled_str="disabled";
+    }
+    $record=$exec_list[$trailing];
+    privmsg(chr(3)."02"."exec [$enabled_str]: ".$record["alias"]."|".$record["timeout"]."|".$record["repeat"]."|".$record["auto"]."|".$record["empty"]."|".implode(",",$record["accounts"])."|".$record["accounts_wildcard"]."|".implode(",",$record["cmds"])."|".implode(",",$record["dests"])."|".implode(",",$record["bucket_locks"])."|".$record["cmd"]);
     if (file_exists($exec_list[$trailing]["file"])==True)
     {
       $stat=stat($exec_list[$trailing]["file"]);
