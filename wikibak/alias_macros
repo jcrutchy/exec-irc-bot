@@ -1,0 +1,43 @@
+
+ISSUE ON GITHUB FOR PROPOSAL: https://github.com/crutchy-/exec-irc-bot/issues/10
+
+Make a series of commands that can be used from within IRC by the bot operator/admin to modify the alias array. Then use the exec.txt file and exec: lines in scripts as sort of config macros that run the same commands.
+For example:
+"~exec-config add ~test" typed in IRC could be equivalent to "add ~test" in a line of exec.txt or "exec:add ~test" in a comment block line of a script.
+Probably would want to make it so that you have to do "enable ~test" after any changes to an alias (both in config and IRC).
+Could also be useful for using scripts to change other aliases.
+General syntax might be "action alias name value" where action is the action to take on the alias or alias sub-array element, alias is the alias to act on, name is the name of a property (element in the associative sub-array indexed by the alias), and value is an argument that is optional depending on the action.
+Examples:
+edit ~test timeout 5
+Available actions: add delete edit enable disable
+Available names: allow any for custom script use (make all elements accessible from internal bucket)
+Might be handy to prefix custom names with something (kinda like X- http headers).
+If name is omitted, the action is performed on the alias itself.
+Make it so that these commands can be used within scripts using an internal IRC message (make a lib.php function to make it easier for scripts to use, with separate action, alias, name and value parameters).
+
+
+
+NOTES AFTER IMPLEMENTATION: 13/04/2016
+
+can load aliases using the old exec line syntax, or can now use macros like this (in comment block):
+ 
+exec:add ~butt2
+exec:edit ~butt2 cmd apt-get moo
+exec:edit ~butt2 auto 1
+exec:enable ~butt2
+
+operator can also use macros with internal ~alias-macro command
+
+after alias/element is added/edited, the alias is disabled
+ 
+can also set custom alias parameters and access them from scripts (which was the real reason for the whole macro system in the first place)
+ 
+instead of reworking the bot to add another alias setting, with an already confusing line of pipe-delimited jibberish, can just add parameters on the fly
+ 
+scripts can access them using a bucket prefix
+ 
+get_bucket("alias_element_$alias_$element")
+ 
+eg: alias_element_~moo_cmd
+
+ref: process_alias_config_macro function in irc_lib.php

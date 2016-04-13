@@ -2386,6 +2386,8 @@ function process_alias_config_macro($macro,&$msg)
 
 #####################################################################################################
 
+# TODO: USING MACROS ON A PRECEDING EXEC LINE ALIAS IS BORKED
+
 function load_exec_line($line,$filename,$saved=True)
 {
   global $exec_errors;
