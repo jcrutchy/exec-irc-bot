@@ -9,13 +9,37 @@
 
 #####################################################################################################
 
-#[~calc]
-#timeout=5
-#auto-privmsg=1
-#empty-trailing-allowed=1
-#shell-cmd=/usr/bin/units -t %%trailing%%
-#help=syntax: ~calc <expression>
-#help=evaluates math expression
+# ALIAS MACROS
+
+# reserved keys: alias, timeout, repeat, auto, empty, accounts, accounts_wildcard, cmds, dests, bucket_locks, cmd, saved, line, file, help, enabled
+# reserved array keys: accounts, cmds, dests, bucket_locks, help
+
+# you can't edit reserved arrays with macros
+# you can't delete reserved keys
+# after adding/editing, the affected alias will be disabled (enable should be last macro)
+# alias keys must not contain spaces, but can be anything
+# alias keys are accessible from scripts using buckets with index 'alias_element_%%alias%%_%%key%%'
+
+# add new alias
+# exec:add %%alias%%
+
+# delete an existing alias
+# exec:delete %%alias%%
+
+# enable an existing alias
+# exec:delete %%alias%%
+
+# rename an existing alias
+# exec:rename %%exist_alias%% %%new_alias%%
+
+# delete an existing alias key
+# exec:delete %%alias%% %%key%%
+
+# add a new alias key
+# exec:add %%alias%% %%key%% %%value%%
+
+# edit an existing alias key
+# exec:edit %%alias%% %%key%% %%value%%
 
 #####################################################################################################
 
