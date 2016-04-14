@@ -2368,8 +2368,7 @@ function process_alias_config_macro($macro,&$msg)
         }
         if (in_array($key,$reserved_arrays)==True)
         {
-          $msg="unable to edit reserved array element \"$key\"";
-          return False;
+          $value=explode(",",$value);
         }
         $exec_list[$alias][$key]=$value;
         $exec_list[$alias]["enabled"]=False;
@@ -2385,8 +2384,6 @@ function process_alias_config_macro($macro,&$msg)
 }
 
 #####################################################################################################
-
-# TODO: USING MACROS ON A PRECEDING EXEC LINE ALIAS IS BORKED
 
 function load_exec_line($line,$filename,$saved=True)
 {

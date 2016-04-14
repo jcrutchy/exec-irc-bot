@@ -14,8 +14,7 @@
 # reserved keys: alias, timeout, repeat, auto, empty, accounts, accounts_wildcard, cmds, dests, bucket_locks, cmd, saved, line, file, help, enabled
 # reserved array keys: accounts, cmds, dests, bucket_locks, help
 
-# you can't edit reserved arrays with macros
-# TODO: NEED SOME WAY TO EDIT ARRAYS
+# reserved array values are comma-delimited
 # you can't delete reserved keys
 # after adding/editing, the affected alias will be disabled (enable should be last macro)
 # alias keys must not contain spaces, but can be anything

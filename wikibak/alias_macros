@@ -29,6 +29,8 @@ exec:enable ~butt2
 operator can also use macros with internal ~alias-macro command
 
 after alias/element is added/edited, the alias is disabled
+
+reserved array values are comma-delimited
  
 can also set custom alias parameters and access them from scripts (which was the real reason for the whole macro system in the first place)
  
