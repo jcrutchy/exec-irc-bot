@@ -22,7 +22,9 @@ require_once("lib.php");
 #privmsg(get_bucket("process_template_nick"));
 #privmsg(exec_alias_config_value("~moo","cmd"));
 
-privmsg(get_bucket("alias_element_~butt_fart"));
+#privmsg(get_bucket("alias_element_~butt_fart"));
+
+notice("crutchy","fart");
 
 #####################################################################################################
 

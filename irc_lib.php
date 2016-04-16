@@ -149,7 +149,17 @@ function process_exec_inits()
   $file_lines=array();
   for ($i=0;$i<count($init);$i++)
   {
-    load_directory($init[$i],$file_lines,FILE_DIRECTIVE_INIT);
+    if (file_exists($init[$i])==True)
+    {
+      if (is_dir($init[$i])==True)
+      {
+        load_directory($init[$i],$file_lines,FILE_DIRECTIVE_INIT);
+      }
+      else
+      {
+        load_include($init[$i],$file_lines,FILE_DIRECTIVE_INIT);
+      }
+    }
   }
   foreach ($file_lines as $filename => $commands)
   {
@@ -182,7 +192,17 @@ function process_exec_startups()
   $file_lines=array();
   for ($i=0;$i<count($startup);$i++)
   {
-    load_directory($startup[$i],$file_lines,FILE_DIRECTIVE_STARTUP);
+    if (file_exists($startup[$i])==True)
+    {
+      if (is_dir($startup[$i])==True)
+      {
+        load_directory($startup[$i],$file_lines,FILE_DIRECTIVE_STARTUP);
+      }
+      else
+      {
+        load_include($startup[$i],$file_lines,FILE_DIRECTIVE_STARTUP);
+      }
+    }
   }
   foreach ($file_lines as $filename => $commands)
   {
@@ -460,11 +480,11 @@ function free_bucket_locks($pid)
       if (count($pid_array)==0)
       {
         unset($bucket_locks[$bucket_index]);
-        term_echo("BUCKET UNLOCKED: $bucket_index BY $pid [STILL LOCKED BY OTHER PROCESS]");
+        term_echo("BUCKET UNLOCKED: $bucket_index BY $pid [NO LONGER LOCKED BY ANY PROCESSES]");
       }
       else
       {
-        term_echo("BUCKET UNLOCKED: $bucket_index BY $pid [NO LONGER LOCKED BY ANY PROCESSES]");
+        term_echo("BUCKET UNLOCKED: $bucket_index BY $pid [STILL LOCKED BY OTHER PROCESS]");
       }
     }
   }
@@ -2206,11 +2226,11 @@ function load_include($filename,&$lines,$directive)
 
 #####################################################################################################
 
-function process_alias_config_macro($macro,&$msg)
+function process_alias_config_macro($macro,&$msg,$filename="")
 {
   global $exec_list;
-  $reserved=array("alias","timeout","repeat","auto","empty","accounts","accounts_wildcard","cmds","dests","bucket_locks","cmd","saved","line","file","help","enabled");
-  $reserved_arrays=array("accounts","cmds","dests","bucket_locks","help");
+  $reserved=array("alias","timeout","repeat","auto","empty","accounts","accounts_wildcard","cmds","dests","bucket_locks","cmd","servers","saved","line","file","help","enabled");
+  $reserved_arrays=array("accounts","cmds","dests","bucket_locks","servers","help");
   $parts=explode(" ",$macro);
   delete_empty_elements($parts);
   if (count($parts)<2)
@@ -2220,7 +2240,6 @@ function process_alias_config_macro($macro,&$msg)
   }
   $action=strtolower(array_shift($parts));
   $alias=strtolower(array_shift($parts));
-  array_values($parts);
   if (count($parts)==0)
   {
     # enable/disable/add/delete alias
@@ -2262,9 +2281,10 @@ function process_alias_config_macro($macro,&$msg)
         $record["dests"]=array();
         $record["bucket_locks"]=array();
         $record["cmd"]="";
+        $record["servers"]=array();
         $record["saved"]=False;
         $record["line"]="";
-        $record["file"]="";
+        $record["file"]=$filename;
         $record["help"]=array();
         $record["enabled"]=False;
         $exec_list[$alias]=$record;
@@ -2336,7 +2356,6 @@ function process_alias_config_macro($macro,&$msg)
     # add/edit element
     $key=$parts[0];
     array_shift($parts);
-    array_values($parts);
     $value=implode(" ",$parts);
     switch ($action)
     {
@@ -2366,13 +2385,14 @@ function process_alias_config_macro($macro,&$msg)
           $msg="element not found";
           return False;
         }
+        $value_str=$value;
         if (in_array($key,$reserved_arrays)==True)
         {
           $value=explode(",",$value);
         }
         $exec_list[$alias][$key]=$value;
         $exec_list[$alias]["enabled"]=False;
-        $msg="alias \"$alias\" element \"$key\" successfully updated with value \"$value\" (and alias disabled)";
+        $msg="alias \"$alias\" element \"$key\" successfully updated with value \"$value_str\" (and alias disabled)";
         return True;
       default:
         $msg="invalid action";
@@ -2399,7 +2419,7 @@ function load_exec_line($line,$filename,$saved=True)
     return False;
   }
   $msg="";
-  $result=process_alias_config_macro($line,$msg);
+  $result=process_alias_config_macro($line,$msg,$filename);
   if ($result!==False)
   {
     term_echo("EXEC ALIAS CONFIG MACRO SUCCESS: $line => $msg");
@@ -2497,6 +2517,7 @@ function load_exec_line($line,$filename,$saved=True)
   $result["dests"]=$dests;
   $result["bucket_locks"]=$locks;
   $result["cmd"]=$cmd;
+  $result["servers"]=array();
   $result["saved"]=$saved;
   $result["line"]=$line;
   $result["file"]=$filename;
@@ -2743,6 +2764,14 @@ function process_scripts($items,$reserved="")
     if (in_array(strtolower($destination),$exec_list[$alias]["dests"])==False)
     {
       term_echo("dest-restricted alias \"$alias\" triggered from non-permitted dest \"$destination\" by \"$nick\"");
+      return;
+    }
+  }
+  if (count($exec_list[$alias]["servers"])>0)
+  {
+    if (in_array($items["server"],$exec_list[$alias]["servers"])==False)
+    {
+      term_echo("server-restricted alias \"$alias\" triggered from non-permitted server \"".$items["server"]."\" by \"$nick\"");
       return;
     }
   }

@@ -11,8 +11,8 @@
 
 # ALIAS MACROS
 
-# reserved keys: alias, timeout, repeat, auto, empty, accounts, accounts_wildcard, cmds, dests, bucket_locks, cmd, saved, line, file, help, enabled
-# reserved array keys: accounts, cmds, dests, bucket_locks, help
+# reserved keys: alias, timeout, repeat, auto, empty, accounts, accounts_wildcard, cmds, dests, bucket_locks, cmd, servers, saved, line, file, help, enabled
+# reserved array keys: accounts, cmds, dests, bucket_locks, servers, help
 
 # reserved array values are comma-delimited
 # you can't delete reserved keys
