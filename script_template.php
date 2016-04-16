@@ -13,6 +13,7 @@ exec:edit ~blah empty 1
 exec:edit ~blah accounts account1,account2,account3
 exec:edit ~blah accounts_wildcard *
 exec:edit ~blah cmds PRIVMSG,INTERNAL,JOIN
+exec:edit ~blah servers irc.sylnt.us
 exec:edit ~blah dests #channel1,#channel2,#channel3
 exec:edit ~blah bucket_locks bucket1,bucket2,bucket3
 exec:edit ~blah cmd php scripts/blah.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%params%% %%timestamp%% %%items%% %%server%%
