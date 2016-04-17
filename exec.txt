@@ -1,7 +1,7 @@
 # exec irc bot alias definitions file
 
 # alias|timeout|repeat|auto-privmsg|empty-trailing-allowed|account-list|cmd-list|dest-list|bucket-lock|shell-cmd
-# available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%params%%, %%timestamp%%, %%items%%, %%server%%
+# available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%params%%, %%timestamp%%, %%items%%, %%server%%, %%user%%, %%hostname%%
 # %%trailing%% excludes alias
 # %%items%% is a serialized array
 # aliases here must be all lower case letters
