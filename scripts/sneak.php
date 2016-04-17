@@ -33,6 +33,11 @@ goody boxes could kill the player, relocate them to a random coordinate (if occu
 output to players is via pm
 channel output to #sneak is only certain events (when someone dies or the map changes)
 
+
+LEAVE GAME SCRIPT RUNNING FULL TIME AS A SOCKET / PIPE SERVER
+MAKE ANOTHER SMALLER SCRIPT THAT COMMUNICATES WITH SERVER
+(TO PREVENT DATA FILE CORRUPTION)
+
 */
 
 #####################################################################################################
@@ -125,22 +130,72 @@ switch ($trailing)
       pm($nick,"sneak: chan initialized");
     }
     break;
-  case "new":
+  case "gm-kill":
+    if (is_gm($nick)==True)
+    {
+
+    }
+    break;
+  case "gm-player-data":
+    if (is_gm($nick)==True)
+    {
+
+    }
+    break;
+  case "gm-map":
+    if (is_gm($nick)==True)
+    {
+
+    }
+    break;
+  case "gm-edit-player":
+    if (is_gm($nick)==True)
+    {
+
+    }
+    break;
+  case "gm-edit-goody":
+    if (is_gm($nick)==True)
+    {
+
+    }
+    break;
+  case "help":
+  case "?":
+
+    break;
+  case "player-list":
+
+    break;
+  case "chan-list":
+
+    break;
+  case "start":
+
+    break;
+  case "status":
+
+    break;
+  case "die":
 
     break;
   case "rank":
 
     break;
   case "l":
+  case "left":
 
     break;
   case "r":
+  case "right":
 
     break;
   case "u":
+  case "up":
 
     break;
   case "d":
+  case "down":
 
     break;
 }
