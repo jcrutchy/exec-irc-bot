@@ -44,6 +44,11 @@ MAKE ANOTHER SMALLER SCRIPT THAT COMMUNICATES WITH SERVER
 
 # move most of the following stuff to the server. the client should mostly just connect to the server, send its message and disconnect
 
+# ONLY SEND STUFF TO THE SERVER THAT AFFECTS THE DATA FILES, LIKE COMMANDS THAT CHANGE DATA AND REQUESTS FOR DATA
+# THINGS LIKE PROCESSING ix.io OUTPUT ETC SHOULD BE DONE IN THE CLIENT SCRIPT
+
+# JUST SEND ENTIRE REQUESTS AS BASE64 ENCODED SERIALIZED STRINGS (USE PHP SERIALIZE INSTEAD OF JSON)
+
 require_once("lib.php");
 
 $trailing=strtolower(trim($argv[1]));
