@@ -34,13 +34,15 @@ output to players is via pm
 channel output to #sneak is only certain events (when someone dies or the map changes)
 
 
-LEAVE GAME SCRIPT RUNNING FULL TIME AS A SOCKET / PIPE SERVER
+LEAVE GAME SCRIPT RUNNING FULL TIME AS A SOCKET SERVER
 MAKE ANOTHER SMALLER SCRIPT THAT COMMUNICATES WITH SERVER
 (TO PREVENT DATA FILE CORRUPTION)
 
 */
 
 #####################################################################################################
+
+# move most of the following stuff to the server. the client should mostly just connect to the server, send its message and disconnect
 
 require_once("lib.php");
 
