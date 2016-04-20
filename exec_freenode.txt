@@ -37,5 +37,5 @@ help ~calc|evaluates math expression
 
 include ./scripts/ruby/currency.rb
 
-include ./scripts/sneak.php
-startup ./scripts/sneak.php
+include ./scripts/sneak/sneak_server.php
+startup ./scripts/sneak/sneak_server.php

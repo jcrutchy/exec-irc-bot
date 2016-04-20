@@ -61,6 +61,28 @@ $cmd=$argv[7];
 $timestamp=$argv[8];
 $server=$argv[9];
 
+
+$socket=fsockopen("127.0.0.1",50000);
+if ($socket===False)
+{
+  privmsg("error connecting to game server");
+  return;
+}
+stream_set_blocking($socket,0);
+fputs($socket,$msg."\n");
+
+
+
+
+
+
+
+
+
+
+
+
+
 $id="$nick!$user@$hostname";
 $serv=base64_encode($server);
 
@@ -247,6 +269,10 @@ function init_chan($chan)
   $data[$chan]["map_size"]=30;
   $save=True;
 }
+
+#####################################################################################################
+
+
 
 #####################################################################################################
 
