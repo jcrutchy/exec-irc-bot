@@ -69,6 +69,7 @@ switch ($action)
 
 function run_server($irc_server,$channel,$listen_port)
 {
+  # TODO: CHECK IF SERVER EXISTS ALREADY, & SAVE SERVER DATA TO ARRAY BUCKET (TO ENABLE FUTURE SERVERS TO CHECK FOR PORT REUSE & ENABLE CLIENTS TO GET PORT FOR CORRESPONDING CHANNEL)
   $server_data=array($irc_server,$channel,$listen_port);
   $sneak_server_id=base64_encode($irc_server." ".$channel." ".$listen_port);
   $data_filename=DATA_PATH."sneak_data_".base64_encode($irc_server).".txt";
