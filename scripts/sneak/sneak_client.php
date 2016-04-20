@@ -3,10 +3,10 @@
 #####################################################################################################
 
 /*
-exec:add .sneak
-exec:edit .sneak cmd php scripts/sneak.php %%trailing%% %%dest%% %%nick%% %%user%% %%hostname%% %%alias%% %%cmd%% %%timestamp%% %%server%%
-exec:enable .sneak
-startup:~join #sneak
+#exec:add .sneak
+#exec:edit .sneak cmd php scripts/sneak.php %%trailing%% %%dest%% %%nick%% %%user%% %%hostname%% %%alias%% %%cmd%% %%timestamp%% %%server%%
+#exec:enable .sneak
+#startup:~join #sneak
 */
 
 #####################################################################################################

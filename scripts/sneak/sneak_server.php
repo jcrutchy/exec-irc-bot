@@ -41,7 +41,7 @@ switch ($action)
     {
       $channel=$parts[0];
       $port=$parts[1]; # >=50000
-      start_server($server,$channel,$port);
+      run_server($server,$channel,$port);
     }
     else
     {
@@ -67,33 +67,34 @@ switch ($action)
 
 #####################################################################################################
 
-function start_server($irc_server,$channel,$listen_port)
+function run_server($irc_server,$channel,$listen_port)
 {
+  $server_data=array($irc_server,$channel,$listen_port);
   $sneak_server_id=base64_encode($irc_server." ".$channel." ".$listen_port);
   $data_filename=DATA_PATH."sneak_data_".base64_encode($irc_server).".txt";
   $listen_address="127.0.0.1";
   $max_data_length=1024;
   $connections=array();
-  privmsg("starting game server listening on $listen_address:$listen_port");
+  privmsg("starting game server for channel $channel@$irc_server, listening on $listen_address:$listen_port");
   $server=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
   if ($server===False)
   {
-    privmsg("*** socket_create() failed: reason: ".socket_strerror(socket_last_error()));
+    server_privmsg($server_data,"*** socket_create() failed: reason: ".socket_strerror(socket_last_error()));
     return;
   }
   if (socket_get_option($server,SOL_SOCKET,SO_REUSEADDR)===False)
   {
-    privmsg("*** socket_get_option() failed: reason: ".socket_strerror(socket_last_error($server)));
+    server_privmsg($server_data,"*** socket_get_option() failed: reason: ".socket_strerror(socket_last_error($server)));
     return;
   }
   if (@socket_bind($server,$listen_address,$listen_port)===False)
   {
-    privmsg("*** socket_bind() failed: reason: ".socket_strerror(socket_last_error($server)));
+    server_privmsg($server_data,"*** socket_bind() failed: reason: ".socket_strerror(socket_last_error($server)));
     return;
   }
   if (socket_listen($server,5)===False)
   {
-    privmsg("*** socket_listen() failed: reason: ".socket_strerror(socket_last_error($server)));
+    server_privmsg($server_data,"*** socket_listen() failed: reason: ".socket_strerror(socket_last_error($server)));
     return;
   }
   $clients=array($server);
@@ -106,7 +107,7 @@ function start_server($irc_server,$channel,$listen_port)
         unset_bucket("sneak_server_command_$sneak_server_id");
         break 2;
     }
-    loop_process($server,$clients,$connections);
+    loop_process($server_data,$server,$clients,$connections);
     $read=$clients;
     $write=NULL;
     $except=NULL;
@@ -122,10 +123,11 @@ function start_server($irc_server,$channel,$listen_port)
       $client_index=array_search($client,$clients);
       $addr="";
       socket_getpeername($client,$addr);
-      privmsg("connected to remote address $addr");
-      on_connect($server,$clients,$connections,$client_index);
+      server_privmsg($server_data,"connected to remote address $addr");
+      on_connect($server_data,$server,$clients,$connections,$client_index);
       $n=count($clients)-1;
-      socket_write($client,"successfully connected to server\nthere are $n clients connected\n");
+      socket_write($client,"successfully connected to sneak server\n");
+      socket_write($client,"there are $n clients connected\n");
       $key=array_search($server,$read);
       unset($read[$key]);
     }
@@ -139,12 +141,12 @@ function start_server($irc_server,$channel,$listen_port)
         $addr="";
         if (@socket_getpeername($read_client,$addr)==True)
         {
-          privmsg("disconnecting from remote address $addr");
+          server_privmsg($server_data,"disconnecting from remote address $addr");
         }
-        on_disconnect($server,$clients,$connections,$client_index);
+        on_disconnect($server_data,$server,$clients,$connections,$client_index);
         socket_close($read_client);
         unset($clients[$client_index]);
-        privmsg("client disconnected");
+        server_privmsg($server_data,"client disconnected");
         continue;
       }
       $data=trim($data);
@@ -152,10 +154,12 @@ function start_server($irc_server,$channel,$listen_port)
       {
         continue;
       }
-      privmsg("message received: $data");
+      $addr="";
+      socket_getpeername($read_client,$addr);
+      server_privmsg($server_data,"message received from $addr: $data");
       if (($data=="quit") or ($data=="shutdown"))
       {
-        privmsg("$data received");
+        server_privmsg($server_data,"$data received from $addr");
         if ($data=="quit")
         {
           socket_shutdown($read_client,2);
@@ -165,18 +169,19 @@ function start_server($irc_server,$channel,$listen_port)
         }
         break 2;
       }
-      $addr="";
-      socket_getpeername($read_client,$addr);
-      log_msg($server,$clients,$connections,$addr,$client_index,$data);
-      on_msg($server,$clients,$connections,$client_index,$data);
+      log_msg($server_data,$server,$clients,$connections,$addr,$client_index,$data);
+      on_msg($server_data,$server,$clients,$connections,$client_index,$data);
     }
   }
-  broadcast($server,$clients,$connections,"*** SERVER SHUTTING DOWN NOW!");
+  broadcast($server_data,$server,$clients,$connections,"*** SERVER SHUTTING DOWN NOW!");
   sleep(1);
   foreach ($clients as $client_index => $socket)
   {
     if ($clients[$client_index]<>$server)
     {
+      $addr="";
+      socket_getpeername($clients[$client_index],$addr);
+      server_privmsg($server_data,"disconnecting from remote address $addr");
       socket_shutdown($clients[$client_index],2);
       socket_close($clients[$client_index]);
       unset($clients[$client_index]);
@@ -184,7 +189,7 @@ function start_server($irc_server,$channel,$listen_port)
   }
   socket_shutdown($server,2);
   socket_close($server);
-  privmsg("stopping game server listening on $listen_address:$listen_port");
+  server_privmsg($server_data,"stopping game server");
 }
 
 #####################################################################################################
@@ -207,16 +212,16 @@ function connection_index(&$connections,$client_index,$suppress_error=False)
 
 #####################################################################################################
 
-function loop_process(&$server,&$clients,&$connections)
+function loop_process($server_data,&$server,&$clients,&$connections)
 {
   # do other stuff here if need be
 }
 
 #####################################################################################################
 
-function broadcast(&$server,&$clients,&$connections,$msg)
+function broadcast($server_data,&$server,&$clients,&$connections,$msg)
 {
-  privmsg("BROADCAST: $msg");
+  server_privmsg($server_data,"BROADCAST: $msg");
   foreach ($clients as $send_client)
   {
     if ($send_client<>$server)
@@ -228,17 +233,17 @@ function broadcast(&$server,&$clients,&$connections,$msg)
 
 #####################################################################################################
 
-function do_reply(&$server,&$clients,&$connections,$client_index,$msg)
+function do_reply($server_data,&$server,&$clients,&$connections,$client_index,$msg)
 {
   $addr="";
   socket_getpeername($clients[$client_index],$addr);
-  privmsg("REPLY TO $addr: $msg");
+  server_privmsg($server_data,"REPLY TO $addr: $msg");
   socket_write($clients[$client_index],"$msg\n");
 }
 
 #####################################################################################################
 
-function on_connect(&$server,&$clients,&$connections,$client_index)
+function on_connect($server_data,&$server,&$clients,&$connections,$client_index)
 {
   $connection_index=connection_index($connections,$client_index,True);
   if ($connection_index===False)
@@ -252,41 +257,41 @@ function on_connect(&$server,&$clients,&$connections,$client_index)
     $connection["ident_prefix"]="";
     $connection["authenticated"]=False;
     $connections[]=$connection;
-    broadcast($server,$clients,$connections,"*** CLIENT CONNECTED: $addr");
+    broadcast($server_data,$server,$clients,$connections,"*** CLIENT CONNECTED: $addr");
   }
   else
   {
-    do_reply($server,$clients,$connections,$client_index,"*** CLIENT CONNECT ERROR: CONNECTION EXISTS ALREADY");
+    do_reply($server_data,$server,$clients,$connections,$client_index,"*** CLIENT CONNECT ERROR: CONNECTION EXISTS ALREADY");
   }
 }
 
 #####################################################################################################
 
-function on_disconnect(&$server,&$clients,&$connections,$client_index)
+function on_disconnect($server_data,&$server,&$clients,&$connections,$client_index)
 {
   $connection_index=connection_index($connections,$client_index);
   if ($connection_index===False)
   {
-    privmsg("*** CLIENT DISCONNECT ERROR: CONNECTION NOT FOUND");
+    server_privmsg($server_data,"*** CLIENT DISCONNECT ERROR: CONNECTION NOT FOUND");
   }
   else
   {
     $addr=$connections[$connection_index]["addr"];
-    privmsg("*** CLIENT DISCONNECTED: $addr");
+    server_privmsg($server_data,"*** CLIENT DISCONNECTED: $addr");
     unset($connections[$connection_index]);
   }
 }
 
 #####################################################################################################
 
-function on_msg(&$server,&$clients,&$connections,$client_index,$data)
+function on_msg($server_data,&$server,&$clients,&$connections,$client_index,$data)
 {
-  do_reply($server,$clients,$connections,$client_index,"received text: $data");
+  do_reply($server_data,$server,$clients,$connections,$client_index,"received text: $data");
 }
 
 #####################################################################################################
 
-function log_msg(&$server,&$clients,&$connections,$addr,$client_index,$data)
+function log_msg($server_data,&$server,&$clients,&$connections,$addr,$client_index,$data)
 {
   # TODO
 }
@@ -309,6 +314,16 @@ function is_admin($nick)
   {
     return False;
   }
+}
+
+#####################################################################################################
+
+function server_privmsg($server_data,$msg)
+{
+  $irc_server=$server_data[0];
+  $channel=$server_data[1];
+  $listen_port=$server_data[2];
+  privmsg("$channel@$irc_server:$listen_port >> $msg");
 }
 
 #####################################################################################################
