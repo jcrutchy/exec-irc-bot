@@ -70,6 +70,7 @@ switch ($action)
 function run_server($irc_server,$channel,$listen_port)
 {
   # TODO: CHECK IF SERVER EXISTS ALREADY, & SAVE SERVER DATA TO ARRAY BUCKET (TO ENABLE FUTURE SERVERS TO CHECK FOR PORT REUSE & ENABLE CLIENTS TO GET PORT FOR CORRESPONDING CHANNEL)
+  # TODO: STORE GAME DATA IN $server_data
   $server_data=array($irc_server,$channel,$listen_port);
   $sneak_server_id=base64_encode($irc_server." ".$channel." ".$listen_port);
   $data_filename=DATA_PATH."sneak_data_".base64_encode($irc_server).".txt";
@@ -213,14 +214,14 @@ function connection_index(&$connections,$client_index,$suppress_error=False)
 
 #####################################################################################################
 
-function loop_process($server_data,&$server,&$clients,&$connections)
+function loop_process(&$server_data,&$server,&$clients,&$connections)
 {
   # do other stuff here if need be
 }
 
 #####################################################################################################
 
-function broadcast($server_data,&$server,&$clients,&$connections,$msg)
+function broadcast(&$server_data,&$server,&$clients,&$connections,$msg)
 {
   server_privmsg($server_data,"BROADCAST: $msg");
   foreach ($clients as $send_client)
@@ -234,7 +235,7 @@ function broadcast($server_data,&$server,&$clients,&$connections,$msg)
 
 #####################################################################################################
 
-function do_reply($server_data,&$server,&$clients,&$connections,$client_index,$msg)
+function do_reply(&$server_data,&$server,&$clients,&$connections,$client_index,$msg)
 {
   $addr="";
   socket_getpeername($clients[$client_index],$addr);
@@ -244,7 +245,7 @@ function do_reply($server_data,&$server,&$clients,&$connections,$client_index,$m
 
 #####################################################################################################
 
-function on_connect($server_data,&$server,&$clients,&$connections,$client_index)
+function on_connect(&$server_data,&$server,&$clients,&$connections,$client_index)
 {
   $connection_index=connection_index($connections,$client_index,True);
   if ($connection_index===False)
@@ -268,7 +269,7 @@ function on_connect($server_data,&$server,&$clients,&$connections,$client_index)
 
 #####################################################################################################
 
-function on_disconnect($server_data,&$server,&$clients,&$connections,$client_index)
+function on_disconnect(&$server_data,&$server,&$clients,&$connections,$client_index)
 {
   $connection_index=connection_index($connections,$client_index);
   if ($connection_index===False)
@@ -285,14 +286,15 @@ function on_disconnect($server_data,&$server,&$clients,&$connections,$client_ind
 
 #####################################################################################################
 
-function on_msg($server_data,&$server,&$clients,&$connections,$client_index,$data)
+function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$data)
 {
+  # TODO: PROCESS GAME COMMANDS HERE
   do_reply($server_data,$server,$clients,$connections,$client_index,"received text: $data");
 }
 
 #####################################################################################################
 
-function log_msg($server_data,&$server,&$clients,&$connections,$addr,$client_index,$data)
+function log_msg(&$server_data,&$server,&$clients,&$connections,$addr,$client_index,$data)
 {
   # TODO
 }
@@ -319,7 +321,7 @@ function is_admin($nick)
 
 #####################################################################################################
 
-function server_privmsg($server_data,$msg)
+function server_privmsg(&$server_data,$msg)
 {
   $irc_server=$server_data[0];
   $channel=$server_data[1];
