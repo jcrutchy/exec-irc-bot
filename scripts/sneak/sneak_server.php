@@ -103,8 +103,7 @@ function start_server($irc_server,$channel,$listen_port)
     switch ($server_command)
     {
       case "stop":
-        broadcast($server,$clients,$connections,"*** SERVER SHUTTING DOWN NOW!");
-        sleep(1);
+        unset_bucket("sneak_server_command_$sneak_server_id");
         break 2;
     }
     loop_process($server,$clients,$connections);
@@ -123,7 +122,7 @@ function start_server($irc_server,$channel,$listen_port)
       $client_index=array_search($client,$clients);
       $addr="";
       socket_getpeername($client,$addr);
-      echo "connected to remote address $addr\n";
+      privmsg("connected to remote address $addr");
       on_connect($server,$clients,$connections,$client_index);
       $n=count($clients)-1;
       socket_write($client,"successfully connected to server\nthere are $n clients connected\n");
@@ -140,12 +139,12 @@ function start_server($irc_server,$channel,$listen_port)
         $addr="";
         if (@socket_getpeername($read_client,$addr)==True)
         {
-          echo "disconnecting from remote address $addr\n";
+          privmsg("disconnecting from remote address $addr");
         }
         on_disconnect($server,$clients,$connections,$client_index);
         socket_close($read_client);
         unset($clients[$client_index]);
-        echo "client disconnected\n";
+        privmsg("client disconnected");
         continue;
       }
       $data=trim($data);
@@ -153,10 +152,10 @@ function start_server($irc_server,$channel,$listen_port)
       {
         continue;
       }
-      echo "message received: $data\n";
+      privmsg("message received: $data");
       if (($data=="quit") or ($data=="shutdown"))
       {
-        echo "$data received\n";
+        privmsg("$data received");
         if ($data=="quit")
         {
           socket_shutdown($read_client,2);
@@ -164,21 +163,23 @@ function start_server($irc_server,$channel,$listen_port)
           unset($clients[$client_index]);
           break;
         }
-        foreach ($clients as $client_index => $socket)
-        {
-          if ($clients[$client_index]<>$server)
-          {
-            socket_shutdown($clients[$client_index],2);
-            socket_close($clients[$client_index]);
-            unset($clients[$client_index]);
-          }
-        }
         break 2;
       }
       $addr="";
       socket_getpeername($read_client,$addr);
       log_msg($server,$clients,$connections,$addr,$client_index,$data);
       on_msg($server,$clients,$connections,$client_index,$data);
+    }
+  }
+  broadcast($server,$clients,$connections,"*** SERVER SHUTTING DOWN NOW!");
+  sleep(1);
+  foreach ($clients as $client_index => $socket)
+  {
+    if ($clients[$client_index]<>$server)
+    {
+      socket_shutdown($clients[$client_index],2);
+      socket_close($clients[$client_index]);
+      unset($clients[$client_index]);
     }
   }
   socket_shutdown($server,2);
