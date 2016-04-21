@@ -69,10 +69,15 @@ switch ($action)
 
 function run_server($irc_server,$channel,$listen_port)
 {
-  # TODO: CHECK IF SERVER EXISTS ALREADY, & SAVE SERVER DATA TO ARRAY BUCKET (TO ENABLE FUTURE SERVERS TO CHECK FOR PORT REUSE & ENABLE CLIENTS TO GET PORT FOR CORRESPONDING CHANNEL)
   # TODO: STORE GAME DATA IN $server_data
   $server_data=array($irc_server,$channel,$listen_port);
   $sneak_server_id=base64_encode($irc_server." ".$channel." ".$listen_port);
+  $port_filename=DATA_PATH."sneak_port_$listen_port.txt";
+  if (file_exists($port_filename)==True)
+  {
+    privmsg("sneak server listening on port $listen_port already running for ".trim(file_get_contents($port_filename)));
+    return;
+  }
   $data_filename=DATA_PATH."sneak_data_".base64_encode($irc_server).".txt";
   $listen_address="127.0.0.1";
   $max_data_length=1024;
@@ -97,6 +102,11 @@ function run_server($irc_server,$channel,$listen_port)
   if (socket_listen($server,5)===False)
   {
     server_privmsg($server_data,"*** socket_listen() failed: reason: ".socket_strerror(socket_last_error($server)));
+    return;
+  }
+  if (file_put_contents($port_filename,"$channel@$irc_server")===False)
+  {
+    server_privmsg($server_data,"error saving port file \"$port_filename\"");
     return;
   }
   $clients=array($server);
@@ -191,6 +201,10 @@ function run_server($irc_server,$channel,$listen_port)
   }
   socket_shutdown($server,2);
   socket_close($server);
+  if (unlink($port_filename)===False)
+  {
+    server_privmsg($server_data,"error deleting port file \"$port_filename\"");
+  }
   server_privmsg($server_data,"stopping game server");
 }
 
