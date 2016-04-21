@@ -61,7 +61,6 @@ $cmd=$argv[7];
 $timestamp=$argv[8];
 $server=$argv[9];
 
-
 $socket=fsockopen("127.0.0.1",50000);
 if ($socket===False)
 {
@@ -71,42 +70,8 @@ if ($socket===False)
 stream_set_blocking($socket,0);
 fputs($socket,$msg."\n");
 
-
-
-
-
-
-
-
-
-
-
-
-
 $id="$nick!$user@$hostname";
 $serv=base64_encode($server);
-
-$save=False;
-
-$fn=DATA_PATH."sneak_data_$serv.txt";
-if (file_exists($fn)==True)
-{
-  $data=json_decode(file_get_contents($fn),True);
-}
-else
-{
-  $data=array();
-  $save=True;
-}
-
-$chan="#sneak";
-
-if (isset($data[$chan])==False)
-{
-  init_chan($chan);
-}
-
-$gm_accounts=array("crutchy");
 
 $parts=explode(" ",$trailing);
 if (count($parts)==2)
@@ -124,155 +89,6 @@ if (count($parts)<>1)
   pm($nick,"sneak: invalid game command");
   return;
 }
-
-if (isset($data["players"][$id])==False)
-{
-  $data["players"][$id]=array();
-  $save=True;
-}
-
-switch ($trailing)
-{
-  case "gm-del-chan":
-    if (is_gm($nick)==True)
-    {
-      if (isset($data[$chan])==True)
-      {
-        unset($data[$chan]);
-        $save=True;
-        pm($nick,"sneak: chan deleted");
-      }
-      else
-      {
-        pm($nick,"sneak: chan not found");
-      }
-    }
-    break;
-  case "gm-init-chan":
-    if (is_gm($nick)==True)
-    {
-      if (isset($data[$chan])==True)
-      {
-        unset($data[$chan]);
-      }
-      init_chan($chan);
-      pm($nick,"sneak: chan initialized");
-    }
-    break;
-  case "gm-kill":
-    if (is_gm($nick)==True)
-    {
-
-    }
-    break;
-  case "gm-player-data":
-    if (is_gm($nick)==True)
-    {
-
-    }
-    break;
-  case "gm-map":
-    if (is_gm($nick)==True)
-    {
-
-    }
-    break;
-  case "gm-edit-player":
-    if (is_gm($nick)==True)
-    {
-
-    }
-    break;
-  case "gm-edit-goody":
-    if (is_gm($nick)==True)
-    {
-
-    }
-    break;
-  case "help":
-  case "?":
-
-    break;
-  case "player-list":
-
-    break;
-  case "chan-list":
-
-    break;
-  case "start":
-
-    break;
-  case "status":
-
-    break;
-  case "die":
-
-    break;
-  case "rank":
-
-    break;
-  case "l":
-  case "left":
-
-    break;
-  case "r":
-  case "right":
-
-    break;
-  case "u":
-  case "up":
-
-    break;
-  case "d":
-  case "down":
-
-    break;
-}
-
-if ($save==True)
-{
-  if (file_put_contents($fn,json_encode($data,JSON_PRETTY_PRINT))===False)
-  {
-    privmsg("error writing data file");
-  }
-}
-
-#####################################################################################################
-
-function is_gm($nick)
-{
-  global $gm_accounts;
-  $account=users_get_account($nick);
-  if ($account=="")
-  {
-    return False;
-  }
-  if (in_array($account,$gm_accounts)==True)
-  {
-    return True;
-  }
-  else
-  {
-    return False;
-  }
-}
-
-#####################################################################################################
-
-function init_chan($chan)
-{
-  global $save;
-  global $data;
-  $data[$chan]=array();
-  $data[$chan]["players"]=array();
-  $data[$chan]["goodies"]=array();
-  $data[$chan]["map_size"]=30;
-  $save=True;
-}
-
-#####################################################################################################
-
-
 
 #####################################################################################################
 

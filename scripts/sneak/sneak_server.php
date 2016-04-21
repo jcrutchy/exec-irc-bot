@@ -327,6 +327,137 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
 {
   # TODO: PROCESS GAME COMMANDS HERE
   do_reply($server_data,$server,$clients,$connections,$client_index,"received text: $data");
+  $unpacked=base64_decode($data);
+  if ($unpacked===False)
+  {
+    return;
+  }
+  $unpacked=unserialize($unpacked);
+  if ($unpacked===False)
+  {
+    return;
+  }
+  if (is_array($unpacked)==False)
+  {
+    return;
+  }
+  if (isset($unpacked["channel"])==False)
+  {
+    return;
+  }
+  if (isset($unpacked["player_id"])==False)
+  {
+    return;
+  }
+  if (isset($unpacked["action"])==False)
+  {
+    return;
+  }
+  if (isset($server_data["game_data"][$channel])==False)
+  {
+    init_chan($server_data,$unpacked["channel"]);
+  }
+  if (isset($server_data["game_data"][$channel]["players"][$player_id])==False)
+  {
+    init_player($server_data,$unpacked["channel"],$unpacked["player_id"]);
+  }
+  switch ($unpacked["action"])
+  {
+    case "gm-del-chan":
+      /*if (is_gm($nick)==True)
+      {
+        if (isset($data[$chan])==True)
+        {
+          unset($data[$chan]);
+          $save=True;
+          pm($nick,"sneak: chan deleted");
+        }
+        else
+        {
+          pm($nick,"sneak: chan not found");
+        }
+      }*/
+      break;
+    case "gm-init-chan":
+      /*if (is_gm($nick)==True)
+      {
+        if (isset($data[$chan])==True)
+        {
+          unset($data[$chan]);
+        }
+        init_chan($chan);
+        pm($nick,"sneak: chan initialized");
+      }*/
+      break;
+    case "gm-kill":
+      /*if (is_gm($nick)==True)
+      {
+
+      }*/
+      break;
+    case "gm-player-data":
+      /*if (is_gm($nick)==True)
+      {
+
+      }*/
+      break;
+    case "gm-map":
+      /*if (is_gm($nick)==True)
+      {
+
+      }*/
+      break;
+    case "gm-edit-player":
+      /*if (is_gm($nick)==True)
+      {
+
+      }*/
+      break;
+    case "gm-edit-goody":
+      /*if (is_gm($nick)==True)
+      {
+
+      }*/
+      break;
+    case "help":
+    case "?":
+
+      break;
+    case "player-list":
+
+      break;
+    case "chan-list":
+
+      break;
+    case "start":
+
+      break;
+    case "status":
+
+      break;
+    case "die":
+
+      break;
+    case "rank":
+
+      break;
+    case "l":
+    case "left":
+
+      break;
+    case "r":
+    case "right":
+
+      break;
+    case "u":
+    case "up":
+
+      break;
+    case "d":
+    case "down":
+
+      break;
+  }
 }
 
 #####################################################################################################
@@ -364,6 +495,28 @@ function server_privmsg(&$server_data,$msg)
   $channel=$server_data["channel"];
   $listen_port=$server_data["listen_port"];
   privmsg("$channel@$irc_server:$listen_port >> $msg");
+}
+
+#####################################################################################################
+
+function init_chan(&$server_data,$channel)
+{
+  $record=array();
+  $record["players"]=array();
+  $record["goodies"]=array();
+  $record["map_size"]=30;
+  $server_data["game_data"][$channel]=$record;
+  $server_data["game_data_updated"]=True;
+}
+
+#####################################################################################################
+
+function init_player(&$server_data,$channel,$player_id)
+{
+  $record=array();
+  $record["player_id"]=$player_id;
+  $server_data["game_data"][$channel]["players"][$player_id]=$record;
+  $server_data["game_data_updated"]=True;
 }
 
 #####################################################################################################
