@@ -10,6 +10,12 @@ exec:enable ~sneak-server
 startup:~join #sneak
 */
 
+/*
+Sneak is an irc game where each player aims to increase their kills by moving into the same coordinate as other players.
+The sneak server is used to manage a common game data repository, with multiple client processes run by the irc bot all
+talking to the server and their requests for modifying game data processed from the queued socket buffers.
+*/
+
 #####################################################################################################
 
 error_reporting(E_ALL);
@@ -69,8 +75,12 @@ switch ($action)
 
 function run_server($irc_server,$channel,$listen_port)
 {
-  # TODO: STORE GAME DATA IN $server_data
-  $server_data=array($irc_server,$channel,$listen_port);
+  $server_data=array(
+    "irc_server"=>$irc_server,
+    "channel"=>$channel,
+    "listen_port"=>$listen_port,
+    "game_data_updated"=>True,
+    "game_data"=>array());
   $sneak_server_id=base64_encode($irc_server." ".$channel." ".$listen_port);
   $port_filename=DATA_PATH."sneak_port_$listen_port.txt";
   if (file_exists($port_filename)==True)
@@ -78,7 +88,12 @@ function run_server($irc_server,$channel,$listen_port)
     privmsg("sneak server listening on port $listen_port already running for ".trim(file_get_contents($port_filename)));
     return;
   }
-  $data_filename=DATA_PATH."sneak_data_".base64_encode($irc_server).".txt";
+  $data_filename=DATA_PATH."sneak_data_".base64_encode($irc_server." ".$channel).".txt";
+  if (file_exists($data_filename)==True)
+  {
+    $server_data["game_data"]=json_decode(file_get_contents($data_filename),True);
+    $server_data["game_data_updated"]=False;
+  }
   $listen_address="127.0.0.1";
   $max_data_length=1024;
   $connections=array();
@@ -183,6 +198,14 @@ function run_server($irc_server,$channel,$listen_port)
       }
       log_msg($server_data,$server,$clients,$connections,$addr,$client_index,$data);
       on_msg($server_data,$server,$clients,$connections,$client_index,$data);
+    }
+    if ($server_data["game_data_updated"]==True)
+    {
+      if (file_put_contents($data_filename,json_encode($server_data["game_data"],JSON_PRETTY_PRINT))===False)
+      {
+        server_privmsg($server_data,"fatal error writing game data file \"$data_filename\"");
+        break;
+      }
     }
   }
   broadcast($server_data,$server,$clients,$connections,"*** SERVER SHUTTING DOWN NOW!");
@@ -337,9 +360,9 @@ function is_admin($nick)
 
 function server_privmsg(&$server_data,$msg)
 {
-  $irc_server=$server_data[0];
-  $channel=$server_data[1];
-  $listen_port=$server_data[2];
+  $irc_server=$server_data["irc_server"];
+  $channel=$server_data["channel"];
+  $listen_port=$server_data["listen_port"];
   privmsg("$channel@$irc_server:$listen_port >> $msg");
 }
 
