@@ -20,6 +20,8 @@ $alias=$argv[1];
 $trailing=trim($argv[2]);
 $nick=trim($argv[3]);
 
+# TODO: weather overrides file to store fake weather output for given locations
+
 switch ($alias)
 {
   case "~weather-prefs":

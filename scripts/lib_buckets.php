@@ -257,7 +257,7 @@ function bucket_read($cmd,$index="")
 
 #####################################################################################################
 
-function set_bucket($index,$data,$timeout=5)
+function set_bucket($index,$data,$timeout=5e6)
 {
   echo "/BUCKET_SET $index $data\n";
   $t=microtime(True);

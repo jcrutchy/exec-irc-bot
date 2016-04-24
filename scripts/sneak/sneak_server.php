@@ -42,6 +42,38 @@ $parts=explode(" ",$trailing);
 $action=array_shift($parts);
 switch ($action)
 {
+  case "purge":
+    $file_list=scandir(DATA_PATH);
+    $port_filename_prefix="sneak_port_";
+    $port_filename_suffix=".txt";
+    $found=0;
+    for ($i=0;$i<count($file_list);$i++)
+    {
+      $test_filename=$file_list[$i];
+      if (substr($test_filename,0,strlen($port_filename_prefix))<>$port_filename_prefix)
+     {
+        continue;
+      }
+      if (substr($test_filename,strlen($test_filename)-strlen($port_filename_suffix))<>$port_filename_suffix)
+      {
+        continue;
+      }
+      $found++;
+      if (unlink(DATA_PATH.$test_filename)===False)
+      {
+        privmsg("error deleting port file \"$test_filename\"");
+      }
+      else
+      {
+        privmsg("deleted port file \"$test_filename\"");
+      }
+    }
+    if ($found==0)
+    {
+      privmsg("no port files found");
+    }
+    # TODO: delete all server buckets
+    break;
   case "start":
     if (count($parts)==2)
     {
@@ -61,6 +93,7 @@ switch ($action)
       $channel=$parts[0];
       $port=$parts[1];
       $sneak_server_id=base64_encode($server." ".$channel." ".$port);
+      # TODO: only set command if server bucket exists
       set_bucket("sneak_server_command_$sneak_server_id","stop");
     }
     else
@@ -119,11 +152,12 @@ function run_server($irc_server,$channel,$listen_port)
     server_privmsg($server_data,"*** socket_listen() failed: reason: ".socket_strerror(socket_last_error($server)));
     return;
   }
-  if (file_put_contents($port_filename,"$channel@$irc_server")===False)
+  if (file_put_contents($port_filename,"$channel $irc_server")===False)
   {
     server_privmsg($server_data,"error saving port file \"$port_filename\"");
     return;
   }
+  # TODO: set server bucket
   $clients=array($server);
   while (True)
   {
@@ -229,6 +263,7 @@ function run_server($irc_server,$channel,$listen_port)
     server_privmsg($server_data,"error deleting port file \"$port_filename\"");
   }
   server_privmsg($server_data,"stopping game server");
+  # TODO: unset server bucket
 }
 
 #####################################################################################################
@@ -326,7 +361,7 @@ function on_disconnect(&$server_data,&$server,&$clients,&$connections,$client_in
 function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$data)
 {
   # TODO: PROCESS GAME COMMANDS HERE
-  do_reply($server_data,$server,$clients,$connections,$client_index,"received text: $data");
+  #do_reply($server_data,$server,$clients,$connections,$client_index,"received text: $data");
   $unpacked=base64_decode($data);
   if ($unpacked===False)
   {
@@ -345,10 +380,12 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
   {
     return;
   }
+  $channel=$unpacked["channel"];
   if (isset($unpacked["player_id"])==False)
   {
     return;
   }
+  $player_id=$unpacked["player_id"];
   if (isset($unpacked["action"])==False)
   {
     return;
@@ -361,6 +398,12 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
   {
     init_player($server_data,$unpacked["channel"],$unpacked["player_id"]);
   }
+
+$response=array();
+$response["msg"]="i farted";
+$data=base64_encode(serialize($response));
+do_reply($server_data,$server,$clients,$connections,$client_index,$data);
+
   switch ($unpacked["action"])
   {
     case "gm-del-chan":

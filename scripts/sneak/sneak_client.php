@@ -3,10 +3,9 @@
 #####################################################################################################
 
 /*
-#exec:add .sneak
-#exec:edit .sneak cmd php scripts/sneak.php %%trailing%% %%dest%% %%nick%% %%user%% %%hostname%% %%alias%% %%cmd%% %%timestamp%% %%server%%
-#exec:enable .sneak
-#startup:~join #sneak
+exec:add ~sneak
+exec:edit ~sneak cmd php scripts/sneak/sneak_client.php %%trailing%% %%dest%% %%nick%% %%user%% %%hostname%% %%alias%% %%cmd%% %%timestamp%% %%server%%
+exec:enable ~sneak
 */
 
 #####################################################################################################
@@ -49,7 +48,12 @@ MAKE ANOTHER SMALLER SCRIPT THAT COMMUNICATES WITH SERVER
 
 # JUST SEND ENTIRE REQUESTS AS BASE64 ENCODED SERIALIZED STRINGS (USE PHP SERIALIZE INSTEAD OF JSON)
 
-require_once("lib.php");
+error_reporting(E_ALL);
+set_time_limit(0);
+ob_implicit_flush();
+date_default_timezone_set("UTC");
+
+require_once(__DIR__."/../lib.php");
 
 $trailing=strtolower(trim($argv[1]));
 $dest=$argv[2];
@@ -61,34 +65,96 @@ $cmd=$argv[7];
 $timestamp=$argv[8];
 $server=$argv[9];
 
-$socket=fsockopen("127.0.0.1",50000);
+$port="";
+$file_list=scandir(DATA_PATH);
+$port_filename_prefix="sneak_port_";
+$port_filename_suffix=".txt";
+for ($i=0;$i<count($file_list);$i++)
+{
+  $test_filename=$file_list[$i];
+  if (substr($test_filename,0,strlen($port_filename_prefix))<>$port_filename_prefix)
+  {
+    continue;
+  }
+  if (substr($test_filename,strlen($test_filename)-strlen($port_filename_suffix))<>$port_filename_suffix)
+  {
+    continue;
+  }
+  $test_port=substr($test_filename,strlen($port_filename_prefix),strlen($test_filename)-strlen($port_filename_suffix)-strlen($port_filename_prefix));
+  $port_data=trim(file_get_contents(DATA_PATH.$test_filename));
+  $port_data=explode(" ",$port_data);
+  if (count($port_data)<>2)
+  {
+    continue;
+  }
+  $test_channel=$port_data[0];
+  $test_server=$port_data[1];
+  if (($test_channel===$dest) and ($server===$test_server))
+  {
+    $port=$test_port;
+    break;
+  }
+}
+if ($port=="")
+{
+  privmsg("error: unable to find sneak server port file for this irc server and channel");
+  return;
+}
+
+$socket=fsockopen("127.0.0.1",$port);
 if ($socket===False)
 {
-  privmsg("error connecting to game server");
+  privmsg("error connecting to sneak server @ 127.0.0.1:$port");
+  unlink(DATA_PATH.$port_filename_prefix.$port.$port_filename_suffix);
   return;
 }
 stream_set_blocking($socket,0);
-fputs($socket,$msg."\n");
 
-$id="$nick!$user@$hostname";
-$serv=base64_encode($server);
-
-$parts=explode(" ",$trailing);
-if (count($parts)==2)
+$unpacked=array();
+$unpacked["channel"]=$dest;
+$unpacked["player_id"]="$nick!$user@$hostname";
+$unpacked["action"]="test";
+$data=base64_encode(serialize($unpacked));
+fputs($socket,$data."\n");
+$t=microtime(True);
+$unpacked=array();
+while (True)
 {
-  $chan=array_shift($parts);
-  if (isset($data[$chan])==False)
+  usleep(0.1e6);
+  if ((microtime(True)-$t)>5e6)
   {
-    pm($nick,"sneak: invalid game channel");
-    return;
+    break;
   }
+  $data=fgets($socket);
+  if ($data===False)
+  {
+    continue;
+  }
+  $data=trim($data);
+  $unpacked=array();
+  $unpacked=@base64_decode($data);
+  if ($unpacked===False)
+  {
+    continue;
+  }
+  $unpacked=@unserialize($unpacked);
+  if ($unpacked===False)
+  {
+    continue;
+  }
+  if (is_array($unpacked)==False)
+  {
+    continue;
+  }
+  break;
 }
 
-if (count($parts)<>1)
+if (isset($unpacked["msg"])==False)
 {
-  pm($nick,"sneak: invalid game command");
   return;
 }
+
+privmsg(chr(3)."03".$unpacked["msg"]);
 
 #####################################################################################################
 
