@@ -32,7 +32,13 @@ $server=$argv[4];
 
 $admin_accounts=array("crutchy");
 
-if (is_admin($nick)==False)
+$account=users_get_account($nick);
+if ($account=="")
+{
+  privmsg("not authorized");
+  return;
+}
+if (in_array($account,$admin_accounts)==False)
 {
   privmsg("not authorized");
   return;
@@ -51,7 +57,7 @@ switch ($action)
     {
       $test_filename=$file_list[$i];
       if (substr($test_filename,0,strlen($port_filename_prefix))<>$port_filename_prefix)
-     {
+      {
         continue;
       }
       if (substr($test_filename,strlen($test_filename)-strlen($port_filename_suffix))<>$port_filename_suffix)
@@ -72,48 +78,71 @@ switch ($action)
     {
       privmsg("no port files found");
     }
-    # TODO: delete all server buckets
+    $list=bucket_list();
+    $list=explode(" ",$list);
+    $prefix="sneak_server_".$server."_";
+    $found=0;
+    for ($i=0;$i<count($list);$i++)
+    {
+      if (substr($list[$i],0,strlen($prefix))===$prefix)
+      {
+        $found++;
+        unset_bucket($list[$i]);
+        privmsg("deleted server bucket \"".$list[$i]."\"");
+      }
+    }
+    if ($found==0)
+    {
+      privmsg("no server buckets found");
+    }
     break;
   case "start":
     if (count($parts)==2)
     {
       $channel=$parts[0];
       $port=$parts[1]; # >=50000
-      run_server($server,$channel,$port);
+      run_server($server,$channel,$port,$account);
     }
     else
     {
       privmsg("syntax: ~sneak-server start <channel> <tcp_port>");
-      privmsg("syntax: ~sneak-server start #sneak 50000");
+      privmsg("example: ~sneak-server start #sneak 50000");
     }
     break;
   case "stop":
-    if (count($parts)==2)
+    if (count($parts)==1)
     {
       $channel=$parts[0];
-      $port=$parts[1];
+      $port=get_bucket("sneak_server_".$server."_$channel");
       $sneak_server_id=base64_encode($server." ".$channel." ".$port);
-      # TODO: only set command if server bucket exists
-      set_bucket("sneak_server_command_$sneak_server_id","stop");
+      if ($port<>"")
+      {
+        set_bucket("sneak_server_command_$sneak_server_id","stop");
+      }
+      else
+      {
+        privmsg("server not found");
+      }
     }
     else
     {
       privmsg("syntax: ~sneak-server stop <channel> <tcp_port>");
-      privmsg("syntax: ~sneak-server stop #sneak 50000");
+      privmsg("example: ~sneak-server stop #sneak 50000");
     }
     break;
 }
 
 #####################################################################################################
 
-function run_server($irc_server,$channel,$listen_port)
+function run_server($irc_server,$channel,$listen_port,$account)
 {
   $server_data=array(
     "irc_server"=>$irc_server,
     "channel"=>$channel,
     "listen_port"=>$listen_port,
     "game_data_updated"=>True,
-    "game_data"=>array());
+    "game_data"=>array(),
+    "server_admin_account"=>$account);
   $sneak_server_id=base64_encode($irc_server." ".$channel." ".$listen_port);
   $port_filename=DATA_PATH."sneak_port_$listen_port.txt";
   if (file_exists($port_filename)==True)
@@ -157,7 +186,7 @@ function run_server($irc_server,$channel,$listen_port)
     server_privmsg($server_data,"error saving port file \"$port_filename\"");
     return;
   }
-  # TODO: set server bucket
+  set_bucket("sneak_server_".$irc_server."_$channel",$listen_port);
   $clients=array($server);
   while (True)
   {
@@ -184,7 +213,7 @@ function run_server($irc_server,$channel,$listen_port)
       $client_index=array_search($client,$clients);
       $addr="";
       socket_getpeername($client,$addr);
-      server_privmsg($server_data,"connected to remote address $addr");
+      #server_privmsg($server_data,"connected to remote address $addr");
       on_connect($server_data,$server,$clients,$connections,$client_index);
       $n=count($clients)-1;
       socket_write($client,"successfully connected to sneak server\n");
@@ -202,12 +231,12 @@ function run_server($irc_server,$channel,$listen_port)
         $addr="";
         if (@socket_getpeername($read_client,$addr)==True)
         {
-          server_privmsg($server_data,"disconnecting from remote address $addr");
+          #server_privmsg($server_data,"disconnecting from remote address $addr");
         }
         on_disconnect($server_data,$server,$clients,$connections,$client_index);
         socket_close($read_client);
         unset($clients[$client_index]);
-        server_privmsg($server_data,"client disconnected");
+        #server_privmsg($server_data,"client disconnected");
         continue;
       }
       $data=trim($data);
@@ -217,7 +246,7 @@ function run_server($irc_server,$channel,$listen_port)
       }
       $addr="";
       socket_getpeername($read_client,$addr);
-      server_privmsg($server_data,"message received from $addr: $data");
+      #server_privmsg($server_data,"message received from $addr: $data");
       if (($data=="quit") or ($data=="shutdown"))
       {
         server_privmsg($server_data,"$data received from $addr");
@@ -263,7 +292,7 @@ function run_server($irc_server,$channel,$listen_port)
     server_privmsg($server_data,"error deleting port file \"$port_filename\"");
   }
   server_privmsg($server_data,"stopping game server");
-  # TODO: unset server bucket
+  unset_bucket("sneak_server_".$irc_server."_$channel");
 }
 
 #####################################################################################################
@@ -295,7 +324,7 @@ function loop_process(&$server_data,&$server,&$clients,&$connections)
 
 function broadcast(&$server_data,&$server,&$clients,&$connections,$msg)
 {
-  server_privmsg($server_data,"BROADCAST: $msg");
+  #server_privmsg($server_data,"BROADCAST: $msg");
   foreach ($clients as $send_client)
   {
     if ($send_client<>$server)
@@ -311,7 +340,7 @@ function do_reply(&$server_data,&$server,&$clients,&$connections,$client_index,$
 {
   $addr="";
   socket_getpeername($clients[$client_index],$addr);
-  server_privmsg($server_data,"REPLY TO $addr: $msg");
+  #server_privmsg($server_data,"REPLY TO $addr: $msg");
   socket_write($clients[$client_index],"$msg\n");
 }
 
@@ -332,6 +361,7 @@ function on_connect(&$server_data,&$server,&$clients,&$connections,$client_index
     $connection["authenticated"]=False;
     $connections[]=$connection;
     broadcast($server_data,$server,$clients,$connections,"*** CLIENT CONNECTED: $addr");
+    server_privmsg($server_data,"*** CLIENT CONNECTED: $addr");
   }
   else
   {
@@ -360,51 +390,67 @@ function on_disconnect(&$server_data,&$server,&$clients,&$connections,$client_in
 
 function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$data)
 {
-  # TODO: PROCESS GAME COMMANDS HERE
-  #do_reply($server_data,$server,$clients,$connections,$client_index,"received text: $data");
   $unpacked=base64_decode($data);
   if ($unpacked===False)
   {
+    server_reply($server_data,$server,$clients,$connections,$client_index,"decoding error");
     return;
   }
   $unpacked=unserialize($unpacked);
   if ($unpacked===False)
   {
+    server_reply($server_data,$server,$clients,$connections,$client_index,"unserializing error");
     return;
   }
   if (is_array($unpacked)==False)
   {
+    server_reply($server_data,$server,$clients,$connections,$client_index,"error: request is not an array");
     return;
   }
   if (isset($unpacked["channel"])==False)
   {
+    server_reply($server_data,$server,$clients,$connections,$client_index,"error: channel missing");
     return;
   }
   $channel=$unpacked["channel"];
-  if (isset($unpacked["player_id"])==False)
+  if (isset($unpacked["nick"])==False)
   {
+    server_reply($server_data,$server,$clients,$connections,$client_index,"error: nick missing");
     return;
   }
-  $player_id=$unpacked["player_id"];
-  if (isset($unpacked["action"])==False)
+  $nick=$unpacked["nick"];
+  if (isset($unpacked["user"])==False)
   {
+    server_reply($server_data,$server,$clients,$connections,$client_index,"error: user missing");
     return;
   }
+  $user=$unpacked["user"];
+  if (isset($unpacked["hostname"])==False)
+  {
+    server_reply($server_data,$server,$clients,$connections,$client_index,"error: hostname missing");
+    return;
+  }
+  $hostname=$unpacked["hostname"];
+  $player_id="$user@$hostname";
+  if (isset($unpacked["trailing"])==False)
+  {
+    server_reply($server_data,$server,$clients,$connections,$client_index,"error: trailing missing");
+    return;
+  }
+  $trailing=$unpacked["trailing"];
+  $action=$trailing;
   if (isset($server_data["game_data"][$channel])==False)
   {
-    init_chan($server_data,$unpacked["channel"]);
+    
   }
   if (isset($server_data["game_data"][$channel]["players"][$player_id])==False)
   {
-    init_player($server_data,$unpacked["channel"],$unpacked["player_id"]);
+    init_player($server_data,$channel,$player_id);
   }
-
-$response=array();
-$response["msg"]="i farted";
-$data=base64_encode(serialize($response));
-do_reply($server_data,$server,$clients,$connections,$client_index,$data);
-
-  switch ($unpacked["action"])
+  server_privmsg($server_data,"action = $action");
+  $response=array();
+  $response["msg"]="invalid action";
+  switch ($action)
   {
     case "gm-del-chan":
       /*if (is_gm($nick)==True)
@@ -422,21 +468,29 @@ do_reply($server_data,$server,$clients,$connections,$client_index,$data);
       }*/
       break;
     case "gm-init-chan":
-      /*if (is_gm($nick)==True)
+      if (is_gm($server_data,$nick,$channel)==True)
       {
-        if (isset($data[$chan])==True)
+        if (isset($server_data["game_data"][$channel])==True)
         {
-          unset($data[$chan]);
+          unset($server_data["game_data"][$channel]);
         }
-        init_chan($chan);
-        pm($nick,"sneak: chan initialized");
-      }*/
+        init_chan($server_data,$channel,$nick);
+        $response["msg"]="channel initialized";
+      }
+      else
+      {
+        $response["msg"]="not authorized";
+      }
       break;
     case "gm-kill":
-      /*if (is_gm($nick)==True)
+      if (is_gm($server_data,$nick,$channel)==True)
       {
-
-      }*/
+        $response["msg"]="i farted";
+      }
+      else
+      {
+        $response["msg"]="not authorized";
+      }
       break;
     case "gm-player-data":
       /*if (is_gm($nick)==True)
@@ -501,6 +555,37 @@ do_reply($server_data,$server,$clients,$connections,$client_index,$data);
 
       break;
   }
+  $data=base64_encode(serialize($response));
+  do_reply($server_data,$server,$clients,$connections,$client_index,$data);
+}
+
+#####################################################################################################
+
+function is_gm(&$server_data,$nick,$channel)
+{
+  if (isset($server_data["game_data"][$channel]["moderators"])==False)
+  {
+    return False;
+  }
+  $account=users_get_account($nick);
+  if ($account<>"")
+  {
+    if (in_array($account,$server_data["game_data"][$channel]["moderators"])==True)
+    {
+      return True;
+    }
+  }
+  return False;
+}
+
+#####################################################################################################
+
+function server_reply(&$server_data,&$server,&$clients,&$connections,$client_index,$msg)
+{
+  $response=array();
+  $response["msg"]=$msg;
+  $data=base64_encode(serialize($response));
+  do_reply($server_data,$server,$clients,$connections,$client_index,$data);
 }
 
 #####################################################################################################
@@ -508,26 +593,6 @@ do_reply($server_data,$server,$clients,$connections,$client_index,$data);
 function log_msg(&$server_data,&$server,&$clients,&$connections,$addr,$client_index,$data)
 {
   # TODO
-}
-
-#####################################################################################################
-
-function is_admin($nick)
-{
-  global $admin_accounts;
-  $account=users_get_account($nick);
-  if ($account=="")
-  {
-    return False;
-  }
-  if (in_array($account,$admin_accounts)==True)
-  {
-    return True;
-  }
-  else
-  {
-    return False;
-  }
 }
 
 #####################################################################################################
@@ -542,9 +607,10 @@ function server_privmsg(&$server_data,$msg)
 
 #####################################################################################################
 
-function init_chan(&$server_data,$channel)
+function init_chan(&$server_data,$channel,$nick)
 {
   $record=array();
+  $record["moderators"]=array($server_data["server_admin_account"]);
   $record["players"]=array();
   $record["goodies"]=array();
   $record["map_size"]=30;

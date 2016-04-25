@@ -2806,12 +2806,12 @@ function process_scripts($items,$reserved="")
   $cwd=NULL;
   $env=NULL;
   $descriptorspec=array(0=>array("pipe","r"),1=>array("pipe","w"),2=>array("pipe","w"));
-  if ($alias<>ALIAS_ALL)
-  {
-    term_echo("EXEC: ".$command);
-  }
   $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
   $status=proc_get_status($process);
+  if ($alias<>ALIAS_ALL)
+  {
+    term_echo("EXEC [".$status["pid"]."]: ".$command);
+  }
   $locks=$exec_list[$alias]["bucket_locks"];
   for ($i=0;$i<count($locks);$i++)
   {

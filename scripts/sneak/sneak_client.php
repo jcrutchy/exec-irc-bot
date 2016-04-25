@@ -32,21 +32,12 @@ goody boxes could kill the player, relocate them to a random coordinate (if occu
 output to players is via pm
 channel output to #sneak is only certain events (when someone dies or the map changes)
 
-
-LEAVE GAME SCRIPT RUNNING FULL TIME AS A SOCKET SERVER
-MAKE ANOTHER SMALLER SCRIPT THAT COMMUNICATES WITH SERVER
-(TO PREVENT DATA FILE CORRUPTION)
-
 */
 
 #####################################################################################################
 
-# move most of the following stuff to the server. the client should mostly just connect to the server, send its message and disconnect
-
 # ONLY SEND STUFF TO THE SERVER THAT AFFECTS THE DATA FILES, LIKE COMMANDS THAT CHANGE DATA AND REQUESTS FOR DATA
 # THINGS LIKE PROCESSING ix.io OUTPUT ETC SHOULD BE DONE IN THE CLIENT SCRIPT
-
-# JUST SEND ENTIRE REQUESTS AS BASE64 ENCODED SERIALIZED STRINGS (USE PHP SERIALIZE INSTEAD OF JSON)
 
 error_reporting(E_ALL);
 set_time_limit(0);
@@ -112,8 +103,10 @@ stream_set_blocking($socket,0);
 
 $unpacked=array();
 $unpacked["channel"]=$dest;
-$unpacked["player_id"]="$nick!$user@$hostname";
-$unpacked["action"]="test";
+$unpacked["nick"]=$nick;
+$unpacked["user"]=$user;
+$unpacked["hostname"]=$hostname;
+$unpacked["trailing"]=$trailing;
 $data=base64_encode(serialize($unpacked));
 fputs($socket,$data."\n");
 $t=microtime(True);

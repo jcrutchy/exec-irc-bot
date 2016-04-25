@@ -9,6 +9,7 @@ exec:~rps|10|0|0|1|||||php scripts/rps.php %%trailing%% %%dest%% %%nick%% %%alia
 */
 
 /*
+
 asynchronous rock/paper/scissors
 
 ~rps
@@ -24,7 +25,7 @@ Adds paper to your account's sequence.
 Adds scissors to your account's sequence.
 
 ~rps rank
-Outputs current ranking to http://ix.io/nAz [ix.io]
+Outputs current ranking to http://ix.io/nAz
 
 You can also submit multiple turns in one command, which is useful if you're a new player. Example:
 ~rps rrrrpsrpsrpssspssr
@@ -37,6 +38,9 @@ You can play from any channel that 'exec' is currently in, or private message th
 Players are tied to NickServ accounts, so to play you must register with NickServ. This is easy to do and most IRC clients can automagically identify for you with minimal fuss. This is to keep your game from being manipulated when you're offline.
 
 Ranking is based on a handicap that balances the number of wins and losses with the number of rounds played. This is so that a new player who gets a win doesn't secure top spot just because they have a 100% win rate.
+
+inspired by https://sadale.net/RPS/
+
 */
 
 #####################################################################################################
