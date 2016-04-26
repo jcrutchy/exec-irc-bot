@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~antispam-internal|10|0|0|1||INTERNAL|||php scripts/antispam.php %%trailing%%
-init:~antispam-internal register-events
+#exec:~antispam-internal|10|0|0|1||INTERNAL|||php scripts/antispam.php %%trailing%%
+#init:~antispam-internal register-events
 */
 
 #####################################################################################################

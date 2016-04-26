@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~tell|10|0|0|1|*||||php scripts/tell.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
-exec:~tell-internal|10|0|0|1|*|INTERNAL|||php scripts/tell.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
+exec:~tell|10|0|0|1|||||php scripts/tell.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
+exec:~tell-internal|10|0|0|1||INTERNAL|||php scripts/tell.php %%trailing%% %%dest%% %%nick%% %%alias%% %%server%%
 init:~tell-internal register-events
 */
 

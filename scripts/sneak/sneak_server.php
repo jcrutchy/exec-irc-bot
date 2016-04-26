@@ -18,6 +18,8 @@ talking to the server and their requests for modifying game data processed from 
 
 #####################################################################################################
 
+# TODO: WHAT IS CALLING users_get_account($nick) BEFORE THIS POINT - LOOK IN BOT CODE
+
 error_reporting(E_ALL);
 set_time_limit(0);
 ob_implicit_flush();
@@ -452,34 +454,40 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
   $response["msg"]="invalid action";
   switch ($action)
   {
-    case "gm-del-chan":
-      /*if (is_gm($nick)==True)
+    case "admin-del-chan":
+      if ($server_data["server_admin_account"]==users_get_account($nick))
       {
-        if (isset($data[$chan])==True)
+        if (isset($server_data["game_data"][$channel])==True)
         {
-          unset($data[$chan]);
-          $save=True;
-          pm($nick,"sneak: chan deleted");
+          unset($server_data["game_data"][$channel]);
+          $server_data["game_data_updated"]=True;
+          $response["msg"]="channel deleted";
         }
         else
         {
-          pm($nick,"sneak: chan not found");
+          $response["msg"]="channel not found";
         }
-      }*/
+      }
+      else
+      {
+        $response["msg"]="not authorized";
+      }
       break;
-    case "gm-init-chan":
-      if (is_gm($server_data,$nick,$channel)==True)
+    case "admin-init-chan":
+      $buckets=bucket_list(); # PHP Notice:  unserialize(): Error at offset 0 of 419 bytes in /home/jared/git/exec-irc-bot/scripts/lib_buckets.php on line 170
+      # buckets don't seem to be accessible here for some reason
+      if ($server_data["server_admin_account"]==users_get_account($nick))
       {
         if (isset($server_data["game_data"][$channel])==True)
         {
           unset($server_data["game_data"][$channel]);
         }
-        init_chan($server_data,$channel,$nick);
+        init_chan($server_data,$channel);
         $response["msg"]="channel initialized";
       }
       else
       {
-        $response["msg"]="not authorized";
+        $response["msg"]="not authorized - ".$server_data["server_admin_account"]." - $nick - ".users_get_account($nick);
       }
       break;
     case "gm-kill":
@@ -607,7 +615,7 @@ function server_privmsg(&$server_data,$msg)
 
 #####################################################################################################
 
-function init_chan(&$server_data,$channel,$nick)
+function init_chan(&$server_data,$channel)
 {
   $record=array();
   $record["moderators"]=array($server_data["server_admin_account"]);

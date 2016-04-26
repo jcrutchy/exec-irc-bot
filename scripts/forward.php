@@ -3,8 +3,8 @@
 #####################################################################################################
 
 /*
-exec:~forward|60|0|0|1|crutchy||||php scripts/forward.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
-init:~forward register-events
+#exec:~forward|60|0|0|1|||||php scripts/forward.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
+#init:~forward register-events
 */
 
 #####################################################################################################
