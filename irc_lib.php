@@ -865,17 +865,15 @@ function handle_stdin($handle,$data)
   {
     return False;
   }
-  $lines=str_split($data,1024);
-  $lines[]="<<EOF>>";
-  for ($i=0;$i<count($lines);$i++)
+  $str=base64_encode($data).PHP_EOL;
+  if (fwrite($handle["pipe_stdin"],$str,strlen($str))===False)
   {
-    $result=fwrite($handle["pipe_stdin"],$lines[$i]."\n");
-    if ($result===False)
-    {
-      return False;
-    }
+    return False;
   }
-  return True;
+  else
+  {
+    return True;
+  }
 }
 
 #####################################################################################################
@@ -900,19 +898,19 @@ function handle_buckets($data,$handle)
       {
         $exec_list_data=base64_encode(serialize($exec_list));
         $result=handle_stdin($handle,$exec_list_data);
-        handle_stdin($handle,"\n");
+        #handle_stdin($handle,"\n");
         return True;
       }
       if ($index==BUCKET_ADMIN_ACCOUNTS_LIST)
       {
         $result=handle_stdin($handle,ADMIN_ACCOUNTS);
-        handle_stdin($handle,"\n");
+        #handle_stdin($handle,"\n");
         return True;
       }
       if ($index==BUCKET_OPERATOR_ACCOUNT)
       {
         $result=handle_stdin($handle,OPERATOR_ACCOUNT);
-        handle_stdin($handle,"\n");
+        #handle_stdin($handle,"\n");
         return True;
       }
       if (substr($index,0,strlen(BUCKET_ALIAS_ELEMENT_PREFIX))==BUCKET_ALIAS_ELEMENT_PREFIX)
@@ -921,7 +919,8 @@ function handle_buckets($data,$handle)
         $parts=explode("_",$parts_str);
         if (count($parts)<=1)
         {
-          handle_stdin($handle,"\n");
+          #handle_stdin($handle,"\n");
+          handle_stdin($handle,"");
           return True;
         }
         $alias=array_shift($parts);
@@ -939,7 +938,7 @@ function handle_buckets($data,$handle)
           {
             term_echo("alias element failed for pid ".$handle["pid"]);
           }
-          handle_stdin($handle,"\n");
+          #handle_stdin($handle,"\n");
           return True;
         }
       }
@@ -958,7 +957,7 @@ function handle_buckets($data,$handle)
           {
             term_echo("process template \"".$process_template."\" failed for pid ".$handle["pid"]);
           }
-          handle_stdin($handle,"\n");
+          #handle_stdin($handle,"\n");
           return True;
         }
       }
@@ -983,7 +982,8 @@ function handle_buckets($data,$handle)
       }
       else
       {
-        handle_stdin($handle,"\n");
+        #handle_stdin($handle,"\n");
+        handle_stdin($handle,"");
         #term_echo("BUCKET_GET [$index]: BUCKET NOT SET");
       }
       return True;
@@ -2801,6 +2801,7 @@ function process_scripts($items,$reserved="")
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_SERVER.TEMPLATE_DELIM,escapeshellarg($items["server"]),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_USER.TEMPLATE_DELIM,escapeshellarg($items["user"]),$template);
   $template=str_replace(TEMPLATE_DELIM.TEMPLATE_HOSTNAME.TEMPLATE_DELIM,escapeshellarg($items["hostname"]),$template);
+  $template=str_replace(TEMPLATE_DELIM.TEMPLATE_PREFIX.TEMPLATE_DELIM,escapeshellarg($items["prefix"]),$template);
   $command="exec ".$template;
   $command=$template;
   $cwd=NULL;

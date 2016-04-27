@@ -233,26 +233,13 @@ function bucket_read($cmd,$index="")
   {
     echo "/$cmd\n";
   }
-  $f=fopen("php://stdin","r");
-  $data="";
-  while (True)
-  {
-    $line=trim(fgets($f));
-    if (($line=="") or ($line=="<<EOF>>"))
-    {
-      break;
-    }
-    $data=$data.$line;
-  }
-  if ($data===False)
+  $line=fgets(STDIN);
+  if ($line===False)
   {
     err("unable to read bucket data");
+    return;
   }
-  else
-  {
-    return trim($data);
-  }
-  fclose($f);
+  return base64_decode($line);
 }
 
 #####################################################################################################

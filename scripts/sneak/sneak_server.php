@@ -5,7 +5,7 @@
 /*
 exec:add ~sneak-server
 exec:edit ~sneak-server timeout 0
-exec:edit ~sneak-server cmd php scripts/sneak/sneak_server.php %%trailing%% %%nick%% %%dest%% %%server%%
+exec:edit ~sneak-server cmd php scripts/sneak/sneak_server.php %%trailing%% %%nick%% %%dest%% %%server%% %%hostname%%
 exec:enable ~sneak-server
 startup:~join #sneak
 */
@@ -16,9 +16,15 @@ The sneak server is used to manage a common game data repository, with multiple 
 talking to the server and their requests for modifying game data processed from the queued socket buffers.
 */
 
-#####################################################################################################
+/*
+http://superuser.com/questions/160718/how-does-hostname-spoofing-customization-work-on-irc-networks
+To avoid spoofing, an ircd (the IRC server program) will compare reverse and forward DNS—that is,
+it will make sure your rDNS hostname points back to your IP address—before displaying it to other users.
 
-# TODO: WHAT IS CALLING users_get_account($nick) BEFORE THIS POINT - LOOK IN BOT CODE
+disadvantage of using hostname auth is that unless the admin uses a cloak, anyone on the same ip can access
+*/
+
+#####################################################################################################
 
 error_reporting(E_ALL);
 set_time_limit(0);
@@ -31,16 +37,30 @@ $trailing=strtolower(trim($argv[1]));
 $nick=$argv[2];
 $dest=$argv[3];
 $server=$argv[4];
+$hostname=$argv[5];
 
-$admin_accounts=array("crutchy");
+$user="$hostname $server";
 
-$account=users_get_account($nick);
-if ($account=="")
+$admin_filename=DATA_PATH."sneak_admins.txt";
+if (file_exists($admin_filename)==False)
 {
-  privmsg("not authorized");
+  privmsg("sneak server admins file not found");
   return;
 }
-if (in_array($account,$admin_accounts)==False)
+$admin_users=file_get_contents($admin_filename);
+if ($admin_users===False)
+{
+  privmsg("error reading sneak server admins file");
+  return;
+}
+$admin_users=json_decode($admin_users,True);
+if ($admin_users===Null)
+{
+  privmsg("error decoding sneak server admins file");
+  return;
+}
+
+if (in_array($user,$admin_users)==False)
 {
   privmsg("not authorized");
   return;
@@ -82,7 +102,7 @@ switch ($action)
     }
     $list=bucket_list();
     $list=explode(" ",$list);
-    $prefix="sneak_server_".$server."_";
+    $prefix="sneak_server_";
     $found=0;
     for ($i=0;$i<count($list);$i++)
     {
@@ -103,7 +123,7 @@ switch ($action)
     {
       $channel=$parts[0];
       $port=$parts[1]; # >=50000
-      run_server($server,$channel,$port,$account);
+      run_server($server,$channel,$port,$hostname);
     }
     else
     {
@@ -136,7 +156,7 @@ switch ($action)
 
 #####################################################################################################
 
-function run_server($irc_server,$channel,$listen_port,$account)
+function run_server($irc_server,$channel,$listen_port,$hostname)
 {
   $server_data=array(
     "irc_server"=>$irc_server,
@@ -144,7 +164,7 @@ function run_server($irc_server,$channel,$listen_port,$account)
     "listen_port"=>$listen_port,
     "game_data_updated"=>True,
     "game_data"=>array(),
-    "server_admin_account"=>$account);
+    "server_admin"=>$hostname);
   $sneak_server_id=base64_encode($irc_server." ".$channel." ".$listen_port);
   $port_filename=DATA_PATH."sneak_port_$listen_port.txt";
   if (file_exists($port_filename)==True)
@@ -188,10 +208,21 @@ function run_server($irc_server,$channel,$listen_port,$account)
     server_privmsg($server_data,"error saving port file \"$port_filename\"");
     return;
   }
-  set_bucket("sneak_server_".$irc_server."_$channel",$listen_port);
+  $bucket_index="sneak_server_".$irc_server."_$channel";
+  set_bucket($bucket_index,$listen_port);
   $clients=array($server);
+  $n=0;
   while (True)
   {
+    usleep(0.05e6);
+    $test=get_bucket($bucket_index);
+    term_echo("$n - $test");
+    $n++;
+    /*if ($test<>$listen_port)
+    {
+      server_privmsg($server_data,"server bucket not found - stopping");
+      break;
+    }*/
     $server_command=get_bucket("sneak_server_command_$sneak_server_id");
     switch ($server_command)
     {
@@ -205,7 +236,6 @@ function run_server($irc_server,$channel,$listen_port,$account)
     $except=NULL;
     if (socket_select($read,$write,$except,0)<1)
     {
-      usleep(10000);
       continue;
     }
     if (in_array($server,$read)==True)
@@ -289,7 +319,7 @@ function run_server($irc_server,$channel,$listen_port,$account)
   }
   socket_shutdown($server,2);
   socket_close($server);
-  if (unlink($port_filename)===False)
+  if (@unlink($port_filename)===False)
   {
     server_privmsg($server_data,"error deleting port file \"$port_filename\"");
   }
@@ -433,7 +463,6 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
     return;
   }
   $hostname=$unpacked["hostname"];
-  $player_id="$user@$hostname";
   if (isset($unpacked["trailing"])==False)
   {
     server_reply($server_data,$server,$clients,$connections,$client_index,"error: trailing missing");
@@ -443,11 +472,12 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
   $action=$trailing;
   if (isset($server_data["game_data"][$channel])==False)
   {
-    
+    server_reply($server_data,$server,$clients,$connections,$client_index,"error: channel not initialized");
+    return;
   }
-  if (isset($server_data["game_data"][$channel]["players"][$player_id])==False)
+  if (isset($server_data["game_data"][$channel]["players"][$hostname])==False)
   {
-    init_player($server_data,$channel,$player_id);
+    init_player($server_data,$channel,$hostname);
   }
   server_privmsg($server_data,"action = $action");
   $response=array();
@@ -455,7 +485,7 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
   switch ($action)
   {
     case "admin-del-chan":
-      if ($server_data["server_admin_account"]==users_get_account($nick))
+      if ($server_data["server_admin"]==$hostname)
       {
         if (isset($server_data["game_data"][$channel])==True)
         {
@@ -474,9 +504,7 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
       }
       break;
     case "admin-init-chan":
-      $buckets=bucket_list(); # PHP Notice:  unserialize(): Error at offset 0 of 419 bytes in /home/jared/git/exec-irc-bot/scripts/lib_buckets.php on line 170
-      # buckets don't seem to be accessible here for some reason
-      if ($server_data["server_admin_account"]==users_get_account($nick))
+      if ($server_data["server_admin"]==$hostname)
       {
         if (isset($server_data["game_data"][$channel])==True)
         {
@@ -487,7 +515,7 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
       }
       else
       {
-        $response["msg"]="not authorized - ".$server_data["server_admin_account"]." - $nick - ".users_get_account($nick);
+        $response["msg"]="not authorized - ".$server_data["server_admin_account"]." - $nick - $account";
       }
       break;
     case "gm-kill":
@@ -569,7 +597,7 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
 
 #####################################################################################################
 
-function is_gm(&$server_data,$nick,$channel)
+function is_gm(&$server_data,$hostname,$channel)
 {
   if (isset($server_data["game_data"][$channel]["moderators"])==False)
   {
@@ -618,7 +646,7 @@ function server_privmsg(&$server_data,$msg)
 function init_chan(&$server_data,$channel)
 {
   $record=array();
-  $record["moderators"]=array($server_data["server_admin_account"]);
+  $record["moderators"]=array($server_data["server_admin"]);
   $record["players"]=array();
   $record["goodies"]=array();
   $record["map_size"]=30;
@@ -628,11 +656,11 @@ function init_chan(&$server_data,$channel)
 
 #####################################################################################################
 
-function init_player(&$server_data,$channel,$player_id)
+function init_player(&$server_data,$channel,$hostname)
 {
   $record=array();
-  $record["player_id"]=$player_id;
-  $server_data["game_data"][$channel]["players"][$player_id]=$record;
+  $record["hostname"]=$hostname;
+  $server_data["game_data"][$channel]["players"][$hostname]=$record;
   $server_data["game_data_updated"]=True;
 }
 

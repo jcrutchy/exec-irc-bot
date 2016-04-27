@@ -200,6 +200,7 @@ define("TEMPLATE_TIMESTAMP","timestamp");
 define("TEMPLATE_SERVER","server");
 define("TEMPLATE_USER","user");
 define("TEMPLATE_HOSTNAME","hostname");
+define("TEMPLATE_PREFIX","prefix");
 
 define("THROTTLE_LOCKOUT_TIME",10); # sec
 define("ANTI_FLOOD_DELAY",0.7); # sec
