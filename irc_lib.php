@@ -878,6 +878,8 @@ function handle_stdin($handle,$data)
 
 #####################################################################################################
 
+# TODO: DON'T REALLY NEED TO base64_encode ARRAY BUCKETS FOR PIPING NOW, SINCE ITS BUILT INTO handle_stdin FOR ALL BUCKETS
+
 function handle_buckets($data,$handle)
 {
   global $buckets;

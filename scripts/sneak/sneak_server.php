@@ -119,22 +119,68 @@ switch ($action)
     }
     break;
   case "start":
+    $channel="";
+    $port="";
+    if (count($parts)==1)
+    {
+      $channel=$parts[0];
+      $port=50000;
+      while (file_exists(DATA_PATH."sneak_port_".$port.".txt")==True)
+      {
+        $port++;
+      }
+    }
     if (count($parts)==2)
     {
       $channel=$parts[0];
-      $port=$parts[1]; # >=50000
-      run_server($server,$channel,$port,$hostname);
+      $port=$parts[1];
+    }
+    if (($channel==="") or ($port===""))
+    {
+      privmsg("syntax: ~sneak-server start <channel> [<tcp_port>]");
+      privmsg("example: ~sneak-server start #sneak 50000");
+      privmsg("example: ~sneak-server start #sneak");
+      privmsg("tcp_port should be >= 50000");
     }
     else
     {
-      privmsg("syntax: ~sneak-server start <channel> <tcp_port>");
-      privmsg("example: ~sneak-server start #sneak 50000");
+      if (get_bucket("sneak_server_".$server."_$channel")=="")
+      {
+        run_server($server,$channel,$port,$hostname);
+      }
+      else
+      {
+        privmsg("server for $channel on $server already running");
+      }
     }
     break;
   case "stop":
     if (count($parts)==1)
     {
       $channel=$parts[0];
+      if ($channel=="all")
+      {
+        $list=bucket_list();
+        $list=explode(" ",$list);
+        $prefix="sneak_server_";
+        $found=0;
+        for ($i=0;$i<count($list);$i++)
+        {
+          if (substr($list[$i],0,strlen($prefix))===$prefix)
+          {
+            $found++;
+            $port=get_bucket($list[$i]);
+            $channel=substr($list[$i],strlen("sneak_server_".$server."_"));
+            $sneak_server_id=base64_encode($server." ".$channel." ".$port);
+            set_bucket("sneak_server_command_$sneak_server_id","stop");
+          }
+        }
+        if ($found==0)
+        {
+          privmsg("no servers found");
+        }
+        return;
+      }
       $port=get_bucket("sneak_server_".$server."_$channel");
       $sneak_server_id=base64_encode($server." ".$channel." ".$port);
       if ($port<>"")
@@ -148,8 +194,41 @@ switch ($action)
     }
     else
     {
-      privmsg("syntax: ~sneak-server stop <channel> <tcp_port>");
-      privmsg("example: ~sneak-server stop #sneak 50000");
+      privmsg("syntax: ~sneak-server stop <channel>");
+      privmsg("example: ~sneak-server stop #sneak");
+      privmsg("example: ~sneak-server stop all");
+    }
+    break;
+  case "restart":
+    if (count($parts)==1)
+    {
+      $channel=$parts[0];
+      $port=get_bucket("sneak_server_".$server."_$channel");
+      $sneak_server_id=base64_encode($server." ".$channel." ".$port);
+      if ($port<>"")
+      {
+        set_bucket("sneak_server_command_$sneak_server_id","stop");
+        $t=microtime(True);
+        while ((get_bucket("sneak_server_".$server."_$channel")<>"") and ((microtime(True)-$t)<10e6))
+        {
+          usleep(0.05e6);
+        }
+        if (get_bucket("sneak_server_".$server."_$channel")<>"")
+        {
+          privmsg("error: unable to verify server has been stopped");
+          return;
+        }
+        run_server($server,$channel,$port,$hostname);
+      }
+      else
+      {
+        privmsg("server not found");
+      }
+    }
+    else
+    {
+      privmsg("syntax: ~sneak-server restart <channel>");
+      privmsg("example: ~sneak-server restart #sneak");
     }
     break;
 }
@@ -211,18 +290,14 @@ function run_server($irc_server,$channel,$listen_port,$hostname)
   $bucket_index="sneak_server_".$irc_server."_$channel";
   set_bucket($bucket_index,$listen_port);
   $clients=array($server);
-  $n=0;
   while (True)
   {
     usleep(0.05e6);
-    $test=get_bucket($bucket_index);
-    term_echo("$n - $test");
-    $n++;
-    /*if ($test<>$listen_port)
+    if (get_bucket($bucket_index)<>$listen_port)
     {
       server_privmsg($server_data,"server bucket not found - stopping");
       break;
-    }*/
+    }
     $server_command=get_bucket("sneak_server_command_$sneak_server_id");
     switch ($server_command)
     {
@@ -470,16 +545,21 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
   }
   $trailing=$unpacked["trailing"];
   $action=$trailing;
-  if (isset($server_data["game_data"][$channel])==False)
+  if ($action<>"admin-init-chan")
   {
-    server_reply($server_data,$server,$clients,$connections,$client_index,"error: channel not initialized");
-    return;
+    if (isset($server_data["game_data"][$channel])==False)
+    {
+      server_reply($server_data,$server,$clients,$connections,$client_index,"error: channel not initialized");
+      return;
+    }
+    if (substr($action,0,6)<>"admin-")
+    {
+      if (isset($server_data["game_data"][$channel]["players"][$hostname])==False)
+      {
+        init_player($server_data,$channel,$hostname);
+      }
+    }
   }
-  if (isset($server_data["game_data"][$channel]["players"][$hostname])==False)
-  {
-    init_player($server_data,$channel,$hostname);
-  }
-  server_privmsg($server_data,"action = $action");
   $response=array();
   $response["msg"]="invalid action";
   switch ($action)
@@ -515,11 +595,11 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
       }
       else
       {
-        $response["msg"]="not authorized - ".$server_data["server_admin_account"]." - $nick - $account";
+        $response["msg"]="not authorized";
       }
       break;
     case "gm-kill":
-      if (is_gm($server_data,$nick,$channel)==True)
+      if (is_gm($server_data,$hostname,$channel)==True)
       {
         $response["msg"]="i farted";
       }
@@ -603,10 +683,9 @@ function is_gm(&$server_data,$hostname,$channel)
   {
     return False;
   }
-  $account=users_get_account($nick);
-  if ($account<>"")
+  if ($hostname<>"")
   {
-    if (in_array($account,$server_data["game_data"][$channel]["moderators"])==True)
+    if (in_array($hostname,$server_data["game_data"][$channel]["moderators"])==True)
     {
       return True;
     }

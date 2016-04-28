@@ -1,5 +1,7 @@
 <?php
 
+# TODO: DON'T REALLY NEED TO base64_decode ARRAY BUCKETS NOW, SINCE ITS BUILT INTO get_bucket FOR ALL BUCKETS
+
 #####################################################################################################
 
 function exec_alias_config_value($alias,$name)
