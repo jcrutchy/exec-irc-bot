@@ -543,8 +543,14 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
     server_reply($server_data,$server,$clients,$connections,$client_index,"error: trailing missing");
     return;
   }
-  $trailing=$unpacked["trailing"];
-  $action=$trailing;
+  $trailing=trim($unpacked["trailing"]);
+  if ($trailing=="")
+  {
+    server_reply($server_data,$server,$clients,$connections,$client_index,"error: trailing empty");
+    return;
+  }
+  $parts=explode(" ",$trailing);
+  $action=array_shift($parts);
   if ($action<>"admin-init-chan")
   {
     if (isset($server_data["game_data"][$channel])==False)
@@ -567,15 +573,21 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
     case "admin-del-chan":
       if ($server_data["server_admin"]==$hostname)
       {
-        if (isset($server_data["game_data"][$channel])==True)
+        if (count($parts)<>1)
         {
-          unset($server_data["game_data"][$channel]);
+          $response["msg"]="invalid number of parameters";
+          break;
+        }
+        $subject=$parts[0];
+        if (isset($server_data["game_data"][$subject])==True)
+        {
+          unset($server_data["game_data"][$subject]);
           $server_data["game_data_updated"]=True;
-          $response["msg"]="channel deleted";
+          $response["msg"]="channel \"$subject\" deleted";
         }
         else
         {
-          $response["msg"]="channel not found";
+          $response["msg"]="channel \"$subject\" not found";
         }
       }
       else
@@ -586,12 +598,18 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
     case "admin-init-chan":
       if ($server_data["server_admin"]==$hostname)
       {
-        if (isset($server_data["game_data"][$channel])==True)
+        if (count($parts)<>1)
         {
-          unset($server_data["game_data"][$channel]);
+          $response["msg"]="invalid number of parameters";
+          break;
         }
-        init_chan($server_data,$channel);
-        $response["msg"]="channel initialized";
+        $subject=$parts[0];
+        if (isset($server_data["game_data"][$subject])==True)
+        {
+          unset($server_data["game_data"][$subject]);
+        }
+        init_chan($server_data,$subject);
+        $response["msg"]="channel \"subject\" initialized";
       }
       else
       {
@@ -601,7 +619,22 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
     case "gm-kill":
       if (is_gm($server_data,$hostname,$channel)==True)
       {
-        $response["msg"]="i farted";
+        if (count($parts)<>1)
+        {
+          $response["msg"]="invalid number of parameters";
+          break;
+        }
+        $subject=$parts[0];
+        if (isset($server_data["game_data"][$channel]["players"][$subject])==True)
+        {
+          unset($server_data["game_data"][$channel]["players"][$subject]);
+          $server_data["game_data_updated"]=True;
+          $response["msg"]="player \"$subject\" deleted from the game server in this channel";
+        }
+        else
+        {
+          $response["msg"]="player \"$subject\" not found on the game server in this channel";
+        }
       }
       else
       {
@@ -609,28 +642,44 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
       }
       break;
     case "gm-player-data":
-      /*if (is_gm($nick)==True)
+      if (is_gm($server_data,$hostname,$channel)==True)
       {
-
-      }*/
+        $response["msg"]="i farted";
+      }
+      else
+      {
+        $response["msg"]="not authorized";
+      }
       break;
     case "gm-map":
-      /*if (is_gm($nick)==True)
+      if (is_gm($server_data,$hostname,$channel)==True)
       {
-
-      }*/
+        $response["msg"]="i farted";
+      }
+      else
+      {
+        $response["msg"]="not authorized";
+      }
       break;
     case "gm-edit-player":
-      /*if (is_gm($nick)==True)
+      if (is_gm($server_data,$hostname,$channel)==True)
       {
-
-      }*/
+        $response["msg"]="i farted";
+      }
+      else
+      {
+        $response["msg"]="not authorized";
+      }
       break;
     case "gm-edit-goody":
-      /*if (is_gm($nick)==True)
+      if (is_gm($server_data,$hostname,$channel)==True)
       {
-
-      }*/
+        $response["msg"]="i farted";
+      }
+      else
+      {
+        $response["msg"]="not authorized";
+      }
       break;
     case "help":
     case "?":
