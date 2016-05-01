@@ -109,13 +109,18 @@ switch ($action)
       if (substr($list[$i],0,strlen($prefix))===$prefix)
       {
         $found++;
+        $port=get_bucket($list[$i]);
+        $channel=substr($list[$i],strlen("sneak_server_".$server."_"));
+        $sneak_server_id=base64_encode($server." ".$channel." ".$port);
+        set_bucket("sneak_server_command_$sneak_server_id","stop");
+        sleep(4);
         unset_bucket($list[$i]);
         privmsg("deleted server bucket \"".$list[$i]."\"");
       }
     }
     if ($found==0)
     {
-      privmsg("no server buckets found");
+      privmsg("no servers found");
     }
     break;
   case "start":
@@ -218,6 +223,7 @@ switch ($action)
           privmsg("error: unable to verify server has been stopped");
           return;
         }
+        sleep(4);
         run_server($server,$channel,$port,$hostname);
       }
       else
@@ -609,7 +615,7 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
           unset($server_data["game_data"][$subject]);
         }
         init_chan($server_data,$subject);
-        $response["msg"]="channel \"subject\" initialized";
+        $response["msg"]="channel \"$subject\" initialized";
       }
       else
       {
@@ -644,7 +650,31 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
     case "gm-player-data":
       if (is_gm($server_data,$hostname,$channel)==True)
       {
-        $response["msg"]="i farted";
+        if (count($parts)<>1)
+        {
+          $response["msg"]="invalid number of parameters";
+          break;
+        }
+        $subject=$parts[0];
+        $user_data=users_get_data($subject);
+        if (isset($user_data["hostname"])==False)
+        {
+          $response["msg"]="nick \"$subject\" not found";
+        }
+        else
+        {
+          $subject=$user_data["hostname"];
+          if (isset($server_data["game_data"][$channel]["players"][$subject])==True)
+          {
+            $output=var_export($server_data["game_data"][$channel]["players"][$subject],True);
+            output_ixio_paste($output,False);
+            $response["msg"]="player data for \"$subject\" dumped to http://ix.io/nAz";
+          }
+          else
+          {
+           $response["msg"]="player \"$subject\" not found on the game server in this channel";
+          }
+        }
       }
       else
       {
@@ -664,7 +694,55 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
     case "gm-edit-player":
       if (is_gm($server_data,$hostname,$channel)==True)
       {
-        $response["msg"]="i farted";
+        if (count($parts)<=3)
+        {
+          $response["msg"]="not enough parameters";
+          break;
+        }
+        $subject=array_shift($parts);
+        $user_data=users_get_data($subject);
+        if (isset($user_data["hostname"])==False)
+        {
+          $response["msg"]="nick \"$subject\" not found";
+        }
+        else
+        {
+          $subject=$user_data["hostname"];
+          if (isset($server_data["game_data"][$channel]["players"][$subject])==True)
+          {
+            $data=implode(" ",$parts);
+            $elements=explode("=",$data);
+            for ($i=0;$i<count($elements);$i++)
+            {
+              $elements[$i]=trim($elements[$i]);
+            }
+            if (count($elements)<2)
+            {
+              $response["msg"]="syntax error";
+              break;
+            }
+            $key=array_shift($elements);
+            $value=implode("=",$elements);
+            $key_elements=explode(" ",$key);
+            $data=&$server_data["game_data"][$channel]["players"][$subject];
+            for ($i=0;$i<count($key_elements);$i++)
+            {
+              if (isset($data[$key_elements[$i]])==False)
+              {
+                $data[$key_elements[$i]]=array();
+              }
+              $data=&$data[$key_elements[$i]];
+            }
+            $data=$value;
+            unset($data);
+            $server_data["game_data_updated"]=True;
+            $response["msg"]="player data for \"$subject\" updated";
+          }
+          else
+          {
+           $response["msg"]="player \"$subject\" not found on the game server in this channel";
+          }
+        }
       }
       else
       {
