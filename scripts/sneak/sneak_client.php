@@ -144,10 +144,32 @@ while (True)
 
 if (isset($unpacked["msg"])==False)
 {
+  privmsg(chr(3)."03"."error: response message not found");
   return;
 }
 
-privmsg(chr(3)."03".$unpacked["msg"]);
+if (is_array($unpacked["msg"])==False)
+{
+  privmsg(chr(3)."03"."error: response message not an array");
+  return;
+}
+
+if (count($unpacked["msg"])==0)
+{
+  privmsg(chr(3)."03"."error: response message array has no elements");
+  return;
+}
+
+if (count($unpacked["msg"])>10)
+{
+  privmsg(chr(3)."03"."error: response message array has too many elements");
+  return;
+}
+
+for ($i=0;$i<count($unpacked["msg"]);$i++)
+{
+  privmsg(chr(3)."03".$unpacked["msg"][$i]);
+}
 
 #####################################################################################################
 
