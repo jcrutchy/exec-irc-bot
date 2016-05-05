@@ -15,6 +15,10 @@ function output_ixio_paste($data,$msg=True,$id="nAz")
   $h=fopen($fn,"w");
   fwrite($h,$data);
   fclose($h);
+  /*
+  to get new id for exec:exec
+  echo hello | curl -F 'f:1=<-' exec:exec@ix.io
+  */
   $out=shell_exec("cat $fn | curl -F 'f:1=<-' -F 'id:1=$id' exec:exec@ix.io 2>&1");
   $out=clean_text($out);
   $out=explode("curl: (",trim($out));
