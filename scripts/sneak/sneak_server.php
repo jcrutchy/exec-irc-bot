@@ -24,20 +24,20 @@ require_once("data_server.php");
 
 #####################################################################################################
 
-function server_msg_handler(&$server_data,$unpacked,&$response,$channel,$nick,$user,$hostname,$trailing,$trailing_parts,$action)
+function server_msg_handler(&$server_data,&$server,&$clients,&$connections,$client_index,$unpacked,&$response,$channel,$nick,$user,$hostname,$trailing,$trailing_parts,$action)
 {
   if ($action<>"admin-init-chan")
   {
-    if (isset($server_data["app_data"][$channel])==False)
+    if (isset($server_data["app_data"])==False)
     {
       server_reply($server_data,$server,$clients,$connections,$client_index,"error: channel not initialized");
       return;
     }
     if (substr($action,0,6)<>"admin-")
     {
-      if (isset($server_data["app_data"][$channel]["players"][$hostname])==False)
+      if (isset($server_data["app_data"]["players"][$hostname])==False)
       {
-        init_player($server_data,$channel,$hostname);
+        init_player($server_data,$hostname);
       }
     }
   }
@@ -90,7 +90,7 @@ function server_msg_handler(&$server_data,$unpacked,&$response,$channel,$nick,$u
       }
       break;
     case "gm-kill":
-      if (is_gm($server_data,$hostname,$channel)==True)
+      if (is_gm($server_data,$hostname)==True)
       {
         if (count($trailing_parts)<>1)
         {
@@ -98,9 +98,9 @@ function server_msg_handler(&$server_data,$unpacked,&$response,$channel,$nick,$u
           break;
         }
         $subject=$trailing_parts[0];
-        if (isset($server_data["app_data"][$channel]["players"][$subject])==True)
+        if (isset($server_data["app_data"]["players"][$subject])==True)
         {
-          unset($server_data["app_data"][$channel]["players"][$subject]);
+          unset($server_data["app_data"]["players"][$subject]);
           $server_data["app_data_updated"]=True;
           $response["msg"][]="player \"$subject\" deleted from the game server in this channel";
         }
@@ -115,7 +115,7 @@ function server_msg_handler(&$server_data,$unpacked,&$response,$channel,$nick,$u
       }
       break;
     case "gm-player-data":
-      if (is_gm($server_data,$hostname,$channel)==True)
+      if (is_gm($server_data,$hostname)==True)
       {
         if (count($trailing_parts)<>1)
         {
@@ -131,9 +131,9 @@ function server_msg_handler(&$server_data,$unpacked,&$response,$channel,$nick,$u
         else
         {
           $subject=$user_data["hostname"];
-          if (isset($server_data["app_data"][$channel]["players"][$subject])==True)
+          if (isset($server_data["app_data"]["players"][$subject])==True)
           {
-            $output=var_export($server_data["app_data"][$channel]["players"][$subject],True);
+            $output=var_export($server_data["app_data"]["players"][$subject],True);
             output_ixio_paste($output,False);
             $response["msg"][]="player data for \"$subject\" dumped to http://ix.io/nAz";
           }
@@ -149,7 +149,7 @@ function server_msg_handler(&$server_data,$unpacked,&$response,$channel,$nick,$u
       }
       break;
     case "gm-map":
-      if (is_gm($server_data,$hostname,$channel)==True)
+      if (is_gm($server_data,$hostname)==True)
       {
         $response["msg"][]="i farted";
       }
@@ -159,7 +159,7 @@ function server_msg_handler(&$server_data,$unpacked,&$response,$channel,$nick,$u
       }
       break;
     case "gm-edit-player":
-      if (is_gm($server_data,$hostname,$channel)==True)
+      if (is_gm($server_data,$hostname)==True)
       {
         if (count($trailing_parts)<=3)
         {
@@ -175,7 +175,7 @@ function server_msg_handler(&$server_data,$unpacked,&$response,$channel,$nick,$u
         else
         {
           $subject=$user_data["hostname"];
-          if (isset($server_data["app_data"][$channel]["players"][$subject])==True)
+          if (isset($server_data["app_data"]["players"][$subject])==True)
           {
             $data=implode(" ",$trailing_parts);
             $elements=explode("=",$data);
@@ -191,7 +191,7 @@ function server_msg_handler(&$server_data,$unpacked,&$response,$channel,$nick,$u
             $key=array_shift($elements);
             $value=implode("=",$elements);
             $key_elements=explode(" ",$key);
-            $data=&$server_data["app_data"][$channel]["players"][$subject];
+            $data=&$server_data["app_data"]["players"][$subject];
             for ($i=0;$i<count($key_elements);$i++)
             {
               if (isset($data[$key_elements[$i]])==False)
@@ -217,7 +217,7 @@ function server_msg_handler(&$server_data,$unpacked,&$response,$channel,$nick,$u
       }
       break;
     case "gm-edit-goody":
-      if (is_gm($server_data,$hostname,$channel)==True)
+      if (is_gm($server_data,$hostname)==True)
       {
         $response["msg"][]="i farted";
       }
@@ -269,15 +269,15 @@ function server_msg_handler(&$server_data,$unpacked,&$response,$channel,$nick,$u
 
 #####################################################################################################
 
-function is_gm(&$server_data,$hostname,$channel)
+function is_gm(&$server_data,$hostname)
 {
-  if (isset($server_data["app_data"][$channel]["moderators"])==False)
+  if (isset($server_data["app_data"]["moderators"])==False)
   {
     return False;
   }
   if ($hostname<>"")
   {
-    if (in_array($hostname,$server_data["app_data"][$channel]["moderators"])==True)
+    if (in_array($hostname,$server_data["app_data"]["moderators"])==True)
     {
       return True;
     }
@@ -287,24 +287,24 @@ function is_gm(&$server_data,$hostname,$channel)
 
 #####################################################################################################
 
-function init_chan(&$server_data,$channel)
+function init_chan(&$server_data)
 {
   $record=array();
   $record["moderators"]=array($server_data["server_admin"]);
   $record["players"]=array();
   $record["goodies"]=array();
   $record["map_size"]=30;
-  $server_data["app_data"][$channel]=$record;
+  $server_data["app_data"]=$record;
   $server_data["app_data_updated"]=True;
 }
 
 #####################################################################################################
 
-function init_player(&$server_data,$channel,$hostname)
+function init_player(&$server_data,$hostname)
 {
   $record=array();
   $record["hostname"]=$hostname;
-  $server_data["app_data"][$channel]["players"][$hostname]=$record;
+  $server_data["app_data"]["players"][$hostname]=$record;
   $server_data["app_data_updated"]=True;
 }
 

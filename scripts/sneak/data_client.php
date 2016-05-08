@@ -2,7 +2,13 @@
 
 #####################################################################################################
 
-# required command line parameters: %%trailing%% %%dest%% %%nick%% %%user%% %%hostname%% %%alias%% %%cmd%% %%timestamp%% %%server%%
+/*
+
+required command line parameters: %%trailing%% %%dest%% %%nick%% %%user%% %%hostname%% %%alias%% %%cmd%% %%timestamp%% %%server%%
+
+TODO: if client commands are to be sent from a different channel (or pm), a way to specify the game channel needs to be incorporated in the client script to work out which server to connect to
+
+*/
 
 #####################################################################################################
 

@@ -8,6 +8,10 @@ required command line parameters: %%trailing%% %%nick%% %%dest%% %%server%% %%ho
 
 can run one data server per DATA_PREFIX per channel per server
 
+data server commands can affect servers operating in other channels
+
+data files are named: DATA_PATH.DATA_PREFIX."_data_".base64_encode($irc_server." ".$channel).".txt"
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 required app server code (eg for sneak_server.php):
 
@@ -19,7 +23,7 @@ required app server code (eg for sneak_server.php):
 
 define("DATA_PREFIX","sneak");
 require_once("data_server.php");
-function server_msg_handler(&$server_data,$unpacked,&$response,$channel,$nick,$user,$hostname,$trailing,$trailing_parts,$action)
+function server_msg_handler(&$server_data,&$server,&$clients,&$connections,$client_index,$unpacked,&$response,$channel,$nick,$user,$hostname,$trailing,$trailing_parts,$action)
 {
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -596,7 +600,7 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
   $action=array_shift($parts);
   $response=array();
   $response["msg"]=array();
-  server_msg_handler($server_data,$unpacked,$response,$channel,$nick,$user,$hostname,$trailing,$parts,$action);
+  server_msg_handler($server_data,$server,$clients,$connections,$client_index,$unpacked,$response,$channel,$nick,$user,$hostname,$trailing,$parts,$action);
   if (count($response["msg"])==0)
   {
     $response["msg"][]="invalid action";
@@ -610,7 +614,7 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
 function server_reply(&$server_data,&$server,&$clients,&$connections,$client_index,$msg)
 {
   $response=array();
-  $response["msg"]=$msg;
+  $response["msg"][]=$msg;
   $data=base64_encode(serialize($response));
   do_reply($server_data,$server,$clients,$connections,$client_index,$data);
 }
