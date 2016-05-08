@@ -2,7 +2,29 @@
 
 #####################################################################################################
 
-# required command line parameters: %%trailing%% %%nick%% %%dest%% %%server%% %%hostname%% %%alias%%
+/*
+
+required command line parameters: %%trailing%% %%nick%% %%dest%% %%server%% %%hostname%% %%alias%%
+
+can run one data server per DATA_PREFIX per channel per server
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+required app server code (eg for sneak_server.php):
+
+#exec:add ~sneak-server
+#exec:edit ~sneak-server timeout 0
+#exec:edit ~sneak-server cmd php scripts/sneak/sneak_server.php %%trailing%% %%nick%% %%dest%% %%server%% %%hostname%% %%alias%%
+#exec:enable ~sneak-server
+#startup:~join #sneak
+
+define("DATA_PREFIX","sneak");
+require_once("data_server.php");
+function server_msg_handler(&$server_data,$unpacked,&$response,$channel,$nick,$user,$hostname,$trailing,$trailing_parts,$action)
+{
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+*/
 
 #####################################################################################################
 
