@@ -25,9 +25,10 @@ $alias=$argv[4];
 
 $stories_path="/home/jared/git/storybot/Stories/";
 
-if ($trailing<>"")
+if ($trailing=="list")
 {
-
+  refresh_list();
+  privmsg("http://ix.io/ACx");
   return;
 }
 
@@ -41,10 +42,15 @@ function refresh_list()
   $file_list=scandir($stories_path);
   $data=array();
   $data[]="id\tfilename";
+  $id=1;
   for ($i=0;$i<count($file_list);$i++)
   {
-    $id=$i+1;
     $filename=$file_list[$i];
+    if (($filename==".") or ($filename==".."))
+    {
+      continue;
+    }
+    $id++;
     $data[]="$id\t$filename";
   }
   $data=implode(PHP_EOL,$data);
