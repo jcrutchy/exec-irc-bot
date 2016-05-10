@@ -55,32 +55,11 @@ function server_disconnect_handler(&$server_data,&$server,&$clients,&$connection
 function server_msg_handler(&$server_data,&$server,&$clients,&$connections,$client_index,$unpacked,&$response,$trailing_parts,$action)
 {
   # if player doesn't exist, initialize player
+  $result=load_mod($server_data,$server,$clients,$connections,$client_index,$unpacked,$response,$trailing_parts,$action);
+  return;
   switch ($action)
   {
     case "gm-kill":
-      if (is_gm($server_data,$unpacked["hostname"])==True)
-      {
-        if (count($trailing_parts)<>1)
-        {
-          $response["msg"][]="invalid number of parameters";
-          break;
-        }
-        $subject=$trailing_parts[0];
-        if (isset($server_data["app_data"]["players"][$subject])==True)
-        {
-          unset($server_data["app_data"]["players"][$subject]);
-          $server_data["app_data_updated"]=True;
-          $response["msg"][]="player \"$subject\" deleted from the game server in this channel";
-        }
-        else
-        {
-          $response["msg"][]="player \"$subject\" not found on the game server in this channel";
-        }
-      }
-      else
-      {
-        $response["msg"][]="not authorized";
-      }
       break;
     case "gm-player-data":
       if (is_gm($server_data,$unpacked["hostname"])==True)

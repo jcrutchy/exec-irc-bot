@@ -65,12 +65,13 @@ $alias=$argv[6];
 
 $user="$hostname $server";
 
-if (file_exists(DATA_PATH.DATA_PREFIX."_admins.txt")==False)
+$admins_filename=DATA_PATH.DATA_PREFIX."_admins.txt";
+if (file_exists($admins_filename)==False)
 {
-  privmsg("server admins file \"".DATA_PATH.DATA_PREFIX."_admins.txt"."\" not found");
+  privmsg("server admins file \"".$admins_filename."\" not found");
   return;
 }
-$admin_users=file_get_contents(DATA_PATH.DATA_PREFIX."_admins.txt");
+$admin_users=file_get_contents($admins_filename);
 if ($admin_users===False)
 {
   privmsg("error reading server admins file");
@@ -104,50 +105,6 @@ switch ($action)
       privmsg("server listening on port ".$port);
     }
     break;
-  case "purge":
-    $file_list=scandir(DATA_PATH);
-    $port_filename_prefix="app_server_port_";
-    $port_filename_suffix=".txt";
-    $found=0;
-    for ($i=0;$i<count($file_list);$i++)
-    {
-      $test_filename=$file_list[$i];
-      if (substr($test_filename,0,strlen($port_filename_prefix))<>($port_filename_prefix))
-      {
-        continue;
-      }
-      if (substr($test_filename,strlen($test_filename)-strlen($port_filename_suffix))<>$port_filename_suffix)
-      {
-        continue;
-      }
-      $data=trim(file_get_contents(DATA_PATH.$test_filename));
-      if ($data<>(DATA_PREFIX." ".$server))
-      {
-        continue;
-      }
-      $found++;
-      if (unlink(DATA_PATH.$test_filename)===False)
-      {
-        privmsg("error deleting ".DATA_PREFIX." server port file \"$test_filename\"");
-      }
-      else
-      {
-        privmsg("deleted ".DATA_PREFIX." server port file \"$test_filename\"");
-      }
-    }
-    if ($found==0)
-    {
-      privmsg("no ".DATA_PREFIX." server port files found");
-    }
-    $port=get_bucket(DATA_PREFIX."_server");
-    if ($port<>"")
-    {
-      set_bucket(DATA_PREFIX."_server_command","stop");
-      sleep(4);
-    }
-    unset_bucket(DATA_PREFIX."_server");
-    unset_bucket(DATA_PREFIX."_server_command");
-    break;
   case "start":
     if (get_bucket(DATA_PREFIX."_server")<>"")
     {
@@ -167,19 +124,8 @@ switch ($action)
     }
     set_bucket(DATA_PREFIX."_server_command","stop");
     break;
-  case "restart":
-    $port=get_bucket(DATA_PREFIX."_server");
-    if ($port=="")
-    {
-      privmsg("server not found");
-      break;
-    }
-    set_bucket(DATA_PREFIX."_server_command","stop");
-    sleep(4);
-    run_server($server,$port,$hostname,$dest);
-    break;
   default:
-    privmsg("syntax: $alias status|purge|start|stop|restart");
+    privmsg("syntax: $alias status|start|stop");
     break;
 }
 
@@ -523,6 +469,25 @@ function log_msg(&$server_data,&$server,&$clients,&$connections,$addr,$client_in
 function server_privmsg(&$server_data,$msg)
 {
   privmsg($msg);
+}
+
+#####################################################################################################
+
+function load_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$unpacked,&$response,$trailing_parts,$action)
+{
+  $mod_filename=__DIR__."/mod_".DATA_PREFIX."_".$action;
+  if (file_exists($mod_filename)==False)
+  {
+    privmsg("mod file \"".$mod_filename."\" not found");
+    return False;
+  }
+  $code=file_get_contents($mod_filename);
+  if ($code===False)
+  {
+    privmsg("error reading mod file \"".$mod_filename."\"");
+    return False;
+  }
+  return eval($code);
 }
 
 #####################################################################################################
