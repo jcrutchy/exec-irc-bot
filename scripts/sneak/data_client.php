@@ -24,10 +24,19 @@ $cmd=$argv[7];
 $timestamp=$argv[8];
 $server=$argv[9];
 
+if ($trailing=="")
+{
+  return;
+}
+
+$parts=explode(" ",$trailing);
+$override_channel=array_shift($parts);
+
 $port="";
 $file_list=scandir(DATA_PATH);
 $port_filename_prefix=DATA_PREFIX."_port_";
 $port_filename_suffix=".txt";
+$server_data=array();
 for ($i=0;$i<count($file_list);$i++)
 {
   $test_filename=$file_list[$i];
@@ -48,12 +57,34 @@ for ($i=0;$i<count($file_list);$i++)
   }
   $test_channel=$port_data[0];
   $test_server=$port_data[1];
-  if (($test_channel===$dest) and ($server===$test_server))
+  $data=array($test_port,$test_channel,$test_server);
+  $server_data[]=$data;
+}
+
+if (count($server_data)==0)
+{
+  privmsg("no available data servers");
+  return;
+}
+
+$channel=$dest;
+
+for ($i=0;$i<count($server_data);$i++)
+{
+  if (($server_data[1]===$override_channel) and ($server_data[2]===$server))
   {
-    $port=$test_port;
+    $channel=$override_channel;
+    $trailing=implode(" ",$parts);
+    $port=$server_data[0];
+    break;
+  }
+  if (($server_data[1]===$channel) and ($server_data[2]===$server))
+  {
+    $port=$server_data[0];
     break;
   }
 }
+
 if ($port=="")
 {
   privmsg("error: unable to find server port file for this irc server and channel");
@@ -70,7 +101,7 @@ if ($socket===False)
 stream_set_blocking($socket,0);
 
 $unpacked=array();
-$unpacked["channel"]=$dest;
+$unpacked["channel"]=$channel;
 $unpacked["nick"]=$nick;
 $unpacked["user"]=$user;
 $unpacked["hostname"]=$hostname;
