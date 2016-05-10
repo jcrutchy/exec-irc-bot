@@ -29,14 +29,10 @@ if ($trailing=="")
   return;
 }
 
-$parts=explode(" ",$trailing);
-$override_channel=array_shift($parts);
-
 $port="";
 $file_list=scandir(DATA_PATH);
-$port_filename_prefix=DATA_PREFIX."_port_";
+$port_filename_prefix="app_server_port_";
 $port_filename_suffix=".txt";
-$server_data=array();
 for ($i=0;$i<count($file_list);$i++)
 {
   $test_filename=$file_list[$i];
@@ -48,46 +44,18 @@ for ($i=0;$i<count($file_list);$i++)
   {
     continue;
   }
-  $test_port=substr($test_filename,strlen($port_filename_prefix),strlen($test_filename)-strlen($port_filename_suffix)-strlen($port_filename_prefix));
-  $port_data=trim(file_get_contents(DATA_PATH.$test_filename));
-  $port_data=explode(" ",$port_data);
-  if (count($port_data)<>2)
+  $test_port=substr($test_filename,strlen($port_filename_prefix),strlen($test_filename)-strlen($port_filename_prefix)-strlen($port_filename_suffix));
+  $data=trim(file_get_contents(DATA_PATH.$test_filename));
+  if ($data<>(DATA_PREFIX." ".$server))
   {
     continue;
   }
-  $test_channel=$port_data[0];
-  $test_server=$port_data[1];
-  $data=array($test_port,$test_channel,$test_server);
-  $server_data[]=$data;
-}
-
-if (count($server_data)==0)
-{
-  privmsg("no available data servers");
-  return;
-}
-
-$channel=$dest;
-
-for ($i=0;$i<count($server_data);$i++)
-{
-  if (($server_data[1]===$override_channel) and ($server_data[2]===$server))
-  {
-    $channel=$override_channel;
-    $trailing=implode(" ",$parts);
-    $port=$server_data[0];
-    break;
-  }
-  if (($server_data[1]===$channel) and ($server_data[2]===$server))
-  {
-    $port=$server_data[0];
-    break;
-  }
+  $port=$test_port;
 }
 
 if ($port=="")
 {
-  privmsg("error: unable to find server port file for this irc server and channel");
+  privmsg("server not found");
   return;
 }
 
@@ -101,7 +69,7 @@ if ($socket===False)
 stream_set_blocking($socket,0);
 
 $unpacked=array();
-$unpacked["channel"]=$channel;
+$unpacked["dest"]=$dest;
 $unpacked["nick"]=$nick;
 $unpacked["user"]=$user;
 $unpacked["hostname"]=$hostname;

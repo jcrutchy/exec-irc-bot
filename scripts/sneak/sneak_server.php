@@ -24,73 +24,41 @@ require_once("data_server.php");
 
 #####################################################################################################
 
-function server_msg_handler(&$server_data,&$server,&$clients,&$connections,$client_index,$unpacked,&$response,$channel,$nick,$user,$hostname,$trailing,$trailing_parts,$action)
+function server_start_handler(&$server_data,&$server,&$clients,&$connections)
 {
-  if ($action<>"admin-init-chan")
-  {
-    if (isset($server_data["app_data"])==False)
-    {
-      server_reply($server_data,$server,$clients,$connections,$client_index,"error: channel not initialized");
-      return;
-    }
-    if (substr($action,0,6)<>"admin-")
-    {
-      if (isset($server_data["app_data"]["players"][$hostname])==False)
-      {
-        init_player($server_data,$hostname);
-      }
-    }
-  }
+  # initialize $server_data["app_data"] and $server_data["app_data"]["moderators"] (add $server_data["server_admin"] by default)
+}
+
+#####################################################################################################
+
+function server_stop_handler(&$server_data,&$server,&$clients,&$connections)
+{
+  # save and backup game data file as required
+}
+
+#####################################################################################################
+
+function server_connect_handler(&$server_data,&$server,&$clients,&$connections,$client_index)
+{
+
+}
+
+#####################################################################################################
+
+function server_disconnect_handler(&$server_data,&$server,&$clients,&$connections,$client_index)
+{
+
+}
+
+#####################################################################################################
+
+function server_msg_handler(&$server_data,&$server,&$clients,&$connections,$client_index,$unpacked,&$response,$trailing_parts,$action)
+{
+  # if player doesn't exist, initialize player
   switch ($action)
   {
-    case "admin-del-chan":
-      if ($server_data["server_admin"]==$hostname)
-      {
-        if (count($trailing_parts)<>1)
-        {
-          $response["msg"][]="invalid number of parameters";
-          break;
-        }
-        $subject=$trailing_parts[0];
-        if (isset($server_data["app_data"][$subject])==True)
-        {
-          unset($server_data["app_data"][$subject]);
-          $server_data["app_data_updated"]=True;
-          $response["msg"][]="channel \"$subject\" deleted";
-        }
-        else
-        {
-          $response["msg"][]="channel \"$subject\" not found";
-        }
-      }
-      else
-      {
-        $response["msg"][]="not authorized";
-      }
-      break;
-    case "admin-init-chan":
-      if ($server_data["server_admin"]==$hostname)
-      {
-        if (count($trailing_parts)<>1)
-        {
-          $response["msg"][]="invalid number of parameters";
-          break;
-        }
-        $subject=$trailing_parts[0];
-        if (isset($server_data["app_data"][$subject])==True)
-        {
-          unset($server_data["app_data"][$subject]);
-        }
-        init_chan($server_data,$subject);
-        $response["msg"][]="channel \"$subject\" initialized";
-      }
-      else
-      {
-        $response["msg"][]="not authorized";
-      }
-      break;
     case "gm-kill":
-      if (is_gm($server_data,$hostname)==True)
+      if (is_gm($server_data,$unpacked["hostname"])==True)
       {
         if (count($trailing_parts)<>1)
         {
@@ -115,7 +83,7 @@ function server_msg_handler(&$server_data,&$server,&$clients,&$connections,$clie
       }
       break;
     case "gm-player-data":
-      if (is_gm($server_data,$hostname)==True)
+      if (is_gm($server_data,$unpacked["hostname"])==True)
       {
         if (count($trailing_parts)<>1)
         {
@@ -149,7 +117,7 @@ function server_msg_handler(&$server_data,&$server,&$clients,&$connections,$clie
       }
       break;
     case "gm-map":
-      if (is_gm($server_data,$hostname)==True)
+      if (is_gm($server_data,$unpacked["hostname"])==True)
       {
         $response["msg"][]="i farted";
       }
@@ -159,7 +127,7 @@ function server_msg_handler(&$server_data,&$server,&$clients,&$connections,$clie
       }
       break;
     case "gm-edit-player":
-      if (is_gm($server_data,$hostname)==True)
+      if (is_gm($server_data,$unpacked["hostname"])==True)
       {
         if (count($trailing_parts)<=3)
         {
@@ -217,7 +185,7 @@ function server_msg_handler(&$server_data,&$server,&$clients,&$connections,$clie
       }
       break;
     case "gm-edit-goody":
-      if (is_gm($server_data,$hostname)==True)
+      if (is_gm($server_data,$unpacked["hostname"])==True)
       {
         $response["msg"][]="i farted";
       }
@@ -283,29 +251,6 @@ function is_gm(&$server_data,$hostname)
     }
   }
   return False;
-}
-
-#####################################################################################################
-
-function init_chan(&$server_data)
-{
-  $record=array();
-  $record["moderators"]=array($server_data["server_admin"]);
-  $record["players"]=array();
-  $record["goodies"]=array();
-  $record["map_size"]=30;
-  $server_data["app_data"]=$record;
-  $server_data["app_data_updated"]=True;
-}
-
-#####################################################################################################
-
-function init_player(&$server_data,$hostname)
-{
-  $record=array();
-  $record["hostname"]=$hostname;
-  $server_data["app_data"]["players"][$hostname]=$record;
-  $server_data["app_data_updated"]=True;
 }
 
 #####################################################################################################
