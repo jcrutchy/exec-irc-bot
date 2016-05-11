@@ -16,6 +16,8 @@ help ~submit-story|submits a story with id from list at http://ix.io/ACx
 
 #####################################################################################################
 
+date_default_timezone_set("UTC");
+
 require_once("lib.php");
 
 $trailing=trim($argv[1]);
@@ -24,6 +26,7 @@ $nick=$argv[3];
 $alias=$argv[4];
 
 $stories_path="/home/jared/git/storybot/Stories/";
+$keep_days=3;
 
 if ($trailing=="list")
 {
@@ -33,6 +36,8 @@ if ($trailing=="list")
 }
 
 refresh_list();
+
+delete_old();
 
 #####################################################################################################
 
@@ -55,6 +60,32 @@ function refresh_list()
   }
   $data=implode(PHP_EOL,$data);
   output_ixio_paste($data,False,"ACx");
+}
+
+#####################################################################################################
+
+function delete_old()
+{
+  global $stories_path;
+  global $keep_days;
+  $file_list=scandir($stories_path);
+  $datum=time();
+  for ($i=0;$i<count($file_list);$i++)
+  {
+    $filename=$stories_path.$file_list[$i];
+    $t=filemtime($filename);
+    if (($datum-$t)>($keep_days*24*60*60))
+    {
+      if (@unlink($filename)===False)
+      {
+        term_echo("storybot: ERROR DELETING OLD FILE \"".$filename."\"");
+      }
+      else
+      {
+        term_echo("storybot: deleted old file \"".$filename."\"");
+      }
+    }
+  }
 }
 
 #####################################################################################################
