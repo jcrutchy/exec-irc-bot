@@ -502,6 +502,7 @@ function server_privmsg(&$server_data,$msg)
 
 function load_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$unpacked,&$response,$trailing_parts,$action)
 {
+  # TODO: MOD MACROS (SIMILAR TO EXEC MACROS) - EG: mod:action_alias right (ON SEPARATE LINE IN MULTI-LINE COMMENT OF MOD FILE)
   $mod_filename=__DIR__."/mods/mod_".DATA_PREFIX."_".$action;
   if (file_exists($mod_filename)==False)
   {
