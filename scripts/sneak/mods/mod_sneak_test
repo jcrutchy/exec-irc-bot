@@ -1,0 +1,22 @@
+/*
+AVAILABLE VARIABLES:
+&$server_data
+&$server
+&$clients
+&$connections
+$client_index
+$unpacked
+&$response
+$trailing_parts
+$action
+*/
+
+if (is_gm($server_data,$unpacked["hostname"])==True)
+{
+  $response["msg"][]="my butt smells";
+}
+else
+{
+  $response["msg"][]="###".$unpacked["hostname"]."###";
+  $response["msg"][]="sneak test: not authorized";
+}

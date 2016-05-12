@@ -22,6 +22,7 @@ required data server code (eg for sneak_server.php):
 define("DATA_PREFIX","sneak");
 require_once("data_server.php");
 
+optional event handler functions:
 function server_start_handler(&$server_data,&$server,&$clients,&$connections)
 function server_stop_handler(&$server_data,&$server,&$clients,&$connections)
 function server_connect_handler(&$server_data,&$server,&$clients,&$connections,$client_index)
@@ -185,7 +186,10 @@ function run_server($irc_server,$listen_port,$hostname,$dest)
   }
   set_bucket(DATA_PREFIX."_server",$listen_port);
   $clients=array($server);
-  server_start_handler($server_data,$server,$clients,$connections);
+  if (function_exists("server_start_handler")==True)
+  {
+    server_start_handler($server_data,$server,$clients,$connections);
+  }
   while (True)
   {
     usleep(0.05e6);
@@ -264,7 +268,10 @@ function run_server($irc_server,$listen_port,$hostname,$dest)
       }
     }
   }
-  server_stop_handler($server_data,$server,$clients,$connections);
+  if (function_exists("server_stop_handler")==True)
+  {
+    server_stop_handler($server_data,$server,$clients,$connections);
+  }
   broadcast($server_data,$server,$clients,$connections,"*** SERVER SHUTTING DOWN NOW!");
   sleep(1);
   foreach ($clients as $client_index => $socket)
@@ -351,7 +358,10 @@ function on_connect(&$server_data,&$server,&$clients,&$connections,$client_index
     $connection["connect_timestamp"]=microtime(True);
     $connections[]=$connection;
     broadcast($server_data,$server,$clients,$connections,"*** CLIENT CONNECTED: $addr");
-    server_connect_handler($server_data,$server,$clients,$connections,$client_index);
+    if (function_exists("server_connect_handler")==True)
+    {
+      server_connect_handler($server_data,$server,$clients,$connections,$client_index);
+    }
     server_privmsg($server_data,"*** CLIENT CONNECTED: $addr");
   }
   else
@@ -372,7 +382,10 @@ function on_disconnect(&$server_data,&$server,&$clients,&$connections,$client_in
   else
   {
     $addr=$connections[$connection_index]["addr"];
-    server_disconnect_handler($server_data,$server,$clients,$connections,$client_index);
+    if (function_exists("server_disconnect_handler")==True)
+    {
+      server_disconnect_handler($server_data,$server,$clients,$connections,$client_index);
+    }
     server_privmsg($server_data,"*** CLIENT DISCONNECTED: $addr");
     unset($connections[$connection_index]);
   }
@@ -434,11 +447,25 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
     server_reply($server_data,$server,$clients,$connections,$client_index,"error: trailing empty");
     return;
   }
+  # DO NOT ALLOW BRACKETS
+  $valid_chars=VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC." -_";
+  if (is_valid_chars($trailing,$valid_chars)==False)
+  {
+    server_reply($server_data,$server,$clients,$connections,$client_index,"error: trailing contains illegal chars");
+    return;
+  }
   $parts=explode(" ",$trailing);
   $action=array_shift($parts);
   $response=array();
   $response["msg"]=array();
-  server_msg_handler($server_data,$server,$clients,$connections,$client_index,$unpacked,$response,$parts,$action);
+  if (function_exists("server_msg_handler")==True)
+  {
+    server_msg_handler($server_data,$server,$clients,$connections,$client_index,$unpacked,$response,$parts,$action);
+  }
+  else
+  {
+    load_mod($server_data,$server,$clients,$connections,$client_index,$unpacked,$response,$parts,$action);
+  }
   if (count($response["msg"])==0)
   {
     $response["msg"][]="invalid action";
@@ -475,19 +502,24 @@ function server_privmsg(&$server_data,$msg)
 
 function load_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$unpacked,&$response,$trailing_parts,$action)
 {
-  $mod_filename=__DIR__."/mod_".DATA_PREFIX."_".$action;
+  $mod_filename=__DIR__."/mods/mod_".DATA_PREFIX."_".$action;
   if (file_exists($mod_filename)==False)
   {
-    privmsg("mod file \"".$mod_filename."\" not found");
+    server_reply($server_data,$server,$clients,$connections,$client_index,"error: mod file \"".$mod_filename."\" not found");
     return False;
   }
   $code=file_get_contents($mod_filename);
   if ($code===False)
   {
-    privmsg("error reading mod file \"".$mod_filename."\"");
+    server_reply($server_data,$server,$clients,$connections,$client_index,"error reading mod file \"".$mod_filename."\"");
     return False;
   }
-  return eval($code);
+  $result=@eval($code);
+  if ($result===False)
+  {
+    server_reply($server_data,$server,$clients,$connections,$client_index,"mod file \"".$mod_filename."\" eval returned false");
+  }
+  return $result;
 }
 
 #####################################################################################################
