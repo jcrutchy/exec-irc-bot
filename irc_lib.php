@@ -2537,8 +2537,41 @@ function doquit()
   global $handles;
   global $socket;
   global $argv;
-  sleep(3);
+  global $buckets;
+  term_echo("*** SETTING SHUTDOWN BUCKET ***");
+  $buckets[BUCKET_SHUTDOWN]="1";
+  $t=microtime(True);
+  $shutdown_delay=4; #seconds
+  while ((microtime(True)-$t)<=$shutdown_delay)
+  {
+    usleep(0.05e6); # 0.05 second to prevent cpu flogging
+    term_echo("number of processes remaining: ".count($handles));
+    for ($i=0;$i<count($handles);$i++)
+    {
+      if (isset($handles[$i])===False)
+      {
+        continue;
+      }
+      term_echo("handling process: ".$handles[$i]["command"]);
+      if (handle_process($handles[$i])==False)
+      {
+        unset($handles[$i]);
+      }
+    }
+    $handles=array_values($handles);
+    if (count($handles)==0)
+    {
+      term_echo("*** all handles closed ***");
+      break;
+    }
+    # no handling of irc data, direct stdin or timed execs (only existing pipes and bucket commands to allow scripts to communicate with the bot normally)
+  }
   $n=count($handles);
+  if ($n>0)
+  {
+    term_echo("*** KILLING REMAINING $n HANDLE(S) ***");
+    break;
+  }
   for ($i=0;$i<$n;$i++)
   {
     if (isset($handles[$i])==True) # have had a "Undefined offset: 0" notice on this line

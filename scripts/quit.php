@@ -12,7 +12,6 @@ echo "################ BEGIN QUIT ################\n";
 echo "################# END QUIT #################\n";
 
 echo "/INTERNAL ~buckets-save\n";
-sleep(5);
 
 echo "<<quit>>\n";
 

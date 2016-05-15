@@ -4,6 +4,20 @@
 
 #####################################################################################################
 
+function bot_shutting_down()
+{
+  if (get_bucket("<<SHUTDOWN>>")<>"")
+  {
+    return True;
+  }
+  else
+  {
+    return False;
+  }
+}
+
+#####################################################################################################
+
 function exec_alias_config_value($alias,$name)
 {
   $exec_list_bucket=get_bucket("<<EXEC_LIST>>");

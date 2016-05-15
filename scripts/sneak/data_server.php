@@ -15,7 +15,7 @@ required data server code (eg for sneak_server.php):
 
 #exec:add ~sneak-server
 #exec:edit ~sneak-server timeout 0
-#exec:edit ~sneak-server cmd php scripts/sneak/sneak_server.php %%trailing%% %%nick%% %%dest%% %%server%% %%hostname%% %%alias%%
+#exec:edit ~sneak-server cmd php scripts/sneak/sneak_server.php %%trailing%% %%nick%% %%dest%% %%server%% %%hostname%% %%alias%% %%cmd%%
 #exec:enable ~sneak-server
 #startup:~join #sneak
 
@@ -63,32 +63,39 @@ $dest=$argv[3];
 $server=$argv[4];
 $hostname=$argv[5];
 $alias=$argv[6];
+$cmd=$argv[7];
 
-$user="$hostname $server";
-
-$admins_filename=DATA_PATH.DATA_PREFIX."_admins.txt";
-if (file_exists($admins_filename)==False)
+if ($cmd<>"INTERNAL")
 {
-  privmsg("server admins file \"".$admins_filename."\" not found");
-  return;
+  $user="$hostname $server";
+  $admins_filename=DATA_PATH.DATA_PREFIX."_admins.txt";
+  if (file_exists($admins_filename)==False)
+  {
+    privmsg("server admins file \"".$admins_filename."\" not found");
+    return;
+  }
+  $admin_users=file_get_contents($admins_filename);
+  if ($admin_users===False)
+  {
+    privmsg("error reading server admins file");
+    return;
+  }
+  $admin_users=json_decode($admin_users,True);
+  if ($admin_users===Null)
+  {
+    privmsg("error decoding server admins file");
+    return;
+  }
+  if (in_array($user,$admin_users)==False)
+  {
+    privmsg("not authorized");
+    return;
+  }
 }
-$admin_users=file_get_contents($admins_filename);
-if ($admin_users===False)
+else
 {
-  privmsg("error reading server admins file");
-  return;
-}
-$admin_users=json_decode($admin_users,True);
-if ($admin_users===Null)
-{
-  privmsg("error decoding server admins file");
-  return;
-}
-
-if (in_array($user,$admin_users)==False)
-{
-  privmsg("not authorized");
-  return;
+  term_echo("data server: bypassing authentication for internal command");
+  $dest="#".DATA_PREFIX;
 }
 
 $parts=explode(" ",$trailing);
@@ -112,10 +119,11 @@ switch ($action)
       privmsg("server already running");
     }
     $port=50000;
-    while ((file_exists(DATA_PATH.DATA_PREFIX."_port_".$port.".txt")==True) or (get_bucket(DATA_PREFIX."_server")<>""))
+    while (file_exists(DATA_PATH."app_server_port_$port.txt")==True)
     {
       $port++;
     }
+    term_echo("data server: attempting to start a server on localhost port $port");
     run_server($server,$port,$hostname,$dest);
     break;
   case "stop":
@@ -193,6 +201,11 @@ function run_server($irc_server,$listen_port,$hostname,$dest)
   while (True)
   {
     usleep(0.05e6);
+    if (bot_shutting_down()==True)
+    {
+      term_echo("*** bot shutdown detected - stopping ".DATA_PREFIX." server ***");
+      break;
+    }
     if (get_bucket(DATA_PREFIX."_server")<>$listen_port)
     {
       server_privmsg($server_data,"server bucket not found - stopping");
@@ -503,6 +516,7 @@ function server_privmsg(&$server_data,$msg)
 function load_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$unpacked,&$response,$trailing_parts,$action)
 {
   # TODO: MOD MACROS (SIMILAR TO EXEC MACROS) - EG: mod:action_alias right (ON SEPARATE LINE IN MULTI-LINE COMMENT OF MOD FILE)
+  # TODO: LOAD MODS ON STARTUP & ONLY RELOAD IF FILE MODIFIED TIME DIFFERS
   $mod_filename=__DIR__."/mods/mod_".DATA_PREFIX."_".$action;
   if (file_exists($mod_filename)==False)
   {
