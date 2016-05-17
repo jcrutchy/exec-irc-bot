@@ -2541,7 +2541,7 @@ function doquit()
   term_echo("*** SETTING SHUTDOWN BUCKET ***");
   $buckets[BUCKET_SHUTDOWN]="1";
   $t=microtime(True);
-  $shutdown_delay=4; #seconds
+  $shutdown_delay=10; #seconds
   while ((microtime(True)-$t)<=$shutdown_delay)
   {
     usleep(0.05e6); # 0.05 second to prevent cpu flogging
