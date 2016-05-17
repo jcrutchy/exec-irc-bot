@@ -231,6 +231,7 @@ function convert_timestamp($time,$format)
 
 function delete_empty_elements(&$array,$trim=False)
 {
+  $result=array();
   for ($i=0;$i<count($array);$i++)
   {
     if ($trim==False)
@@ -241,12 +242,12 @@ function delete_empty_elements(&$array,$trim=False)
     {
       $value=trim($array[$i]);
     }
-    if ($value=="")
+    if ($value<>"")
     {
-      unset($array[$i]);
+      $result[]=$array[$i];
     }
   }
-  $array=array_values($array);
+  $array=$result;
 }
 
 #####################################################################################################

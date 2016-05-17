@@ -9,6 +9,58 @@ delete_empty_elements($url_blacklist,True);
 
 #####################################################################################################
 
+function get_user_localhost_ports($return_pids=False)
+{
+  $stdout=shell_exec("netstat -tlpn4 2>&1");
+  $result=array();
+  $lines=explode(PHP_EOL,$stdout);
+  for ($i=0;$i<count($lines);$i++)
+  {
+    $line=trim($lines[$i]);
+    if ($line=="")
+    {
+      continue;
+    }
+    if (substr($line,0,3)<>"tcp")
+    {
+      continue;
+    }
+    $parts=explode(" ",$line);
+    delete_empty_elements($parts);
+    if (count($parts)<>7)
+    {
+      continue;
+    }
+    $address=$parts[3];
+    $address_parts=explode(":",$address);
+    if (count($address_parts)<>2)
+    {
+      continue;
+    }
+    if ($address_parts[0]<>"127.0.0.1")
+    {
+      continue;
+    }
+    if ($return_pids==True)
+    {
+      $pid=$parts[6];
+      $pid_parts=explode("/",$pid);
+      if (count($pid_parts)<>2)
+      {
+        continue;
+      }
+      $result[]=array("pid"=>$pid_parts[0],"port"=>$address_parts[1]);
+    }
+    else
+    {
+      $result[]=$address_parts[1];
+    }
+  }
+  return $result;
+}
+
+#####################################################################################################
+
 function output_ixio_paste($data,$msg=True,$id="nAz")
 {
   $fn=tempnam("/tmp","exec_");

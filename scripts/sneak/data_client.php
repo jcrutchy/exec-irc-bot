@@ -2,17 +2,10 @@
 
 #####################################################################################################
 
-/*
-
-required command line parameters: %%trailing%% %%dest%% %%nick%% %%user%% %%hostname%% %%alias%% %%cmd%% %%timestamp%% %%server%%
-
-TODO: if client commands are to be sent from a different channel (or pm), a way to specify the game channel needs to be incorporated in the client script to work out which server to connect to
-
-*/
-
-#####################################################################################################
+# required command line parameters: %%trailing%% %%dest%% %%nick%% %%user%% %%hostname%% %%alias%% %%cmd%% %%timestamp%% %%server%%
 
 require_once(__DIR__."/../lib.php");
+require_once("data_utils.php");
 
 $trailing=strtolower(trim($argv[1]));
 $dest=$argv[2];
@@ -24,46 +17,24 @@ $cmd=$argv[7];
 $timestamp=$argv[8];
 $server=$argv[9];
 
+check_server_bucket();
+
 if ($trailing=="")
 {
   return;
 }
 
-$port="";
-$file_list=scandir(DATA_PATH);
-$port_filename_prefix="app_server_port_";
-$port_filename_suffix=".txt";
-for ($i=0;$i<count($file_list);$i++)
-{
-  $test_filename=$file_list[$i];
-  if (substr($test_filename,0,strlen($port_filename_prefix))<>$port_filename_prefix)
-  {
-    continue;
-  }
-  if (substr($test_filename,strlen($test_filename)-strlen($port_filename_suffix))<>$port_filename_suffix)
-  {
-    continue;
-  }
-  $test_port=substr($test_filename,strlen($port_filename_prefix),strlen($test_filename)-strlen($port_filename_prefix)-strlen($port_filename_suffix));
-  $data=trim(file_get_contents(DATA_PATH.$test_filename));
-  if ($data<>(DATA_PREFIX." ".$server))
-  {
-    continue;
-  }
-  $port=$test_port;
-}
-
-if ($port=="")
+$server_bucket=get_server_bucket();
+if ($server_bucket===False)
 {
   privmsg("server not found");
   return;
 }
 
-$socket=fsockopen("127.0.0.1",$port);
+$socket=fsockopen("127.0.0.1",$server_bucket["port"]);
 if ($socket===False)
 {
-  privmsg("error connecting to server @ 127.0.0.1:$port");
-  unlink(DATA_PATH.$port_filename_prefix.$port.$port_filename_suffix);
+  privmsg("error connecting to server @ 127.0.0.1:".$server_bucket["port"]);
   return;
 }
 stream_set_blocking($socket,0);

@@ -40,7 +40,7 @@ error_reporting(E_ALL);
 ob_implicit_flush();
 date_default_timezone_set("UTC");
 
-define("DATA_PREFIX","sneak");
+define("APP_NAME","sneak");
 
 require_once("data_client.php");
 

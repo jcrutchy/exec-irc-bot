@@ -4,7 +4,7 @@
 
 /*
 
-required command line parameters: %%trailing%% %%nick%% %%dest%% %%server%% %%hostname%% %%alias%%
+required command line parameters: %%trailing%% %%nick%% %%dest%% %%server%% %%hostname%% %%alias%% %%cmd%%
 
 can run one data server per APP_NAME per server
 
@@ -56,6 +56,7 @@ ob_implicit_flush();
 date_default_timezone_set("UTC");
 
 require_once(__DIR__."/../lib.php");
+require_once("data_utils.php");
 
 define("MODS_PATH",__DIR__."/mods/");
 
@@ -66,6 +67,8 @@ $server=$argv[4];
 $hostname=$argv[5];
 $alias=$argv[6];
 $cmd=$argv[7];
+
+check_server_bucket();
 
 if ($cmd<>"INTERNAL")
 {
@@ -98,42 +101,44 @@ else
 {
   term_echo("data server: bypassing authentication for internal command");
   $dest="#".APP_NAME;
+  $hostname=""; # TODO: SET TO BOT OPERATOR'S HOSTNAME
 }
+
+$server_bucket=get_server_bucket();
 
 $parts=explode(" ",$trailing);
 $action=array_shift($parts);
 switch ($action)
 {
   case "status":
-    $port=get_bucket(APP_NAME."_server");
-    if ($port==="")
+    if ($server_bucket===False)
     {
-      privmsg("server not running");
+      privmsg(APP_NAME." server not found");
     }
     else
     {
-      privmsg("server listening on port ".$port);
+      privmsg(APP_NAME." server listening on port ".$server_bucket["port"]);
     }
     break;
   case "start":
-    if (get_bucket(APP_NAME."_server")<>"")
+    if ($server_bucket===False)
     {
-      privmsg("server already running");
+      run_server($server,$hostname,$dest);
     }
-    $port=50000;
-    while (file_exists(DATA_PATH."app_server_port_$port.txt")==True)
+    else
     {
-      $port++;
+      privmsg(APP_NAME." server already running");
     }
-    term_echo("data server: attempting to start a server on localhost port $port");
-    run_server($server,$port,$hostname,$dest);
     break;
   case "stop":
-    if (get_bucket(APP_NAME."_server")=="")
+    if ($server_bucket===False)
     {
-      privmsg("server not found");
+      privmsg(APP_NAME." server not found");
     }
-    set_bucket(APP_NAME."_server_command","stop");
+    else
+    {
+      unset_bucket(SERVER_BUCKET_INDEX);
+    }
     break;
   default:
     privmsg("syntax: $alias status|start|stop");
@@ -142,8 +147,14 @@ switch ($action)
 
 #####################################################################################################
 
-function run_server($irc_server,$listen_port,$hostname,$dest)
+function run_server($irc_server,$hostname,$dest)
 {
+  $used_ports=get_user_localhost_ports();
+  $listen_port=50000;
+  while (in_array($listen_port,$used_ports)==True)
+  {
+    $listen_port++;
+  }
   $server_data=array(
     "irc_server"=>$irc_server,
     "listen_port"=>$listen_port,
@@ -151,13 +162,6 @@ function run_server($irc_server,$listen_port,$hostname,$dest)
     "app_data_updated"=>True,
     "app_data"=>array(),
     "server_admin"=>$hostname);
-  unset_bucket(APP_NAME."_server_command");
-  $port_filename=DATA_PATH."app_server_port_$listen_port.txt";
-  if (file_exists($port_filename)==True)
-  {
-    privmsg("server listening on port $listen_port already running for ".trim(file_get_contents($port_filename)));
-    return;
-  }
   $data_filename=DATA_PATH.APP_NAME."_data_".base64_encode($irc_server).".txt";
   if (file_exists($data_filename)==True)
   {
@@ -189,12 +193,11 @@ function run_server($irc_server,$listen_port,$hostname,$dest)
     server_privmsg($server_data,"*** socket_listen() failed: reason: ".socket_strerror(socket_last_error($server)));
     return;
   }
-  if (file_put_contents($port_filename,APP_NAME." ".$irc_server)===False)
-  {
-    server_privmsg($server_data,"error saving port file \"$port_filename\"");
-    return;
-  }
-  set_bucket(APP_NAME."_server",$listen_port);
+  $pid=getmypid();
+  $server_bucket=array("port"=>$listen_port,"pid"=>$pid);
+  $server_bucket=serialize($server_bucket);
+  $server_bucket=base64_encode($server_bucket);
+  set_bucket(SERVER_BUCKET_INDEX,$server_bucket);
   $clients=array($server);
   if (function_exists("server_start_handler")==True)
   {
@@ -208,17 +211,18 @@ function run_server($irc_server,$listen_port,$hostname,$dest)
       term_echo("*** bot shutdown detected - stopping ".APP_NAME." server ***");
       break;
     }
-    if (get_bucket(APP_NAME."_server")<>$listen_port)
+    $server_bucket=get_server_bucket();
+    if ($server_bucket===False)
     {
-      server_privmsg($server_data,"server bucket not found - stopping");
       break;
     }
-    $server_command=get_bucket(APP_NAME."_server_command");
-    switch ($server_command)
+    if ($server_bucket["port"]<>$listen_port)
     {
-      case "stop":
-        unset_bucket(APP_NAME."_server_command");
-        break 2;
+      break;
+    }
+    if ($server_bucket["pid"]<>$pid)
+    {
+      break;
     }
     loop_process($server_data,$server,$clients,$connections);
     $read=$clients;
@@ -303,12 +307,8 @@ function run_server($irc_server,$listen_port,$hostname,$dest)
   }
   socket_shutdown($server,2);
   socket_close($server);
-  if (@unlink($port_filename)===False)
-  {
-    server_privmsg($server_data,"error deleting port file \"$port_filename\"");
-  }
+  unset_bucket(SERVER_BUCKET_INDEX);
   server_privmsg($server_data,"stopping ".APP_NAME." server");
-  unset_bucket(APP_NAME."_server");
 }
 
 #####################################################################################################

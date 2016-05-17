@@ -15,6 +15,8 @@ $trailing_parts
 $action
 */
 
+include(__FILE__."/mods/lib_sneak");
+
 if (is_gm($server_data,$unpacked["hostname"])==True)
 {
   $response["msg"][]="my butt smells";

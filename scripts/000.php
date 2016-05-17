@@ -3,15 +3,10 @@
 #####################################################################################################
 
 /*
-exec:~butt|10|0|0|1|@||||php scripts/000.php
 
-exec:add ~butt fart smelly
+exec:add ~butt
+exec:edit ~butt cmd php scripts/000.php
 exec:enable ~butt
-
-exec:add ~butt2
-exec:edit ~butt2 cmd apt-get moo
-exec:edit ~butt2 auto 1
-exec:enable ~butt2
 
 */
 
@@ -24,7 +19,10 @@ require_once("lib.php");
 
 #privmsg(get_bucket("alias_element_~butt_fart"));
 
-notice("crutchy","fart");
+#notice("crutchy","fart");
+
+#$data=get_user_localhost_ports();
+#var_dump($data);
 
 #####################################################################################################
 

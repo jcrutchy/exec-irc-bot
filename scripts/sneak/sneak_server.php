@@ -11,8 +11,6 @@ startup:~join #sneak
 startup:~sneak-server start
 */
 
-# TODO: QUIT COMMANDS FOR SCRIPTS (SIMILAR TO INIT & STARTUP) - USEFUL FOR SHUTTING DOWN DATA SERVERS
-
 # sneak is an irc game where each player aims to increase their kills by moving into the same coordinate as other players
 
 #####################################################################################################
@@ -33,7 +31,7 @@ function server_start_handler(&$server_data,&$server,&$clients,&$connections)
 
 function server_stop_handler(&$server_data,&$server,&$clients,&$connections)
 {
-  # save and backup game data file as required
+  # TODO: save and backup game data file as required
 }
 
 #####################################################################################################
