@@ -6,9 +6,9 @@
 
 required command line parameters: %%trailing%% %%nick%% %%dest%% %%server%% %%hostname%% %%alias%%
 
-can run one data server per DATA_PREFIX per server
+can run one data server per APP_NAME per server
 
-data files are named: DATA_PATH.DATA_PREFIX."_data_".base64_encode($irc_server).".txt"
+data files are named: DATA_PATH.APP_NAME."_data_".base64_encode($irc_server).".txt"
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 required data server code (eg for sneak_server.php):
@@ -19,7 +19,7 @@ required data server code (eg for sneak_server.php):
 #exec:enable ~sneak-server
 #startup:~join #sneak
 
-define("DATA_PREFIX","sneak");
+define("APP_NAME","sneak");
 require_once("data_server.php");
 
 optional event handler functions:
@@ -57,6 +57,8 @@ date_default_timezone_set("UTC");
 
 require_once(__DIR__."/../lib.php");
 
+define("MODS_PATH",__DIR__."/mods/");
+
 $trailing=strtolower(trim($argv[1]));
 $nick=$argv[2];
 $dest=$argv[3];
@@ -68,7 +70,7 @@ $cmd=$argv[7];
 if ($cmd<>"INTERNAL")
 {
   $user="$hostname $server";
-  $admins_filename=DATA_PATH.DATA_PREFIX."_admins.txt";
+  $admins_filename=DATA_PATH.APP_NAME."_admins.txt";
   if (file_exists($admins_filename)==False)
   {
     privmsg("server admins file \"".$admins_filename."\" not found");
@@ -95,7 +97,7 @@ if ($cmd<>"INTERNAL")
 else
 {
   term_echo("data server: bypassing authentication for internal command");
-  $dest="#".DATA_PREFIX;
+  $dest="#".APP_NAME;
 }
 
 $parts=explode(" ",$trailing);
@@ -103,7 +105,7 @@ $action=array_shift($parts);
 switch ($action)
 {
   case "status":
-    $port=get_bucket(DATA_PREFIX."_server");
+    $port=get_bucket(APP_NAME."_server");
     if ($port==="")
     {
       privmsg("server not running");
@@ -114,7 +116,7 @@ switch ($action)
     }
     break;
   case "start":
-    if (get_bucket(DATA_PREFIX."_server")<>"")
+    if (get_bucket(APP_NAME."_server")<>"")
     {
       privmsg("server already running");
     }
@@ -127,11 +129,11 @@ switch ($action)
     run_server($server,$port,$hostname,$dest);
     break;
   case "stop":
-    if (get_bucket(DATA_PREFIX."_server")=="")
+    if (get_bucket(APP_NAME."_server")=="")
     {
       privmsg("server not found");
     }
-    set_bucket(DATA_PREFIX."_server_command","stop");
+    set_bucket(APP_NAME."_server_command","stop");
     break;
   default:
     privmsg("syntax: $alias status|start|stop");
@@ -149,14 +151,14 @@ function run_server($irc_server,$listen_port,$hostname,$dest)
     "app_data_updated"=>True,
     "app_data"=>array(),
     "server_admin"=>$hostname);
-  unset_bucket(DATA_PREFIX."_server_command");
+  unset_bucket(APP_NAME."_server_command");
   $port_filename=DATA_PATH."app_server_port_$listen_port.txt";
   if (file_exists($port_filename)==True)
   {
     privmsg("server listening on port $listen_port already running for ".trim(file_get_contents($port_filename)));
     return;
   }
-  $data_filename=DATA_PATH.DATA_PREFIX."_data_".base64_encode($irc_server).".txt";
+  $data_filename=DATA_PATH.APP_NAME."_data_".base64_encode($irc_server).".txt";
   if (file_exists($data_filename)==True)
   {
     $server_data["app_data"]=json_decode(file_get_contents($data_filename),True);
@@ -187,12 +189,12 @@ function run_server($irc_server,$listen_port,$hostname,$dest)
     server_privmsg($server_data,"*** socket_listen() failed: reason: ".socket_strerror(socket_last_error($server)));
     return;
   }
-  if (file_put_contents($port_filename,DATA_PREFIX." ".$irc_server)===False)
+  if (file_put_contents($port_filename,APP_NAME." ".$irc_server)===False)
   {
     server_privmsg($server_data,"error saving port file \"$port_filename\"");
     return;
   }
-  set_bucket(DATA_PREFIX."_server",$listen_port);
+  set_bucket(APP_NAME."_server",$listen_port);
   $clients=array($server);
   if (function_exists("server_start_handler")==True)
   {
@@ -203,19 +205,19 @@ function run_server($irc_server,$listen_port,$hostname,$dest)
     usleep(0.05e6);
     if (bot_shutting_down()==True)
     {
-      term_echo("*** bot shutdown detected - stopping ".DATA_PREFIX." server ***");
+      term_echo("*** bot shutdown detected - stopping ".APP_NAME." server ***");
       break;
     }
-    if (get_bucket(DATA_PREFIX."_server")<>$listen_port)
+    if (get_bucket(APP_NAME."_server")<>$listen_port)
     {
       server_privmsg($server_data,"server bucket not found - stopping");
       break;
     }
-    $server_command=get_bucket(DATA_PREFIX."_server_command");
+    $server_command=get_bucket(APP_NAME."_server_command");
     switch ($server_command)
     {
       case "stop":
-        unset_bucket(DATA_PREFIX."_server_command");
+        unset_bucket(APP_NAME."_server_command");
         break 2;
     }
     loop_process($server_data,$server,$clients,$connections);
@@ -305,8 +307,8 @@ function run_server($irc_server,$listen_port,$hostname,$dest)
   {
     server_privmsg($server_data,"error deleting port file \"$port_filename\"");
   }
-  server_privmsg($server_data,"stopping app server");
-  unset_bucket(DATA_PREFIX."_server");
+  server_privmsg($server_data,"stopping ".APP_NAME." server");
+  unset_bucket(APP_NAME."_server");
 }
 
 #####################################################################################################
@@ -375,7 +377,7 @@ function on_connect(&$server_data,&$server,&$clients,&$connections,$client_index
     {
       server_connect_handler($server_data,$server,$clients,$connections,$client_index);
     }
-    server_privmsg($server_data,"*** CLIENT CONNECTED: $addr");
+    #server_privmsg($server_data,"*** CLIENT CONNECTED: $addr");
   }
   else
   {
@@ -399,7 +401,7 @@ function on_disconnect(&$server_data,&$server,&$clients,&$connections,$client_in
     {
       server_disconnect_handler($server_data,$server,$clients,$connections,$client_index);
     }
-    server_privmsg($server_data,"*** CLIENT DISCONNECTED: $addr");
+    #server_privmsg($server_data,"*** CLIENT DISCONNECTED: $addr");
     unset($connections[$connection_index]);
   }
 }
@@ -508,33 +510,95 @@ function log_msg(&$server_data,&$server,&$clients,&$connections,$addr,$client_in
 
 function server_privmsg(&$server_data,$msg)
 {
-  privmsg($msg);
+  global $dest;
+  pm($dest,$msg);
 }
 
 #####################################################################################################
 
 function load_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$unpacked,&$response,$trailing_parts,$action)
 {
-  # TODO: MOD MACROS (SIMILAR TO EXEC MACROS) - EG: mod:action_alias right (ON SEPARATE LINE IN MULTI-LINE COMMENT OF MOD FILE)
   # TODO: LOAD MODS ON STARTUP & ONLY RELOAD IF FILE MODIFIED TIME DIFFERS
-  $mod_filename=__DIR__."/mods/mod_".DATA_PREFIX."_".$action;
-  if (file_exists($mod_filename)==False)
-  {
-    server_reply($server_data,$server,$clients,$connections,$client_index,"error: mod file \"".$mod_filename."\" not found");
-    return False;
-  }
-  $code=file_get_contents($mod_filename);
+  $mod_filename="mod_".APP_NAME."_".$action;
+  $code=read_mod($server_data,$server,$clients,$connections,$client_index,$mod_filename);
   if ($code===False)
   {
-    server_reply($server_data,$server,$clients,$connections,$client_index,"error reading mod file \"".$mod_filename."\"");
     return False;
   }
   $result=@eval($code);
   if ($result===False)
   {
-    server_reply($server_data,$server,$clients,$connections,$client_index,"mod file \"".$mod_filename."\" eval returned false");
+    server_reply($server_data,$server,$clients,$connections,$client_index,"mod: file \"".$mod_filename."\" eval returned false");
   }
   return $result;
+}
+
+#####################################################################################################
+
+function read_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$filename)
+{
+  $mod_filename=MODS_PATH.$filename;
+  if (file_exists($mod_filename)==False)
+  {
+    server_reply($server_data,$server,$clients,$connections,$client_index,"mod: file \"".$filename."\" not found");
+    return False;
+  }
+  $code=file_get_contents($mod_filename);
+  if ($code===False)
+  {
+    server_reply($server_data,$server,$clients,$connections,$client_index,"mod: error reading file \"".$filename."\"");
+    return False;
+  }
+  # TODO: PROCESS MOD MACROS (SIMILAR TO EXEC MACROS) - EG: mod:include mod_sneak_down (ON SEPARATE LINE IN MULTI-LINE COMMENT OF MOD FILE)
+  $lines=explode(PHP_EOL,$code);
+  $mod_prefix="mod:";
+  for ($i=0;$i<count($lines);$i++)
+  {
+    $line=trim($lines[$i]);
+    if ($line=="")
+    {
+      continue;
+    }
+    if (($line=="<?php") or ($line=="?>"))
+    {
+      $lines[$i]="";
+      continue;
+    }
+    if (substr($line,0,strlen($mod_prefix))==$mod_prefix)
+    {
+      $macro=trim(substr($line,strlen($mod_prefix)));
+      $lines[$i]="";
+      if ($macro=="")
+      {
+        server_reply($server_data,$server,$clients,$connections,$client_index,"mod: macro empty");
+        continue;
+      }
+      server_reply($server_data,$server,$clients,$connections,$client_index,"mod: macro found => $macro");
+      $parts=explode(" ",$macro);
+      $operation=array_shift($parts);
+      switch ($operation)
+      {
+        case "include":
+          if (count($parts)<>1)
+          {
+            server_reply($server_data,$server,$clients,$connections,$client_index,"mod: invalid include macro");
+            continue;
+          }
+          $include_filename=array_shift($parts);
+          $include_code=read_mod($server_data,$server,$clients,$connections,$client_index,$include_filename);
+          if ($include_code===False)
+          {
+            server_reply($server_data,$server,$clients,$connections,$client_index,"mod: include macro read error");
+            continue;
+          }
+          break;
+        default:
+          server_reply($server_data,$server,$clients,$connections,$client_index,"mod: invalid macro operation");
+          break;
+      }
+    }
+  }
+  return implode(PHP_EOL,$lines);
 }
 
 #####################################################################################################

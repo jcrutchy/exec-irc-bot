@@ -2552,7 +2552,6 @@ function doquit()
       {
         continue;
       }
-      term_echo("handling process: ".$handles[$i]["command"]);
       if (handle_process($handles[$i])==False)
       {
         unset($handles[$i]);
@@ -3222,6 +3221,7 @@ function delete_empty_elements(&$array)
 
 function load_directory($dir,&$lines,$directive)
 {
+  # TODO: USE scandir FUNCTION
   if ((file_exists($dir)==True) and (is_dir($dir)==True))
   {
     term_echo("load_directory: \"$dir\" found");

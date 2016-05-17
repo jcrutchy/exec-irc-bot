@@ -1,0 +1,23 @@
+<?php
+
+#####################################################################################################
+
+function is_gm(&$server_data,$hostname)
+{
+  if (isset($server_data["app_data"]["moderators"])==False)
+  {
+    return False;
+  }
+  if ($hostname<>"")
+  {
+    if (in_array($hostname,$server_data["app_data"]["moderators"])==True)
+    {
+      return True;
+    }
+  }
+  return False;
+}
+
+#####################################################################################################
+
+?>

@@ -17,7 +17,7 @@ startup:~sneak-server start
 
 #####################################################################################################
 
-define("DATA_PREFIX","sneak");
+define("APP_NAME","sneak");
 
 require_once("data_server.php");
 
@@ -34,24 +34,6 @@ function server_start_handler(&$server_data,&$server,&$clients,&$connections)
 function server_stop_handler(&$server_data,&$server,&$clients,&$connections)
 {
   # save and backup game data file as required
-}
-
-#####################################################################################################
-
-function is_gm(&$server_data,$hostname)
-{
-  if (isset($server_data["app_data"]["moderators"])==False)
-  {
-    return False;
-  }
-  if ($hostname<>"")
-  {
-    if (in_array($hostname,$server_data["app_data"]["moderators"])==True)
-    {
-      return True;
-    }
-  }
-  return False;
 }
 
 #####################################################################################################
