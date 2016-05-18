@@ -39,12 +39,13 @@ if ($socket===False)
 }
 stream_set_blocking($socket,0);
 
-$unpacked=array();
-$unpacked["dest"]=$dest;
-$unpacked["nick"]=$nick;
-$unpacked["user"]=$user;
-$unpacked["hostname"]=$hostname;
-$unpacked["trailing"]=$trailing;
+$unpacked=array(
+  "dest"=>$dest,
+  "nick"=>$nick,
+  "user"=>$user,
+  "hostname"=>$hostname,
+  "trailing"=>$trailing);
+
 $data=base64_encode(serialize($unpacked));
 fputs($socket,$data."\n");
 $t=microtime(True);

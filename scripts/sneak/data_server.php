@@ -140,6 +140,38 @@ switch ($action)
       unset_bucket(SERVER_BUCKET_INDEX);
     }
     break;
+  case "test":
+    if (count($parts)==0)
+    {
+      privmsg("error: missing test mod action");
+    }
+    privmsg("test mode");
+    define("TEST_MODE","1");
+    $action=array_shift($parts);
+    $server_data=array(
+      "irc_server"=>$server,
+      "listen_port"=>50000,
+      "dest"=>$dest,
+      "app_data_updated"=>False,
+      "app_data"=>array(),
+      "server_admin"=>$hostname);
+    $server=Null;
+    $clients=array();
+    $connections=array();
+    $unpacked=array(
+      "dest"=>$dest,
+      "nick"=>$nick,
+      "user"=>"",
+      "hostname"=>$hostname,
+      "trailing"=>implode(" ",$parts));
+    $response=array();
+    $response["msg"]=array();
+    load_mod($server_data,$server,$clients,$connections,0,$unpacked,$response,$parts,$action);
+    for ($i=0;$i<count($response["msg"]);$i++)
+    {
+      privmsg($response["msg"][$i]);
+    }
+    return;
   default:
     privmsg("syntax: $alias status|start|stop");
     break;
@@ -493,6 +525,11 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
 
 function server_reply(&$server_data,&$server,&$clients,&$connections,$client_index,$msg)
 {
+  if (defined("TEST_MODE")==True)
+  {
+    privmsg("test mode: ".$msg);
+    return;
+  }
   $response=array();
   $response["msg"][]=$msg;
   $data=base64_encode(serialize($response));
@@ -525,6 +562,11 @@ function load_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$
   {
     return False;
   }
+  if (defined("TEST_MODE")==True)
+  {
+    # save $code to temp file, include it, then unlink temp file
+    return;
+  }
   $result=@eval($code);
   if ($result===False)
   {
@@ -541,7 +583,7 @@ function read_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$
   if (file_exists($mod_filename)==False)
   {
     server_reply($server_data,$server,$clients,$connections,$client_index,"mod: file \"".$filename."\" not found");
-    return False;
+    return;
   }
   $code=file_get_contents($mod_filename);
   if ($code===False)
@@ -591,6 +633,8 @@ function read_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$
             server_reply($server_data,$server,$clients,$connections,$client_index,"mod: include macro read error");
             continue;
           }
+          $include_lines=explode(PHP_EOL,$include_code);
+          $lines=array_merge($include_lines,$lines);
           break;
         default:
           server_reply($server_data,$server,$clients,$connections,$client_index,"mod: invalid macro operation");

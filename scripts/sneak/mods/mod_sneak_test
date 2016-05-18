@@ -3,6 +3,10 @@
 #####################################################################################################
 
 /*
+mod:include lib_sneak
+*/
+
+/*
 AVAILABLE VARIABLES:
 &$server_data
 &$server
@@ -14,10 +18,6 @@ $unpacked
 $trailing_parts
 $action
 */
-
-# TODO: SEE IF YOU CAN GET A SIMPLE PHP INCLUDE TO WORK INSTEAD OF USING A MOD INCLUDE MACRO
-# TODO: MAYBE TRY TO FIGURE OUT A WAY TO TEST MODS IN A KIND OF SANDBOX SO THAT ANY ERRORS DON'T BRICK THE MAIN SERVER
-include(__FILE__."/mods/lib_sneak");
 
 if (is_gm($server_data,$unpacked["hostname"])==True)
 {

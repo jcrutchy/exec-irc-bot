@@ -4,38 +4,38 @@
 include ./scripts/quit.php
 include ./scripts/part.php
 include ./scripts/join.php
-include ./scripts/admin.php
-include ./scripts/help.php
-include ./scripts/privmsg.php
-include ./scripts/seen.php
-include ./scripts/tell.php
+#include ./scripts/admin.php
+#include ./scripts/help.php
+#include ./scripts/privmsg.php
+#include ./scripts/seen.php
+#include ./scripts/tell.php
 include ./scripts/sed.php
 include ./scripts/title.php
-include ./scripts/welcome.php
-include ./scripts/karma.php
-include ./scripts/convert.php
-include ./scripts/definitions.php
-include ./scripts/link.php
-include ./scripts/google.php
+#include ./scripts/welcome.php
+#include ./scripts/karma.php
+#include ./scripts/convert.php
+#include ./scripts/definitions.php
+#include ./scripts/link.php
+#include ./scripts/google.php
 include ./scripts/time.php
 include ./scripts/weather.php
 include ./scripts/location.php
 include ./scripts/translate.php
 include ./scripts/japanese.php
 include ./scripts/jisho2.php
-include ./scripts/users.php
+#include ./scripts/users.php
 
 include ./scripts/rps.php
 
-help ./scripts
+#help ./scripts
 
 init ./scripts
 
-~calc|5|0|1|1|||||/usr/bin/units -t %%trailing%%
-help ~calc|syntax: ~calc <expression>
-help ~calc|evaluates math expression
+#~calc|5|0|1|1|||||/usr/bin/units -t %%trailing%%
+#help ~calc|syntax: ~calc <expression>
+#help ~calc|evaluates math expression
 
-include ./scripts/ruby/currency.rb
+#include ./scripts/ruby/currency.rb
 
-include ./scripts/sneak/sneak_server.php
-startup ./scripts/sneak/sneak_server.php
+#include ./scripts/sneak/sneak_server.php
+#startup ./scripts/sneak/sneak_server.php
