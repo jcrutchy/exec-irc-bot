@@ -75,9 +75,15 @@ function shell_sed($trailing,$nick,$dest)
   {
     return False;
   }
-  if (strtolower(substr($trailing,strlen($trailing)-2))=="/e")
+  $parts=explode("/",$trailing);
+  if (count($parts)<3)
   {
-    die;
+    return False;
+  }
+  $last=strtolower($parts[count($parts)-1]);
+  if (strpos($last,"e")!==False)
+  {
+    return False;
   }
   $parts=explode(" ",$trailing);
   $sed_nick="";
@@ -130,7 +136,6 @@ function shell_sed($trailing,$nick,$dest)
   {
     $last=trim(substr($last,strlen($action_delim)),chr(1));
   }
-  #$command="echo ".escapeshellarg($last)." | sed -e --posix ".escapeshellarg($sed_cmd);
   $command="echo ".escapeshellarg($last)." | sed -e ".escapeshellarg($sed_cmd);
   var_dump($command);
   $cwd=NULL;
