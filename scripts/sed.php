@@ -18,7 +18,10 @@ $dest=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];
 
-#return;
+if ($cmd=="INTERNAL")
+{
+  return;
+}
 
 # EXPLOIT FOUND (17/05/2015): s/.*/ls/e executes an 'ls' command; s/.*/ps/e executes an 'ps' command. touch doesn't seem to work, but need to prevent the use of /e (or use awk/perl)
 
@@ -71,7 +74,7 @@ function shell_sed($trailing,$nick,$dest)
   # [nick[:|,|>|.] ]sed_cmd
   global $delims;
   $trailing=trim($trailing);
-  if (trim($trailing)=="")
+  if ($trailing=="")
   {
     return False;
   }
@@ -138,8 +141,8 @@ function shell_sed($trailing,$nick,$dest)
   }
   $command="echo ".escapeshellarg($last)." | sed -e ".escapeshellarg($sed_cmd);
   var_dump($command);
-  $cwd=NULL;
-  $env=NULL;
+  $cwd=Null;
+  $env=Null;
   $descriptorspec=array(0=>array("pipe","r"),1=>array("pipe","w"),2=>array("pipe","w"));
   $process=proc_open($command,$descriptorspec,$pipes,$cwd,$env);
   $result=trim(stream_get_contents($pipes[1]));

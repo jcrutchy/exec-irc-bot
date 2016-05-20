@@ -564,7 +564,11 @@ function load_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$
   }
   if (defined("TEST_MODE")==True)
   {
-    # save $code to temp file, include it, then unlink temp file
+    $fn=tempnam(MODS_PATH,"temp_test_mod_".APP_NAME."_");
+    $code="<?php".PHP_EOL.$code.PHP_EOL."?>";
+    file_put_contents($fn,$code);
+    include($fn);
+    unlink($fn);
     return;
   }
   $result=@eval($code);
