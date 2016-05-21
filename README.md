@@ -1,10 +1,24 @@
 exec-irc-bot readme
 ===================
 
-This is the home of crutchy's 'exec' bot, which lurks on SoylentNews IRC (irc.sylnt.us).
+documentation: http://sylnt.us/exec
 
-The main bot script is 'irc.php', which requires 'irc_lib.php' (functions).
+php irc bot that runs shell commands from aliases
 
-Alias scripts are stored under the 'scripts' directory.
+aliases can trigger generic shell commands and send stdout automatically to channel or send only specific output based on simple stdout commands like "/IRC output some text"
 
-Documentation can be found at http://sylnt.us/exec
+can run scripts written in various languages, like php, python, ruby, haskell, perl and bash
+can also run compiled programs like "apt-get moo" or curl
+
+start bot from terminal with:
+php irc.php
+
+bot code is procedural style, using global variables for settings etc to keep it simple
+main bot script requires irc_lib.php
+
+useful commands:
+~list
+~list-auth
+~join (admin)
+
+http://wiki.soylentnews.org/wiki/IRC:exec#Installing_and_running_your_own_.27exec.27_bot

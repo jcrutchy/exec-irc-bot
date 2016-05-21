@@ -595,19 +595,22 @@ function read_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$
     server_reply($server_data,$server,$clients,$connections,$client_index,"mod: error reading file \"".$filename."\"");
     return False;
   }
-  # TODO: PROCESS MOD MACROS (SIMILAR TO EXEC MACROS) - EG: mod:include mod_sneak_down (ON SEPARATE LINE IN MULTI-LINE COMMENT OF MOD FILE)
+  # PROCESS MOD MACROS (SIMILAR TO EXEC MACROS) - EG: mod:include mod_sneak_down (ON SEPARATE LINE IN MULTI-LINE COMMENT OF MOD FILE)
   $lines=explode(PHP_EOL,$code);
   $mod_prefix="mod:";
-  for ($i=0;$i<count($lines);$i++)
+  $i=0;
+  while ($i<count($lines))
   {
     $line=trim($lines[$i]);
     if ($line=="")
     {
+      $i++;
       continue;
     }
     if (($line=="<?php") or ($line=="?>"))
     {
       $lines[$i]="";
+      $i++;
       continue;
     }
     if (substr($line,0,strlen($mod_prefix))==$mod_prefix)
@@ -617,6 +620,7 @@ function read_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$
       if ($macro=="")
       {
         server_reply($server_data,$server,$clients,$connections,$client_index,"mod: macro empty");
+        $i++;
         continue;
       }
       server_reply($server_data,$server,$clients,$connections,$client_index,"mod: macro found => $macro");
@@ -625,9 +629,12 @@ function read_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$
       switch ($operation)
       {
         case "include":
+          # INSERTS INCLUDED CODE AT POSITION OF INCLUDE MACRO
+          # THIS MEANS INCLUDE COULD BE JUST THE INSIDE OF A LOOP (FOR EXAMPLE)
           if (count($parts)<>1)
           {
             server_reply($server_data,$server,$clients,$connections,$client_index,"mod: invalid include macro");
+            $i++;
             continue;
           }
           $include_filename=array_shift($parts);
@@ -635,16 +642,20 @@ function read_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$
           if ($include_code===False)
           {
             server_reply($server_data,$server,$clients,$connections,$client_index,"mod: include macro read error");
+            $i++;
             continue;
           }
+          $include_code="*/".PHP_EOL.trim($include_code).PHP_EOL."/*";
           $include_lines=explode(PHP_EOL,$include_code);
-          $lines=array_merge($include_lines,$lines);
-          break;
+          array_splice($lines,$i,0,$include_lines);
+          $i=$i+count($include_lines);
+          continue;
         default:
           server_reply($server_data,$server,$clients,$connections,$client_index,"mod: invalid macro operation");
           break;
       }
     }
+    $i++;
   }
   return implode(PHP_EOL,$lines);
 }
