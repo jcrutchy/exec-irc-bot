@@ -22,14 +22,20 @@ if ($trailing=="")
   return;
 }
 
-$exec_list=unserialize(base64_decode(trim(get_bucket("<<EXEC_LIST>>"))));
-
+$exec_list=unserialize(get_bucket("<<EXEC_LIST>>"));
 if (isset($exec_list[$trailing]["help"])==True)
 {
   $help_lines=$exec_list[$trailing]["help"];
-  for ($i=0;$i<count($help_lines);$i++)
+  if (count($help_lines)>0)
   {
-    privmsg(chr(3)."06".$help_lines[$i]);
+    for ($i=0;$i<count($help_lines);$i++)
+    {
+      privmsg(chr(3)."06".$help_lines[$i]);
+    }
+  }
+  else
+  {
+    privmsg(chr(3)."06no help found");
   }
   return;
 }

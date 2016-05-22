@@ -288,12 +288,6 @@ function handle_macros($nick,$channel,$trailing)
       privmsg(chr(3)."02"."  *** error getting exec list bucket");
       return;
     }
-    $exec_list_bucket=base64_decode($exec_list_bucket);
-    if ($exec_list_bucket===False)
-    {
-      privmsg(chr(3)."02"."  *** error decoding exec list bucket");
-      return;
-    }
     $exec_list=unserialize($exec_list_bucket);
     if ($exec_list===False)
     {

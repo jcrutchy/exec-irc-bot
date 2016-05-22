@@ -19,8 +19,8 @@ exec:edit ~blah bucket_locks bucket1,bucket2,bucket3
 exec:edit ~blah cmd php scripts/blah.php %%trailing%% %%dest%% %%nick%% %%start%% %%alias%% %%cmd%% %%data%% %%params%% %%timestamp%% %%items%% %%server%%
 exec:enable ~blah
 
-help ~blah|syntax: ~blah
-help ~blah|description
+help:~blah|syntax: ~blah
+help:~blah|description
 
 init:~meeting register-events
 startup:~join #blah

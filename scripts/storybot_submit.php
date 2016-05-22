@@ -10,8 +10,8 @@ exec:edit ~submit-story accounts_wildcard *
 exec:edit ~submit-story servers irc.sylnt.us
 exec:edit ~submit-story cmd php scripts/storybot_submit.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
 exec:enable ~submit-story
-help ~submit-story|syntax: ~submit-story <id>
-help ~submit-story|submits a story with id from list at http://ix.io/ACx
+help:~submit-story|syntax: ~submit-story <id>
+help:~submit-story|submits a story with id from list at http://ix.io/ACx
 */
 
 #####################################################################################################
