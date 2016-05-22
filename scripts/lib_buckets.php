@@ -26,12 +26,6 @@ function exec_alias_config_value($alias,$name)
     term_echo("*** exec_alias_config_value: error getting exec list bucket");
     return False;
   }
-  $exec_list_bucket=base64_decode($exec_list_bucket);
-  if ($exec_list_bucket===False)
-  {
-    term_echo("*** exec_alias_config_value: error decoding exec list bucket");
-    return False;
-  }
   $exec_list=unserialize($exec_list_bucket);
   if ($exec_list===False)
   {
@@ -176,22 +170,19 @@ function get_array_bucket($bucket)
   }
   else
   {
-    $array_bucket=base64_decode($array_bucket);
+    $array_bucket=base64_decode($array_bucket); # array is stored in buckets in encoded serialized form
     if ($array_bucket===False)
     {
-      term_echo("error decoding \"$bucket\" bucket data");
+      term_echo("error decoding \"$bucket\" bucket");
+    }
+    $bucket_array=unserialize($array_bucket);
+    if ($bucket_array===False)
+    {
+      term_echo("error unserializing \"$bucket\" bucket data");
     }
     else
     {
-      $bucket_array=unserialize($array_bucket);
-      if ($bucket_array===False)
-      {
-        term_echo("error unserializing \"$bucket\" bucket data");
-      }
-      else
-      {
-        $array=$bucket_array;
-      }
+      $array=$bucket_array;
     }
   }
   return $array;
@@ -208,7 +199,7 @@ function append_array_bucket($index,$value)
 
 function set_array_bucket($array,$bucket,$unset=False)
 {
-  $bucket_data=base64_encode(serialize($array));
+  $bucket_data=base64_encode(serialize($array)); # array is stored in buckets in encoded serialized form
   if ($bucket_data===False)
   {
     term_echo("error serializing \"$bucket\" bucket");
@@ -262,7 +253,7 @@ function bucket_read($cmd,$index="")
 
 function set_bucket($index,$data,$timeout=5e6)
 {
-  echo "/BUCKET_SET $index $data\n";
+  echo "/BUCKET_SET $index ".base64_encode($data).PHP_EOL;
   $t=microtime(True);
   do
   {
@@ -283,7 +274,7 @@ function unset_bucket($index,$timeout=5)
   $t=microtime(True);
   do
   {
-    echo "/BUCKET_UNSET $index\n";
+    echo "/BUCKET_UNSET $index".PHP_EOL;
     usleep(0.05e6);
     $test=get_bucket($index);
     if ((microtime(True)-$t)>$timeout)

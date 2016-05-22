@@ -4,11 +4,11 @@
 
 /*
 exec:add ~submit-story
-exec:edit ~submit-story timeout 30
+exec:edit ~submit-story timeout 60
 exec:edit ~submit-story repeat 3600
 exec:edit ~submit-story accounts_wildcard *
 exec:edit ~submit-story servers irc.sylnt.us
-exec:edit ~submit-story cmd php scripts/storybot_submit.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:edit ~submit-story cmd php scripts/storybot_submit.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
 exec:enable ~submit-story
 help ~submit-story|syntax: ~submit-story <id>
 help ~submit-story|submits a story with id from list at http://ix.io/ACx
@@ -24,6 +24,9 @@ $trailing=trim($argv[1]);
 $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
+$cmd=$argv[5];
+
+$submit_host="dev.soylentnews.org";
 
 $stories_path="/home/jared/git/storybot/Stories/";
 
@@ -44,6 +47,12 @@ if ($trailing=="list")
 {
   refresh_list();
   privmsg("http://ix.io/ACx");
+  return;
+}
+
+if ($cmd<>"INTERNAL")
+{
+  submit_story($trailing);
   return;
 }
 
@@ -104,120 +113,72 @@ function delete_old()
 
 function submit_story($id)
 {
-/*  $response=wget($host,$uri,$port);
-
-  $host="";
-  $uri="";
-  $port=80;
-  if (get_host_and_uri($url,$host,$uri,$port)==False)
+  global $stories_path;
+  global $submit_host;
+  $response=wget("ix.io","/ACx",80);
+  $content=trim(strip_headers($response));
+  $items=explode(PHP_EOL,$content);
+  $story_filename="";
+  for ($i=1;$i<count($items);$i++)
   {
-    privmsg("error: unable to download source (get_host_and_uri)");
-    return False;
-  }
-  $response=wget($host,$uri,$port);
-  if (get_host_and_uri($url,$host,$uri,$port)==False)
-  {
-    privmsg("error: unable to download source (wget)");
-    return False;
-  }
-  $source_html=strip_headers($response);
-  $source_title=extract_raw_tag($source_html,"title");
-  $delimiters=array("--","|"," - "," : "," — "," • ");
-  for ($i=0;$i<count($delimiters);$i++)
-  {
-    $j=strpos($source_title,$delimiters[$i]);
-    if ($j!==False)
-    {
-      $source_title=trim(substr($source_title,0,$j));
-    }
-  }
-  if (($source_title===False) or ($source_title==""))
-  {
-    privmsg("error: title not found or empty");
-    return False;
-  }
-  $source_title=html_decode($source_title);
-  $source_title=html_decode($source_title);
-  $source_body=extract_meta_content($source_html,"description");
-  if (($source_body===False) or ($source_body==""))
-  {
-    $source_body=extract_meta_content($source_html,"og:description","property");
-    if (($source_body===False) or ($source_body==""))
-    {
-      privmsg("error: description meta content not found or empty");
-      return False;
-    }
-  }
-  $html=$source_html;
-  $article=extract_raw_tag($html,"article");
-  if ($article!==False)
-  {
-    $html=$article;
-  }
-  strip_all_tag($html,"head");
-  strip_all_tag($html,"script");
-  strip_all_tag($html,"style");
-  #strip_all_tag($html,"a");
-  strip_all_tag($html,"strong");
-  $html=strip_tags($html,"<p>");
-  $html=lowercase_tags($html);
-  $html=explode("<p",$html);
-  $source_body=array();
-  for ($i=0;$i<count($html);$i++)
-  {
-    $parts=explode(">",$html[$i]);
-    if (count($parts)>=2)
-    {
-      array_shift($parts);
-      $html[$i]=implode(">",$parts);
-    }
-    $html[$i]=strip_tags($html[$i]);
-    $html[$i]=clean_text($html[$i]);
-    $host_parts=explode(".",$host);
-    for ($j=0;$j<count($host_parts);$j++)
-    {
-      if (strlen($host_parts[$j])>3)
-      {
-        if (strpos(strtolower($html[$i]),strtolower($host_parts[$j]))!==False)
-        {
-          continue 2;
-        }
-      }
-    }
-    if (filter($html[$i],"0123456789")<>"")
+    $item=$items[$i];
+    $parts=explode("\t",$item);
+    if (count($parts)<>2)
     {
       continue;
     }
-    if (strlen($html[$i])>1)
+    $test_id=$parts[0];
+    $test_filename=$parts[1];
+    if ($id<>$test_id)
     {
-      if ($html[$i][strlen($html[$i])-1]<>".")
-      {
-        continue;
-      }
-      while (True)
-      {
-        $j=strlen($html[$i])-1;
-        if ($j<0)
-        {
-          break;
-        }
-        $c=$html[$i][$j];
-        if ($c==".")
-        {
-          break;
-        }
-        $html[$i]=substr($html[$i],0,$j);
-      }
+      continue;
     }
-    if (strlen($html[$i])>100)
-    {
-      $source_body[]=$html[$i];
-    }
+    $story_filename=$stories_path.$test_filename;
+    break;
   }
-  $source_body=implode("\n\n",$source_body);
-  $source_body=html_decode($source_body);
-  $source_body=html_decode($source_body);
-  $host="dev.soylentnews.org";
+  if (file_exists($story_filename)==False)
+  {
+    privmsg("file \"$story_filename\" not found");
+    return;
+  }
+  $data=file_get_contents($story_filename);
+  if ($data===False)
+  {
+    term_echo("error reading file \"$story_filename\"");
+    return;
+  }
+  $source_title=str_replace("_"," ",$test_filename);
+  $i=strpos($source_title,"--");
+  if ($i!==False)
+  {
+    $source_title=trim(substr($source_title,0,$i));
+  }
+  $i=strpos($source_title,"|");
+  if ($i!==False)
+  {
+    $source_title=trim(substr($source_title,0,$i));
+  }
+  $i=strpos($source_title," - ");
+  if ($i!==False)
+  {
+    $source_title=trim(substr($source_title,0,$i));
+  }
+  $i=strpos($source_title," : ");
+  if ($i!==False)
+  {
+    $source_title=trim(substr($source_title,0,$i));
+  }
+  $i=strpos($source_title," — ");
+  if ($i!==False)
+  {
+    $source_title=trim(substr($source_title,0,$i));
+  }
+  $i=strpos($source_title," • ");
+  if ($i!==False)
+  {
+    $source_title=trim(substr($source_title,0,$i));
+  }
+  privmsg("attempting to submit story: $source_title");
   $port=443;
   $uri="/submit.pl";
   $response=wget($host,$uri,$port,ICEWEASEL_UA);
@@ -226,19 +187,18 @@ function submit_story($id)
   if ($reskey===False)
   {
     privmsg("error: unable to extract reskey");
-    return False;
+    return;
   }
   sleep(25);
   $params=array();
   $params["reskey"]=$reskey;
-  #$params["name"]=trim(substr($nick,0,50));
   $params["name"]=get_bot_nick();
   $params["email"]="";
   $params["subj"]=trim(substr($source_title,0,100));
   $params["primaryskid"]="1";
   $params["tid"]="6";
   $params["sub_type"]="plain";
-  $params["story"]=$source_body."\n\n".$url."\n\n-- submitted from IRC";
+  $params["story"]=$data."\n\n-- submitted from IRC";
   $params["op"]="SubmitStory";
   $response=wpost($host,$uri,$port,ICEWEASEL_UA,$params);
   $html=strip_headers($response);
@@ -248,16 +208,18 @@ function submit_story($id)
   strip_all_tag($html,"a");
   $html=strip_tags($html);
   $html=clean_text($html);
-  if (strpos($html,"Perhaps you would like to enter an email address or a URL next time. Thanks for the submission.")!==False)
+  var_dump($html);
+  if (strpos($html,"Perhaps you would like to enter an email address or a URL next time.")!==False)
   {
     privmsg("submission successful - https://$host/submit.pl?op=list");
-    return True;
   }
   else
   {
     privmsg("error: something went wrong with your submission");
-    return False;
-  }*/
+    return;
+  }
+  unlink($story_filename);
+  refresh_list();
 }
 
 #####################################################################################################

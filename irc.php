@@ -33,6 +33,7 @@ if (isset($argv[1])==False)
   define("IRC_HOST","irc.sylnt.us");
   define("IRC_PORT","6667");
   define("OPERATOR_ACCOUNT","crutchy");
+  define("OPERATOR_HOSTNAME","709-27-2-01.cust.aussiebb.net");
   define("DEBUG_CHAN","#debug");
   define("NICKSERV_IDENTIFY_PROMPT","You have 60 seconds to identify to your nickname before it is changed.");
   define("ADMIN_ACCOUNTS","chromas,juggs,martyb,cmn32480");
@@ -100,6 +101,7 @@ define("BUCKET_EXEC_LIST","<<EXEC_LIST>>");
 define("BUCKET_BOT_NICK","<<BOT_NICK>>");
 define("BUCKET_ADMIN_ACCOUNTS_LIST","<<ADMIN_ACCOUNTS_LIST>>");
 define("BUCKET_OPERATOR_ACCOUNT","<<OPERATOR_ACCOUNT>>");
+define("BUCKET_OPERATOR_HOSTNAME","<<OPERATOR_HOSTNAME>>");
 define("BUCKET_OUTPUT_CONTROL","<<OUTPUT_CONTROL>>");
 define("BUCKET_SHUTDOWN","<<SHUTDOWN>>");
 
@@ -111,7 +113,7 @@ $internal_bucket_indexes=array(
   BUCKET_USERS,
   BUCKET_EVENT_HANDLERS,
   BUCKET_CONNECTION_ESTABLISHED,
-  BUCKET_SELF_TRIGGER_EVENTS_FLAG,
+  #BUCKET_SELF_TRIGGER_EVENTS_FLAG,
   BUCKET_EXEC_LIST,
   BUCKET_BOT_NICK,
   BUCKET_PROCESS_TEMPLATE_PREFIX,

@@ -24,6 +24,9 @@ require_once("lib.php");
 #$data=get_user_localhost_ports();
 #var_dump($data);
 
+$users=get_array_bucket(BUCKET_USERS);
+var_dump($users);
+
 #####################################################################################################
 
 ?>

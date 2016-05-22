@@ -101,7 +101,7 @@ else
 {
   term_echo("data server: bypassing authentication for internal command");
   $dest="#".APP_NAME;
-  $hostname=""; # TODO: SET TO BOT OPERATOR'S HOSTNAME
+  $hostname=get_bucket("<<OPERATOR_HOSTNAME>>");
 }
 
 $server_bucket=get_server_bucket();
@@ -173,7 +173,7 @@ switch ($action)
     }
     return;
   default:
-    privmsg("syntax: $alias status|start|stop");
+    privmsg("syntax: $alias status|start|stop|test");
     break;
 }
 
@@ -623,7 +623,7 @@ function read_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$
         $i++;
         continue;
       }
-      server_reply($server_data,$server,$clients,$connections,$client_index,"mod: macro found => $macro");
+      #server_reply($server_data,$server,$clients,$connections,$client_index,"mod: macro found => $macro");
       $parts=explode(" ",$macro);
       $operation=array_shift($parts);
       switch ($operation)

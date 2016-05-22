@@ -459,7 +459,6 @@ function handle_process($handle)
       {
         #privmsg($handle["destination"],$handle["nick"],$msg);
       }
-      #privmsg(OPERATOR_ACCOUNT,"",$msg);
       return False;
     }
   }
@@ -878,7 +877,9 @@ function handle_stdin($handle,$data)
 
 #####################################################################################################
 
-# TODO: DON'T REALLY NEED TO base64_encode ARRAY BUCKETS FOR PIPING NOW, SINCE ITS BUILT INTO handle_stdin FOR ALL BUCKETS
+# buckets are stored in plain text, except arrays which are stored in encoded serialized form
+# sending and receiving bucket data from process stdin and stdout pipes is in encoded form (arrays are double-encoded)
+# don't need to encode outgoing data in handle_buckets, since it is done by handle_stdin
 
 function handle_buckets($data,$handle)
 {
@@ -898,21 +899,23 @@ function handle_buckets($data,$handle)
       $index=$trailing;
       if ($index==BUCKET_EXEC_LIST)
       {
-        $exec_list_data=base64_encode(serialize($exec_list));
+        $exec_list_data=serialize($exec_list);
         $result=handle_stdin($handle,$exec_list_data);
-        #handle_stdin($handle,"\n");
         return True;
       }
       if ($index==BUCKET_ADMIN_ACCOUNTS_LIST)
       {
         $result=handle_stdin($handle,ADMIN_ACCOUNTS);
-        #handle_stdin($handle,"\n");
         return True;
       }
       if ($index==BUCKET_OPERATOR_ACCOUNT)
       {
         $result=handle_stdin($handle,OPERATOR_ACCOUNT);
-        #handle_stdin($handle,"\n");
+        return True;
+      }
+      if ($index==BUCKET_OPERATOR_HOSTNAME)
+      {
+        $result=handle_stdin($handle,OPERATOR_HOSTNAME);
         return True;
       }
       if (substr($index,0,strlen(BUCKET_ALIAS_ELEMENT_PREFIX))==BUCKET_ALIAS_ELEMENT_PREFIX)
@@ -921,7 +924,6 @@ function handle_buckets($data,$handle)
         $parts=explode("_",$parts_str);
         if (count($parts)<=1)
         {
-          #handle_stdin($handle,"\n");
           handle_stdin($handle,"");
           return True;
         }
@@ -933,14 +935,13 @@ function handle_buckets($data,$handle)
           $out=$exec_list[$alias][$key];
           if (is_array($exec_list[$alias][$key])==True)
           {
-            $out=base64_encode(serialize($exec_list[$alias][$key]));
+            $out=serialize($exec_list[$alias][$key]);
           }
           $result=handle_stdin($handle,$out);
           if ($result===False)
           {
             term_echo("alias element failed for pid ".$handle["pid"]);
           }
-          #handle_stdin($handle,"\n");
           return True;
         }
       }
@@ -952,14 +953,13 @@ function handle_buckets($data,$handle)
           $out=$handle[$process_template];
           if (is_array($handle[$process_template])==True)
           {
-            $out=base64_encode(serialize($handle[$process_template]));
+            $out=serialize($handle[$process_template]);
           }
           $result=handle_stdin($handle,$out);
           if ($result===False)
           {
             term_echo("process template \"".$process_template."\" failed for pid ".$handle["pid"]);
           }
-          #handle_stdin($handle,"\n");
           return True;
         }
       }
@@ -968,7 +968,7 @@ function handle_buckets($data,$handle)
         if (isset($bucket_locks[$index])==True)
         {
           term_echo("BUCKET_GET [$index]: BUCKET INDEX LOCKED BY FOLLOWING PID LIST: ".implode(",",$bucket_locks[$index]));
-          handle_stdin($handle,"\n");
+          handle_stdin($handle,"");
           return True;
         }
         $size=round(strlen($buckets[$index])/1024,1)."kb";
@@ -977,16 +977,10 @@ function handle_buckets($data,$handle)
         {
           term_echo("BUCKET_GET [$index]: ERROR WRITING BUCKET DATA TO STDIN ($size)");
         }
-        else
-        {
-          #term_echo("BUCKET_GET [$index]: SUCCESS ($size)");
-        }
       }
       else
       {
-        #handle_stdin($handle,"\n");
         handle_stdin($handle,"");
-        #term_echo("BUCKET_GET [$index]: BUCKET NOT SET");
       }
       return True;
     case CMD_BUCKET_SET:
@@ -1010,8 +1004,7 @@ function handle_buckets($data,$handle)
         }
         unset($parts[0]);
         $trailing=implode(" ",$parts);
-        $buckets[$index]=$trailing;
-        #term_echo("BUCKET_SET [$index]: SUCCESS");
+        $buckets[$index]=base64_decode($trailing);
       }
       return True;
     case CMD_BUCKET_UNSET:
@@ -1024,11 +1017,6 @@ function handle_buckets($data,$handle)
           return True;
         }
         unset($buckets[$index]);
-        #term_echo("BUCKET_UNSET [$index]: SUCCESS");
-      }
-      else
-      {
-        #term_echo("BUCKET_UNSET [$index]: BUCKET NOT SET");
       }
       return True;
     case CMD_BUCKET_APPEND:
@@ -1072,7 +1060,6 @@ function handle_buckets($data,$handle)
         if ($bucket_string!==False)
         {
           $buckets[$index]=$bucket_string;
-          #term_echo("BUCKET_APPEND [$index]: SUCCESS");
         }
         else
         {
@@ -2569,15 +2556,14 @@ function doquit()
   if ($n>0)
   {
     term_echo("*** KILLING REMAINING $n HANDLE(S) ***");
-    break;
-  }
-  for ($i=0;$i<$n;$i++)
-  {
-    if (isset($handles[$i])==True) # have had a "Undefined offset: 0" notice on this line
+    for ($i=0;$i<$n;$i++)
     {
-      if (is_resource($handles[$i]["process"])==True)
+      if (isset($handles[$i])==True) # have had a "Undefined offset: 0" notice on this line
       {
-        kill_process($handles[$i]);
+        if (is_resource($handles[$i]["process"])==True)
+        {
+          kill_process($handles[$i]);
+        }
       }
     }
   }
@@ -3029,7 +3015,7 @@ function authenticate($items)
       {
         if (is_operator_alias($alias)==True)
         {
-          if ($account<>OPERATOR_ACCOUNT)
+          if (($account<>OPERATOR_ACCOUNT) or ($admin_items["hostname"]<>OPERATOR_HOSTNAME))
           {
             term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not authorized");
           }
@@ -3045,7 +3031,7 @@ function authenticate($items)
         }
         elseif (is_admin_alias($alias)==True)
         {
-          if (($account<>OPERATOR_ACCOUNT) and (in_array($account,$admin_accounts)==False))
+          if ((($account<>OPERATOR_ACCOUNT) or ($admin_items["hostname"]<>OPERATOR_HOSTNAME)) and (in_array($account,$admin_accounts)==False))
           {
             term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not authorized");
           }
@@ -3061,7 +3047,7 @@ function authenticate($items)
         }
         elseif (has_account_list($alias)==True)
         {
-          if (($account<>OPERATOR_ACCOUNT) and (in_array($account,$exec_list[$alias]["accounts"])==False) and ($exec_list[$alias]["accounts_wildcard"]<>"*") and (in_array($account,$admin_accounts)==False))
+          if ((($account<>OPERATOR_ACCOUNT) or ($admin_items["hostname"]<>OPERATOR_HOSTNAME)) and (in_array($account,$exec_list[$alias]["accounts"])==False) and ($exec_list[$alias]["accounts_wildcard"]<>"*") and (in_array($account,$admin_accounts)==False))
           {
             term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not authorized");
           }
