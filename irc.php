@@ -344,7 +344,7 @@ while (True)
   handle_direct_stdin();
   if ($antiflog==True)
   {
-    usleep(0.05e6); # 0.05 second to prevent cpu flogging
+    usleep(0.05e6); # delay to prevent cpu flogging
   }
   $antiflog=True;
   process_timed_execs();
