@@ -21,12 +21,20 @@ $action
 
 if (is_gm($server_data,$unpacked["hostname"])==True)
 {
-  $response["msg"][]="my butt smells";
+  $response["msg"][]="sneak: authorized gm";
 }
 else
 {
-  $response["msg"][]="###".$unpacked["hostname"]."###";
-  $response["msg"][]="sneak test: not authorized";
+  $response["msg"][]="sneak: not authorized gm";
+}
+
+if (is_admin($server_data,$unpacked["hostname"])==True)
+{
+  $response["msg"][]="sneak: authorized admin";
+}
+else
+{
+  $response["msg"][]="sneak: not authorized admin";
 }
 
 #####################################################################################################

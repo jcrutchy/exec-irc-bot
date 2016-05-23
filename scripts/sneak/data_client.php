@@ -7,6 +7,8 @@
 require_once(__DIR__."/../lib.php");
 require_once("data_utils.php");
 
+define("MODS_PATH",__DIR__."/mods/");
+
 $trailing=strtolower(trim($argv[1]));
 $dest=$argv[2];
 $nick=$argv[3];
@@ -107,7 +109,10 @@ if (count($unpacked["msg"])>10)
 
 for ($i=0;$i<count($unpacked["msg"]);$i++)
 {
-  privmsg(chr(3)."03".$unpacked["msg"][$i]);
+  if ($unpacked["msg"][$i]<>"")
+  {
+    privmsg(chr(3)."03".$unpacked["msg"][$i]);
+  }
 }
 
 #####################################################################################################

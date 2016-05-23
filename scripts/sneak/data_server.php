@@ -166,6 +166,10 @@ switch ($action)
       "trailing"=>implode(" ",$parts));
     $response=array();
     $response["msg"]=array();
+    if (function_exists("server_start_handler")==True)
+    {
+      server_start_handler($server_data,$server,$clients,$connections);
+    }
     load_mod($server_data,$server,$clients,$connections,0,$unpacked,$response,$parts,$action);
     for ($i=0;$i<count($response["msg"]);$i++)
     {

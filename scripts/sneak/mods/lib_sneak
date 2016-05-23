@@ -20,4 +20,19 @@ function is_gm(&$server_data,$hostname)
 
 #####################################################################################################
 
+function is_admin(&$server_data,$hostname)
+{
+  if (isset($server_data["server_admin"])==False)
+  {
+    return False;
+  }
+  if ($hostname===$server_data["server_admin"])
+  {
+    return True;
+  }
+  return False;
+}
+
+#####################################################################################################
+
 ?>
