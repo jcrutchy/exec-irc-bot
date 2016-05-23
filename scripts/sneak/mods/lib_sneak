@@ -4,6 +4,11 @@
 
 function is_gm(&$server_data,$hostname)
 {
+  $operator_hostname=get_bucket("<<OPERATOR_HOSTNAME>>");
+  if ($operator_hostname===$hostname)
+  {
+    return True;
+  }
   if (isset($server_data["app_data"]["moderators"])==False)
   {
     return False;
@@ -22,6 +27,11 @@ function is_gm(&$server_data,$hostname)
 
 function is_admin(&$server_data,$hostname)
 {
+  $operator_hostname=get_bucket("<<OPERATOR_HOSTNAME>>");
+  if ($operator_hostname===$hostname)
+  {
+    return True;
+  }
   if (isset($server_data["server_admin"])==False)
   {
     return False;
