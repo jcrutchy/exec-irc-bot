@@ -2,7 +2,7 @@
 
 #####################################################################################################
 
-if (is_gm($server_data,$unpacked["hostname"])==True)
+/*if (is_gm($server_data,$unpacked["hostname"])==True)
 {
   if (count($trailing_parts)<>1)
   {
@@ -33,7 +33,7 @@ if (is_gm($server_data,$unpacked["hostname"])==True)
 else
 {
   $response["msg"][]="not authorized";
-}
+}*/
 
 #####################################################################################################
 

@@ -6,28 +6,28 @@
 mod:include lib_sneak
 */
 
-if ($is_admin($server_data,$unpacked["hostname"])==True)
+if ($is_admin($server_data,$unpacked["hostname"])==False)
 {
-  $hostname=users_get_hostname($unpacked["trailing"]);
-  if ($hostname=="")
-  {
-    $response["msg"][]="sneak: user not found";
-    return;
-  }
-  if (in_array($hostname,$server_data["app_data"]["moderators"])==True)
-  {
-    $response["msg"][]="sneak: hostname \"$hostname\" already in gm list";
-  }
-  else
-  {
-    $server_data["app_data"]["moderators"][]=$unpacked["trailing"];
-    $server_data["app_data_updated"]=True;
-    $response["msg"][]="sneak: hostname \"$hostname\" added to gm list";
-  }
+  $response["msg"][]="sneak: not authorized admin";
+  return;
+}
+
+$hostname=users_get_hostname($unpacked["trailing"]);
+if ($hostname=="")
+{
+  $response["msg"][]="sneak: user not found";
+  return;
+}
+
+if (in_array($hostname,$server_data["app_data"]["moderators"])==True)
+{
+  $response["msg"][]="sneak: hostname \"$hostname\" already in gm list";
 }
 else
 {
-  $response["msg"][]="sneak: not authorized admin";
+  $server_data["app_data"]["moderators"][]=$hostname;
+  $server_data["app_data_updated"]=True;
+  $response["msg"][]="sneak: hostname \"$hostname\" added to gm list";
 }
 
 #####################################################################################################
