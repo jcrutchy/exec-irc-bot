@@ -4,6 +4,7 @@
 
 /*
 exec:add ~sneak
+exec:edit ~sneak timeout 30
 exec:edit ~sneak cmd php scripts/sneak/sneak_client.php %%trailing%% %%dest%% %%nick%% %%user%% %%hostname%% %%alias%% %%cmd%% %%timestamp%% %%server%%
 exec:enable ~sneak
 */

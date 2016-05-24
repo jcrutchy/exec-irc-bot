@@ -19,7 +19,7 @@ $trailing_parts
 $action
 */
 
-if (is_gm($server_data,$unpacked["hostname"])==True)
+if ($is_gm($server_data,$unpacked["hostname"])==True)
 {
   $response["msg"][]="sneak: authorized gm";
 }
@@ -28,7 +28,7 @@ else
   $response["msg"][]="sneak: not authorized gm";
 }
 
-if (is_admin($server_data,$unpacked["hostname"])==True)
+if ($is_admin($server_data,$unpacked["hostname"])==True)
 {
   $response["msg"][]="sneak: authorized admin";
 }

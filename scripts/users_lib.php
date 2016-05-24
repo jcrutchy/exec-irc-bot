@@ -43,6 +43,42 @@ function users_get_data($nick)
 
 #####################################################################################################
 
+function users_get_hostname($nick)
+{
+  $nick=strtolower(trim($nick));
+  $users=get_array_bucket(BUCKET_USERS);
+  if (isset($users[$nick])==True)
+  {
+    if (isset($users[$nick]["hostname"])==True)
+    {
+      # TODO: expiry
+      return $users[$nick]["hostname"];
+    }
+  }
+  $start=microtime(True);
+  rawmsg("USERHOST $nick");
+  do
+  {
+    $users=get_array_bucket(BUCKET_USERS);
+    if (isset($users[$nick])==True)
+    {
+      if (isset($users[$nick]["hostname"])==True)
+      {
+        return $users[$nick]["hostname"];
+      }
+    }
+    else
+    {
+      break;
+    }
+    usleep(0.2*1e6);
+  }
+  while ((microtime(True)-$start)<5.0);
+  return "";
+}
+
+#####################################################################################################
+
 function users_get_account($nick)
 {
   $nick=strtolower(trim($nick));

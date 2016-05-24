@@ -55,7 +55,7 @@ $unpacked=array();
 while (True)
 {
   usleep(0.1e6);
-  if ((microtime(True)-$t)>5e6)
+  if ((microtime(True)-$t)>10)
   {
     break;
   }

@@ -1452,6 +1452,41 @@ function handle_311(&$items)
 
 #####################################################################################################
 
+function handle_302(&$items)
+{
+  # :irc.sylnt.us 302 crutchy :TheMightyBuzzard=+~TheMighty@Soylent/Staff/Developer/TMB crutchy=+~crutchy@119.18.0.66 chromas=-~chromas@0::1
+  $trailing=strtolower(trim($items["trailing"]));
+  $parts=explode(" ",$trailing);
+  if (count($parts)<1)
+  {
+    term_echo("*** USERS: handle_302: invalid number of parts");
+    return;
+  }
+  $users=get_users();
+  for ($i=0;$i<count($parts);$i++)
+  {
+    $user_parts=explode("=",$parts[$i]);
+    if (count($user_parts)<>2)
+    {
+      term_echo("*** USERS: handle_302: invalid number of user_parts");
+      continue;
+    }
+    $nick=$user_parts[0];
+    $prefix_parts=explode("@",$user_parts[1]);
+    if (count($prefix_parts)<>2)
+    {
+      term_echo("*** USERS: handle_302: invalid number of prefix_parts");
+      continue;
+    }
+    $hostname=$prefix_parts[1];
+    term_echo("*** USERS: handle_302: nick=$nick, hostname=$hostname");
+    $users[$nick]["hostname"]=$hostname;
+  }
+  set_users($users);
+}
+
+#####################################################################################################
+
 function handle_319(&$items)
 {
   $params=strtolower(trim($items["params"]));
@@ -1632,6 +1667,9 @@ function handle_events(&$items)
       break;
     case "319":
       handle_319($items);
+      break;
+    case "302":
+      handle_302($items);
       break;
     case "330":
       handle_330($items);

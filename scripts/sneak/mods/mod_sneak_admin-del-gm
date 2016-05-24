@@ -6,7 +6,7 @@
 mod:include lib_sneak
 */
 
-if ($is_admin($server_data,$unpacked["hostname"])==True)
+/*if ($is_admin($server_data,$unpacked["hostname"])==True)
 {
   $hostname=users_get_hostname($unpacked["trailing"]);
   if ($hostname=="")
@@ -28,7 +28,7 @@ if ($is_admin($server_data,$unpacked["hostname"])==True)
 else
 {
   $response["msg"][]="sneak: not authorized admin";
-}
+}*/
 
 #####################################################################################################
 

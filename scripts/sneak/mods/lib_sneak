@@ -2,7 +2,7 @@
 
 #####################################################################################################
 
-function is_gm(&$server_data,$hostname)
+$is_gm=function(&$server_data,$hostname)
 {
   $operator_hostname=get_bucket("<<OPERATOR_HOSTNAME>>");
   if ($operator_hostname===$hostname)
@@ -21,11 +21,11 @@ function is_gm(&$server_data,$hostname)
     }
   }
   return False;
-}
+};
 
 #####################################################################################################
 
-function is_admin(&$server_data,$hostname)
+$is_admin=function(&$server_data,$hostname)
 {
   $operator_hostname=get_bucket("<<OPERATOR_HOSTNAME>>");
   if ($operator_hostname===$hostname)
@@ -41,11 +41,11 @@ function is_admin(&$server_data,$hostname)
     return True;
   }
   return False;
-}
+};
 
 #####################################################################################################
 
-function map_init(&$server_data)
+$map_init=function(&$server_data)
 {
   if (isset($server_data["app_data"]["map"])==True)
   {
@@ -58,11 +58,11 @@ function map_init(&$server_data)
   $server_data["app_data"]["map"]=$record;
   $server_data["app_data_updated"]=True;
   return True;
-}
+};
 
 #####################################################################################################
 
-function player_init(&$server_data,$hostname)
+$player_init=function(&$server_data,$hostname)
 {
   if (isset($server_data["app_data"]["players"][$hostname])==True)
   {
@@ -107,7 +107,7 @@ function player_init(&$server_data,$hostname)
   $server_data["app_data"]["players"][$hostname]=$record;
   $server_data["app_data_updated"]=True;
   return True;
-}
+};
 
 #####################################################################################################
 

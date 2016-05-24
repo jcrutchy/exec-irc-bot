@@ -498,7 +498,7 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
     server_reply($server_data,$server,$clients,$connections,$client_index,"error: trailing empty");
     return;
   }
-  # DO NOT ALLOW BRACKETS
+  # DO NOT ALLOW BRACKETS (NO FUNCTION ARGS ALLOWED)
   $valid_chars=VALID_UPPERCASE.VALID_LOWERCASE.VALID_NUMERIC." -_";
   if (is_valid_chars($trailing,$valid_chars)==False)
   {
@@ -507,6 +507,8 @@ function on_msg(&$server_data,&$server,&$clients,&$connections,$client_index,$da
   }
   $parts=explode(" ",$trailing);
   $action=array_shift($parts);
+  $trailing=implode(" ",$parts);
+  $unpacked["trailing"]=$trailing;
   $response=array();
   $response["msg"]=array();
   if (function_exists("server_msg_handler")==True)
@@ -575,7 +577,8 @@ function load_mod(&$server_data,&$server,&$clients,&$connections,$client_index,$
     unlink($fn);
     return;
   }
-  $result=@eval($code);
+  #$result=@eval($code);
+  $result=eval($code);
   if ($result===False)
   {
     server_reply($server_data,$server,$clients,$connections,$client_index,"mod: file \"".$mod_filename."\" eval returned false");

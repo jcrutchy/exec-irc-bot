@@ -6,14 +6,15 @@
 mod:include lib_sneak
 */
 
-if ($is_admin($server_data,$unpacked["hostname"])==True)
+if (is_admin($server_data,$unpacked["hostname"])==True)
 {
-  $hostname=users_get_hostname($unpacked["trailing"]);
-  if ($hostname=="")
+  $user_data=users_get_data($unpacked["trailing"]);
+  if (isset($user_data["hostname"])==False)
   {
     $response["msg"][]="sneak: user not found";
     return;
   }
+  $hostname=$user_data["hostname"];
   if (in_array($hostname,$server_data["app_data"]["moderators"])==True)
   {
     $response["msg"][]="sneak: hostname \"$hostname\" already in gm list";

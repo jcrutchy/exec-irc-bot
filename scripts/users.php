@@ -24,6 +24,9 @@ $trailing=trim(implode(" ",$parts));
 
 switch ($cmd)
 {
+  case "hostname":
+    privmsg(users_get_hostname(trim($trailing)));
+    break;
   case "nicks":
     $channel=strtolower(trim($trailing));
     $nicks=users_get_nicks($channel);
