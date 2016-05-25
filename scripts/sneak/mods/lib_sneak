@@ -2,7 +2,7 @@
 
 #####################################################################################################
 
-$is_gm=function(&$server_data,$hostname)
+$is_mod=function(&$server_data,$hostname)
 {
   $operator_hostname=get_bucket("<<OPERATOR_HOSTNAME>>");
   if ($operator_hostname===$hostname)

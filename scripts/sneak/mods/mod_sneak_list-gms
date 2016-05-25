@@ -2,11 +2,13 @@
 
 #####################################################################################################
 
-/*
-mod:include lib_sneak
-*/
+if (isset($server_data["app_data"]["moderators"])==False)
+{
+  $response["msg"][]="sneak: mod list not found";
+  return;
+}
 
-
+$response["msg"][]="sneak mods: ".implode(" ",$server_data["app_data"]["moderators"]);
 
 #####################################################################################################
 

@@ -21,13 +21,13 @@ if ($hostname=="")
 
 if (in_array($hostname,$server_data["app_data"]["moderators"])==True)
 {
-  $response["msg"][]="sneak: hostname \"$hostname\" already in gm list";
+  $response["msg"][]="sneak: hostname \"$hostname\" already in mod list";
 }
 else
 {
   $server_data["app_data"]["moderators"][]=$hostname;
   $server_data["app_data_updated"]=True;
-  $response["msg"][]="sneak: hostname \"$hostname\" added to gm list";
+  $response["msg"][]="sneak: hostname \"$hostname\" added to mod list";
 }
 
 #####################################################################################################
