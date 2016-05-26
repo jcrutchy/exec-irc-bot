@@ -6,7 +6,13 @@
 mod:include lib_sneak
 */
 
-$player_init($server_data,$hostname);
+if ($player_init($server_data,$unpacked["hostname"])==False)
+{
+  $response["msg"][]="error initializing player";
+  return;
+}
+
+$response["msg"][]="initialized player";
 
 #####################################################################################################
 
