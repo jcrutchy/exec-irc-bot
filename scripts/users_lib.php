@@ -43,6 +43,24 @@ function users_get_data($nick)
 
 #####################################################################################################
 
+function users_get_nick($hostname)
+{
+  $users=get_array_bucket(BUCKET_USERS);
+  foreach ($users as $nick => $data)
+  {
+    if (isset($data["hostname"])==True)
+    {
+      if ($data["hostname"]==$hostname)
+      {
+        return $nick;
+      }
+    }
+  }
+  return False;
+}
+
+#####################################################################################################
+
 function users_get_hostname($nick)
 {
   $nick=strtolower(trim($nick));

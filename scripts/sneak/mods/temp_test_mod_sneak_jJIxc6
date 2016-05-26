@@ -7,6 +7,10 @@
 */
 #####################################################################################################
 
+/*
+*/
+#####################################################################################################
+
 $is_mod=function(&$server_data,$hostname)
 {
   $operator_hostname=get_bucket("<<OPERATOR_HOSTNAME>>");
@@ -67,9 +71,8 @@ $map_init=function(&$server_data)
 
 #####################################################################################################
 
-$player_init=function(&$server_data,$hostname)
+$player_init=function(&$server_data,$hostname) use (&$map_init,&$rand_loc)
 {
-  global $map_init;
   if (isset($server_data["app_data"]["players"][$hostname])==True)
   {
     return True;
@@ -93,14 +96,26 @@ $player_init=function(&$server_data,$hostname)
   $record=array();
   $record["hostname"]=$hostname;
   $record["init_timestamp"]=microtime(True);
+  $record["deaths"]=0;
+  $record["kills"]=0;
+  $server_data["app_data"]["players"][$hostname]=$record;
+  $rand_loc($server_data,$hostname);
+  $server_data["app_data_updated"]=True;
+  return True;
+};
+
+#####################################################################################################
+
+$rand_loc=function(&$server_data,$hostname)
+{
   do
   {
     $start_x=mt_rand(0,$server_data["app_data"]["map"]["width"]);
     $start_y=mt_rand(0,$server_data["app_data"]["map"]["height"]);
     $occupied=False;
-    for ($i=0;$i<count($server_data["app_data"]["players"]);$i++)
+    foreach ($server_data["app_data"]["players"] as $player => $player_data)
     {
-      if (($server_data["app_data"]["players"][$i]["location_x"]==$start_x) and ($server_data["app_data"]["players"][$i]["location_y"]==$start_y))
+      if (($server_data["app_data"]["players"][$player]["location_x"]==$start_x) and ($server_data["app_data"]["players"][$player]["location_y"]==$start_y))
       {
         $occupied=True;
         break;
@@ -108,11 +123,8 @@ $player_init=function(&$server_data,$hostname)
     }
   }
   while ($occupied==True);
-  $record["location_x"]=$start_x;
-  $record["location_y"]=$start_y;
-  $server_data["app_data"]["players"][$hostname]=$record;
-  $server_data["app_data_updated"]=True;
-  return True;
+  $server_data["app_data"]["players"][$hostname]["location_x"]=$start_x;
+  $server_data["app_data"]["players"][$hostname]["location_y"]=$start_y;
 };
 
 #####################################################################################################
@@ -120,7 +132,43 @@ $player_init=function(&$server_data,$hostname)
 
 */
 
-$player_init($server_data,$unpacked["hostname"]);
+$hostname=$unpacked["hostname"];
+
+if (isset($server_data["app_data"]["players"][$hostname])==True)
+{
+  $player_init($server_data,$hostname);
+}
+
+$x=$server_data["app_data"]["players"][$hostname]["location_x"]+1;
+
+if ($x>=$server_data["app_data"]["map"]["width"])
+{
+  $x=0;
+}
+
+$server_data["app_data"]["players"][$hostname]["location_x"]=$x;
+
+$y=$server_data["app_data"]["players"][$hostname]["location_y"];
+
+foreach ($server_data["app_data"]["players"] as $player => $player_data)
+{
+  if (($server_data["app_data"]["players"][$player]["location_x"]==$x) and ($server_data["app_data"]["players"][$player]["location_y"]==$y))
+  {
+    $server_data["app_data"]["players"][$player]["deaths"]=$server_data["app_data"]["players"][$player]["deaths"]+1;
+    $server_data["app_data"]["players"][$hostname]["kills"]=$server_data["app_data"]["players"][$hostname]["kills"]+1;
+    $rand_loc($server_data,$player);
+    $killed_nick=users_get_nick($player);
+    $response["msg"][]="you killed \"$killed_nick\"";
+    break;
+  }
+}
+
+$server_data["app_data_updated"]=True;
+
+#####################################################################################################
+/*
+
+*/
 
 #####################################################################################################
 

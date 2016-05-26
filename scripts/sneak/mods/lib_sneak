@@ -62,7 +62,7 @@ $map_init=function(&$server_data)
 
 #####################################################################################################
 
-$player_init=function(&$server_data,$hostname) use (&$map_init)
+$player_init=function(&$server_data,$hostname) use (&$map_init,&$rand_loc)
 {
   if (isset($server_data["app_data"]["players"][$hostname])==True)
   {
@@ -87,14 +87,26 @@ $player_init=function(&$server_data,$hostname) use (&$map_init)
   $record=array();
   $record["hostname"]=$hostname;
   $record["init_timestamp"]=microtime(True);
+  $record["deaths"]=0;
+  $record["kills"]=0;
+  $server_data["app_data"]["players"][$hostname]=$record;
+  $rand_loc($server_data,$hostname);
+  $server_data["app_data_updated"]=True;
+  return True;
+};
+
+#####################################################################################################
+
+$rand_loc=function(&$server_data,$hostname)
+{
   do
   {
     $start_x=mt_rand(0,$server_data["app_data"]["map"]["width"]);
     $start_y=mt_rand(0,$server_data["app_data"]["map"]["height"]);
     $occupied=False;
-    for ($i=0;$i<count($server_data["app_data"]["players"]);$i++)
+    foreach ($server_data["app_data"]["players"] as $player => $player_data)
     {
-      if (($server_data["app_data"]["players"][$i]["location_x"]==$start_x) and ($server_data["app_data"]["players"][$i]["location_y"]==$start_y))
+      if (($server_data["app_data"]["players"][$player]["location_x"]==$start_x) and ($server_data["app_data"]["players"][$player]["location_y"]==$start_y))
       {
         $occupied=True;
         break;
@@ -102,11 +114,8 @@ $player_init=function(&$server_data,$hostname) use (&$map_init)
     }
   }
   while ($occupied==True);
-  $record["location_x"]=$start_x;
-  $record["location_y"]=$start_y;
-  $server_data["app_data"]["players"][$hostname]=$record;
-  $server_data["app_data_updated"]=True;
-  return True;
+  $server_data["app_data"]["players"][$hostname]["location_x"]=$start_x;
+  $server_data["app_data"]["players"][$hostname]["location_y"]=$start_y;
 };
 
 #####################################################################################################
