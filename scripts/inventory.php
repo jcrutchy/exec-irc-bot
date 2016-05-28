@@ -4,7 +4,7 @@
 
 /*
 exec:add ~inventory-internal
-exec:edit ~blah cmds INTERNAL
+exec:edit ~inventory-internal cmds INTERNAL
 exec:edit ~inventory-internal cmd php scripts/inventory.php %%trailing%% %%dest%% %%nick%% %%user%% %%hostname%% %%alias%% %%cmd%% %%timestamp%% %%server%%
 exec:enable ~inventory-internal
 init:~inventory-internal register-events
@@ -34,6 +34,18 @@ if ($trailing=="register-events")
   register_event_handler("PRIVMSG",":%%nick%% INTERNAL %%dest%% :~inventory-internal %%trailing%%");
   return;
 }
+
+$last_timestamp=get_bucket("<<INVENTORY_TIMESTAMP>>");
+if ($last_timestamp<>"")
+{
+  if ($timestamp-$last_timestamp)<mt_rand(3,8))
+  {
+    privmsg("please wait a few seconds before trying again");
+    return;
+  }
+}
+
+set_bucket("<<INVENTORY_TIMESTAMP>>",$timestamp);
 
 $fn=DATA_PATH."exec_inventory_data";
 
@@ -99,6 +111,10 @@ if (in_array($token,$prepositions)==False)
   return;
 }
 $item=trim(implode(" ",$parts));
+if ($item=="")
+{
+  return;
+}
 
 if (file_exists($fn)==True)
 {
