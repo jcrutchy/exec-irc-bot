@@ -99,6 +99,7 @@ $player_init=function(&$server_data,$hostname) use (&$map_init,&$rand_loc)
 
 $rand_loc=function(&$server_data,$hostname)
 {
+  # TODO: ADD TIMEOUT
   do
   {
     $start_x=mt_rand(0,$server_data["app_data"]["map"]["width"]);
@@ -116,6 +117,49 @@ $rand_loc=function(&$server_data,$hostname)
   while ($occupied==True);
   $server_data["app_data"]["players"][$hostname]["location_x"]=$start_x;
   $server_data["app_data"]["players"][$hostname]["location_y"]=$start_y;
+};
+
+#####################################################################################################
+
+$player_move=function(&$server_data,$hostname,$dx,$dy) use (&$player_init,&$player_status)
+{
+  if (isset($server_data["app_data"]["players"][$hostname])==True)
+  {
+    $player_init($server_data,$hostname);
+  }
+  $x=$server_data["app_data"]["players"][$hostname]["location_x"]+$dx;
+  $y=$server_data["app_data"]["players"][$hostname]["location_y"]+$dy;
+  if ($x>=$server_data["app_data"]["map"]["width"])
+  {
+    $x=0;
+  }
+  if ($y>=$server_data["app_data"]["map"]["height"])
+  {
+    $y=0;
+  }
+  $server_data["app_data"]["players"][$hostname]["location_x"]=$x;
+  $server_data["app_data"]["players"][$hostname]["location_y"]=$y;
+  foreach ($server_data["app_data"]["players"] as $player => $player_data)
+  {
+    if (($server_data["app_data"]["players"][$player]["location_x"]==$x) and ($server_data["app_data"]["players"][$player]["location_y"]==$y))
+    {
+      $server_data["app_data"]["players"][$player]["deaths"]=$server_data["app_data"]["players"][$player]["deaths"]+1;
+      $server_data["app_data"]["players"][$hostname]["kills"]=$server_data["app_data"]["players"][$hostname]["kills"]+1;
+      $rand_loc($server_data,$player);
+      $killed_nick=users_get_nick($player);
+      $response["msg"][]="you killed \"$killed_nick\"";
+      break;
+    }
+  }
+  $server_data["app_data_updated"]=True;
+  $player_status($server_data,$hostname);
+};
+
+#####################################################################################################
+
+$player_status=function(&$server_data,$hostname)
+{
+
 };
 
 #####################################################################################################
