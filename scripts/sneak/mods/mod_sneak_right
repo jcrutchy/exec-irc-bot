@@ -6,7 +6,7 @@
 mod:include lib_sneak
 */
 
-$player_move($server_data,$unpacked["hostname"],1,0);
+$player_move($server_data,$unpacked["hostname"],1,0,$response);
 
 #####################################################################################################
 

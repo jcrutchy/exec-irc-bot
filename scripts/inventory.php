@@ -55,6 +55,7 @@ $verbs=array(
   "hands",
   "offers",
   "puts",
+  "docks",
   "inserts",
   "shoves");
   
