@@ -38,7 +38,7 @@ if ($trailing=="register-events")
 $last_timestamp=get_bucket("<<INVENTORY_TIMESTAMP>>");
 if ($last_timestamp<>"")
 {
-  if ($timestamp-$last_timestamp)<mt_rand(3,8))
+  if (($timestamp-$last_timestamp)<mt_rand(3,8))
   {
     privmsg("please wait a few seconds before trying again");
     return;
