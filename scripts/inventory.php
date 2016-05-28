@@ -53,6 +53,7 @@ if ($trailing=="~inventory")
 $verbs=array(
   "gives",
   "hands",
+  "offers",
   "puts",
   "inserts",
   "shoves");
@@ -62,6 +63,8 @@ $prepositions=array(
   "to",
   "into",
   "toward",
+  "inside",
+  "of",
   "on",
   "over",
   "at");
@@ -98,6 +101,17 @@ if (in_array($token,$prepositions)==False)
 {
   return;
 }
+
+while (count($parts)>1)
+{
+  $token=strtolower(array_pop($parts));
+  if (in_array($token,$prepositions)==False)
+  {
+    $parts[]=$token;
+    break;
+  }
+}
+
 $item=trim(implode(" ",$parts));
 if ($item=="")
 {
