@@ -35,8 +35,6 @@ if ($trailing=="register-events")
   return;
 }
 
-set_bucket("<<INVENTORY_TIMESTAMP>>",$timestamp);
-
 $fn=DATA_PATH."exec_inventory_data";
 
 if ($trailing=="~inventory")
@@ -115,6 +113,8 @@ if ($last_timestamp<>"")
     return;
   }
 }
+
+set_bucket("<<INVENTORY_TIMESTAMP>>",$timestamp);
 
 if (file_exists($fn)==True)
 {
