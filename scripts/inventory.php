@@ -35,16 +35,6 @@ if ($trailing=="register-events")
   return;
 }
 
-$last_timestamp=get_bucket("<<INVENTORY_TIMESTAMP>>");
-if ($last_timestamp<>"")
-{
-  if (($timestamp-$last_timestamp)<mt_rand(3,8))
-  {
-    privmsg("please wait a few seconds before trying again");
-    return;
-  }
-}
-
 set_bucket("<<INVENTORY_TIMESTAMP>>",$timestamp);
 
 $fn=DATA_PATH."exec_inventory_data";
@@ -114,6 +104,16 @@ $item=trim(implode(" ",$parts));
 if ($item=="")
 {
   return;
+}
+
+$last_timestamp=get_bucket("<<INVENTORY_TIMESTAMP>>");
+if ($last_timestamp<>"")
+{
+  if (($timestamp-$last_timestamp)<mt_rand(3,8))
+  {
+    privmsg("please wait a few seconds before trying again");
+    return;
+  }
 }
 
 if (file_exists($fn)==True)
