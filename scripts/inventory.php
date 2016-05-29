@@ -76,6 +76,7 @@ $parts=explode(" ",$trailing);
 delete_empty_elements($parts);
 
 # ACTION shoves food in exec
+# TODO: ACTION gives exec a freedum sammich
 
 if (count($parts)<5)
 {
