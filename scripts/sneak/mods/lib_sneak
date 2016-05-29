@@ -121,15 +121,47 @@ $rand_loc=function(&$server_data,$hostname)
 
 #####################################################################################################
 
-$player_status=function(&$server_data,$hostname,&$response) use (&$player_init)
+$ranking_sort_callback=function($a,$b)
 {
-  if (isset($server_data["app_data"]["players"][$hostname])==True)
+  $a_result=$a["kills"]-$a["deaths"];
+  $b_result=$b["kills"]-$b["deaths"];
+  if ($a_result<>$b_result)
+  {
+    return ($b_result-$a_result);
+  }
+  else
+  {
+    return strcmp($a["hostname"],$b["hostname"]);
+  }
+};
+
+#####################################################################################################
+
+$update_ranking=function(&$server_data) use (&$ranking_sort_callback)
+{
+  #uasort($server_data["app_data"]["players"],$ranking_sort_callback);
+  $test_data=array(
+    "john"=>array("kills"=>1,"deaths"=>1,"hostname"=>"john"),
+    "ted"=>array("kills"=>2,"deaths"=>1,"hostname"=>"ted"),
+    "harry"=>array("kills"=>3,"deaths"=>1,"hostname"=>"harry"),
+    "bill"=>array("kills"=>1,"deaths"=>1,"hostname"=>"bill"),
+    "george"=>array("kills"=>6,"deaths"=>1,"hostname"=>"george"));
+  uasort($test_data,$ranking_sort_callback);
+  var_dump($test_data);
+};
+
+#####################################################################################################
+
+$player_status=function(&$server_data,$hostname,&$response) use (&$player_init,&$update_ranking)
+{
+  /*if (isset($server_data["app_data"]["players"][$hostname])==True)
   {
     $player_init($server_data,$hostname,$response);
   }
   $x=$server_data["app_data"]["players"][$hostname]["location_x"];
   $y=$server_data["app_data"]["players"][$hostname]["location_y"];
-  $response["msg"][]="sneak: $hostname => $x,$y";
+  $response["msg"][]="sneak: $hostname => $x,$y";*/
+  $update_ranking($server_data);
 };
 
 #####################################################################################################
