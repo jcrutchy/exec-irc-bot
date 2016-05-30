@@ -166,6 +166,11 @@ switch ($action)
       "trailing"=>implode(" ",$parts));
     $response=array();
     $response["msg"]=array();
+    require_once(APP_NAME."_test.php");
+    if (function_exists("init_test")==True)
+    {
+      init_test($server_data,$action);
+    }
     if (function_exists("server_start_handler")==True)
     {
       server_start_handler($server_data,$server,$clients,$connections);
@@ -174,6 +179,10 @@ switch ($action)
     for ($i=0;$i<count($response["msg"]);$i++)
     {
       privmsg($response["msg"][$i]);
+    }
+    if (function_exists("check_test")==True)
+    {
+      check_test($server_data,$action);
     }
     return;
   default:

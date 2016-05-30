@@ -139,15 +139,7 @@ $ranking_sort_callback=function($a,$b)
 
 $update_ranking=function(&$server_data) use (&$ranking_sort_callback)
 {
-  #uasort($server_data["app_data"]["players"],$ranking_sort_callback);
-  $test_data=array(
-    "john"=>array("kills"=>1,"deaths"=>1,"hostname"=>"john"),
-    "ted"=>array("kills"=>2,"deaths"=>1,"hostname"=>"ted"),
-    "harry"=>array("kills"=>3,"deaths"=>1,"hostname"=>"harry"),
-    "bill"=>array("kills"=>1,"deaths"=>1,"hostname"=>"bill"),
-    "george"=>array("kills"=>6,"deaths"=>1,"hostname"=>"george"));
-  uasort($test_data,$ranking_sort_callback);
-  var_dump($test_data);
+  uasort($server_data["app_data"]["players"],$ranking_sort_callback);
 };
 
 #####################################################################################################
