@@ -169,7 +169,7 @@ switch ($action)
     require_once(APP_NAME."_test.php");
     if (function_exists("init_test")==True)
     {
-      init_test($server_data,$action);
+      init_test($server_data,$action,$unpacked);
     }
     if (function_exists("server_start_handler")==True)
     {
@@ -182,7 +182,7 @@ switch ($action)
     }
     if (function_exists("check_test")==True)
     {
-      check_test($server_data,$action);
+      check_test($server_data,$action,$unpacked);
     }
     return;
   default:

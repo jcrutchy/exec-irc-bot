@@ -137,23 +137,47 @@ $ranking_sort_callback=function($a,$b)
 
 #####################################################################################################
 
-$update_ranking=function(&$server_data) use (&$ranking_sort_callback)
+$update_ranking=function(&$server_data,$hostname) use (&$ranking_sort_callback)
 {
   uasort($server_data["app_data"]["players"],$ranking_sort_callback);
+  $found=False;
+  $i=1;
+  foreach ($server_data["app_data"]["players"] as $player => $player_data)
+  {
+    if ($player===$hostname)
+    {
+      $found=True;
+      break;
+    }
+    $i++;
+  }
+  if ($found==True)
+  {
+    return $i;
+  }
+  else
+  {
+    return 0;
+  }
 };
 
 #####################################################################################################
 
 $player_status=function(&$server_data,$hostname,&$response) use (&$player_init,&$update_ranking)
 {
-  /*if (isset($server_data["app_data"]["players"][$hostname])==True)
+  if (isset($server_data["app_data"]["players"][$hostname])==False)
   {
     $player_init($server_data,$hostname,$response);
   }
   $x=$server_data["app_data"]["players"][$hostname]["location_x"];
   $y=$server_data["app_data"]["players"][$hostname]["location_y"];
-  $response["msg"][]="sneak: $hostname => $x,$y";*/
-  $update_ranking($server_data);
+  $i=$update_ranking($server_data,$hostname);
+  $nick=users_get_nick($hostname);
+  if ($nick=="")
+  {
+    $nick=$hostname;
+  }
+  $response["msg"][]="sneak: $nick => $x,$y [rank: $i]";
 };
 
 #####################################################################################################
