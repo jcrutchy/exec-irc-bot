@@ -154,4 +154,18 @@ function convert_kg_shitton($amount,$reverse=False)
 
 #####################################################################################################
 
+function convert_lighthour_m($amount,$reverse=False)
+{
+  if ($reverse==False)
+  {
+    convert_result($amount,round($amount*1.079e12,3),"light-hour","m");
+  }
+  else
+  {
+    convert_result($amount,round($amount/1.079e12,9),"m","light-hour");
+  }
+}
+
+#####################################################################################################
+
 ?>
