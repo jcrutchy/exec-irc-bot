@@ -49,10 +49,6 @@ $keep_days=3;
 
 if ($trailing=="list")
 {
-  if ($nick<>"crutchy")
-  {
-    return;
-  }
   refresh_list();
   privmsg("http://wiki.soylentnews.org/wiki/Storybot");
   return;
@@ -65,7 +61,6 @@ if ($cmd<>"INTERNAL")
 }
 
 delete_old();
-
 refresh_list();
 
 #####################################################################################################
