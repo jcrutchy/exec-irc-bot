@@ -46,6 +46,59 @@ function logout($return=False)
 
 #####################################################################################################
 
+function internal_logout($app_id)
+{
+  $response=wget(WIKI_HOST,"/w/api.php?action=logout&format=php",80);
+  $lines=explode("\n",$response);
+  $loggedout=False;
+  for ($i=0;$i<count($lines);$i++)
+  {
+    if ((substr($lines[$i],0,strlen("Set-Cookie"))=="Set-Cookie") and (strpos($lines[$i],"LoggedOut")!==False))
+    {
+      $loggedout=True;
+    }
+  }
+  unset_bucket($app_id."_wiki_login_cookieprefix");
+  unset_bucket($app_id."_wiki_login_sessionid");
+  if ($loggedout==True)
+  {
+    privmsg("wiki: successfully logged out");
+  }
+  else
+  {
+    privmsg("wiki: logout confirmation not received");
+  }
+}
+
+#####################################################################################################
+
+function internal_login($app_id)
+{
+  $user_params=explode("\n",file_get_contents("../pwd/wiki.bot"));
+  $params["lgname"]=$user_params[0];
+  $params["lgpassword"]=$user_params[1];
+  $response=wpost(WIKI_HOST,"/w/api.php?action=login&format=php",80,WIKI_USER_AGENT,$params);
+  $data=unserialize(strip_headers($response));
+  $headers["Cookie"]=login_cookie($data["login"]["cookieprefix"],$data["login"]["sessionid"]);
+  $params["lgtoken"]=$data["login"]["token"];
+  $response=wpost(WIKI_HOST,"/w/api.php?action=login&format=php",80,WIKI_USER_AGENT,$params,$headers);
+  $data=unserialize(strip_headers($response));
+  if ($data["login"]["result"]=="Success")
+  {
+    set_bucket($app_id."_wiki_login_cookieprefix",$data["login"]["cookieprefix"]);
+    set_bucket($app_id."_wiki_login_sessionid",$data["login"]["sessionid"]);
+    privmsg("wiki: login=".$data["login"]["result"].", username=".$data["login"]["lgusername"]." (userid=".$data["login"]["lguserid"].")");
+    return True;
+  }
+  else
+  {
+    privmsg("wiki: login=".$data["login"]["result"]);
+    return False;
+  }
+}
+
+#####################################################################################################
+
 function login($nick,$return=False)
 {
   global $wiki_admin_users;
@@ -79,6 +132,63 @@ function login($nick,$return=False)
   {
     wiki_privmsg($return,$msg);
     return False;
+  }
+}
+
+#####################################################################################################
+
+function internal_rewrite_page($app_id,$title,$text,$summary="")
+{
+  if ($title=="")
+  {
+    privmsg("wiki: internal_rewrite_page=empty title");
+    return;
+  }
+  $cookieprefix=get_bucket($app_id."_wiki_login_cookieprefix");
+  $sessionid=get_bucket($app_id."_wiki_login_sessionid");
+  if (($cookieprefix=="") or ($sessionid==""))
+  {
+    privmsg("wiki: internal_rewrite_page=not logged in");
+    return;
+  }
+  $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
+  $uri="/w/api.php?action=tokens&format=php";
+  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
+  $data=unserialize(strip_headers($response));
+  if (isset($data["tokens"]["edittoken"])==False)
+  {
+    privmsg("wiki: internal_rewrite_page=error getting edittoken");
+  }
+  $token=$data["tokens"]["edittoken"];
+  $uri="/w/api.php?action=edit";
+  # http://www.mediawiki.org/wiki/API:Edit#Parameters
+  $params=array(
+    "format"=>"php",
+    "title"=>$title,
+    "summary"=>$summary,
+    "text"=>$text,
+    "contentformat"=>"text/x-wiki",
+    "contentmodel"=>"wikitext",
+    "bot"=>"",
+    "token"=>$token);
+  $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
+  $data=unserialize(strip_headers($response));
+  if (isset($data["error"])==True)
+  {
+    privmsg("wiki: internal_rewrite_page=".$data["error"]["code"]);
+  }
+  else
+  {
+    $msg="wiki: internal_rewrite_page=".$data["edit"]["result"];
+    if (($data["edit"]["result"]=="Success") and (isset($data["edit"]["oldrevid"])==True) and (isset($data["edit"]["newrevid"])==True))
+    {
+      $msg=$msg.", oldrevid=".$data["edit"]["oldrevid"].", newrevid=".$data["edit"]["newrevid"];
+    }
+    else
+    {
+      $msg=$msg.", oldrevid/newrevid not found";
+    }
+    privmsg($msg);
   }
 }
 

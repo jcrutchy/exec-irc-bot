@@ -7,9 +7,9 @@
 #####################################################################################################
 
 /*
-#exec:~wiki|40|0|0|0|*||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
-#exec:~wiki-privmsg|40|0|0|0|||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
-#init:~wiki register-events
+exec:~wiki|40|0|0|0|*||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+exec:~wiki-privmsg|40|0|0|0|||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+init:~wiki register-events
 */
 
 #####################################################################################################
@@ -39,23 +39,21 @@ if ($trailing=="register-events")
 
 if ($alias=="~wiki-privmsg")
 {
-  if ($dest=="#wiki")
+  /*if ($dest=="#wiki")
   {
-    #$cmd=".blockuser ";
-    $cmd=".buttuser ";
+    $cmd=".blockuser ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_blockuser($nick,$trailing);
       return;
     }
-    #$cmd=".unblockuser ";
-    $cmd=".unbuttuser ";
+    $cmd=".unblockuser ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_unblockuser($nick,$trailing);
       return;
     }
-    /*$cmd=".delpage ";
+    $cmd=".delpage ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_delpage($nick,$trailing);
@@ -140,8 +138,8 @@ if ($alias=="~wiki-privmsg")
     {
       wiki_autospamctl($nick,$trailing);
       return;
-    }*/
-  }
+    }
+  }*/
   $delim1="[[";
   $delim2="]]";
   $parts=explode($delim1,$trailing);
@@ -180,7 +178,7 @@ if ($alias=="~wiki-privmsg")
   return;
 }
 
-$login=get_bucket("wiki_login_cookieprefix");
+/*$login=get_bucket("wiki_login_cookieprefix");
 
 if (strtolower($trailing)=="login")
 {
@@ -233,7 +231,7 @@ elseif ($login<>"")
 else
 {
   privmsg("wiki: not logged in");
-}
+}*/
 
 #####################################################################################################
 

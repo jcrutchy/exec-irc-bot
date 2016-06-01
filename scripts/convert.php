@@ -33,6 +33,12 @@ $amount=$parts[0];
 $from_unit=$parts[1];
 $to_unit=$parts[2];
 
+$from_unit=str_replace("-","",$from_unit);
+$to_unit=str_replace("-","",$to_unit);
+
+$from_unit=str_replace("_","",$from_unit);
+$to_unit=str_replace("_","",$to_unit);
+
 $func_name="convert_".strtolower($from_unit)."_".strtolower($to_unit);
 if (function_exists($func_name)==True)
 {
