@@ -62,7 +62,7 @@ function internal_logout($app_id)
   unset_bucket($app_id."_wiki_login_sessionid");
   if ($loggedout==True)
   {
-    privmsg("wiki: successfully logged out");
+    #privmsg("wiki: successfully logged out");
   }
   else
   {
@@ -87,7 +87,7 @@ function internal_login($app_id)
   {
     set_bucket($app_id."_wiki_login_cookieprefix",$data["login"]["cookieprefix"]);
     set_bucket($app_id."_wiki_login_sessionid",$data["login"]["sessionid"]);
-    privmsg("wiki: login=".$data["login"]["result"].", username=".$data["login"]["lgusername"]." (userid=".$data["login"]["lguserid"].")");
+    #privmsg("wiki: login=".$data["login"]["result"].", username=".$data["login"]["lgusername"]." (userid=".$data["login"]["lguserid"].")");
     return True;
   }
   else
@@ -142,14 +142,14 @@ function internal_rewrite_page($app_id,$title,$text,$summary="")
   if ($title=="")
   {
     privmsg("wiki: internal_rewrite_page=empty title");
-    return;
+    return False;
   }
   $cookieprefix=get_bucket($app_id."_wiki_login_cookieprefix");
   $sessionid=get_bucket($app_id."_wiki_login_sessionid");
   if (($cookieprefix=="") or ($sessionid==""))
   {
     privmsg("wiki: internal_rewrite_page=not logged in");
-    return;
+    return False;
   }
   $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
   $uri="/w/api.php?action=tokens&format=php";
@@ -187,9 +187,15 @@ function internal_rewrite_page($app_id,$title,$text,$summary="")
     else
     {
       $msg=$msg.", oldrevid/newrevid not found";
+      if (isset($data["edit"]["spamblacklist"])==True)
+      {
+        return $data["edit"]["spamblacklist"];
+      }
+      privmsg($msg);
     }
-    privmsg($msg);
+    #privmsg($msg);
   }
+  return True;
 }
 
 #####################################################################################################
