@@ -3,13 +3,13 @@
 #####################################################################################################
 
 /*
-exec:add ~submit-story
-exec:edit ~submit-story timeout 60
-exec:edit ~submit-story repeat 3600
-exec:edit ~submit-story accounts_wildcard *
-exec:edit ~submit-story servers irc.sylnt.us
-exec:edit ~submit-story cmd php scripts/storybot_submit.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
-exec:enable ~submit-story
+exec:add ~arthur
+exec:edit ~arthur timeout 60
+exec:edit ~arthur repeat 3600
+exec:edit ~arthur accounts_wildcard *
+exec:edit ~arthur servers irc.sylnt.us
+exec:edit ~arthur cmd php scripts/storybot_submit.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
+exec:enable ~arthur
 */
 
 #####################################################################################################
