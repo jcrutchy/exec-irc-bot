@@ -21,6 +21,10 @@ $alias=$argv[4];
 $cmd=$argv[5];
 $server=$argv[6];
 
+# sudo apt-get install php-pear php5-dev
+# sudo pecl install dio-beta
+# add "extension=dio.so" to php.ini
+
 switch ($trailing)
 {
   case "start":
