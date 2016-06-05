@@ -20,7 +20,9 @@ require_once("lib.php");
 
 privmsg("test");
 
-/*require_once("wiki_lib.php");
+return;
+
+require_once("wiki_lib.php");
 
 $trailing=trim($argv[1]);
 $dest=$argv[2];
@@ -346,7 +348,7 @@ function submit_story($id)
   }
   unlink($submit_story["full_filename"]);
   refresh_list();
-}*/
+}
 
 #####################################################################################################
 
