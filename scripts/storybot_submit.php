@@ -26,8 +26,8 @@ $cmd=$argv[5];
 
 $allowed=array("crutchy","cmn32480","chromas","themightybuzzard","bytram");
 
-$submit_host="dev.soylentnews.org";
-#$submit_host="soylentnews.org";
+#$submit_host="dev.soylentnews.org";
+$submit_host="soylentnews.org";
 
 $stories_path="/home/jared/git/storybot/Stories/";
 $stories_path_filename=DATA_PATH."storybot_path.txt";
