@@ -114,10 +114,10 @@ function build_story_list()
   $story_list=array();
   for ($i=0;$i<count($file_list);$i++)
   {
-    if ((($i%300)==0) and ($i<>0))
+    /*if ((($i%300)==0) and ($i<>0))
     {
-      privmsg("processing stories... $i");
-    }
+      privmsg("processing files... $i");
+    }*/
     $filename=$file_list[$i];
     if (($filename==".") or ($filename==".."))
     {
@@ -156,7 +156,7 @@ function build_story_list()
     $record["submit_content"]=$parts[0].$blockquote_delim."<blockquote>".$parts[1]."</blockquote>".PHP_EOL.PHP_EOL."-- submitted from IRC";
     $story_list[]=$record;
   }
-  privmsg(count($story_list)." stories loaded");
+  #privmsg(count($story_list)." stories loaded");
   $id_len=6;
   do
   {
@@ -367,7 +367,7 @@ function submit_story($id)
   }
   else
   {
-    privmsg("error: something went wrong with your submission");
+    privmsg("error: something went wrong with your submission - maybe try again in a minute");
     return;
   }
   unlink($submit_story["full_filename"]);
