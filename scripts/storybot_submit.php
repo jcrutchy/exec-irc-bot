@@ -111,8 +111,6 @@ function build_story_list()
   global $stories_path;
   global $blockquote_delim;
   $file_list=scandir($stories_path);
-  privmsg(count($file_list));
-  die;
   $story_list=array();
   for ($i=0;$i<count($file_list);$i++)
   {
@@ -153,6 +151,10 @@ function build_story_list()
     $record["raw_content"]=clean_text($content);
     $record["submit_content"]=$parts[0].$blockquote_delim."<blockquote>".$parts[1]."</blockquote>".PHP_EOL.PHP_EOL."-- submitted from IRC";
     $story_list[]=$record;
+    if (($i%10)==0)
+    {
+      privmsg("processing stories... $i");
+    }
   }
   $id_len=6;
   do
