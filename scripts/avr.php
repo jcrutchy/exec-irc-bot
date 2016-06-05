@@ -23,7 +23,7 @@ $server=$argv[6];
 
 # sudo apt-get install php-pear php5-dev
 # sudo pecl install dio-beta
-# add "extension=dio.so" to php.ini
+# add "extension=dio.so" to end of /etc/php5/cli/php.ini
 
 switch ($trailing)
 {
