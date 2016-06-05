@@ -114,7 +114,7 @@ function build_story_list()
   $story_list=array();
   for ($i=0;$i<count($file_list);$i++)
   {
-    if (($i%300)==0)
+    if ((($i%300)==0) and ($i<>0))
     {
       privmsg("processing stories... $i");
     }
