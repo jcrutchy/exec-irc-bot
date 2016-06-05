@@ -17,7 +17,10 @@ exec:enable ~arthur
 date_default_timezone_set("UTC");
 
 require_once("lib.php");
-require_once("wiki_lib.php");
+
+privmsg("test");
+
+/*require_once("wiki_lib.php");
 
 $trailing=trim($argv[1]);
 $dest=$argv[2];
@@ -343,7 +346,7 @@ function submit_story($id)
   }
   unlink($submit_story["full_filename"]);
   refresh_list();
-}
+}*/
 
 #####################################################################################################
 
