@@ -4,7 +4,7 @@
 
 /*
 exec:add ~arthur
-exec:edit ~arthur timeout 60
+exec:edit ~arthur timeout 600
 exec:edit ~arthur repeat 3600
 exec:edit ~arthur accounts_wildcard *
 exec:edit ~arthur cmd php scripts/storybot_submit.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
@@ -156,6 +156,7 @@ function build_story_list()
     $record["submit_content"]=$parts[0].$blockquote_delim."<blockquote>".$parts[1]."</blockquote>".PHP_EOL.PHP_EOL."-- submitted from IRC";
     $story_list[]=$record;
   }
+  privmsg("$story_list stories loaded");
   $id_len=6;
   do
   {
