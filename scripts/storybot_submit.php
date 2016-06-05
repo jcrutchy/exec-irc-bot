@@ -42,6 +42,12 @@ if (file_exists($stories_path)==False)
     return;
   }
   $stories_path_test=file_get_contents($stories_path_filename);
+  if ($stories_path_test===False)
+  {
+    privmsg("error reading stories path file: \"$stories_path_filename\"");
+    return;
+  }
+  $stories_path_test=rtrim($stories_path_test,"/");
   if (file_exists($stories_path_test)==False)
   {
     privmsg("stories path not found: \"$stories_path_test\"");
@@ -52,7 +58,7 @@ if (file_exists($stories_path)==False)
     privmsg("stories path isn't a directory: \"$stories_path_test\"");
     return;
   }
-  $stories_path=rtrim($stories_path_test,"/")."/";
+  $stories_path=$stories_path_test."/";
 }
 
 if (file_exists($stories_path)==False)
