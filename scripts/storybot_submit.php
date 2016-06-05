@@ -70,6 +70,8 @@ if (file_exists($stories_path)==False)
 
 $keep_days=3;
 
+privmsg("yes its working, at least up to line 73");
+
 if (in_array(strtolower($nick),$allowed)==True)
 {
   if ($trailing=="list")
