@@ -34,13 +34,24 @@ $stories_path_filename=DATA_PATH."storybot_path.txt";
 
 $blockquote_delim="<p>--- --- --- --- --- --- --- Entire Story Below --- --- --- --- --- --- --- <br><br></p>".PHP_EOL;
 
-if (file_exists($stories_path_filename)==False)
+if (file_exists($stories_path)==False)
 {
+  if (file_exists($stories_path_filename)==False)
+  {
+    privmsg("stories path not found, and stories path filename file not found: \"$stories_path_filename\"");
+    return;
+  }
   $stories_path_test=file_get_contents($stories_path_filename);
   if (($stories_path_test!==False) and (file_exists($stories_path_test)==True) and (is_dir($stories_path_test)==True))
   {
     $stories_path=rtrim($stories_path_test,"/")."/";
   }
+}
+
+if (file_exists($stories_path)==False)
+{
+  privmsg("stories path not found: \"$stories_path\"");
+  return;
 }
 
 $keep_days=3;
