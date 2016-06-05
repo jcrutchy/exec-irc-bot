@@ -4,7 +4,7 @@
 
 /*
 exec:add ~arthur
-#exec:edit ~arthur timeout 60
+exec:edit ~arthur timeout 60
 #exec:edit ~arthur repeat 3600
 #exec:edit ~arthur accounts_wildcard *
 #exec:edit ~arthur servers irc.sylnt.us
