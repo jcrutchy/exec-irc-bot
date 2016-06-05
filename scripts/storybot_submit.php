@@ -34,7 +34,7 @@ $stories_path_filename=DATA_PATH."storybot_path.txt";
 
 $blockquote_delim="<p>--- --- --- --- --- --- --- Entire Story Below --- --- --- --- --- --- --- <br><br></p>".PHP_EOL;
 
-if (file_exists($stories_path_filename)==True)
+if (file_exists($stories_path_filename)==False)
 {
   $stories_path_test=file_get_contents($stories_path_filename);
   if (($stories_path_test!==False) and (file_exists($stories_path_test)==True) and (is_dir($stories_path_test)==True))
