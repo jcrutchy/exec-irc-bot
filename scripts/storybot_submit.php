@@ -152,6 +152,8 @@ function build_story_list()
     $record["submit_content"]=$parts[0].$blockquote_delim."<blockquote>".$parts[1]."</blockquote>".PHP_EOL.PHP_EOL."-- submitted from IRC";
     $story_list[]=$record;
   }
+  privmsg(count($story_list));
+  die;
   $id_len=6;
   do
   {
@@ -167,8 +169,6 @@ function build_story_list()
   {
     $story_list[$i]["id"]=substr(sha1($story_list[$i]["url"].$story_list[$i]["title"]),0,$id_len-1);
   }
-  privmsg(count($story_list));
-  die;
   return $story_list;
 }
 
