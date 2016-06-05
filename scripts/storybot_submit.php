@@ -47,6 +47,7 @@ if (file_exists($stories_path)==False)
     privmsg("error reading stories path file: \"$stories_path_filename\"");
     return;
   }
+  $stories_path_test=trim($stories_path_test);
   $stories_path_test=rtrim($stories_path_test,"/");
   if (file_exists($stories_path_test)==False)
   {
