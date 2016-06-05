@@ -5,9 +5,9 @@
 /*
 exec:add ~submit-story
 exec:edit ~submit-story timeout 60
-exec:edit ~submit-story repeat 3600
-exec:edit ~submit-story accounts_wildcard *
-exec:edit ~submit-story servers irc.sylnt.us
+#exec:edit ~submit-story repeat 3600
+#exec:edit ~submit-story accounts_wildcard *
+#exec:edit ~submit-story servers irc.sylnt.us
 exec:edit ~submit-story cmd php scripts/storybot_submit.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
 exec:enable ~submit-story
 */
