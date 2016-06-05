@@ -70,8 +70,6 @@ if (file_exists($stories_path)==False)
 
 $keep_days=3;
 
-privmsg("yes its working, at least up to line 73");
-
 if (in_array(strtolower($nick),$allowed)==True)
 {
   if ($trailing=="list")
@@ -169,6 +167,8 @@ function build_story_list()
   {
     $story_list[$i]["id"]=substr(sha1($story_list[$i]["url"].$story_list[$i]["title"]),0,$id_len-1);
   }
+  privmsg(count($story_list));
+  die;
   return $story_list;
 }
 
