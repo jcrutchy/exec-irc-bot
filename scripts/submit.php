@@ -4,7 +4,6 @@
 
 /*
 exec:~submit|120|0|0|1|*||||php scripts/submit.php %%trailing%% %%dest%% %%nick%% %%alias%%
-#exec:~submit-advert|21600|0|0|1|*||||php scripts/submit.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~filter|120|0|0|1|*||||php scripts/submit.php %%trailing%% %%dest%% %%nick%% %%alias%%
 */
 
@@ -19,12 +18,6 @@ $trailing=$argv[1];
 $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
-
-if ($alias=="~submit-advert")
-{
-  pm("#soylent","*** to try automagically submitting a story to SoylentNews: ~submit <url>");
-  return;
-}
 
 if ($trailing=="")
 {
@@ -228,7 +221,7 @@ if ($reskey===False)
   return;
 }
 
-sleep(25);
+sleep(30);
 
 $params=array();
 $params["reskey"]=$reskey;
@@ -262,8 +255,6 @@ else
 {
   privmsg("error: something went wrong with your submission");
 }
-
-# TODO: testing... much more testing
 
 #####################################################################################################
 
