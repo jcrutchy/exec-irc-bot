@@ -4,6 +4,7 @@ $cols=500;
 $rows=500;
 
 $coords=generate_maze($cols,$rows);
+file_put_contents("testmap.txt",$coords);
 if (map_img($coords,$cols,$rows)===False)
 {
   echo "map error".PHP_EOL;
@@ -38,6 +39,7 @@ function generate_maze($cols,$rows)
   $branch=array();
   $x=mt_rand(0,$cols-1);
   $y=mt_rand(0,$rows-1);
+  #$test=0;
   do
   {
     #echo "$x,$y".PHP_EOL;
@@ -89,9 +91,17 @@ function generate_maze($cols,$rows)
     #echo $allow.PHP_EOL;
     if ($allow=="0000")
     {
-      $x=mt_rand(0,$cols-1);
-      $y=mt_rand(0,$rows-1);
-      continue;
+      if (count($branch)>0)
+      {
+        $c=array_shift($branch);
+        $x=$c["x"];
+        $y=$c["y"];
+        continue;
+      }
+      else
+      {
+        break;
+      }
     }
     do
     {
@@ -120,6 +130,11 @@ function generate_maze($cols,$rows)
     }
     $x=$x+$dir_x[$d];
     $y=$y+$dir_y[$d];
+    /*$test++;
+    if ($test>=300)
+    {
+      break;
+    }*/
   }
   while (substr_count($coords,$open_char)>0);
   /*for ($i=0;$i<$rows;$i++)

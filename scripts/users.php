@@ -51,6 +51,7 @@ switch ($cmd)
     $subject_nick=strtolower(trim($trailing));
     $account=users_get_account($subject_nick);
     $user=users_get_data($subject_nick);
+    #var_dump($user);
     if (isset($user["channels"])==True)
     {
       $channels=array_keys($user["channels"]);

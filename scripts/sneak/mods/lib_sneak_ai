@@ -2,6 +2,99 @@
 
 #####################################################################################################
 
+function init_ai()
+{
+  global $player_data;
+  $ai_accounts=array("AI_Player_1","AI_Player_2","AI_Player_3","AI_Player_4","AI_Player_5");
+  for ($i=0;$i<count($ai_accounts);$i++)
+  {
+    player_init($ai_accounts[$i]);
+    $player_data[$ai_accounts[$i]]["flags"]["logging"]="";
+    unset($player_data[$ai_accounts[$i]]["flags"]["irc_messages"]);
+  }
+}
+
+#####################################################################################################
+
+function test_ai($turns)
+{
+  $ai_accounts=array("AI_Player_1","AI_Player_2","AI_Player_3","AI_Player_4","AI_Player_5");
+  for ($n=1;$n<=$turns;$n++)
+  {
+    for ($i=0;$i<count($ai_accounts);$i++)
+    {
+      move_ai($ai_accounts[$i]);
+    }
+  }
+  irciv_privmsg("ai player moves complete");
+}
+
+#####################################################################################################
+
+function move_ai($account)
+{
+  global $player_data;
+  global $map_data;
+  if (player_ready($account)==False)
+  {
+    irciv_privmsg("player $account not ready");
+    return;
+  }
+  unset($player_data[$account]["path"]);
+  if (isset($player_data[$account]["active"])==False)
+  {
+    irciv_privmsg("player $account has no active unit");
+    return;
+  }
+  $active=$player_data[$account]["active"];
+  $start=array();
+  $start["x"]=$player_data[$account]["units"][$active]["x"];
+  $start["y"]=$player_data[$account]["units"][$active]["y"];
+  $paths=array();
+  foreach ($player_data as $enemy_account=>$enemy_data)
+  {
+    if ($enemy_account==$account)
+    {
+      continue;
+    }
+    $path=array();
+    $finish=array();
+    $finish["x"]=$player_data[$enemy_account]["units"][0]["x"];
+    $finish["y"]=$player_data[$enemy_account]["units"][0]["y"];
+    if (find_path($path,$start,$finish)==False)
+    {
+      $player_data[$account]["status_messages"][]="no path exists between $account and $enemy_account";
+      status($account);
+      continue;
+    }
+    if (count($path)<=1)
+    {
+      $player_data[$account]["status_messages"][]="no path exists between $account and $enemy_account";
+      status($account);
+      continue;
+    }
+    $paths[]=$path;
+  }
+  $min_path_length=$map_data["cols"]*$map_data["rows"];
+  $min_path=-1;
+  for ($i=0;$i<count($paths);$i++)
+  {
+    if (count($paths[$i])<$min_path_length)
+    {
+      $min_path=$i;
+      $min_path_length=count($paths[$i]);
+    }
+  }
+  if ($min_path>=0)
+  {
+    $player_data[$account]["path"]=$paths[$min_path];
+    $dir=$paths[$min_path][1]["dir"];
+    move_active_unit($account,$dir);
+  }
+}
+
+#####################################################################################################
+
 $find_path=function(&$map_data,&$path,$start,$finish)
 {
   # up,right,down,left
