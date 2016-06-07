@@ -1,7 +1,10 @@
 <?php
 
-$coords=generate_maze(100,100);
-if (map_img($coords,100,100)===False)
+$cols=500;
+$rows=500;
+
+$coords=generate_maze($cols,$rows);
+if (map_img($coords,$cols,$rows)===False)
 {
   echo "map error".PHP_EOL;
 }
@@ -119,10 +122,10 @@ function generate_maze($cols,$rows)
     $y=$y+$dir_y[$d];
   }
   while (substr_count($coords,$open_char)>0);
-  for ($i=0;$i<$rows;$i++)
+  /*for ($i=0;$i<$rows;$i++)
   {
     echo substr($coords,$i*$cols,$cols).PHP_EOL;
-  }
+  }*/
   return $coords;
 }
 
