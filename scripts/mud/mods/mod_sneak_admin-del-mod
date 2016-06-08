@@ -1,0 +1,37 @@
+<?php
+
+#####################################################################################################
+
+/*
+mod:include lib_sneak
+*/
+
+if ($is_admin($server_data,$unpacked["hostname"])==False)
+{
+  $response["msg"][]="sneak: not authorized admin";
+  return;
+}
+
+$hostname=users_get_hostname($unpacked["trailing"]);
+if ($hostname=="")
+{
+  $response["msg"][]="sneak: user not found";
+  return;
+}
+
+$index=array_search($hostname,$server_data["app_data"]["moderators"],True);
+
+if ($index===False)
+{
+  $response["msg"][]="sneak: hostname \"$hostname\" not found in mod list";
+  return;
+}
+
+unset($server_data["app_data"]["moderators"][$index]);
+$server_data["app_data"]["moderators"]=array_values($server_data["app_data"]["moderators"]);
+$server_data["app_data_updated"]=True;
+$response["msg"][]="sneak: deleted hostname \"$hostname\" from mod list";
+
+#####################################################################################################
+
+?>
