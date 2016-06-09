@@ -88,7 +88,7 @@ if (in_array(strtolower($nick),$allowed)==True)
 delete_old();
 refresh_list();
 
-pm("#editorial","http://wiki.soylentnews.org/wiki/Storybot has been updated");
+pm("#exec","http://wiki.soylentnews.org/wiki/Storybot has been updated");
 
 #####################################################################################################
 

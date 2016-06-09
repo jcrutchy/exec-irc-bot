@@ -16,7 +16,7 @@ help:~storybot|arthur
 
 require_once("lib.php");
 
-pm("#editorial","arthur is processing stories");
+pm("#exec","arthur is processing stories");
 
 #####################################################################################################
 
