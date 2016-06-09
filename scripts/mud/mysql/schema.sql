@@ -8,6 +8,8 @@ CREATE TABLE `exec_mud`.`players` (
   `create_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `status` integer unsigned NOT NULL,
   `game_id` integer unsigned NOT NULL,
+  PRIMARY KEY (`player_id`),
+  INDEX `create_timestamp` (`create_timestamp` ASC),
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 CREATE TABLE `exec_mud`.`maps` (
@@ -16,13 +18,9 @@ CREATE TABLE `exec_mud`.`maps` (
   `create_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `width` integer unsigned NOT NULL,
   `height` integer unsigned NOT NULL,
-  `coords` varchar(65535) NOT NULL,
-) ENGINE=InnoDB AUTO_INCREMENT=1;
-
-CREATE TABLE `exec_mud`.`moderators` (
-  `moderator_id` integer unsigned NOT NULL AUTO_INCREMENT,
-  `create_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `player_id` integer unsigned NOT NULL,
+  `coords` mediumtext NOT NULL,
+  PRIMARY KEY (`map_id`),
+  INDEX `create_timestamp` (`create_timestamp` ASC),
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 CREATE TABLE `exec_mud`.`moves` (
@@ -32,6 +30,8 @@ CREATE TABLE `exec_mud`.`moves` (
   `game_id` integer unsigned NOT NULL,
   `coord` integer unsigned NOT NULL,
   `previous_move_id` integer unsigned NOT NULL,
+  PRIMARY KEY (`move_id`),
+  INDEX `create_timestamp` (`create_timestamp` ASC),
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 CREATE TABLE `exec_mud`.`games` (
@@ -40,6 +40,8 @@ CREATE TABLE `exec_mud`.`games` (
   `create_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `map_id` integer unsigned NOT NULL,
   `status` integer unsigned NOT NULL,
+  PRIMARY KEY (`game_id`),
+  INDEX `create_timestamp` (`create_timestamp` ASC),
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 

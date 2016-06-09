@@ -1,7 +1,0 @@
-exec:add ~storybot
-exec:edit ~storybot timeout 1800
-exec:edit ~storybot repeat 3600
-exec:edit ~storybot cmds INTERNAL
-exec:edit ~storybot cmd { PYTHONIOENCODING=utf_8 ; export PYTHONIOENCODING ; cd /home/jared/git/storybot/ ; python storybot.py ; } 2>&1
-exec:enable ~storybot
-help:~storybot|arthur

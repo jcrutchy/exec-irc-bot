@@ -88,6 +88,8 @@ if (in_array(strtolower($nick),$allowed)==True)
 delete_old();
 refresh_list();
 
+pm("#editorial","http://wiki.soylentnews.org/wiki/Storybot has been updated");
+
 #####################################################################################################
 
 function url_exists(&$story_list,$url)
