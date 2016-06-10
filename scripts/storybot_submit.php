@@ -80,6 +80,12 @@ if (in_array(strtolower($nick),$allowed)==True)
   }
   if ($cmd<>"INTERNAL")
   {
+    $last=get_bucket("<<arthur_last_submit_timestamp>>");
+    $d=microtime(True)-$last;
+    if ($d<60)
+    {
+      privmsg("it has been only $d seconds since the last submission - please wait");
+    }
     submit_story($trailing);
     return;
   }
@@ -373,6 +379,7 @@ function submit_story($id)
     return;
   }
   unlink($submit_story["full_filename"]);
+  set_bucket("<<arthur_last_submit_timestamp>>",microtime(True));
   refresh_list();
 }
 

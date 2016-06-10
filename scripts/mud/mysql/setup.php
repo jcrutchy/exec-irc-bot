@@ -2,7 +2,7 @@
 
 define("DB_HOST","localhost");
 define("DB_USER","root");
-define("DB_PASSWORD",trim(file_get_contents("../../../pwd/mysql_root")));
+define("DB_PASSWORD",trim(file_get_contents("../../../../pwd/mysql_root")));
 
 $pdo=new PDO("mysql:host=".DB_HOST,DB_USER,DB_PASSWORD);
 if ($pdo===False)
@@ -13,7 +13,7 @@ else
 {
   echo "CONNECTED\n";
 }
-$sql=file_get_contents("schema_comments.sql");
+$sql=file_get_contents("schema.sql");
 $result=$pdo->exec($sql);
 if ($result===False)
 {
