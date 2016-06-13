@@ -3,12 +3,12 @@
 #####################################################################################################
 
 /*
-exec:add ~sneak-server
-exec:edit ~sneak-server timeout 0
-exec:edit ~sneak-server cmd php scripts/sneak/sneak_server.php %%trailing%% %%nick%% %%dest%% %%server%% %%hostname%% %%alias%% %%cmd%%
-exec:enable ~sneak-server
-startup:~join #sneak
-startup:~sneak-server start
+#exec:add ~sneak-server
+#exec:edit ~sneak-server timeout 0
+#exec:edit ~sneak-server cmd php scripts/sneak/sneak_server.php %%trailing%% %%nick%% %%dest%% %%server%% %%hostname%% %%alias%% %%cmd%%
+#exec:enable ~sneak-server
+#startup:~join #sneak
+#startup:~sneak-server start
 */
 
 # sneak is an irc game where each player aims to increase their kills by moving into the same coordinate as other players
