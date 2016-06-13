@@ -151,6 +151,12 @@ foreach ($filters as $id => $filter)
   $filters[$id]=unserialize(base64_decode($filter));
 }
 
+$bot_nick=get_bot_nick();
+if ($bot_nick<>"exec")
+{
+  return;
+}
+
 $host="soylentnews.org";
 $feed_uri="/index.xml";
 $port=443;

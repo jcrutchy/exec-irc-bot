@@ -29,12 +29,39 @@ function get_last_error()
 
 #####################################################################################################
 
-function sql_insert($items,$table)
+function sql_insert($items,$table,$schema=BOT_SCHEMA)
 {
   $fieldnames=array_keys($items);
   $placeholders=array_map("callback_prepare",$fieldnames);
   $fieldnames=array_map("callback_quote",$fieldnames);
-  execute_prepare("INSERT INTO ".BOT_SCHEMA.".$table (".implode(",",$fieldnames).") VALUES (".implode(",",$placeholders).")",$items);
+  execute_prepare("INSERT INTO `$schema`.`$table` (".implode(",",$fieldnames).") VALUES (".implode(",",$placeholders).")",$items);
+}
+
+#####################################################################################################
+
+function sql_delete($items,$table,$schema=BOT_SCHEMA)
+{
+  $fieldnames=array_keys($items);
+  $placeholders=array_map("callback_prepare",$fieldnames);
+  $fieldnames=array_map("callback_quote",$fieldnames);
+  execute_prepare("DELETE FROM `$schema`.`$table` WHERE (".build_prepared_where($items).")",$items);
+}
+
+#####################################################################################################
+
+function sql_update($value_items,$where_items,$table,$schema=BOT_SCHEMA)
+{
+  $value_fieldnames=array_keys($value_items);
+  $value_placeholders=array_map("callback_prepare",$value_fieldnames);
+  $value_fieldnames=array_map("callback_quote",$value_fieldnames);
+  $values_array=array();
+  for ($i=0;$i<count($value_items);$i++)
+  {
+    $result[]=$value_fieldnames[$i]."=".$value_placeholders[$i];
+  }
+  $values_string=implode(",",$values_array);
+  $items=array_merge($value_items,$where_items);
+  execute_prepare("UPDATE `$schema`.`$table` SET $values_string WHERE (".build_prepared_where($where_items).")",$items);
 }
 
 #####################################################################################################
@@ -49,6 +76,21 @@ function callback_quote($field)
 function callback_prepare($field)
 {
   return ":$field";
+}
+
+#####################################################################################################
+
+function build_prepared_where($items)
+{
+  $fieldnames=array_keys($items);
+  $placeholders=array_map("callback_prepare",$fieldnames);
+  $fieldnames=array_map("callback_quote",$fieldnames);
+  $result=array();
+  for ($i=0;$i<count($items);$i++)
+  {
+    $result[]="(".$fieldnames[$i]."=".$placeholders[$i].")";
+  }
+  return implode(" ",$result);
 }
 
 #####################################################################################################

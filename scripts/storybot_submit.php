@@ -91,6 +91,12 @@ if (in_array(strtolower($nick),$allowed)==True)
   }
 }
 
+$bot_nick=get_bot_nick();
+if ($bot_nick<>"exec")
+{
+  return;
+}
+
 delete_old();
 refresh_list();
 
