@@ -45,11 +45,11 @@ if (count($map_file)<>6)
   return;
 }
 $map_data=array();
-$map_data["char_path"]=trim($map_file[0]);
-$map_data["char_wall"]=trim($map_file[1]);
-$map_data["char_open"]=trim($map_file[2]);
-$map_data["cols"]=trim($map_file[3]);
-$map_data["rows"]=trim($map_file[4]);
+$map_data["char_path"]=substr(trim($map_file[0]),strlen("char_path="));
+$map_data["char_wall"]=substr(trim($map_file[1]),strlen("char_wall="));
+$map_data["char_open"]=substr(trim($map_file[2]),strlen("char_open="));
+$map_data["cols"]=substr(trim($map_file[3]),strlen("cols="));
+$map_data["rows"]=substr(trim($map_file[4]),strlen("rows="));
 $map_data["coords"]=trim($map_file[5]);
 if (strlen($map_data["coords"])<>($map_data["cols"]*$map_data["rows"]))
 {
@@ -57,40 +57,112 @@ if (strlen($map_data["coords"])<>($map_data["cols"]*$map_data["rows"]))
   return;
 }
 
+$parts=explode(" ",$trailing);
+$action=array_shift($parts);
+switch ($action)
+{
+  case "u":
+  case "up":
+  
+    break;
+  case "d":
+  case "down":
+  
+    break;
+  case "l":
+  case "left":
+  
+    break;
+  case "r":
+  case "right":
+  
+    break;
+  case "init":
+    mud_init_player($hostname,$map_data);
+    break;
+  case "die":
+    mud_delete_player($hostname);
+    break;
+  case "status":
+  
+    break;
+  case "ranks":
+  
+    break;
+  case "player-list":
+  
+    break;
+  case "help":
+  
+    break;
+  case "list-gms":
+  
+    break;
+  case "gm-view-map":
+  
+    break;
+}
+
 #####################################################################################################
 
 function mud_query_player($hostname)
 {
   $params=array("hostname"=>$hostname);
-  return fetch_prepare("SELECT * FROM `exec_mud`.`mud_players` WHERE (`hostname`=:hostname) LIMIT 1",$params); # returns False on error
+  $result=fetch_prepare("SELECT * FROM `exec_mud`.`mud_players` WHERE (`hostname`=:hostname)",$params);
+  if ($result===False)
+  {
+    privmsg("player query error");
+  }
+  return $result;
 }
 
 #####################################################################################################
 
 function mud_query_players()
 {
-  return fetch_query("SELECT * FROM `exec_mud`.`mud_players`"); # returns False on error
+  $result=fetch_query("SELECT * FROM `exec_mud`.`mud_players`");
+  if ($result===False)
+  {
+    privmsg("players query error");
+  }
+  return $result;
+}
+
+#####################################################################################################
+
+function check_player($hostname)
+{
+  $result=mud_query_player($hostname);
+  if ($exist===False)
+  {
+    return False;
+  }
+  if (isset($exist["hostname"])==True)
+  {
+    privmsg("player already exists");
+    return False;
+  }
+  return $result;
 }
 
 #####################################################################################################
 
 function mud_init_player($hostname,&$map_data)
 {
-  $exist=mud_query_player($hostname);
+  $exist=check_player($hostname);
   if ($exist===False)
   {
-    privmsg("mud_query_player error");
-    return;
-  }
-  if (isset($exist["hostname"])==True)
-  {
-    privmsg("player already exists");
     return;
   }
   $exist_players=mud_query_players();
-  $items=array("hostname"=>$hostname,"x_coord"=>-1,"x_coord"=>-1);
+  if ($exist_players===False)
+  {
+    return;
+  }
+  $items=array("hostname"=>$hostname,"x_coord"=>-1,"x_coord"=>-1,"deaths"=>0,"kills"=>0);
   mud_player_start_location($items,$exist_players,$map_data);
   sql_insert($items,"players","exec_mud");
+  privmsg("initialized player");
 }
 
 #####################################################################################################
@@ -99,39 +171,112 @@ function mud_delete_player($hostname)
 {
   $items=array("hostname"=>$hostname);
   sql_delete($items,"players","exec_mud");
+  privmsg("deleted player");
 }
 
 #####################################################################################################
 
-function mud_update_player($hostname,$x,$y)
+function mud_update_player($hostname,$x,$y,$deaths,$kills)
 {
-  $value_items=array("x_coord"=>$x,"x_coord"=>$y);
+  $value_items=array("x_coord"=>$x,"x_coord"=>$y,"deaths"=>$deahts,"kills"=>$kills);
   $where_items=array("hostname"=>$hostname);
   sql_update($value_items,$where_items,"players","exec_mud");
 }
 
 #####################################################################################################
 
-function mud_player_start_location(&$new_player,&$exist_players,&$map_data)
+function player_move($hostname,$dx,$dy,&$map_data)
 {
-  do
+  $exist=check_player($hostname);
+  if ($exist===False)
   {
-    $start_x=mt_rand(0,$map_data["cols"]);
-    $start_y=mt_rand(0,$map_data["rows"]);
-    $invalid=False;
-    for ($i=0;$i<count($exist_players);$i++)
+    return;
+  }
+  $exist_players=mud_query_players();
+  if ($exist_players===False)
+  {
+    return;
+  }
+  $x=$exist["x_coord"]+$dx;
+  $y=$exist["y_coord"]+$dy;
+  if (($x>=$map_data["cols"]) or ($y>=$map_data["rows"]))
+  {
+    privmsg("move error: edge of map");
+    return;
+  }
+  $c=mud_map_coord($map_data["cols"],$exist["x_coord"],$exist["y_coord"]);
+  if ($map_data[$c]<>$map_data["char_path"])
+  {
+    privmsg("move error: obstacle");
+    return;
+  }
+  $kills=$exist["kills"];
+  for ($i=0;$i<count($exist_players);$i++)
+  {
+    if (($exist_players[$i]["x_coord"]==$x) and ($exist_players[$i]["y_coord"]==$y))
     {
-      if (($exist_players[$i]["x_coord"]==$start_x) and ($exist_players[$i]["y_coord"]==$start_y))
+      if ($exist_players[$i]["hostname"]<>$hostname)
       {
-        $invalid=True;
+        $killed=$exist_players[$i];
+        mud_player_start_location($killed,$exist_players,$map_data);
+        mud_update_player($killed["hostname"],$killed["x_coord"],$killed["y_coord"],$killed["deaths"]+1,$killed["kills"]);
+        $kills++;
+        $killed_nick=users_get_nick($killed["hostname"]);
+        privmsg("you killed \"$killed_nick\"");
         break;
       }
     }
-    # check for obstacle
   }
-  while ($invalid==True);
-  $player_data["x_coord"]=$start_x;
-  $player_data["y_coord"]=$start_y;
+  mud_update_player($hostname,$x,$y,$exist["deaths"],$kills);
+  # show status
+}
+
+#####################################################################################################
+
+function mud_player_start_location(&$new_player,&$exist_players,&$map_data)
+{
+  $invalid=False;
+  $start=microtime(True);
+  do
+  {
+    $new_player["x_coord"]=mt_rand(0,$map_data["cols"]);
+    $new_player["y_coord"]=mt_rand(0,$map_data["rows"]);
+    # check for obstacle
+    $c=mud_map_coord($map_data["cols"],$new_player["x_coord"],$new_player["y_coord"]);
+    if ($map_data[$c]<>$map_data["char_path"])
+    {
+      $invalid=True;
+      break;
+    }
+    # check if coord or neighbouring coords are occupied
+    $dir_x=array(0,0,1,0,-1);
+    $dir_y=array(0,-1,0,1,0);
+    for ($i=0;$i<count($exist_players);$i++)
+    {
+      for ($j=0;$j<4;$j++)
+      {
+        $x=$new_player["x_coord"]+$dir_x[$j];
+        $y=$new_player["y_coord"]+$dir_y[$j];
+        if (($x==$exist_players[$i]["x_coord"]) and ($y==$exist_players[$i]["y_coord"]))
+        {
+          $invalid=True;
+          break 3;
+        }
+      }
+    }
+  }
+  while ((microtime(True)-$start)<20);
+  if ($invalid==True)
+  {
+    $player_data["x_coord"]=-1;
+    $player_data["y_coord"]=-1;
+    privmsg("error: timed out looking for a random start location on the map");
+    return False;
+  }
+  else
+  {
+    return True;
+  }
 }
 
 #####################################################################################################
