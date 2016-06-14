@@ -211,7 +211,7 @@ function mud_init_player($hostname,&$map_data)
   {
     return;
   }
-  $items=array("hostname"=>$hostname,"x_coord"=>-1,"x_coord"=>-1,"deaths"=>0,"kills"=>0);
+  $items=array("hostname"=>$hostname,"x_coord"=>-1,"x_coord"=>-1,"deaths"=>0,"kills"=>0,"gm"=>0);
   mud_player_start_location($items,$players,$map_data);
   sql_insert($items,"players","exec_mud");
   privmsg("initialized player");
@@ -228,9 +228,9 @@ function mud_delete_player($hostname)
 
 #####################################################################################################
 
-function mud_update_player($hostname,$x,$y,$deaths,$kills)
+function mud_update_player($hostname,$x,$y,$deaths,$kills,$gm=0)
 {
-  $value_items=array("x_coord"=>$x,"x_coord"=>$y,"deaths"=>$deahts,"kills"=>$kills);
+  $value_items=array("x_coord"=>$x,"x_coord"=>$y,"deaths"=>$deahts,"kills"=>$kills,"gm"=>$gm);
   $where_items=array("hostname"=>$hostname);
   sql_update($value_items,$where_items,"players","exec_mud");
 }
