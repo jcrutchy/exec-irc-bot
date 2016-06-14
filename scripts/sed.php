@@ -18,13 +18,6 @@ $dest=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];
 
-if ($cmd=="INTERNAL")
-{
-  return;
-}
-
-# EXPLOIT FOUND (17/05/2015): s/.*/ls/e executes an 'ls' command; s/.*/ps/e executes an 'ps' command. touch doesn't seem to work, but need to prevent the use of /e (or use awk/perl)
-
 $delims=array("/","#"); # cannot be alphanumeric or \
 
 $msg="";

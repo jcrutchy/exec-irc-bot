@@ -38,6 +38,11 @@ if (file_exists($map_filename)==False)
   return;
 }
 $map_file=file_get_contents($map_filename);
+if ($map_file===False)
+{
+  privmsg("error reading map file");
+  return;
+}
 $map_file=explode(PHP_EOL,trim($map_file));
 if (count($map_file)<>6)
 {
@@ -84,7 +89,17 @@ switch ($action)
     mud_delete_player($hostname);
     break;
   case "status":
-  
+    $player=check_player($hostname);
+    if ($player===False;
+    {
+      return;
+    }
+    $players=mud_query_players();
+    if ($players===False)
+    {
+     return;
+    }
+    player_status($player,$players);
     break;
   case "ranks":
   
@@ -101,6 +116,43 @@ switch ($action)
   case "gm-view-map":
   
     break;
+  case "admin-set-gm":
+    if (is_admin($hostname,$server)==True)
+    {
+    
+    }
+    break;
+}
+
+#####################################################################################################
+
+function is_admin($hostname,$server)
+{
+  $user="$hostname $server";
+  $admins_filename=DATA_PATH."mud_admins.txt";
+  if (file_exists($admins_filename)==False)
+  {
+    privmsg("admins file not found");
+    return False;
+  }
+  $admin_users=file_get_contents($admins_filename);
+  if ($admin_users===False)
+  {
+    privmsg("error reading admins file");
+    return False;
+  }
+  $admin_users=json_decode($admin_users,True);
+  if ($admin_users===Null)
+  {
+    privmsg("error decoding admins file");
+    return False;
+  }
+  if (in_array($user,$admin_users)==False)
+  {
+    privmsg("not authorized");
+    return False;
+  }
+  return True;
 }
 
 #####################################################################################################
@@ -149,18 +201,18 @@ function check_player($hostname)
 
 function mud_init_player($hostname,&$map_data)
 {
-  $exist=check_player($hostname);
-  if ($exist===False)
+  $player=check_player($hostname);
+  if ($player===False)
   {
     return;
   }
-  $exist_players=mud_query_players();
-  if ($exist_players===False)
+  $players=mud_query_players();
+  if ($players===False)
   {
     return;
   }
   $items=array("hostname"=>$hostname,"x_coord"=>-1,"x_coord"=>-1,"deaths"=>0,"kills"=>0);
-  mud_player_start_location($items,$exist_players,$map_data);
+  mud_player_start_location($items,$players,$map_data);
   sql_insert($items,"players","exec_mud");
   privmsg("initialized player");
 }
@@ -187,38 +239,38 @@ function mud_update_player($hostname,$x,$y,$deaths,$kills)
 
 function player_move($hostname,$dx,$dy,&$map_data)
 {
-  $exist=check_player($hostname);
-  if ($exist===False)
+  $player=check_player($hostname);
+  if ($player===False)
   {
     return;
   }
-  $exist_players=mud_query_players();
-  if ($exist_players===False)
+  $players=mud_query_players();
+  if ($players===False)
   {
     return;
   }
-  $x=$exist["x_coord"]+$dx;
-  $y=$exist["y_coord"]+$dy;
+  $x=$player["x_coord"]+$dx;
+  $y=$player["y_coord"]+$dy;
   if (($x>=$map_data["cols"]) or ($y>=$map_data["rows"]))
   {
     privmsg("move error: edge of map");
     return;
   }
-  $c=mud_map_coord($map_data["cols"],$exist["x_coord"],$exist["y_coord"]);
+  $c=mud_map_coord($map_data["cols"],$player["x_coord"],$player["y_coord"]);
   if ($map_data[$c]<>$map_data["char_path"])
   {
     privmsg("move error: obstacle");
     return;
   }
-  $kills=$exist["kills"];
-  for ($i=0;$i<count($exist_players);$i++)
+  $kills=$player["kills"];
+  for ($i=0;$i<count($players);$i++)
   {
-    if (($exist_players[$i]["x_coord"]==$x) and ($exist_players[$i]["y_coord"]==$y))
+    if (($players[$i]["x_coord"]==$x) and ($players[$i]["y_coord"]==$y))
     {
-      if ($exist_players[$i]["hostname"]<>$hostname)
+      if ($players[$i]["hostname"]<>$hostname)
       {
-        $killed=$exist_players[$i];
-        mud_player_start_location($killed,$exist_players,$map_data);
+        $killed=$players[$i];
+        mud_player_start_location($killed,$players,$map_data);
         mud_update_player($killed["hostname"],$killed["x_coord"],$killed["y_coord"],$killed["deaths"]+1,$killed["kills"]);
         $kills++;
         $killed_nick=users_get_nick($killed["hostname"]);
@@ -227,8 +279,65 @@ function player_move($hostname,$dx,$dy,&$map_data)
       }
     }
   }
-  mud_update_player($hostname,$x,$y,$exist["deaths"],$kills);
-  # show status
+  mud_update_player($hostname,$x,$y,$player["deaths"],$kills);
+  player_status($player,$players);
+}
+
+#####################################################################################################
+
+function ranking_sort_callback($a,$b)
+{
+  $a_result=$a["kills"]-$a["deaths"];
+  $b_result=$b["kills"]-$b["deaths"];
+  if ($a_result<>$b_result)
+  {
+    return ($b_result-$a_result);
+  }
+  else
+  {
+    return strcmp($a["hostname"],$b["hostname"]);
+  }
+}
+
+#####################################################################################################
+
+function update_ranking(&$player,&$players)
+{
+  uasort($players,"ranking_sort_callback");
+  $found=False;
+  $i=1;
+  foreach ($players as $key => $data)
+  {
+    if ($data["hostname"]===$player["hostname"])
+    {
+      $found=True;
+      break;
+    }
+    $i++;
+  }
+  if ($found==True)
+  {
+    return $i;
+  }
+  else
+  {
+    return -1;
+  }
+}
+
+#####################################################################################################
+
+function player_status(&$player,&$players)
+{
+  $i=update_ranking($player,$players);
+  $nick=users_get_nick($player["hostname"]);
+  if ($nick=="")
+  {
+    $nick=$player["hostname"];
+  }
+  $x=$player["x_coord"];
+  $y=$player["y_coord"];
+  privmsg("mud: $nick => $x,$y [rank: $i]");
 }
 
 #####################################################################################################
@@ -284,120 +393,6 @@ function mud_player_start_location(&$new_player,&$exist_players,&$map_data)
 function mud_map_coord($cols,$x,$y)
 {
   return ($x+$y*$cols);
-}
-
-#####################################################################################################
-
-function mud_map_generate($cols,$rows)
-{
-  $wall_char="X";
-  $open_char="O";
-  $path_char="P";
-  $dir_x=array(0,1,0,-1);
-  $dir_y=array(-1,0,1,0);
-  /* 0 = up
-     1 = right
-     2 = down
-     3 = left */
-  $count=$rows*$cols;
-  $coords=str_repeat($open_char,$count);
-  $branch=array();
-  $x=mt_rand(0,$cols-1);
-  $y=mt_rand(0,$rows-1);
-  do
-  {
-    $c=mud_map_coord($cols,$x,$y);
-    if (($coords[$c]==$wall_char) or ($coords[$c]==$path_char))
-    {
-      if (count($branch)>0)
-      {
-        $c=array_shift($branch);
-        $x=$c["x"];
-        $y=$c["y"];
-        continue;
-      }
-      else
-      {
-        break;
-      }
-    }
-    $coords[$c]=$path_char;
-    $allow="0000";
-    if ($x>0)
-    {
-      $c=mud_map_coord($cols,$x-1,$y);
-      if (($coords[$c]<>$wall_char) and ($coords[$c]<>$path_char))
-      {
-        $allow[3]="1";
-      }
-    }
-    if ($x<($cols-1))
-    {
-      $c=mud_map_coord($cols,$x+1,$y);
-      if (($coords[$c]<>$wall_char) and ($coords[$c]<>$path_char))
-      {
-        $allow[1]="1";
-      }
-    }
-    if ($y>0)
-    {
-      $c=mud_map_coord($cols,$x,$y-1);
-      if (($coords[$c]<>$wall_char) and ($coords[$c]<>$path_char))
-      {
-        $allow[0]="1";
-      }
-    }
-    if ($y<($rows-1))
-    {
-      $c=mud_map_coord($cols,$x,$y+1);
-      if (($coords[$c]<>$wall_char) and ($coords[$c]<>$path_char))
-      {
-        $allow[2]="1";
-      }
-    }
-    if ($allow=="0000")
-    {
-      if (count($branch)>0)
-      {
-        $c=array_shift($branch);
-        $x=$c["x"];
-        $y=$c["y"];
-        continue;
-      }
-      else
-      {
-        break;
-      }
-    }
-    do
-    {
-      $d=mt_rand(0,3);
-    }
-    while ($allow[$d]=="0");
-    for ($j=0;$j<=3;$j++)
-    {
-      if ($j==$d)
-      {
-        continue;
-      }
-      if ($allow[$j]=="0")
-      {
-        continue;
-      }
-      if (mt_rand(1,4)==1)
-      {
-        $branch[]=array("x"=>$x+$dir_x[$j],"y"=>$y+$dir_y[$j]);
-      }
-      else
-      {
-        $coords[mud_map_coord($cols,$x+$dir_x[$j],$y+$dir_y[$j])]=$wall_char;
-      }
-    }
-    $x=$x+$dir_x[$d];
-    $y=$y+$dir_y[$d];
-  }
-  while (substr_count($coords,$open_char)>0);
-  return $coords;
 }
 
 #####################################################################################################
