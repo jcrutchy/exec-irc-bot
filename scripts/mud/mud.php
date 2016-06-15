@@ -31,12 +31,6 @@ $cmd=$argv[7];
 $timestamp=$argv[8];
 $server=$argv[9];
 
-# image upload demo
-$buffer=imagecreatefrompng("/home/jared/git/exec-irc-bot/scripts/irciv/irciv3.png");
-privmsg(upload_to_imgur($buffer));
-imagedestroy($buffer);
-return;
-
 $map_filename=DATA_PATH."mud_map.txt";
 if (file_exists($map_filename)==False)
 {
@@ -120,7 +114,20 @@ switch ($action)
   
     break;
   case "gm-view-map":
-  
+    if (is_gm($hostname,$server)==True)
+    {
+      $data=mud_map_image($map_data["coords"],$map_data["cols"],$map_data["rows"]);
+      if ($data===False)
+      {
+        return;
+      }
+      $result=upload_to_imgur($data);
+      if ($result===False)
+      {
+        return;
+      }
+      privmsg($result);
+    }
     break;
   case "admin-set-gm":
     if (is_admin($hostname,$server)==True)
@@ -449,9 +456,8 @@ function mud_map_image($coords,$cols,$rows)
   $wall_char="X";
   $open_char="O";
   $path_char="P";
-  $filename="testmaze";
   $filetype="png";
-  $path_images="./";
+  $path_images=__DIR__."/";
   $image_open="open.png";
   $image_path="path.png";
   $image_wall="wall.png";
@@ -479,7 +485,7 @@ function mud_map_image($coords,$cols,$rows)
   {
     for ($x=0;$x<$cols;$x++)
     {
-      $i=map_coord($cols,$x,$y);
+      $i=mud_map_coord($cols,$x,$y);
       if ($coords[$i]==$open_char)
       {
         if (imagecopy($buffer,$buffer_open,$x*$tile_w,$y*$tile_h,0,0,$tile_w,$tile_h)===False)
@@ -525,42 +531,12 @@ function mud_map_image($coords,$cols,$rows)
   }
   imagedestroy($buffer_resized);
   unset($buffer_resized);
-  if ($filename<>"")
-  {
-    switch ($filetype)
-    {
-      case "gif":
-        imagegif($buffer,$filename.".gif");
-        break;
-      case "png":
-        imagepng($buffer,$filename.".png");
-        break;
-      case "jpg":
-        imagejpg($buffer,$filename.".jpg");
-        break;
-    }
-    imagedestroy($buffer);
-  }
-  else
-  {
-    ob_start();
-    switch ($filetype)
-    {
-      case "gif":
-        imagegif($buffer);
-        break;
-      case "png":
-        imagepng($buffer);
-        break;
-      case "jpg":
-        imagejpg($buffer);
-        break;
-    }
-    $data=ob_get_contents();
-    ob_end_clean();
-    imagedestroy($buffer);
-    return $data;
-  }
+  ob_start();
+  imagepng($buffer);
+  $data=ob_get_contents();
+  ob_end_clean();
+  imagedestroy($buffer);
+  return $data;
 }
 
 #####################################################################################################

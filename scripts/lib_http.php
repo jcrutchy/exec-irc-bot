@@ -9,7 +9,7 @@ delete_empty_elements($url_blacklist,True);
 
 #####################################################################################################
 
-function upload_to_imgur($gd_buffer)
+function upload_to_imgur($data)
 {
   $pwd=file_get_contents("../pwd/imgur");
   if ($pwd===False)
@@ -24,14 +24,10 @@ function upload_to_imgur($gd_buffer)
     return False;
   }
   $client_id=trim($pwd[0]);
-  ob_start();
-  imagepng($gd_buffer);
-  $content=ob_get_contents();
-  ob_end_clean();
   $headers=array();
   $headers["Authorization"]="Client-ID ".$client_id;
   $headers["Content-Type"]="image/png";
-  $data=json_decode(strip_headers(wpost("api.imgur.com","/3/image.json",443,ICEWEASEL_UA,$content,$headers,20,True)),True);
+  $data=json_decode(strip_headers(wpost("api.imgur.com","/3/image.json",443,ICEWEASEL_UA,$data,$headers,20,True)),True);
   if (isset($data["data"]["link"])==True)
   {
     return $data["data"]["link"];
