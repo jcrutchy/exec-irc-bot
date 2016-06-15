@@ -31,6 +31,12 @@ $cmd=$argv[7];
 $timestamp=$argv[8];
 $server=$argv[9];
 
+# image upload demo
+$buffer=imagecreatefrompng("/home/jared/git/exec-irc-bot/scripts/irciv/irciv3.png");
+privmsg(upload_to_imgur($buffer));
+imagedestroy($buffer);
+return;
+
 $map_filename=DATA_PATH."mud_map.txt";
 if (file_exists($map_filename)==False)
 {
@@ -90,7 +96,7 @@ switch ($action)
     break;
   case "status":
     $player=check_player($hostname);
-    if ($player===False;
+    if ($player===False)
     {
       return;
     }
@@ -119,7 +125,23 @@ switch ($action)
   case "admin-set-gm":
     if (is_admin($hostname,$server)==True)
     {
-    
+      $player=check_player($trailing);
+      if ($player===False)
+      {
+        return;
+      }
+      mud_update_player($player["hostname"],$player["x_coord"],$player["y_coord"],$player["deaths"],$player["kills"],1);
+    }
+    break;
+  case "admin-unset-gm":
+    if (is_admin($hostname,$server)==True)
+    {
+      $player=check_player($trailing);
+      if ($player===False)
+      {
+        return;
+      }
+      mud_update_player($player["hostname"],$player["x_coord"],$player["y_coord"],$player["deaths"],$player["kills"],0);
     }
     break;
 }
@@ -128,6 +150,11 @@ switch ($action)
 
 function is_admin($hostname,$server)
 {
+  $bot_operator=get_bucket("<<OPERATOR_HOSTNAME>>");
+  if ($hostname===$bot_operator)
+  {
+    return True;
+  }
   $user="$hostname $server";
   $admins_filename=DATA_PATH."mud_admins.txt";
   if (file_exists($admins_filename)==False)
@@ -150,6 +177,26 @@ function is_admin($hostname,$server)
   if (in_array($user,$admin_users)==False)
   {
     privmsg("not authorized");
+    return False;
+  }
+  return True;
+}
+
+#####################################################################################################
+
+function is_gm($hostname,$server)
+{
+  if (is_admin($hostname,$server)==True)
+  {
+    return True;
+  }
+  $player=check_player($hostname);
+  if ($player===False)
+  {
+    return False;
+  }
+  if ($player["gm"]!==1)
+  {
     return False;
   }
   return True;

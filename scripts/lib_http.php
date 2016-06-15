@@ -9,6 +9,41 @@ delete_empty_elements($url_blacklist,True);
 
 #####################################################################################################
 
+function upload_to_imgur($gd_buffer)
+{
+  $pwd=file_get_contents("../pwd/imgur");
+  if ($pwd===False)
+  {
+    return False;
+  }
+  $pwd=trim($pwd);
+  $pwd=explode(PHP_EOL,$pwd);
+  if (count($pwd)<>2)
+  if ($pwd===False)
+  {
+    return False;
+  }
+  $client_id=trim($pwd[0]);
+  ob_start();
+  imagepng($gd_buffer);
+  $content=ob_get_contents();
+  ob_end_clean();
+  $headers=array();
+  $headers["Authorization"]="Client-ID ".$client_id;
+  $headers["Content-Type"]="image/png";
+  $data=json_decode(strip_headers(wpost("api.imgur.com","/3/image.json",443,ICEWEASEL_UA,$content,$headers,20,True)),True);
+  if (isset($data["data"]["link"])==True)
+  {
+    return $data["data"]["link"];
+  }
+  else
+  {
+    return "error uploading image to imgur";
+  }
+}
+
+#####################################################################################################
+
 function get_user_localhost_ports($return_pids=False)
 {
   $stdout=shell_exec("netstat -tlpn4 2>&1");
@@ -584,8 +619,14 @@ function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$t
   $headers="POST $uri HTTP/1.0\r\n";
   $headers=$headers."Host: $host\r\n";
   $headers=$headers."User-Agent: $agent\r\n";
-  $headers=$headers."Content-Type: application/x-www-form-urlencoded\r\n";
-  $headers=$headers."Content-Length: ".strlen($content)."\r\n";
+  if (isset($extra_headers["Content-Type"])==False)
+  {
+    $headers=$headers."Content-Type: application/x-www-form-urlencoded\r\n";
+  }
+  if (isset($extra_headers["Content-Length"])==False)
+  {
+    $headers=$headers."Content-Length: ".strlen($content)."\r\n";
+  }
   if ($extra_headers<>"")
   {
     foreach ($extra_headers as $key => $value)
