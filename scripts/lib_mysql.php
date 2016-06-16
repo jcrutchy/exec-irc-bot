@@ -34,7 +34,7 @@ function sql_insert($items,$table,$schema=BOT_SCHEMA)
   $fieldnames=array_keys($items);
   $placeholders=array_map("callback_prepare",$fieldnames);
   $fieldnames=array_map("callback_quote",$fieldnames);
-  execute_prepare("INSERT INTO `$schema`.`$table` (".implode(",",$fieldnames).") VALUES (".implode(",",$placeholders).")",$items);
+  return execute_prepare("INSERT INTO `$schema`.`$table` (".implode(",",$fieldnames).") VALUES (".implode(",",$placeholders).")",$items);
 }
 
 #####################################################################################################
@@ -44,7 +44,7 @@ function sql_delete($items,$table,$schema=BOT_SCHEMA)
   $fieldnames=array_keys($items);
   $placeholders=array_map("callback_prepare",$fieldnames);
   $fieldnames=array_map("callback_quote",$fieldnames);
-  execute_prepare("DELETE FROM `$schema`.`$table` WHERE (".build_prepared_where($items).")",$items);
+  return execute_prepare("DELETE FROM `$schema`.`$table` WHERE (".build_prepared_where($items).")",$items);
 }
 
 #####################################################################################################
@@ -57,11 +57,12 @@ function sql_update($value_items,$where_items,$table,$schema=BOT_SCHEMA)
   $values_array=array();
   for ($i=0;$i<count($value_items);$i++)
   {
-    $result[]=$value_fieldnames[$i]."=".$value_placeholders[$i];
+    $values_array[]=$value_fieldnames[$i]."=".$value_placeholders[$i];
   }
   $values_string=implode(",",$values_array);
+  #var_dump($values_string);
   $items=array_merge($value_items,$where_items);
-  execute_prepare("UPDATE `$schema`.`$table` SET $values_string WHERE (".build_prepared_where($where_items).")",$items);
+  return execute_prepare("UPDATE `$schema`.`$table` SET $values_string WHERE (".build_prepared_where($where_items).")",$items);
 }
 
 #####################################################################################################
@@ -121,7 +122,7 @@ function execute_prepare($sql,$params)
   if ($statement===False)
   {
     term_echo("SQL PREPARE ERROR\n\n$sql\n");
-    return;
+    return False;
   }
   foreach ($params as $key => $value)
   {
@@ -142,7 +143,9 @@ function execute_prepare($sql,$params)
       echo $err[2]."\n";
     }
     term_echo("SQL EXECUTE ERROR\n\n$sql\n");
+    return False;
   }
+  return True;
 }
 
 #####################################################################################################

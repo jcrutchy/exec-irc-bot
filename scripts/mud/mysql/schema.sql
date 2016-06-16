@@ -7,6 +7,7 @@ CREATE TABLE `exec_mud`.`mud_players` (
   `y_coord` integer unsigned NOT NULL,
   `deaths` integer unsigned NOT NULL,
   `kills` integer unsigned NOT NULL,
+  `map` longtext,
   `gm` tinyint NOT NULL,
   PRIMARY KEY (`hostname`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;

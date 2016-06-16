@@ -4,7 +4,7 @@
 
 /*
 exec:add ~mud
-exec:edit ~mud timeout 30
+exec:edit ~mud timeout 240
 exec:edit ~mud cmd php scripts/mud/mud.php %%trailing%% %%dest%% %%nick%% %%user%% %%hostname%% %%alias%% %%cmd%% %%timestamp%% %%server%%
 exec:enable ~mud
 */
@@ -62,25 +62,32 @@ if (strlen($map_data["coords"])<>($map_data["cols"]*$map_data["rows"]))
   return;
 }
 
+$dir_x=array(0,1,0,-1);
+$dir_y=array(-1,0,1,0);
+/* 0 = up
+    1 = right
+    2 = down
+    3 = left */
+
 $parts=explode(" ",$trailing);
 $action=array_shift($parts);
 switch ($action)
 {
   case "u":
   case "up":
-  
-    break;
-  case "d":
-  case "down":
-  
-    break;
-  case "l":
-  case "left":
-  
+    player_move($hostname,$dir_x[0],$dir_y[0],$map_data);
     break;
   case "r":
   case "right":
-  
+    player_move($hostname,$dir_x[1],$dir_y[1],$map_data);
+    break;
+  case "d":
+  case "down":
+    player_move($hostname,$dir_x[2],$dir_y[2],$map_data);
+    break;
+  case "l":
+  case "left":
+    player_move($hostname,$dir_x[3],$dir_y[3],$map_data);
     break;
   case "init":
     mud_init_player($hostname,$map_data);
@@ -89,17 +96,7 @@ switch ($action)
     mud_delete_player($hostname);
     break;
   case "status":
-    $player=check_player($hostname);
-    if ($player===False)
-    {
-      return;
-    }
-    $players=mud_query_players();
-    if ($players===False)
-    {
-     return;
-    }
-    player_status($player,$players);
+    player_status($hostname);
     break;
   case "ranks":
   
@@ -137,7 +134,7 @@ switch ($action)
       {
         return;
       }
-      mud_update_player($player["hostname"],$player["x_coord"],$player["y_coord"],$player["deaths"],$player["kills"],1);
+      mud_update_player($player["hostname"],$player["x_coord"],$player["y_coord"],$player["deaths"],$player["kills"],$player["map"],1);
     }
     break;
   case "admin-unset-gm":
@@ -148,7 +145,7 @@ switch ($action)
       {
         return;
       }
-      mud_update_player($player["hostname"],$player["x_coord"],$player["y_coord"],$player["deaths"],$player["kills"],0);
+      mud_update_player($player["hostname"],$player["x_coord"],$player["y_coord"],$player["deaths"],$player["kills"],$player["map"],0);
     }
     break;
 }
@@ -217,7 +214,7 @@ function mud_query_player($hostname)
   $result=fetch_prepare("SELECT * FROM `exec_mud`.`mud_players` WHERE (`hostname`=:hostname)",$params);
   if ($result===False)
   {
-    privmsg("player query error");
+    privmsg("mysql query error (player)");
   }
   return $result;
 }
@@ -229,7 +226,7 @@ function mud_query_players()
   $result=fetch_query("SELECT * FROM `exec_mud`.`mud_players`");
   if ($result===False)
   {
-    privmsg("players query error");
+    privmsg("mysql query error (players)");
   }
   return $result;
 }
@@ -239,25 +236,35 @@ function mud_query_players()
 function check_player($hostname)
 {
   $result=mud_query_player($hostname);
-  if ($exist===False)
+  if ($result===False)
   {
     return False;
   }
-  if (isset($exist["hostname"])==True)
+  if (count($result)<>1)
   {
-    privmsg("player already exists");
+    privmsg("multiple records for player");
     return False;
   }
-  return $result;
+  if (isset($result[0]["hostname"])==False)
+  {
+    privmsg("player not found");
+    return False;
+  }
+  return $result[0];
 }
 
 #####################################################################################################
 
 function mud_init_player($hostname,&$map_data)
 {
-  $player=check_player($hostname);
+  $player=mud_query_player($hostname);
   if ($player===False)
   {
+    return;
+  }
+  if (count($player)<>0)
+  {
+    privmsg("player already exists");
     return;
   }
   $players=mud_query_players();
@@ -265,10 +272,20 @@ function mud_init_player($hostname,&$map_data)
   {
     return;
   }
-  $items=array("hostname"=>$hostname,"x_coord"=>-1,"x_coord"=>-1,"deaths"=>0,"kills"=>0,"gm"=>0);
-  mud_player_start_location($items,$players,$map_data);
-  sql_insert($items,"players","exec_mud");
-  privmsg("initialized player");
+  $map=str_repeat(" ",$map_data["rows"]*$map_data["cols"]);
+  $items=array("hostname"=>$hostname,"x_coord"=>-1,"x_coord"=>-1,"deaths"=>0,"kills"=>0,"map"=>gzcompress($map),"gm"=>0);
+  if (mud_player_start_location($items,$players,$map_data)==False)
+  {
+    return;
+  }
+  if (sql_insert($items,"mud_players","exec_mud")==True)
+  {
+    privmsg("initialized player");
+  }
+  else
+  {
+    privmsg("mysql insert error");
+  }
 }
 
 #####################################################################################################
@@ -276,17 +293,26 @@ function mud_init_player($hostname,&$map_data)
 function mud_delete_player($hostname)
 {
   $items=array("hostname"=>$hostname);
-  sql_delete($items,"players","exec_mud");
-  privmsg("deleted player");
+  if (sql_delete($items,"mud_players","exec_mud")==True)
+  {
+    privmsg("deleted player");
+  }
+  else
+  {
+    privmsg("mysql delete error");
+  }
 }
 
 #####################################################################################################
 
-function mud_update_player($hostname,$x,$y,$deaths,$kills,$gm=0)
+function mud_update_player($hostname,$x,$y,$deaths,$kills,$map,$gm=0)
 {
-  $value_items=array("x_coord"=>$x,"x_coord"=>$y,"deaths"=>$deahts,"kills"=>$kills,"gm"=>$gm);
+  $value_items=array("x_coord"=>$x,"y_coord"=>$y,"deaths"=>$deaths,"kills"=>$kills,"map"=>$map,"gm"=>$gm);
   $where_items=array("hostname"=>$hostname);
-  sql_update($value_items,$where_items,"players","exec_mud");
+  if (sql_update($value_items,$where_items,"mud_players","exec_mud")==False)
+  {
+    privmsg("mysql update error");
+  }
 }
 
 #####################################################################################################
@@ -311,11 +337,13 @@ function player_move($hostname,$dx,$dy,&$map_data)
     return;
   }
   $c=mud_map_coord($map_data["cols"],$player["x_coord"],$player["y_coord"]);
-  if ($map_data[$c]<>$map_data["char_path"])
+  if ($map_data["coords"][$c]<>$map_data["char_path"])
   {
     privmsg("move error: obstacle");
     return;
   }
+  $map=gzuncompress($player["map"]);
+  $map[$c]=$map_data["coords"][$c];
   $kills=$player["kills"];
   for ($i=0;$i<count($players);$i++)
   {
@@ -325,7 +353,7 @@ function player_move($hostname,$dx,$dy,&$map_data)
       {
         $killed=$players[$i];
         mud_player_start_location($killed,$players,$map_data);
-        mud_update_player($killed["hostname"],$killed["x_coord"],$killed["y_coord"],$killed["deaths"]+1,$killed["kills"]);
+        mud_update_player($killed["hostname"],$killed["x_coord"],$killed["y_coord"],$killed["deaths"]+1,$killed["kills"],$killed["map"]);
         $kills++;
         $killed_nick=users_get_nick($killed["hostname"]);
         privmsg("you killed \"$killed_nick\"");
@@ -333,8 +361,8 @@ function player_move($hostname,$dx,$dy,&$map_data)
       }
     }
   }
-  mud_update_player($hostname,$x,$y,$player["deaths"],$kills);
-  player_status($player,$players);
+  mud_update_player($hostname,$x,$y,$player["deaths"],$kills,gzcompress($map));
+  player_status($hostname);
 }
 
 #####################################################################################################
@@ -381,8 +409,18 @@ function update_ranking(&$player,&$players)
 
 #####################################################################################################
 
-function player_status(&$player,&$players)
+function player_status($hostname)
 {
+  $player=check_player($hostname);
+  if ($player===False)
+  {
+    return;
+  }
+  $players=mud_query_players();
+  if ($players===False)
+  {
+    return;
+  }
   $i=update_ranking($player,$players);
   $nick=users_get_nick($player["hostname"]);
   if ($nick=="")
@@ -392,24 +430,36 @@ function player_status(&$player,&$players)
   $x=$player["x_coord"];
   $y=$player["y_coord"];
   privmsg("mud: $nick => $x,$y [rank: $i]");
+/*
+      $data=mud_map_image($map_data["coords"],$map_data["cols"],$map_data["rows"]);
+      if ($data===False)
+      {
+        return;
+      }
+      $result=upload_to_imgur($data);
+      if ($result===False)
+      {
+        return;
+      }
+      privmsg($result);
+*/
 }
 
 #####################################################################################################
 
 function mud_player_start_location(&$new_player,&$exist_players,&$map_data)
 {
-  $invalid=False;
   $start=microtime(True);
   do
   {
-    $new_player["x_coord"]=mt_rand(0,$map_data["cols"]);
-    $new_player["y_coord"]=mt_rand(0,$map_data["rows"]);
+    $invalid=False;
+    $new_player["x_coord"]=mt_rand(0,$map_data["cols"]-1);
+    $new_player["y_coord"]=mt_rand(0,$map_data["rows"]-1);
     # check for obstacle
     $c=mud_map_coord($map_data["cols"],$new_player["x_coord"],$new_player["y_coord"]);
-    if ($map_data[$c]<>$map_data["char_path"])
+    if ($map_data["coords"][$c]<>$map_data["char_path"])
     {
       $invalid=True;
-      break;
     }
     # check if coord or neighbouring coords are occupied
     $dir_x=array(0,0,1,0,-1);
@@ -423,12 +473,12 @@ function mud_player_start_location(&$new_player,&$exist_players,&$map_data)
         if (($x==$exist_players[$i]["x_coord"]) and ($y==$exist_players[$i]["y_coord"]))
         {
           $invalid=True;
-          break 3;
+          break 2;
         }
       }
     }
   }
-  while ((microtime(True)-$start)<20);
+  while (((microtime(True)-$start)<20) and ($invalid==True));
   if ($invalid==True)
   {
     $player_data["x_coord"]=-1;
@@ -512,8 +562,40 @@ function mud_map_image($coords,$cols,$rows)
   imagedestroy($buffer_open);
   imagedestroy($buffer_path);
   imagedestroy($buffer_wall);
+  $grid=True; # make into user setting
+  $coords=True; # make into user setting
+  if ($grid==True)
+  {
+    $color_grid=imagecolorallocate($buffer,0,0,0);
+    for ($x=0;$x<$cols;$x++)
+    {
+      imageline($buffer,$x*$tile_w,0,$x*$tile_w,$h,$color_grid);
+    }
+    for ($y=0;$y<$rows;$y++)
+    {
+      imageline($buffer,0,$y*$tile_h,$w,$y*$tile_h,$color_grid);
+    }
+  }
+  /*if ($coords==True)
+  {
+    $color_text=imagecolorallocate($buffer,0,0,0);
+    #$color_text_shadow=imagecolorallocate($buffer,255,255,255);
+    for ($y=0;$y<$rows;$y++)
+    {
+      for ($x=0;$x<$cols;$x++)
+      {
+        $i=mud_map_coord($cols,$x,$y);
+        #if ($player_data[$account]["fog"][$i]=="0")
+        #{
+          #continue;
+        #}
+        #imagestring($buffer,1,$x*$tile_w+1,$y*$tile_h,"$x,$y",$color_text_shadow);
+        imagestring($buffer,1,$x*$tile_w+2,$y*$tile_h+1,"$x,$y",$color_text);
+      }
+    }
+  }*/
   # to make final map image smaller filesize, use createimage to create palleted image, then copy truecolor image to palleted image
-  $scale=1.0;
+  /*$scale=1.0;
   $final_w=round($w*$scale);
   $final_h=round($h*$scale);
   $buffer_resized=imagecreatetruecolor($final_w,$final_h);
@@ -530,7 +612,7 @@ function mud_map_image($coords,$cols,$rows)
     return False;
   }
   imagedestroy($buffer_resized);
-  unset($buffer_resized);
+  unset($buffer_resized);*/
   ob_start();
   imagepng($buffer);
   $data=ob_get_contents();

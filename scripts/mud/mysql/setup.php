@@ -23,7 +23,7 @@ else
 {
   echo "DATABASE CREATED\n";
 }
-$result=$pdo->exec("GRANT SELECT, INSERT, UPDATE, DELETE ON exec_irc_bot.* TO www@'%';");
+$result=$pdo->exec("GRANT SELECT, INSERT, UPDATE, DELETE ON exec_mud.* TO www@'%';");
 if ($result===False)
 {
   die("ERROR GRANTING PRIVILEGES\n");
