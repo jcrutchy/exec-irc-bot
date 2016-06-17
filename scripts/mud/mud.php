@@ -64,30 +64,32 @@ if (strlen($map_data["coords"])<>($map_data["cols"]*$map_data["rows"]))
 
 $dir_x=array(0,1,0,-1);
 $dir_y=array(-1,0,1,0);
+$dir_names=array("up","right","down","left");
 /* 0 = up
-    1 = right
-    2 = down
-    3 = left */
+   1 = right
+   2 = down
+   3 = left */
 
 $parts=explode(" ",$trailing);
 $action=array_shift($parts);
+$trailing=implode(" ",$parts);
 switch ($action)
 {
   case "u":
   case "up":
-    player_move($hostname,$dir_x[0],$dir_y[0],$map_data);
+    player_move($hostname,$dir_x[0],$dir_y[0],$map_data,$trailing);
     break;
   case "r":
   case "right":
-    player_move($hostname,$dir_x[1],$dir_y[1],$map_data);
+    player_move($hostname,$dir_x[1],$dir_y[1],$map_data,$trailing);
     break;
   case "d":
   case "down":
-    player_move($hostname,$dir_x[2],$dir_y[2],$map_data);
+    player_move($hostname,$dir_x[2],$dir_y[2],$map_data,$trailing);
     break;
   case "l":
   case "left":
-    player_move($hostname,$dir_x[3],$dir_y[3],$map_data);
+    player_move($hostname,$dir_x[3],$dir_y[3],$map_data,$trailing);
     break;
   case "init":
     mud_init_player($hostname,$map_data);
@@ -97,6 +99,9 @@ switch ($action)
     break;
   case "status":
     player_status($hostname);
+    break;
+  case "map":
+    player_map($hostname);
     break;
   case "ranks":
   
@@ -317,8 +322,23 @@ function mud_update_player($hostname,$x,$y,$deaths,$kills,$map,$gm=0)
 
 #####################################################################################################
 
-function player_move($hostname,$dx,$dy,&$map_data)
+function player_move($hostname,$dx,$dy,&$map_data,$factor="")
 {
+  if (strlen($factor)>0)
+  {
+    if (is_valid_chars($factor,VALID_NUMERIC)==False)
+    {
+      $factor=1;
+    }
+    elseif ($factor==0)
+    {
+      $factor=1;
+    }
+  }
+  else
+  {
+    $factor=1;
+  }
   $player=check_player($hostname);
   if ($player===False)
   {
@@ -329,14 +349,14 @@ function player_move($hostname,$dx,$dy,&$map_data)
   {
     return;
   }
-  $x=$player["x_coord"]+$dx;
-  $y=$player["y_coord"]+$dy;
-  if (($x>=$map_data["cols"]) or ($y>=$map_data["rows"]))
+  $x=$player["x_coord"]+$dx*$factor;
+  $y=$player["y_coord"]+$dy*$factor;
+  if (($x<0) or ($y<0) or ($x>=$map_data["cols"]) or ($y>=$map_data["rows"]))
   {
     privmsg("move error: edge of map");
     return;
   }
-  $c=mud_map_coord($map_data["cols"],$player["x_coord"],$player["y_coord"]);
+  $c=mud_map_coord($map_data["cols"],$x,$y);
   if ($map_data["coords"][$c]<>$map_data["char_path"])
   {
     privmsg("move error: obstacle");
@@ -411,6 +431,10 @@ function update_ranking(&$player,&$players)
 
 function player_status($hostname)
 {
+  global $dir_x;
+  global $dir_y;
+  global $dir_names;
+  global $map_data;
   $player=check_player($hostname);
   if ($player===False)
   {
@@ -430,19 +454,52 @@ function player_status($hostname)
   $x=$player["x_coord"];
   $y=$player["y_coord"];
   privmsg("mud: $nick => $x,$y [rank: $i]");
-/*
-      $data=mud_map_image($map_data["coords"],$map_data["cols"],$map_data["rows"]);
-      if ($data===False)
-      {
-        return;
-      }
-      $result=upload_to_imgur($data);
-      if ($result===False)
-      {
-        return;
-      }
-      privmsg($result);
-*/
+  $open_dirs=array();
+  for ($i=0;$i<count($dir_names);$i++)
+  {
+    $ix=$x+$dir_x[$i];
+    $iy=$y+$dir_y[$i];
+    if (($ix<0) or ($iy<0) or ($ix>=$map_data["cols"]) or ($iy>=$map_data["rows"]))
+    {
+      continue;
+    }
+    $c=mud_map_coord($map_data["cols"],$ix,$iy);
+    if ($map_data["coords"][$c]<>$map_data["char_path"])
+    {
+      continue;
+    }
+    $open_dirs[]=$dir_names[$i];
+  }
+  $open_dirs=implode(", ",$open_dirs);
+  privmsg("mud: $nick => open directions: ".$open_dirs);
+}
+
+#####################################################################################################
+
+function player_map($hostname)
+{
+  global $map_data;
+  $player=check_player($hostname);
+  if ($player===False)
+  {
+    return;
+  }
+  $nick=users_get_nick($player["hostname"]);
+  if ($nick=="")
+  {
+    $nick=$player["hostname"];
+  }
+  $data=mud_map_image($map_data["coords"],$map_data["cols"],$map_data["rows"],$player);
+  if ($data===False)
+  {
+    return;
+  }
+  $result=upload_to_imgur($data);
+  if ($result===False)
+  {
+    return;
+  }
+  privmsg("mud: $nick => ".$result);
 }
 
 #####################################################################################################
@@ -501,67 +558,135 @@ function mud_map_coord($cols,$x,$y)
 
 #####################################################################################################
 
-function mud_map_image($coords,$cols,$rows)
+function mud_map_image($coords,$cols,$rows,$player=False)
 {
+  $map=False;
+  if ($player!==False)
+  {
+    $map=gzuncompress($player["map"]);
+  }
   $wall_char="X";
   $open_char="O";
   $path_char="P";
   $filetype="png";
-  $path_images=__DIR__."/";
-  $image_open="open.png";
-  $image_path="path.png";
-  $image_wall="wall.png";
-  $buffer_open=imagecreatefrompng($path_images.$image_open);
-  if ($buffer_open===False)
-  {
-    return False;
-  }
-  $buffer_path=imagecreatefrompng($path_images.$image_path);
-  if ($buffer_path===False)
-  {
-    return False;
-  }
-  $buffer_wall=imagecreatefrompng($path_images.$image_wall);
-  if ($buffer_wall===False)
-  {
-    return False;
-  }
-  $tile_w=imagesx($buffer_open);
-  $tile_h=imagesy($buffer_open);
+  $tile_w=15;
+  $tile_h=15;
   $w=$cols*$tile_w;
   $h=$rows*$tile_h;
   $buffer=imagecreatetruecolor($w,$h);
+  $color_open=imagecolorallocate($buffer,10,10,10);
+  $color_path=imagecolorallocate($buffer,255,148,77);
+  $color_wall=imagecolorallocate($buffer,128,0,0);
+  $color_visited=imagecolorallocate($buffer,0,153,0);
+  $color_current=imagecolorallocate($buffer,0,51,0);
+  $color_fog=imagecolorallocate($buffer,100,100,100);
   for ($y=0;$y<$rows;$y++)
   {
     for ($x=0;$x<$cols;$x++)
     {
       $i=mud_map_coord($cols,$x,$y);
-      if ($coords[$i]==$open_char)
+      if ($map===False)
       {
-        if (imagecopy($buffer,$buffer_open,$x*$tile_w,$y*$tile_h,0,0,$tile_w,$tile_h)===False)
+        if ($coords[$i]==$open_char)
         {
-          return False;
+          if (imagefilledrectangle($buffer,$x*$tile_w,$y*$tile_h,($x+1)*$tile_w,($y+1)*$tile_h,$color_open)==False)
+          {
+            return False;
+          }
+        }
+        if ($coords[$i]==$path_char)
+        {
+          if (imagefilledrectangle($buffer,$x*$tile_w,$y*$tile_h,($x+1)*$tile_w,($y+1)*$tile_h,$color_path)==False)
+          {
+            return False;
+          }
+        }
+        if ($coords[$i]==$wall_char)
+        {
+          if (imagefilledrectangle($buffer,$x*$tile_w,$y*$tile_h,($x+1)*$tile_w,($y+1)*$tile_h,$color_wall)==False)
+          {
+            return False;
+          }
         }
       }
-      if ($coords[$i]==$path_char)
+      else
       {
-        if (imagecopy($buffer,$buffer_path,$x*$tile_w,$y*$tile_h,0,0,$tile_w,$tile_h)===False)
+        $current_coord=mud_map_coord($cols,$player["x_coord"],$player["y_coord"]);
+        $visible=False;
+        if ($map[$i]<>" ")
         {
-          return False;
+          $visible=True;
         }
-      }
-      if ($coords[$i]==$wall_char)
-      {
-        if (imagecopy($buffer,$buffer_wall,$x*$tile_w,$y*$tile_h,0,0,$tile_w,$tile_h)===False)
+        $dir_x=array(0,1,0,-1,-1,1,-1,1);
+        $dir_y=array(-1,0,1,0,-1,1,1,-1);
+        for ($j=0;$j<count($dir_x);$j++)
         {
-          return False;
+          $dx=$x+$dir_x[$j];
+          $dy=$y+$dir_y[$j];
+          if (($dx<0) or ($dy<0) or ($dx>=$cols) or ($dy>=$rows))
+          {
+            continue;
+          }
+          $k=mud_map_coord($cols,$dx,$dy);
+          if ($map[$k]<>" ")
+          {
+            $visible=True;
+          }
+        }
+        if ($visible==False)
+        {
+          if (imagefilledrectangle($buffer,$x*$tile_w,$y*$tile_h,($x+1)*$tile_w,($y+1)*$tile_h,$color_fog)==False)
+          {
+            return False;
+          }
+        }
+        else
+        {
+          if ($coords[$i]==$open_char)
+          {
+            if (imagefilledrectangle($buffer,$x*$tile_w,$y*$tile_h,($x+1)*$tile_w,($y+1)*$tile_h,$color_open)==False)
+            {
+              return False;
+            }
+          }
+          if ($coords[$i]==$path_char)
+          {
+            if ($map[$i]==" ")
+            {
+              if (imagefilledrectangle($buffer,$x*$tile_w,$y*$tile_h,($x+1)*$tile_w,($y+1)*$tile_h,$color_path)==False)
+              {
+                return False;
+              }
+            }
+            else
+            {
+              if ($current_coord==$i)
+              {
+                if (imagefilledrectangle($buffer,$x*$tile_w,$y*$tile_h,($x+1)*$tile_w,($y+1)*$tile_h,$color_current)==False)
+                {
+                  return False;
+                }
+              }
+              else
+              {
+                if (imagefilledrectangle($buffer,$x*$tile_w,$y*$tile_h,($x+1)*$tile_w,($y+1)*$tile_h,$color_visited)==False)
+                {
+                  return False;
+                }
+              }
+            }
+          }
+          if ($coords[$i]==$wall_char)
+          {
+            if (imagefilledrectangle($buffer,$x*$tile_w,$y*$tile_h,($x+1)*$tile_w,($y+1)*$tile_h,$color_wall)==False)
+            {
+              return False;
+            }
+          }
         }
       }
     }
   }
-  imagedestroy($buffer_open);
-  imagedestroy($buffer_path);
-  imagedestroy($buffer_wall);
   $grid=True; # make into user setting
   $coords=True; # make into user setting
   if ($grid==True)
@@ -594,6 +719,73 @@ function mud_map_image($coords,$cols,$rows)
       }
     }
   }*/
+  
+  $crop=True;
+  if (($crop==True) and ($map!==False))
+  {
+    $boundary_l=$cols;
+    $boundary_t=$rows;
+    $boundary_r=0;
+    $boundary_b=0;
+    for ($y=0;$y<$rows;$y++)
+    {
+      for ($x=0;$x<$cols;$x++)
+      {
+        $coord=mud_map_coord($cols,$x,$y);
+        if ($map[$coord]<>" ")
+        {
+          if ($x<$boundary_l)
+          {
+            $boundary_l=$x;
+          }
+          if ($x>$boundary_r)
+          {
+            $boundary_r=$x;
+          }
+          if ($y<$boundary_t)
+          {
+            $boundary_t=$y;
+          }
+          if ($y>$boundary_b)
+          {
+            $boundary_b=$y;
+          }
+        }
+      }
+    }
+    $boundary_l=max(0,$boundary_l-1);
+    $boundary_t=max(0,$boundary_t-1);
+    $boundary_r=min($cols,$boundary_r+2);
+    $boundary_b=min($rows,$boundary_b+2);
+    if (($boundary_l<$boundary_r) and ($boundary_t<$boundary_b))
+    {
+      $range_x=$boundary_r-$boundary_l;
+      $range_y=$boundary_b-$boundary_t;
+      $w=$range_x*$tile_w+1; # the +1 only applies if grid is enabled
+      $h=$range_y*$tile_h+1; # the +1 only applies if grid is enabled
+      $buffer_resized=imagecreatetruecolor($w,$h);
+      if (imagecopy($buffer_resized,$buffer,0,0,$boundary_l*$tile_w,$boundary_t*$tile_h,$w,$h)==False)
+      {
+        privmsg("map cropping imagecopy error (1)");
+        return False;
+      }
+      imagedestroy($buffer);
+      $buffer=imagecreate($w,$h);
+      if (imagecopy($buffer,$buffer_resized,0,0,0,0,$w,$h)==False)
+      {
+        privmsg("map cropping imagecopy error (2)");
+        return False;
+      }
+      imagedestroy($buffer_resized);
+      unset($buffer_resized);
+    }
+    else
+    {
+      #privmsg("map boundary error");
+      return False;
+    }
+  }
+  
   # to make final map image smaller filesize, use createimage to create palleted image, then copy truecolor image to palleted image
   /*$scale=1.0;
   $final_w=round($w*$scale);
