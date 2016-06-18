@@ -84,7 +84,8 @@ if (in_array(strtolower($nick),$allowed)==True)
     $d=microtime(True)-$last;
     if ($d<60)
     {
-      privmsg("it has been only $d seconds since the last submission - please wait");
+      privmsg("it has been only ".round($d)." seconds since the last submission - please wait");
+      return;
     }
     submit_story($trailing);
     return;
