@@ -9,9 +9,24 @@ exec:edit ~mud cmd php scripts/mud/mud.php %%trailing%% %%dest%% %%nick%% %%user
 exec:enable ~mud
 */
 
+#####################################################################################################
+
 /*
 run setup.php script in mysql directory to create mysql schema
 */
+
+#####################################################################################################
+
+/****************************************************************************************************
+
+    DEVELOPMENT TO-DO
+    =================
+
+    - make so that players can leave waypoints on their maps and auto-move to them if they get lost
+    - include wormholes where players can move between points on the map quickly
+    - include a boundary fence that limits the playing area of the map, which can be varied on the fly based on the number of players
+
+****************************************************************************************************/
 
 #####################################################################################################
 
@@ -151,6 +166,15 @@ switch ($action)
         return;
       }
       mud_update_player($player["hostname"],$player["x_coord"],$player["y_coord"],$player["deaths"],$player["kills"],$player["map"],0);
+    }
+    break;
+  case "admin-test-ai":
+    if (is_admin($hostname,$server)==True)
+    {
+      $ai_hostname="mud_ai";
+      mud_init_player($ai_hostname,$map_data);
+      move_ai($ai_hostname);
+      mud_delete_player($ai_hostname);
     }
     break;
 }
@@ -585,7 +609,7 @@ function mud_map_image($coords,$cols,$rows,$player=False)
     for ($x=0;$x<$cols;$x++)
     {
       $i=mud_map_coord($cols,$x,$y);
-      if ($map===False)
+      if (($map===False) or (isset($player["path"])==True))
       {
         if ($coords[$i]==$open_char)
         {
@@ -719,9 +743,28 @@ function mud_map_image($coords,$cols,$rows,$player=False)
       }
     }
   }*/
-  
+  if (isset($player["path"])==True)
+  {
+    $path=$player["path"];
+    $color_path=imagecolorallocate($buffer,200,0,200);
+    $color_path_line=imagecolorallocate($buffer,255,0,0);
+    for ($i=1;$i<count($path);$i++)
+    {
+      $x=$path[$i]["x"];
+      $y=$path[$i]["y"];
+      if (imagefilledrectangle($buffer,$x*$tile_w,$y*$tile_h,($x+1)*$tile_w,($y+1)*$tile_h,$color_path)==False)
+      {
+        return False;
+      }
+      $p1x=round($path[$i-1]["x"]*$tile_w+$tile_w/2);
+      $p1y=round($path[$i-1]["y"]*$tile_h+$tile_h/2);
+      $p2x=round($x*$tile_w+$tile_w/2);
+      $p2y=round($path[$i]["y"]*$tile_h+$tile_h/2);
+      imageline($buffer,$p1x,$p1y,$p2x,$p2y,$color_path_line);
+    }
+  }
   $crop=True;
-  if (($crop==True) and ($map!==False))
+  if (($crop==True) and ($map!==False) and (isset($player["path"])==False))
   {
     $boundary_l=$cols;
     $boundary_t=$rows;
@@ -811,6 +854,154 @@ function mud_map_image($coords,$cols,$rows,$player=False)
   ob_end_clean();
   imagedestroy($buffer);
   return $data;
+}
+
+#####################################################################################################
+
+function find_path(&$path,$start,$finish)
+{
+  global $dir_x;
+  global $dir_y;
+  global $map_data;
+  $path=array();
+  $locations=array();
+  $cols=$map_data["cols"];
+  $rows=$map_data["rows"];
+  if (($start["x"]<0) or ($start["x"]>=$cols) or ($finish["x"]<0) or ($finish["x"]>=$cols) or ($start["y"]<0) or ($start["y"]>=$rows) or ($finish["y"]<0) or ($finish["y"]>=$rows))
+  {
+    # invalid start or finish coordinate(s)
+    return False;
+  }
+  $coord_start=mud_map_coord($cols,$start["x"],$start["y"]);
+  $coord_finish=mud_map_coord($cols,$finish["x"],$finish["y"]);
+  if ($map_data["coords"][$coord_start]<>$map_data["coords"][$coord_finish])
+  {
+    # start and finish coordinates are on different terrain
+    return False;
+  }
+  # initialize the direction map with X (no direction)
+  $direction_map=str_repeat("X",strlen($map_data["coords"]));
+  $location_index=-1;
+  $currrent_location=$start;
+  do
+  {
+    # test for traversable locations in all directions around the current location
+    for ($direction=0;$direction<count($dir_x);$direction++)
+    {
+      $x=$currrent_location["x"]+$dir_x[$direction];
+      $y=$currrent_location["y"]+$dir_y[$direction];
+      # if the point at ($x, $y) is traversable, add it to the locations array if it hasn't already been added, and add the direction relative to the current location to the direction map
+      if (($x>=0) and ($y>=0) and ($x<$cols) and ($y<$rows))
+      {
+        $coord=mud_map_coord($cols,$x,$y);
+        if (($map_data["coords"][$coord_start]==$map_data["coords"][$coord]) and ($direction_map[$coord]=="X"))
+        {
+          $locations[]=array("x"=>$x,"y"=>$y);
+          $direction_map[$coord]=$direction;
+        }
+      }
+    }
+    # the current location has been fully tested. move on to the next traversable location stored in the locations array
+    $location_index++;
+    if ($location_index>=count($locations))
+    {
+      # run out of locations to test and finish hasn't been found
+      return False;
+    }
+    $currrent_location=$locations[$location_index];
+  }
+  # if the current location is the same as the finish location, a path has been found (break from the searching loop)
+  while (($currrent_location["x"]<>$finish["x"]) or ($currrent_location["y"]<>$finish["y"]));
+  $inverse_path=array();
+  $direction=$direction_map[mud_map_coord($cols,$currrent_location["x"],$currrent_location["y"])];
+  $inverse_path[]=array("x"=>$currrent_location["x"],"y"=>$currrent_location["y"],"dir"=>$direction);
+  # start from the finish and work back to the start, following the inverted directions and adding locations as you go
+  do
+  {
+    # to invert the direction, subtract the ordinal in the directions array instead of adding it
+    $currrent_location["x"]=$currrent_location["x"]-$dir_x[$direction];
+    $currrent_location["y"]=$currrent_location["y"]-$dir_y[$direction];
+    $direction=$direction_map[mud_map_coord($cols,$currrent_location["x"],$currrent_location["y"])];
+    $inverse_path[]=array("x"=>$currrent_location["x"],"y"=>$currrent_location["y"],"dir"=>$direction);
+  }
+  # when the start location is reached, break from the loop
+  while (($currrent_location["x"]<>$start["x"]) or ($currrent_location["y"]<>$start["y"]));
+  for ($i=count($inverse_path)-1;$i>=0;$i--)
+  {
+    $path[]=$inverse_path[$i];
+  }
+  return True;
+}
+
+#####################################################################################################
+
+function move_ai($hostname)
+{
+  global $map_data;
+  $player=check_player($hostname);
+  if ($player===False)
+  {
+    return;
+  }
+  $players=mud_query_players();
+  if ($players===False)
+  {
+    return;
+  }
+  $player_map=gzuncompress($player["map"]);
+  $start=array();
+  $start["x"]=$player["x_coord"];
+  $start["y"]=$player["y_coord"];
+  $paths=array();
+  foreach ($players as $record_index=>$enemy_data)
+  {
+    if ($enemy_data["hostname"]==$hostname)
+    {
+      continue;
+    }
+    $path=array();
+    $finish=array();
+    $finish["x"]=$enemy_data["x_coord"];
+    $finish["y"]=$enemy_data["y_coord"];
+    if (find_path($path,$start,$finish)==False)
+    {
+      privmsg("no path exists between $hostname and ".$enemy_data["hostname"]);
+      return;
+    }
+    if (count($path)<=1)
+    {
+      privmsg("no path exists between $hostname and ".$enemy_data["hostname"]);
+      return;
+    }
+    $paths[]=$path;
+  }
+  $min_path_length=$map_data["cols"]*$map_data["rows"];
+  $min_path=-1;
+  for ($i=0;$i<count($paths);$i++)
+  {
+    if (count($paths[$i])<$min_path_length)
+    {
+      $min_path=$i;
+      $min_path_length=count($paths[$i]);
+    }
+  }
+  if ($min_path<0)
+  {
+    privmsg("minimum path not found for ".$hostname);
+    return;
+  }
+  $player["path"]=$paths[$min_path];
+  $data=mud_map_image($map_data["coords"],$map_data["cols"],$map_data["rows"],$player);
+  if ($data===False)
+  {
+    return;
+  }
+  $result=upload_to_imgur($data);
+  if ($result===False)
+  {
+    return;
+  }
+  privmsg($result);
 }
 
 #####################################################################################################
