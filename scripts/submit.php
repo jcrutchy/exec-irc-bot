@@ -77,6 +77,8 @@ if ($i!==False)
   $source_title=trim(substr($source_title,0,$i));
 }
 
+$source_title=trim($source_title);
+
 if (($source_title===False) or ($source_title==""))
 {
   privmsg("error: title not found or empty");
