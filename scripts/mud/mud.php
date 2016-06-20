@@ -168,13 +168,22 @@ switch ($action)
       mud_update_player($player["hostname"],$player["x_coord"],$player["y_coord"],$player["deaths"],$player["kills"],$player["map"],0);
     }
     break;
-  case "admin-test-ai":
+  case "admin-init-ai":
     if (is_admin($hostname,$server)==True)
     {
-      $ai_hostname="mud_ai";
-      mud_init_player($ai_hostname,$map_data);
-      
-      $player=check_player($hostname);
+      mud_init_player($trailing,$map_data);
+    }
+    break;
+  case "admin-delete-player":
+    if (is_admin($hostname,$server)==True)
+    {
+      mud_delete_player($trailing);
+    }
+    break;
+  case "admin-move-ai":
+    if (is_admin($hostname,$server)==True)
+    {
+      $player=check_player($trailing);
       if ($player===False)
       {
         return;
@@ -185,8 +194,7 @@ switch ($action)
         return;
       }
       $player_map=gzuncompress($player["map"]);
-      move_ai($player,$players,$ai_hostname);
-      
+      move_ai($player,$players,$trailing);
       $data=mud_map_image($map_data["coords"],$map_data["cols"],$map_data["rows"],$player);
       if ($data===False)
       {
