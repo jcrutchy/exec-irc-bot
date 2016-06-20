@@ -9,6 +9,52 @@ delete_empty_elements($url_blacklist,True);
 
 #####################################################################################################
 
+function wget_proper($url,$titleonly=False)
+{
+  $redirect_data=get_redirected_url($url,"","",array());
+  if ($redirect_data===False)
+  {
+    pm("crutchy","wget_proper: get_redirected_url=false: $url");
+    return False;
+  }
+  $rd_url=$redirect_data["url"];
+  $rd_cookies=$redirect_data["cookies"];
+  $rd_extra_headers=$redirect_data["extra_headers"];
+  $host="";
+  $uri="";
+  $port=80;
+  if (get_host_and_uri($rd_url,$host,$uri,$port)==False)
+  {
+    pm("crutchy","wget_proper: get_host_and_uri=false: $url");
+    return False;
+  }
+  $breakcode="";
+  if ($titleonly==True)
+  {
+    $breakcode="return ((strpos(strtolower(\$response),\"</title>\")!==False) or (strlen(\$response)>=10000));";
+  }
+  $response=wget($host,$uri,$port,ICEWEASEL_UA,$rd_extra_headers,20,$breakcode,256);
+  if ($titleonly==True)
+  {
+    $html=strip_headers($response);
+    $title=extract_raw_tag($html,"title");
+    $title=html_decode($title);
+    $title=trim(html_decode($title));
+    if ($title=="")
+    {
+      pm("crutchy","wget_proper: title is empty: $url");
+      return False;
+    }
+    return $title;
+  }
+  else
+  {
+    return $response;
+  }
+}
+
+#####################################################################################################
+
 function upload_to_imgur($data,$type="png")
 {
   $pwd=file_get_contents("../pwd/imgur");

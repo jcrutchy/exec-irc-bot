@@ -173,8 +173,31 @@ switch ($action)
     {
       $ai_hostname="mud_ai";
       mud_init_player($ai_hostname,$map_data);
-      move_ai($ai_hostname);
-      mud_delete_player($ai_hostname);
+      
+      $player=check_player($hostname);
+      if ($player===False)
+      {
+        return;
+      }
+      $players=mud_query_players();
+      if ($players===False)
+      {
+        return;
+      }
+      $player_map=gzuncompress($player["map"]);
+      move_ai($player,$players,$ai_hostname);
+      
+      $data=mud_map_image($map_data["coords"],$map_data["cols"],$map_data["rows"],$player);
+      if ($data===False)
+      {
+        return;
+      }
+      $result=upload_to_imgur($data);
+      if ($result===False)
+      {
+        return;
+      }
+      privmsg($result);
     }
     break;
 }
@@ -935,42 +958,31 @@ function find_path(&$path,$start,$finish)
 
 #####################################################################################################
 
-function move_ai($hostname)
+function move_ai(&$player,&$players,$hostname)
 {
   global $map_data;
-  $player=check_player($hostname);
-  if ($player===False)
-  {
-    return;
-  }
-  $players=mud_query_players();
-  if ($players===False)
-  {
-    return;
-  }
-  $player_map=gzuncompress($player["map"]);
   $start=array();
   $start["x"]=$player["x_coord"];
   $start["y"]=$player["y_coord"];
   $paths=array();
-  foreach ($players as $record_index=>$enemy_data)
+  foreach ($players as $record_index=>$target_data)
   {
-    if ($enemy_data["hostname"]==$hostname)
+    if ($target_data["hostname"]==$hostname)
     {
       continue;
     }
     $path=array();
     $finish=array();
-    $finish["x"]=$enemy_data["x_coord"];
-    $finish["y"]=$enemy_data["y_coord"];
+    $finish["x"]=$target_data["x_coord"];
+    $finish["y"]=$target_data["y_coord"];
     if (find_path($path,$start,$finish)==False)
     {
-      privmsg("no path exists between $hostname and ".$enemy_data["hostname"]);
+      privmsg("no path exists between $hostname and ".$target_data["hostname"]);
       return;
     }
     if (count($path)<=1)
     {
-      privmsg("no path exists between $hostname and ".$enemy_data["hostname"]);
+      privmsg("no path exists between $hostname and ".$target_data["hostname"]);
       return;
     }
     $paths[]=$path;
@@ -991,17 +1003,6 @@ function move_ai($hostname)
     return;
   }
   $player["path"]=$paths[$min_path];
-  $data=mud_map_image($map_data["coords"],$map_data["cols"],$map_data["rows"],$player);
-  if ($data===False)
-  {
-    return;
-  }
-  $result=upload_to_imgur($data);
-  if ($result===False)
-  {
-    return;
-  }
-  privmsg($result);
 }
 
 #####################################################################################################

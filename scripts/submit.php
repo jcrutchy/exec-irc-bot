@@ -31,15 +31,8 @@ if ($url===False)
   privmsg("error: unable to download source (get_redirected_url)");
   return;
 }
-$host="";
-$uri="";
-$port=80;
-if (get_host_and_uri($url,$host,$uri,$port)==False)
-{
-  privmsg("error: unable to download source (get_host_and_uri)");
-  return;
-}
-$response=wget($host,$uri,$port);
+
+$response=wget_proper($url);
 $source_html=strip_headers($response);
 $source_title=extract_raw_tag($source_html,"title");
 
