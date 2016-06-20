@@ -14,7 +14,7 @@ exec:~filter|120|0|0|1|*||||php scripts/submit.php %%trailing%% %%dest%% %%nick%
 
 require_once("lib.php");
 
-$trailing=$argv[1];
+$trailing=trim($argv[1]);
 $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
@@ -23,6 +23,15 @@ if ($trailing=="")
 {
   privmsg("usage: ~submit <url>");
   return;
+}
+
+$debug_mode=False;
+$parts=explode(" ",$trailing);
+if ($parts[0]=="debug")
+{
+  $debug_mode=True;
+  array_shift($parts);
+  $trailing=implode(" ",$parts);
 }
 
 $url=$trailing;
@@ -197,6 +206,10 @@ if ($nick<>"crutchy")
 } */
 
 $host="soylentnews.org";
+if ($debug_mode==True)
+{
+  $host="dev.soylentnews.org";
+}
 $port=443;
 $uri="/submit.pl";
 $response=wget($host,$uri,$port,ICEWEASEL_UA);
@@ -234,7 +247,7 @@ $html=clean_text($html);
 
 var_dump($html); # TODO: extract success/error message and output to IRC
 
-if (strpos($html,"Perhaps you would like to enter an email address or a URL next time. Thanks for the submission.")!==False)
+if (strpos($html,"Thanks for the submission.")!==False)
 {
   privmsg("submission successful - https://$host/submit.pl?op=list");
 }
