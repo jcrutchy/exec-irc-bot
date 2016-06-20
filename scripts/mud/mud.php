@@ -1012,15 +1012,20 @@ function move_ai(&$player,&$players,$hostname)
     privmsg("minimum path not found for ".$hostname);
     return;
   }
-  $dir=$paths[$min_path][1]["dir"];
-  $x=$player["x_coord"]+$dir_x[$dir];
-  $y=$player["y_coord"]+$dir_y[$dir];
-  $c=mud_map_coord($map_data["cols"],$x,$y);
   $map=gzuncompress($player["map"]);
-  $map[$c]=$map_data["coords"][$c];
-  $kills=$player["kills"];
-  mud_update_player($hostname,$x,$y,$player["deaths"],$kills,gzcompress($map));
-  $player["path"]=$paths[$min_path];
+  term_echo("startling location: ".$player["x_coord"].", ".$player["y_coord"]);
+  for ($i=1;$i<count($paths[$min_path]);$i++)
+  {
+    $dir=$paths[$min_path][$i]["dir"];
+    $player["x_coord"]=$player["x_coord"]+$dir_x[$dir];
+    $player["y_coord"]=$player["y_coord"]+$dir_y[$dir];
+    term_echo("location: ".$player["x_coord"].", ".$player["y_coord"]);
+  }
+  #$c=mud_map_coord($map_data["cols"],$x,$y);
+  #$map[$c]=$map_data["coords"][$c];
+  #$kills=$player["kills"];
+  #mud_update_player($hostname,$x,$y,$player["deaths"],$kills,gzcompress($map));
+  #$player["path"]=$paths[$min_path];
 }
 
 #####################################################################################################
