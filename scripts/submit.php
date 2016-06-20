@@ -25,13 +25,7 @@ if ($trailing=="")
   return;
 }
 
-$url=get_redirected_url($trailing);
-if ($url===False)
-{
-  privmsg("error: unable to download source (get_redirected_url)");
-  return;
-}
-
+$url=$trailing;
 $response=wget_proper($url);
 $source_html=strip_headers($response);
 $source_title=extract_raw_tag($source_html,"title");
