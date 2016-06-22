@@ -22,12 +22,19 @@ $alias=$argv[4];
 if ($trailing=="")
 {
   privmsg("syntax to search: $alias %search%, set: $alias %id% %content%, delete: $alias %id% -");
-  privmsg("can't use pipe (|) char, %id% can't contain spaces, but %content% can, %search% is a regexp pattern");
+  privmsg("keys can't contain pipe (|) character and %id% can't contain spaces, but %content% can, %search% is a regexp pattern");
   privmsg("will return a list of one or more %id% => %content% if %search% matches either %id% or %content%");
   return;
 }
 
 $list=load_settings(DATA_PATH."links","|");
+
+if ($trailing=="count")
+{
+  privmsg(count($list));
+  return;
+}
+
 ksort($list);
 $parts=explode(" ",$trailing);
 if (count($parts)>=2)
@@ -49,20 +56,24 @@ if (count($parts)>=2)
     $id=$parts[0];
     array_shift($parts);
     $content=implode(" ",$parts);
-    if ((strpos($id,"|")===False) and (strpos($content,"|")===False))
+    if (strpos($id,"|")===False)
     {
-      $list[$id]=$content;
-      privmsg("  └─ $id => ".$list[$id]);
+      $list[$id]=base64_encode($content);
+      privmsg("  └─ $id => ".$content);
     }
     else
     {
-      privmsg("  └─ error: can't contain pipe (|) character");
+      privmsg("  └─ error: id can't contain pipe (|) character");
     }
   }
   save_settings($list,DATA_PATH."links","|");
 }
 else
 {
+  foreach ($list as $key=>$value)
+  {
+    $list[$key]=base64_decode($value);
+  }
   $results=array_merge(match_keys($trailing,$list),match_values($trailing,$list));
   $n=count($results);
   if ($n>0)
