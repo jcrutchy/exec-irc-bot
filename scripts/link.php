@@ -78,6 +78,7 @@ else
   {
     $list[$key]=base64_decode($value);
   }
+  var_dump($list);
   $results=array_merge(match_keys($trailing,$list),match_values($trailing,$list));
   $n=count($results);
   if ($n>0)

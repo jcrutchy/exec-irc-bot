@@ -84,7 +84,7 @@ function parse_parameters($text,$delim="=",$sep=",",$force=False)
 
 #####################################################################################################
 
-function load_settings($filename,$delim="=")
+function load_settings($filename,$delim="=",$permit_comments=False)
 {
   if (file_exists($filename)==False)
   {
@@ -106,7 +106,7 @@ function load_settings($filename,$delim="=")
       continue;
     }
     $line=trim($data[$i]);
-    if ($line[0]=="#")
+    if (($line[0]=="#") and ($permit_comments==True))
     {
       continue;
     }
