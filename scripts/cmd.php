@@ -325,11 +325,16 @@ function handle_macros($nick,$channel,$trailing)
         return;
       }
       array_shift($parts);
-      if (isset($macros[$parts[0]])==True)
+      if ($parts[0]==$trigger)
+      {
+        privmsg(chr(3)."02"."  *** error: macros not permitted to trigger themselves");
+        return;
+      }
+      /*if (isset($macros[$parts[0]])==True)
       {
         privmsg(chr(3)."02"."  *** error: triggering other macros is not permitted");
         return;
-      }
+      }*/
       if ($cmd=="INTERNAL")
       {
         if (isset($exec_list[$parts[0]])==False)

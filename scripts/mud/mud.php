@@ -194,7 +194,7 @@ switch ($action)
         return;
       }
       $player_map=gzuncompress($player["map"]);
-      move_ai($player,$players,$trailing);
+      move_ai($player,$players,$trailing);      
       $data=mud_map_image($map_data["coords"],$map_data["cols"],$map_data["rows"],$player);
       if ($data===False)
       {
@@ -615,6 +615,8 @@ function mud_map_coord($cols,$x,$y)
 
 function mud_map_image($coords,$cols,$rows,$player=False)
 {
+  global $dir_x;
+  global $dir_y;
   $map=False;
   if ($player!==False)
   {
@@ -635,6 +637,9 @@ function mud_map_image($coords,$cols,$rows,$player=False)
   $color_visited=imagecolorallocate($buffer,0,153,0);
   $color_current=imagecolorallocate($buffer,0,51,0);
   $color_fog=imagecolorallocate($buffer,100,100,100);
+  $color_directions=imagecolorallocate($buffer,255,255,0);
+  $color_grid=imagecolorallocate($buffer,0,0,0);
+  $color_trail=imagecolorallocate($buffer,200,0,200);
   for ($y=0;$y<$rows;$y++)
   {
     for ($x=0;$x<$cols;$x++)
@@ -742,60 +747,34 @@ function mud_map_image($coords,$cols,$rows,$player=False)
       }
     }
   }
-  $grid=True; # make into user setting
-  $coords=True; # make into user setting
-  if ($grid==True)
+  for ($x=0;$x<$cols;$x++)
   {
-    $color_grid=imagecolorallocate($buffer,0,0,0);
-    for ($x=0;$x<$cols;$x++)
-    {
-      imageline($buffer,$x*$tile_w,0,$x*$tile_w,$h,$color_grid);
-    }
-    for ($y=0;$y<$rows;$y++)
-    {
-      imageline($buffer,0,$y*$tile_h,$w,$y*$tile_h,$color_grid);
-    }
+    imageline($buffer,$x*$tile_w,0,$x*$tile_w,$h,$color_grid);
   }
-  /*if ($coords==True)
+  for ($y=0;$y<$rows;$y++)
   {
-    $color_text=imagecolorallocate($buffer,0,0,0);
-    #$color_text_shadow=imagecolorallocate($buffer,255,255,255);
-    for ($y=0;$y<$rows;$y++)
-    {
-      for ($x=0;$x<$cols;$x++)
-      {
-        $i=mud_map_coord($cols,$x,$y);
-        #if ($player_data[$account]["fog"][$i]=="0")
-        #{
-          #continue;
-        #}
-        #imagestring($buffer,1,$x*$tile_w+1,$y*$tile_h,"$x,$y",$color_text_shadow);
-        imagestring($buffer,1,$x*$tile_w+2,$y*$tile_h+1,"$x,$y",$color_text);
-      }
-    }
-  }*/
+    imageline($buffer,0,$y*$tile_h,$w,$y*$tile_h,$color_grid);
+  }
   if (isset($player["path"])==True)
   {
     $path=$player["path"];
-    $color_path=imagecolorallocate($buffer,200,0,200);
-    $color_path_line=imagecolorallocate($buffer,255,0,0);
     for ($i=1;$i<count($path);$i++)
     {
       $x=$path[$i]["x"];
       $y=$path[$i]["y"];
-      if (imagefilledrectangle($buffer,$x*$tile_w,$y*$tile_h,($x+1)*$tile_w,($y+1)*$tile_h,$color_path)==False)
+      if (imagefilledrectangle($buffer,$x*$tile_w,$y*$tile_h,($x+1)*$tile_w,($y+1)*$tile_h,$color_trail)==False)
       {
         return False;
       }
       $p1x=round($path[$i-1]["x"]*$tile_w+$tile_w/2);
       $p1y=round($path[$i-1]["y"]*$tile_h+$tile_h/2);
-      $p2x=round($x*$tile_w+$tile_w/2);
-      $p2y=round($path[$i]["y"]*$tile_h+$tile_h/2);
-      imageline($buffer,$p1x,$p1y,$p2x,$p2y,$color_path_line);
+      $d=$path[$i]["dir"];
+      $p2x=$p1x+round($dir_x[$d]*$tile_w/2);
+      $p2y=$p1y+round($dir_y[$d]*$tile_h/2);
+      imageline($buffer,$p1x,$p1y,$p2x,$p2y,$color_directions);
     }
   }
-  $crop=True;
-  if (($crop==True) and ($map!==False) and (isset($player["path"])==False))
+  if (($map!==False) and (isset($player["path"])==False))
   {
     $boundary_l=$cols;
     $boundary_t=$rows;
@@ -835,8 +814,8 @@ function mud_map_image($coords,$cols,$rows,$player=False)
     {
       $range_x=$boundary_r-$boundary_l;
       $range_y=$boundary_b-$boundary_t;
-      $w=$range_x*$tile_w+1; # the +1 only applies if grid is enabled
-      $h=$range_y*$tile_h+1; # the +1 only applies if grid is enabled
+      $w=$range_x*$tile_w+1; # the +1 only applies if grid is used
+      $h=$range_y*$tile_h+1; # the +1 only applies if grid is used
       $buffer_resized=imagecreatetruecolor($w,$h);
       if (imagecopy($buffer_resized,$buffer,0,0,$boundary_l*$tile_w,$boundary_t*$tile_h,$w,$h)==False)
       {
@@ -855,30 +834,9 @@ function mud_map_image($coords,$cols,$rows,$player=False)
     }
     else
     {
-      #privmsg("map boundary error");
       return False;
     }
   }
-  
-  # to make final map image smaller filesize, use createimage to create palleted image, then copy truecolor image to palleted image
-  /*$scale=1.0;
-  $final_w=round($w*$scale);
-  $final_h=round($h*$scale);
-  $buffer_resized=imagecreatetruecolor($final_w,$final_h);
-  if (imagecopyresampled($buffer_resized,$buffer,0,0,0,0,$final_w,$final_h,$w,$h)==False)
-  {
-    echo "imagecopyresampled error".PHP_EOL;
-    return False;
-  }
-  imagedestroy($buffer);
-  $buffer=imagecreate($final_w,$final_h);
-  if (imagecopy($buffer,$buffer_resized,0,0,0,0,$final_w,$final_h)==False)
-  {
-    echo "imagecopy error".PHP_EOL;
-    return False;
-  }
-  imagedestroy($buffer_resized);
-  unset($buffer_resized);*/
   ob_start();
   imagepng($buffer);
   $data=ob_get_contents();
@@ -988,12 +946,12 @@ function move_ai(&$player,&$players,$hostname)
     if (find_path($path,$start,$finish)==False)
     {
       privmsg("no path exists between $hostname and ".$target_data["hostname"]);
-      return;
+      return False;
     }
     if (count($path)<=1)
     {
       privmsg("no path exists between $hostname and ".$target_data["hostname"]);
-      return;
+      return False;
     }
     $paths[]=$path;
   }
@@ -1010,22 +968,21 @@ function move_ai(&$player,&$players,$hostname)
   if ($min_path<0)
   {
     privmsg("minimum path not found for ".$hostname);
-    return;
+    return False;
   }
-  $map=gzuncompress($player["map"]);
-  term_echo("startling location: ".$player["x_coord"].", ".$player["y_coord"]);
-  for ($i=1;$i<count($paths[$min_path]);$i++)
+  /*for ($i=1;$i<count($paths[$min_path]);$i++)
   {
     $dir=$paths[$min_path][$i]["dir"];
     $player["x_coord"]=$player["x_coord"]+$dir_x[$dir];
     $player["y_coord"]=$player["y_coord"]+$dir_y[$dir];
-    term_echo("location: ".$player["x_coord"].", ".$player["y_coord"]);
-  }
+  }*/
+  $player["path"]=$paths[$min_path];
+  return $paths[$min_path];
+  #$map=gzuncompress($player["map"]);
   #$c=mud_map_coord($map_data["cols"],$x,$y);
   #$map[$c]=$map_data["coords"][$c];
   #$kills=$player["kills"];
   #mud_update_player($hostname,$x,$y,$player["deaths"],$kills,gzcompress($map));
-  #$player["path"]=$paths[$min_path];
 }
 
 #####################################################################################################
