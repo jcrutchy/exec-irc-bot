@@ -22,12 +22,16 @@ $alias=$argv[4];
 if ($trailing=="")
 {
   privmsg("syntax to search: $alias %search%, set: $alias %id% %content%, delete: $alias %id% -");
-  privmsg("keys can't contain pipe (|) character and %id% can't contain spaces, but %content% can, %search% is a regexp pattern");
+  privmsg("%id% can't contain pipe (|) character or contain spaces, but %content% can, %search% is a regexp pattern");
   privmsg("will return a list of one or more %id% => %content% if %search% matches either %id% or %content%");
   return;
 }
 
 $list=load_settings(DATA_PATH."links","|");
+if ($list===False)
+{
+  $list=array();
+}
 
 if ($trailing=="count")
 {
