@@ -330,16 +330,11 @@ function handle_macros($nick,$channel,$trailing)
         privmsg(chr(3)."02"."  *** error: macros not permitted to trigger themselves");
         return;
       }
-      /*if (isset($macros[$parts[0]])==True)
-      {
-        privmsg(chr(3)."02"."  *** error: triggering other macros is not permitted");
-        return;
-      }*/
       if ($cmd=="INTERNAL")
       {
-        if (isset($exec_list[$parts[0]])==False)
+        if ((isset($exec_list[$parts[0]])==False) and (isset($macros[$parts[0]])==False))
         {
-          privmsg(chr(3)."02"."  *** error: internal command must trigger a valid alias");
+          privmsg(chr(3)."02"."  *** error: internal command must trigger a valid alias or macro");
           return;
         }
       }
