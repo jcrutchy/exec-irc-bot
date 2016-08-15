@@ -382,6 +382,7 @@ function handle_macros($nick,$channel,$trailing)
           $command=str_replace("%%channel%%",$channel,$data["command"]);
           $command=str_replace("%%nick%%",$nick,$command);
           $command=str_replace("%%trailing%%",$trailing,$command);
+          # TODO: TEST IF UNAUTHORISED NICK CAN MAKE A PRIVELIGED COMMAND WORK (MAKE A TEST MACRO THAT USES ~say FOR EXAMPLE)
           if ($cmd=="INTERNAL")
           {
             echo "/INTERNAL :$nick INTERNAL $channel :$command\n";
