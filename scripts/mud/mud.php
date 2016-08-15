@@ -13,6 +13,7 @@ exec:enable ~mud
 
 /*
 run setup.php script in mysql directory to create mysql schema
+run mapgen.php to generate new map file
 */
 
 #####################################################################################################
@@ -35,6 +36,7 @@ date_default_timezone_set("UTC");
 
 require_once(__DIR__."/../lib.php");
 require_once(__DIR__."/../lib_mysql.php");
+require_once("mud_ai.php");
 
 $trailing=strtolower(trim($argv[1]));
 $dest=$argv[2];
@@ -194,7 +196,7 @@ switch ($action)
         return;
       }
       $player_map=gzuncompress($player["map"]);
-      move_ai($player,$players,$trailing);      
+      move_ai($player,$players,$trailing);
       $data=mud_map_image($map_data["coords"],$map_data["cols"],$map_data["rows"],$player);
       if ($data===False)
       {

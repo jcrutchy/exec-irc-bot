@@ -913,6 +913,11 @@ function handle_buckets($data,$handle)
         $result=handle_stdin($handle,OPERATOR_ACCOUNT);
         return True;
       }
+      if ($index==BUCKET_MEMORY_USAGE)
+      {
+        $result=handle_stdin($handle,memory_get_usage());
+        return True;
+      }
       if ($index==BUCKET_OPERATOR_HOSTNAME)
       {
         $result=handle_stdin($handle,OPERATOR_HOSTNAME);
