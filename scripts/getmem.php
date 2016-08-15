@@ -18,6 +18,7 @@ $trailing=trim($argv[1]);
 #privmsg(get_bucket("<<BOT_MEMORY_USAGE>>"));
 
 $output=shell_exec("top -n1 -c -b | grep -m 1 'php irc.php'");
+pm("crutchy",$output);
 $output=explode(" ",$output);
 delete_empty_elements($output);
 if (count($output)>=12)
