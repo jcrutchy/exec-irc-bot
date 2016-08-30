@@ -28,24 +28,35 @@ function initialize_irc_connection()
 
 function initialize_socket()
 {
+  $err_no=0;
+  $err_msg="";
   if (IRC_PORT=="6697")
   {
-    $socket=fsockopen("ssl://".IRC_HOST_CONNECT,IRC_PORT);
+    # cafile must contain both peer cert and then CA cert in single bundled file in order of peer, then CA
+    $context_options=array(
+      "ssl"=>array(
+        "peer_name"=>SSL_PEER_NAME,
+        "verify_peer"=>True,
+        "verify_peer_name"=>True,
+        "allow_self_signed"=>False,
+        "verify_depth"=>5,
+        "cafile"=>SSL_CA_FILE,
+        "disable_compression"=>True,
+        "SNI_enabled"=>True,
+        "ciphers"=>"ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128:AES256:HIGH:!SSLv2:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!RC4:!ADH"));
+    $context=stream_context_create($context_options);
+    $socket=stream_socket_client("tls://".IRC_HOST_CONNECT.":".IRC_PORT,$err_no,$err_msg,30,STREAM_CLIENT_CONNECT,$context);
   }
   else
   {
-    $socket=fsockopen(IRC_HOST_CONNECT,IRC_PORT);
+    $socket=stream_socket_client("tcp://".IRC_HOST_CONNECT.":".IRC_PORT,$err_no,$err_msg,30);
   }
   if ($socket===False)
   {
     term_echo("ERROR CREATING IRC SOCKET");
     die();
   }
-  else
-  {
-    stream_set_blocking($socket,0);
-  }
-  echo $socket."\n";
+  stream_set_blocking($socket,0);
   return $socket;
 }
 
@@ -1183,24 +1194,52 @@ function buckets_list($items)
 
 function handle_socket($socket)
 {
-  global $antiflog;
   global $irc_pause;
   if ($irc_pause==True)
   {
+    usleep(200000);
     return;
   }
-  if (is_resource($socket)==False)
+  $read=array($socket);
+  $write=Null;
+  $except=Null;
+  $c=stream_select($read,$write,$except,0,200000);
+  if ($c===False)
   {
     return;
   }
-  $data=fgets($socket);
-  if ($data!==False)
+  if ($c<>1)
   {
-    write_out_buffer_sock($data);
-    $antiflog=False;
-    if (pingpong($data)==False)
+    return;
+  }
+  $data="";
+  do
+  {
+    $buffer=fread($socket,8);
+    if (strlen($buffer)===False)
     {
-      handle_data($data,True);
+      term_echo("socket read error");
+      doquit();
+    }
+    $data.=$buffer;
+  }
+  while (strlen($buffer)>0);
+  if (strlen($data)==0)
+  {
+    term_echo("connection terminated by remote host");
+    doquit();
+  }
+  write_out_buffer_sock($data);
+  if (pingpong($data)==False)
+  {
+    $lines=explode(PHP_EOL,$data);
+    for ($i=0;$i<count($lines);$i++)
+    {
+      $line=$lines[$i];
+      if (trim($line)<>"")
+      {
+        handle_data($line.PHP_EOL,True);
+      }
     }
   }
 }

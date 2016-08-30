@@ -30,9 +30,9 @@ if (isset($argv[1])==False)
   define("IGNORE_FILE","../data/ignore");
   define("EXEC_FILE","exec.txt");
   define("INIT_CHAN_LIST","#crutchy,#debug"); # comma delimited
-  define("IRC_HOST_CONNECT","irc.sylnt.us");
+  define("IRC_HOST_CONNECT","chat.soylentnews.org");
   define("IRC_HOST","irc.sylnt.us");
-  define("IRC_PORT","6667");
+  define("IRC_PORT","6697");
   define("OPERATOR_ACCOUNT","crutchy");
   define("OPERATOR_HOSTNAME","709-27-2-01.cust.aussiebb.net");
   define("DEBUG_CHAN","#debug");
@@ -41,6 +41,8 @@ if (isset($argv[1])==False)
   define("MYSQL_LOG","1");
   define("NICKSERV_IDENTIFY","1");
   define("IFACE_ENABLE","0");
+  define("SSL_PEER_NAME","*.soylentnews.org");
+  define("SSL_CA_FILE","/home/jared/git/data/soylentnews.crt"); # cafile must contain both peer cert (https://staff.soylentnews.org/~bob/wildcard.crt) and then CA cert (http://sylnt.us/SoylentNewsCA.crt) in single bundled file in order of peer, then CA
 }
 elseif (file_exists($argv[1])==True)
 {
@@ -325,8 +327,6 @@ init();
 $socket=initialize_socket();
 initialize_irc_connection();
 
-$antiflog=True;
-
 # main program loop
 while (True)
 {
@@ -344,11 +344,6 @@ while (True)
   $handles=array_values($handles);
   handle_socket($socket);
   handle_direct_stdin();
-  if ($antiflog==True)
-  {
-    usleep(0.05e6); # delay to prevent cpu flogging
-  }
-  $antiflog=True;
   process_timed_execs();
 }
 
@@ -432,7 +427,7 @@ function rawmsg($msg,$obfuscate=False)
       }
     }
   }
-  fputs($socket,$msg."\n");
+  fwrite($socket,$msg."\n");
   $rawmsg_times[]=microtime(True);
   while (count($rawmsg_times)>RAWMSG_TIME_COUNT)
   {
