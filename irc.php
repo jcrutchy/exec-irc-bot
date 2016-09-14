@@ -34,7 +34,7 @@ if (isset($argv[1])==False)
   define("IRC_HOST","irc.sylnt.us");
   define("IRC_PORT","6697");
   define("OPERATOR_ACCOUNT","crutchy");
-  define("OPERATOR_HOSTNAME","709-27-2-01.cust.aussiebb.net");
+  define("OPERATOR_HOSTNAME","119-18-0-66.cust.aussiebb.net");
   define("DEBUG_CHAN","#debug");
   define("NICKSERV_IDENTIFY_PROMPT","You have 60 seconds to identify to your nickname before it is changed.");
   define("ADMIN_ACCOUNTS","chromas,juggs,martyb,cmn32480");

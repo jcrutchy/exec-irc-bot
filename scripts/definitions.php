@@ -13,7 +13,7 @@ exec:~define-source-edit|5|0|0|1|+||||php scripts/definitions.php %%trailing%% %
 exec:~define-source-param|5|0|0|1|+||||php scripts/definitions.php %%trailing%% %%alias%%
 exec:~define-source-delete|5|0|0|1|+||||php scripts/definitions.php %%trailing%% %%alias%%
 
-help:~define|looks up definition of term from a list of sources (such as urbandictionary)
+help:~define looks up definition of term from a list of sources (such as urbandictionary)
 
 */
 

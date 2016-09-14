@@ -4,9 +4,9 @@
 
 /*
 exec:~api|90|0|0|1|*|PRIVMSG|#dev,#Soylent,#,#crutchy||php scripts/sn_api.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
-help: ~api | syntax: ~api param1=value 1 param2=value 2 /depth 1/depth 2
-help: ~api | example 2: ~api m=user op=get_uid nick=The Mighty Buzzard /uid
-help: ~api | example 3: ~api m=story op=latest /0/title
+help:~api syntax: ~api param1=value 1 param2=value 2 /depth 1/depth 2
+help:~api example 2: ~api m=user op=get_uid nick=The Mighty Buzzard /uid
+help:~api example 3: ~api m=story op=latest /0/title
 */
 
 #####################################################################################################

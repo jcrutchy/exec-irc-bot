@@ -3,12 +3,21 @@
 #####################################################################################################
 
 /*
-exec:~youtube|20|0|0|1|||||php scripts/youtube.php %%trailing%%
-exec:~yt|20|0|0|1|||||php scripts/youtube.php %%trailing%%
-help: ~youtube | syntax: ~youtube <query>
-help: ~youtube | returns first result URL for a youtube search
-help: ~yt | syntax: ~youtube <query>
-help: ~yt | returns first result URL for a youtube search
+
+exec:add ~youtube
+exec:edit ~youtube timeout 20
+exec:edit ~youtube cmd php scripts/youtube.php %%trailing%%
+exec:enable ~youtube
+help:~youtube|syntax: ~youtube <query>
+help:~youtube|returns first result URL for a youtube search
+
+exec:add ~yt
+exec:edit ~yt timeout 20
+exec:edit ~yt cmd php scripts/youtube.php %%trailing%%
+exec:enable ~yt
+help:~yt|syntax: ~yt <query>
+help:~yt|returns first result URL for a youtube search
+
 */
 
 #####################################################################################################

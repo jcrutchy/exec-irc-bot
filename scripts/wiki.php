@@ -39,9 +39,9 @@ if ($trailing=="register-events")
 
 if ($alias=="~wiki-privmsg")
 {
-  /*if ($dest=="#wiki")
+  if ($dest=="#wiki")
   {
-    $cmd=".blockuser ";
+    /*$cmd=".blockuser ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)
     {
       wiki_blockuser($nick,$trailing);
@@ -64,7 +64,7 @@ if ($alias=="~wiki-privmsg")
     {
       wiki_undelpage($nick,$trailing);
       return;
-    }
+    }*/
     if ($trailing==".listspamrules")
     {
       wiki_listspamrules();
@@ -139,7 +139,7 @@ if ($alias=="~wiki-privmsg")
       wiki_autospamctl($nick,$trailing);
       return;
     }
-  }*/
+  }
   $delim1="[[";
   $delim2="]]";
   $parts=explode($delim1,$trailing);

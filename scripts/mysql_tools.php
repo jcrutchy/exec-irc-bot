@@ -5,7 +5,7 @@
 /*
 exec:~mysql|30|0|0|1|crutchy,chromas||#,#Soylent,#test,#journals||php scripts/mysql_tools.php %%trailing%% %%dest%% %%nick%% %%alias%%
 exec:~sql|30|0|0|1|crutchy,chromas||#,#Soylent,#test,#journals||php scripts/mysql_tools.php %%trailing%% %%dest%% %%nick%% %%alias%%
-help:~mysql|syntax: ~mysql query <sql>
+help:~mysql syntax: ~mysql query <sql>
 */
 
 #####################################################################################################

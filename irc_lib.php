@@ -136,14 +136,14 @@ function process_exec_helps()
   unset($file_lines);
   for ($i=0;$i<count($help_lines);$i++)
   {
-    $help_parts=explode("|",$help_lines[$i]);
+    $help_parts=explode(" ",$help_lines[$i]);
     if (count($help_parts)>=2)
     {
       $alias=trim($help_parts[0]);
       if (isset($exec_list[$alias]["help"])==True)
       {
         array_shift($help_parts);
-        $help_line=implode("|",$help_parts);
+        $help_line=implode(" ",$help_parts);
         $exec_list[$alias]["help"][]=$help_line;
         term_echo("ALIAS HELP: $alias => $help_line");
       }
