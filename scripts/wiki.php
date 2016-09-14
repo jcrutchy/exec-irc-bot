@@ -178,7 +178,7 @@ if ($alias=="~wiki-privmsg")
   return;
 }
 
-/*$login=get_bucket("wiki_login_cookieprefix");
+$login=get_bucket("wiki_login_cookieprefix");
 
 if (strtolower($trailing)=="login")
 {
@@ -231,7 +231,7 @@ elseif ($login<>"")
 else
 {
   privmsg("wiki: not logged in");
-}*/
+}
 
 #####################################################################################################
 

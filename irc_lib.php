@@ -3099,7 +3099,7 @@ function authenticate($items)
         {
           if (($account<>OPERATOR_ACCOUNT) or ($admin_items["hostname"]<>OPERATOR_HOSTNAME))
           {
-            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not authorized");
+            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not authorized (1)");
           }
           else
           {
@@ -3115,7 +3115,7 @@ function authenticate($items)
         {
           if ((($account<>OPERATOR_ACCOUNT) or ($admin_items["hostname"]<>OPERATOR_HOSTNAME)) and (in_array($account,$admin_accounts)==False))
           {
-            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not authorized");
+            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not authorized (2)");
           }
           else
           {
@@ -3131,7 +3131,7 @@ function authenticate($items)
         {
           if ((($account<>OPERATOR_ACCOUNT) or ($admin_items["hostname"]<>OPERATOR_HOSTNAME)) and (in_array($account,$exec_list[$alias]["accounts"])==False) and ($exec_list[$alias]["accounts_wildcard"]<>"*") and (in_array($account,$admin_accounts)==False))
           {
-            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not authorized");
+            term_echo("authentication failure: \"$account\" attempted to run \"$alias\" but is not authorized (3)");
           }
           else
           {

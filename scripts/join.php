@@ -20,7 +20,7 @@ for ($i=0;$i<count($parts);$i++)
     unset($parts[$i]);
   }
 }
-if (get_bot_nick()<>"exec")
+/*if (get_bot_nick()<>"exec")
 {
   $parts=array_values($parts);
   users_get_account("exec");
@@ -35,7 +35,7 @@ if (get_bot_nick()<>"exec")
       unset($parts[$i]);
     }
   }
-}
+}*/
 $parts=array_values($parts);
 for ($i=0;$i<count($parts);$i++)
 {

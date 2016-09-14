@@ -22,52 +22,18 @@ function login_cookie($cookieprefix,$sessionid)
 
 function logout($return=False)
 {
-  $response=wget(WIKI_HOST,"/w/api.php?action=logout&format=php",80);
-  $lines=explode("\n",$response);
-  $loggedout=False;
-  for ($i=0;$i<count($lines);$i++)
-  {
-    if ((substr($lines[$i],0,strlen("Set-Cookie"))=="Set-Cookie") and (strpos($lines[$i],"LoggedOut")!==False))
-    {
-      $loggedout=True;
-    }
-  }
+  $response=wget(WIKI_HOST,"/w/api.php?action=logout&format=php",443);
   unset_bucket("wiki_login_cookieprefix");
   unset_bucket("wiki_login_sessionid");
-  if ($loggedout==True)
-  {
-    wiki_privmsg($return,"wiki: successfully logged out");
-  }
-  else
-  {
-    wiki_privmsg($return,"wiki: logout confirmation not received");
-  }
 }
 
 #####################################################################################################
 
 function internal_logout($app_id)
 {
-  $response=wget(WIKI_HOST,"/w/api.php?action=logout&format=php",80);
-  $lines=explode("\n",$response);
-  $loggedout=False;
-  for ($i=0;$i<count($lines);$i++)
-  {
-    if ((substr($lines[$i],0,strlen("Set-Cookie"))=="Set-Cookie") and (strpos($lines[$i],"LoggedOut")!==False))
-    {
-      $loggedout=True;
-    }
-  }
+  $response=wget(WIKI_HOST,"/w/api.php?action=logout&format=php",443);
   unset_bucket($app_id."_wiki_login_cookieprefix");
   unset_bucket($app_id."_wiki_login_sessionid");
-  if ($loggedout==True)
-  {
-    #privmsg("wiki: successfully logged out");
-  }
-  else
-  {
-    privmsg("wiki: logout confirmation not received");
-  }
 }
 
 #####################################################################################################
@@ -77,17 +43,16 @@ function internal_login($app_id)
   $user_params=explode("\n",file_get_contents("../pwd/wiki.bot"));
   $params["lgname"]=$user_params[0];
   $params["lgpassword"]=$user_params[1];
-  $response=wpost(WIKI_HOST,"/w/api.php?action=login&format=php",80,WIKI_USER_AGENT,$params);
+  $response=wpost(WIKI_HOST,"/w/api.php?action=login&format=php",443,WIKI_USER_AGENT,$params);
   $data=unserialize(strip_headers($response));
   $headers["Cookie"]=login_cookie($data["login"]["cookieprefix"],$data["login"]["sessionid"]);
   $params["lgtoken"]=$data["login"]["token"];
-  $response=wpost(WIKI_HOST,"/w/api.php?action=login&format=php",80,WIKI_USER_AGENT,$params,$headers);
+  $response=wpost(WIKI_HOST,"/w/api.php?action=login&format=php",443,WIKI_USER_AGENT,$params,$headers);
   $data=unserialize(strip_headers($response));
   if ($data["login"]["result"]=="Success")
   {
     set_bucket($app_id."_wiki_login_cookieprefix",$data["login"]["cookieprefix"]);
     set_bucket($app_id."_wiki_login_sessionid",$data["login"]["sessionid"]);
-    #privmsg("wiki: login=".$data["login"]["result"].", username=".$data["login"]["lgusername"]." (userid=".$data["login"]["lguserid"].")");
     return True;
   }
   else
@@ -113,11 +78,11 @@ function login($nick,$return=False)
   $user_params=explode("\n",file_get_contents("../pwd/wiki.bot"));
   $params["lgname"]=$user_params[0];
   $params["lgpassword"]=$user_params[1];
-  $response=wpost(WIKI_HOST,"/w/api.php?action=login&format=php",80,WIKI_USER_AGENT,$params);
+  $response=wpost(WIKI_HOST,"/w/api.php?action=login&format=php",443,WIKI_USER_AGENT,$params);
   $data=unserialize(strip_headers($response));
   $headers["Cookie"]=login_cookie($data["login"]["cookieprefix"],$data["login"]["sessionid"]);
   $params["lgtoken"]=$data["login"]["token"];
-  $response=wpost(WIKI_HOST,"/w/api.php?action=login&format=php",80,WIKI_USER_AGENT,$params,$headers);
+  $response=wpost(WIKI_HOST,"/w/api.php?action=login&format=php",443,WIKI_USER_AGENT,$params,$headers);
   $data=unserialize(strip_headers($response));
   $msg="wiki: login=".$data["login"]["result"];
   if ($data["login"]["result"]=="Success")
@@ -152,8 +117,8 @@ function internal_rewrite_page($app_id,$title,$text,$summary="")
     return False;
   }
   $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
-  $uri="/w/api.php?action=tokens&format=php";
-  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
+  $uri="/w/api.php?action=query&meta=tokens&format=php";
+  $response=wget(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$headers);
   $data=unserialize(strip_headers($response));
   if (isset($data["tokens"]["edittoken"])==False)
   {
@@ -171,7 +136,7 @@ function internal_rewrite_page($app_id,$title,$text,$summary="")
     "contentmodel"=>"wikitext",
     "bot"=>"",
     "token"=>$token);
-  $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
+  $response=wpost(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$params,$headers);
   $data=unserialize(strip_headers($response));
   if (isset($data["error"])==True)
   {
@@ -215,8 +180,8 @@ function edit($title,$section,$text,$return=False)
     return False;
   }
   $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
-  $uri="/w/api.php?action=tokens&format=php";
-  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
+  $uri="/w/api.php?action=query&meta=tokens&format=php";
+  $response=wget(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$headers);
   $data=unserialize(strip_headers($response));
   #var_dump($data);
   if (isset($data["tokens"]["edittoken"])==False)
@@ -226,7 +191,7 @@ function edit($title,$section,$text,$return=False)
   }
   $token=$data["tokens"]["edittoken"];
   $uri="/w/api.php?action=parse&format=php&page=".urlencode($title)."&prop=sections";
-  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
+  $response=wget(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$headers);
   $data=unserialize(strip_headers($response));
   if (isset($data["parse"]["sections"])==False)
   {
@@ -275,7 +240,7 @@ function edit($title,$section,$text,$return=False)
     "bot"=>"",
     "token"=>$token);
   #var_dump($params);
-  $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
+  $response=wpost(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$params,$headers);
   $data=unserialize(strip_headers($response));
   #var_dump($data);
   if (isset($data["error"])==True)
@@ -309,7 +274,7 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
   if ($section<>"")
   {
     $uri="/w/api.php?action=parse&format=php&page=".urlencode($title)."&prop=sections";
-    $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT);
+    $response=wget(WIKI_HOST,$uri,443,WIKI_USER_AGENT);
     $data=unserialize(strip_headers($response));
     if (isset($data["parse"]["sections"])==False)
     {
@@ -339,7 +304,7 @@ function get_text($title,$section,$return=False,$return_lines_array=False)
     wiki_privmsg($return,"wiki: get_text=url parse failed");
     return False;
   }*/
-  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT);
+  $response=wget(WIKI_HOST,$uri,443,WIKI_USER_AGENT);
   $data=unserialize(strip_headers($response));
   if (isset($data["parse"]["text"]["*"])==True)
   {
@@ -527,7 +492,7 @@ function wiki_delpage($nick,$trailing,$return=False)
   }
   $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
   $uri="/w/api.php?action=query&meta=tokens&format=php&type=csrf";
-  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
+  $response=wget(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$headers);
   $data=unserialize(strip_headers($response));
   if (isset($data["query"]["tokens"]["csrftoken"])==False)
   {
@@ -537,7 +502,7 @@ function wiki_delpage($nick,$trailing,$return=False)
   $token=$data["query"]["tokens"]["csrftoken"];
   $uri="/w/api.php?action=delete&title=".urlencode($title)."&format=php&reason=spamctl";
   $params=array("token"=>$token);
-  $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
+  $response=wpost(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$params,$headers);
   $data=unserialize(strip_headers($response));
   logout(True);
   if (isset($data["error"])==True)
@@ -641,7 +606,7 @@ function wiki_spamctl($nick,$trailing)
     privmsg("  syntax: .spamctl <page title>");
     return;
   }
-  if (strtolower(substr($title,0,4))=="http")
+  if (strtolower(substr($title,0,5))=="https")
   {
     # TODO: ACCEPT WIKI URLS
   }
@@ -665,16 +630,18 @@ function wiki_spamctl($nick,$trailing)
     return;
   }
   $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
-  $uri="/w/api.php?action=tokens&format=php";
-  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
+  var_dump($headers);
+  $uri="/w/api.php?action=query&meta=tokens&format=php";
+  $response=wget(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$headers);
   $data=unserialize(strip_headers($response));
-  if (isset($data["tokens"]["edittoken"])==False)
+  var_dump($data);
+  if (isset($data["query"]["tokens"]["csrftoken"])==False)
   {
-    privmsg("  error getting edittoken");
+    privmsg("  error getting csrftoken");
     logout(True);
     return;
   }
-  $token=$data["tokens"]["edittoken"];
+  $token=$data["query"]["tokens"]["csrftoken"];
   $uri="/w/api.php?action=edit";
   $params=array(
     "format"=>"php",
@@ -684,7 +651,7 @@ function wiki_spamctl($nick,$trailing)
     "contentmodel"=>"wikitext",
     "bot"=>"",
     "token"=>$token);
-  $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
+  $response=wpost(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$params,$headers);
   $data=unserialize(strip_headers($response));
   if (isset($data["error"])==True)
   {
@@ -738,7 +705,7 @@ function wiki_unspamctl($nick,$trailing)
   }
   $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
   $uri="/w/api.php?action=query&format=php&meta=tokens&type=rollback";
-  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
+  $response=wget(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$headers);
   $data=unserialize(strip_headers($response));
   if (isset($data["query"]["tokens"]["rollbacktoken"])==False)
   {
@@ -756,7 +723,7 @@ function wiki_unspamctl($nick,$trailing)
     "contentmodel"=>"wikitext",
     "bot"=>"",
     "token"=>$token);
-  $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
+  $response=wpost(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$params,$headers);
   $data=unserialize(strip_headers($response));
   if (isset($data["error"])==True)
   {
@@ -1328,7 +1295,7 @@ function wiki_blockuser($nick,$trailing,$return=False)
   }
   $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
   $uri="/w/api.php?action=query&meta=tokens&format=php&type=csrf";
-  $response=wget(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$headers);
+  $response=wget(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$headers);
   $data=unserialize(strip_headers($response));
   if (isset($data["query"]["tokens"]["csrftoken"])==False)
   {
@@ -1339,7 +1306,7 @@ function wiki_blockuser($nick,$trailing,$return=False)
   var_dump($data);
   /*$uri="/w/api.php?action=delete&title=".urlencode($username)."&format=php&reason=spamctl";
   $params=array("token"=>$token);
-  $response=wpost(WIKI_HOST,$uri,80,WIKI_USER_AGENT,$params,$headers);
+  $response=wpost(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$params,$headers);
   $data=unserialize(strip_headers($response));*/
   logout(True);
   /*if (isset($data["error"])==True)
