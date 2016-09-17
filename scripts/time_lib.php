@@ -4,6 +4,8 @@ require_once("lib.php");
 
 # google "time arizona, usa" gives 2 times (due to crossing timezones)
 
+define("TIME_PREFS_FILE","../data/time_prefs.txt");
+
 #####################################################################################################
 
 function get_time($location)

@@ -7,9 +7,9 @@
 #####################################################################################################
 
 /*
-exec:~wiki|40|0|0|0|*||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
-exec:~wiki-privmsg|40|0|0|0|||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
-init:~wiki register-events
+#exec:~wiki|40|0|0|0|*||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#exec:~wiki-privmsg|40|0|0|0|||||php scripts/wiki.php %%trailing%% %%dest%% %%nick%% %%alias%%
+#init:~wiki register-events
 */
 
 #####################################################################################################
@@ -39,7 +39,7 @@ if ($trailing=="register-events")
 
 if ($alias=="~wiki-privmsg")
 {
-  if ($dest=="#wiki")
+  if (($dest=="#wiki") or (get_bot_nick()=="x"))
   {
     /*$cmd=".blockuser ";
     if (strtolower(substr($trailing,0,strlen($cmd)))==$cmd)

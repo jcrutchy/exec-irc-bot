@@ -13,18 +13,11 @@ $wiki_bot_user="wikirc";
 
 #####################################################################################################
 
-function login_cookie($cookieprefix,$sessionid)
-{
-  return $cookieprefix."_session=".$sessionid;
-}
-
-#####################################################################################################
-
 function logout($return=False)
 {
   $response=wget(WIKI_HOST,"/w/api.php?action=logout&format=php",443);
-  unset_bucket("wiki_login_cookieprefix");
-  unset_bucket("wiki_login_sessionid");
+  unset_bucket("wiki_login_cookie");
+  unset_bucket("wiki_lgtoken");
 }
 
 #####################################################################################################
@@ -38,7 +31,7 @@ function internal_logout($app_id)
 
 #####################################################################################################
 
-function internal_login($app_id)
+/*function internal_login($app_id)
 {
   $user_params=explode("\n",file_get_contents("../pwd/wiki.bot"));
   $params["lgname"]=$user_params[0];
@@ -60,42 +53,72 @@ function internal_login($app_id)
     privmsg("wiki: login=".$data["login"]["result"]);
     return False;
   }
-}
+}*/
 
 #####################################################################################################
 
 function login($nick,$return=False)
 {
+/*
+		$result = $this->postRequest( new SimpleRequest( 'login', $credentials ) );
+		if ( $result['login']['result'] == "NeedToken" ) {
+			$result = $this->postRequest( new SimpleRequest( 'login', array_merge( array( 'lgtoken' => $result['login']['token'] ), $credentials) ) );
+		}
+		if ( $result['login']['result'] == "Success" ) {
+			$this->isLoggedIn = $apiUser->getUsername();
+			return true;
+		}
+*/
   global $wiki_admin_users;
   global $wiki_trusted_users;
   global $wiki_bot_user;
   $account=users_get_account($nick);
   if ((in_array($account,$wiki_admin_users)==False) and (in_array($account,$wiki_trusted_users)==False) and ($account<>$wiki_bot_user))
   {
-    privmsg("  error: not authorized (login)");
-    return;
+    wiki_privmsg($return,"not authorized (login)");
+    return False;
   }
-  $user_params=explode("\n",file_get_contents("../pwd/wiki.bot"));
+  $response=wget(WIKI_HOST,"/w/api.php?action=query&meta=tokens&type=login&format=php",443,WIKI_USER_AGENT);
+  $cookies=exec_get_cookies($response);
+  if (isset($cookies[0])==False)
+  {
+    wiki_privmsg($return,"session cookie not found (login) (1)");
+    return False;
+  }
+  $expected_cookie_prefix="soylent_med1_aex__session=";
+  if (substr($cookies[0],0,strlen($expected_cookie_prefix))<>$expected_cookie_prefix)
+  {
+    wiki_privmsg($return,"session cookie not found (login) (2)");
+    return False;
+  }
+  $data=unserialize(strip_headers($response));
+  if (isset($data["query"]["tokens"]["logintoken"])==False)
+  {
+    wiki_privmsg($return,"error getting token (login)");
+    return False;
+  }
+  $token=$data["query"]["tokens"]["logintoken"];
+  $user_params=explode("\n",file_get_contents("../pwd/wiki.bot.passwd"));
+  $params=array();
   $params["lgname"]=$user_params[0];
   $params["lgpassword"]=$user_params[1];
-  $response=wpost(WIKI_HOST,"/w/api.php?action=login&format=php",443,WIKI_USER_AGENT,$params);
-  $data=unserialize(strip_headers($response));
-  $headers["Cookie"]=login_cookie($data["login"]["cookieprefix"],$data["login"]["sessionid"]);
-  $params["lgtoken"]=$data["login"]["token"];
+  $params["lgtoken"]=$token;
+  $headers=array("Cookie"=>$cookies[0]);
   $response=wpost(WIKI_HOST,"/w/api.php?action=login&format=php",443,WIKI_USER_AGENT,$params,$headers);
   $data=unserialize(strip_headers($response));
-  $msg="wiki: login=".$data["login"]["result"];
+  #var_dump($data);
+  wiki_privmsg($return,"login=".$data["login"]["result"]);
   if ($data["login"]["result"]=="Success")
   {
-    set_bucket("wiki_login_cookieprefix",$data["login"]["cookieprefix"]);
-    set_bucket("wiki_login_sessionid",$data["login"]["sessionid"]);
-    $msg=$msg.", username=".$data["login"]["lgusername"]." (userid=".$data["login"]["lguserid"].")";
-    wiki_privmsg($return,$msg);
+    wiki_privmsg($return,"login=".$data["login"]["result"].", userid=".$data["login"]["lguserid"]);
+    set_bucket("wiki_login_cookie",$data["login"]["cookieprefix"]."_session=".$data["login"]["sessionid"]."; path=/; secure; httponly");
+    #Eset_bucket("wiki_login_cookie",$data["login"]["cookieprefix"]."_session=".$data["login"]["sessionid"].";");
+    set_bucket("wiki_lgtoken",$data["login"]["lgtoken"]);
     return True;
   }
   else
   {
-    wiki_privmsg($return,$msg);
+    wiki_privmsg($return,"login=".$data["login"]["result"]);
     return False;
   }
 }
@@ -379,11 +402,11 @@ function wiki_privmsg($return,$msg)
 {
   if ($return==False)
   {
-    privmsg(chr(3)."13".$msg);
+    privmsg(chr(3)."13wiki: ".$msg);
   }
   else
   {
-    term_echo(chr(3)."13".$msg);
+    term_echo("*** wiki: ".$msg);
   }
 }
 
@@ -622,26 +645,30 @@ function wiki_spamctl($nick,$trailing)
   {
     return;
   }
-  $cookieprefix=get_bucket("wiki_login_cookieprefix");
-  $sessionid=get_bucket("wiki_login_sessionid");
-  if (($cookieprefix=="") or ($sessionid==""))
+  $cookie=get_bucket("wiki_login_cookie");
+  $token=get_bucket("wiki_lgtoken");
+  if (($cookie=="") or ($token==""))
   {
-    privmsg("  not logged in");
+    privmsg("wiki: missing/invalid login cookie and/or token");
     return;
   }
-  $headers=array("Cookie"=>login_cookie($cookieprefix,$sessionid));
-  var_dump($headers);
-  $uri="/w/api.php?action=query&meta=tokens&format=php";
+  $headers=array("Cookie"=>$cookie);
+
+  $uri="/w/api.php?action=query&meta=tokens&type=csrf&format=php";
   $response=wget(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$headers);
+  var_dump($response);
   $data=unserialize(strip_headers($response));
-  var_dump($data);
-  if (isset($data["query"]["tokens"]["csrftoken"])==False)
+  #var_dump($data);
+  /*if (isset($data["query"]["tokens"]["csrftoken"])==False)
   {
-    privmsg("  error getting csrftoken");
+    privmsg("wiki: error getting csrftoken");
     logout(True);
     return;
-  }
-  $token=$data["query"]["tokens"]["csrftoken"];
+  }*/
+  die();
+  
+  #$token=$data["query"]["tokens"]["csrftoken"];
+
   $uri="/w/api.php?action=edit";
   $params=array(
     "format"=>"php",

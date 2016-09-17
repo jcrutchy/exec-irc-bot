@@ -6,6 +6,7 @@
 exec:~time|60|0|0|1|||||php scripts/time.php %%alias%% %%trailing%% %%nick%%
 exec:~time-add|10|0|0|1|||||php scripts/time.php %%alias%% %%trailing%% %%nick%%
 exec:~time-del|10|0|0|1|||||php scripts/time.php %%alias%% %%trailing%% %%nick%%
+exec:~time-prefs|10|0|0|1|||||php scripts/time.php %%alias%% %%trailing%% %%nick%%
 */
 
 #####################################################################################################
@@ -21,6 +22,42 @@ $nick=strtolower(trim($argv[3]));
 
 switch ($alias)
 {
+  case "~time-prefs":
+    if ($trailing=="")
+    {
+      privmsg("syntax: ~time-prefs pref value");
+      privmsg("format => format string per http://php.net/manual/en/function.date.php");
+      return;
+    }
+    $parts=explode(" ",$trailing);
+    delete_empty_elements($parts);
+    $pref=$parts[0];
+    array_shift($parts);
+    $trailing=trim(implode(" ",$parts));
+    $prefs=load_settings(TIME_PREFS_FILE);
+    if ($prefs===False)
+    {
+      $prefs=array();
+    }
+    if (isset($prefs[$nick])==True)
+    {
+      $nick_prefs=unserialize($prefs[$nick]);
+    }
+    switch ($pref)
+    {
+      case "format":
+        break;
+      default:
+        privmsg("  error: unknown pref");
+        return;
+    }
+    $nick_prefs[$pref]=$trailing;
+    $prefs[$nick]=serialize($nick_prefs);
+    if (save_settings($prefs,TIME_PREFS_FILE)==True)
+    {
+      privmsg("  successfully saved prefs");
+    }
+    break;
   case "~time-add":
     set_location_alias($alias,$trailing);
     break;
@@ -57,9 +94,17 @@ switch ($alias)
     $result=get_time($loc);
     if ($result<>"")
     {
+      $prefs=get_prefs($nick,TIME_PREFS_FILE);
       $arr=convert_google_location_time($result);
-      #privmsg($result);
-      privmsg(date("l, j F Y @ g:i a",$arr["timestamp"])." ".$arr["timezone"]." - ".$arr["location"]);
+      $format="l, j F Y @ g:i a";
+      if (isset($prefs["format"])==True)
+      {
+        if (trim($prefs["format"])<>"")
+        {
+          $format=$prefs["format"];
+        }
+      }
+      privmsg(date($format,$arr["timestamp"])." ".$arr["timezone"]." - ".$arr["location"]);
     }
     else
     {

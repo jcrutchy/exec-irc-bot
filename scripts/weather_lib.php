@@ -110,9 +110,9 @@ function set_location_alias($alias,$trailing)
 
 #####################################################################################################
 
-function get_prefs($nick)
+function get_prefs($nick,$filename=WEATHER_PREFS_FILE)
 {
-  $prefs=load_settings(WEATHER_PREFS_FILE);
+  $prefs=load_settings($filename);
   if (isset($prefs[$nick])==True)
   {
     return unserialize($prefs[$nick]);

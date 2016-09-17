@@ -586,7 +586,7 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
     term_echo($msg);
     return $msg;
   }
-  $headers="GET $uri HTTP/1.0\r\n";
+  $headers="GET $uri HTTP/1.1\r\n";
   $headers=$headers."Host: $host\r\n";
   if ($agent<>"")
   {
@@ -601,7 +601,7 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
   }
   $headers=$headers."Connection: Close\r\n\r\n";
   #$headers=$headers."Connection: keep-alive\r\n\r\n";
-  var_dump($headers);
+  #var_dump($headers);
   fwrite($fp,$headers);
   $response="";
   while (!feof($fp))
@@ -658,7 +658,7 @@ function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$t
   {
     $content=$params;
   }
-  $headers="POST $uri HTTP/1.0\r\n";
+  $headers="POST $uri HTTP/1.1\r\n";
   $headers=$headers."Host: $host\r\n";
   $headers=$headers."User-Agent: $agent\r\n";
   if (isset($extra_headers["Content-Type"])==False)
@@ -678,6 +678,7 @@ function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$t
   }
   $headers=$headers."Connection: Close\r\n\r\n";
   $request=$headers.$content;
+  #var_dump($request);
   if ($dump_request==True)
   {
     var_dump($request);
