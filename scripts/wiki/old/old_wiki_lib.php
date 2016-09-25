@@ -260,7 +260,7 @@ function edit($title,$section,$text,$return=False)
     "text"=>$text,
     "contentformat"=>"text/x-wiki",
     "contentmodel"=>"wikitext",
-    "bot"=>"",
+    "bot"=>"1",
     "token"=>$token);
   #var_dump($params);
   $response=wpost(WIKI_HOST,$uri,443,WIKI_USER_AGENT,$params,$headers);

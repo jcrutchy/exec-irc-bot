@@ -26,7 +26,7 @@ switch ($alias)
     if ($trailing=="")
     {
       privmsg("syntax: ~time-prefs pref value");
-      privmsg("format => format string per http://php.net/manual/en/function.date.php");
+      privmsg("format => format string per http://php.net/manual/en/function.date.php (empty format string to reset to default format)");
       return;
     }
     $parts=explode(" ",$trailing);

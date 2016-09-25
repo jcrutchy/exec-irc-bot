@@ -561,7 +561,27 @@ function wget_ssl($host,$uri,$agent=ICEWEASEL_UA,$extra_headers="")
 
 #####################################################################################################
 
-function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout=20,$breakcode="",$chunksize=1024,$check_url=True)
+function exec_get_ssl_stream_context($peer_name="")
+{
+  $context_options=array(
+    "ssl"=>array(
+      "verify_peer"=>True,
+      "verify_peer_name"=>True,
+      "allow_self_signed"=>False,
+      "verify_depth"=>5,
+      "disable_compression"=>True,
+      "SNI_enabled"=>True,
+      "ciphers"=>"ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128:AES256:HIGH:!SSLv2:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!RC4:!ADH"));
+  if ($peer_name<>"")
+  {
+    $context_options["ssl"]["peer_name"]=$peer_name;
+  }
+  return stream_context_create($context_options);
+}
+
+#####################################################################################################
+
+function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout=20,$breakcode="",$chunksize=1024,$check_url=True,$peer_name="")
 {
   if ($check_url==True)
   {
@@ -574,11 +594,11 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
   $errstr="";
   if ($port==443)
   {
-    $fp=@fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
+    $fp=stream_socket_client("tls://".$host.":".$port,$errno,$errstr,$timeout,STREAM_CLIENT_CONNECT,exec_get_ssl_stream_context($peer_name));
   }
   else
   {
-    $fp=@fsockopen($host,$port,$errno,$errstr,$timeout);
+    $fp=stream_socket_client("tcp://".$host.":".$port,$errno,$errstr,$timeout);
   }
   if ($fp===False)
   {
@@ -621,7 +641,7 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
 
 #####################################################################################################
 
-function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$timeout=20,$params_str=False,$dump_request=False)
+function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$timeout=20,$params_str=False,$dump_request=False,$peer_name="")
 {
   if (check_url($host.$uri)==False) # check url against blacklist
   {
@@ -631,11 +651,11 @@ function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$t
   $errstr="";
   if ($port==443)
   {
-    $fp=@fsockopen("ssl://$host",443,$errno,$errstr,$timeout);
+    $fp=stream_socket_client("tls://".$host.":".$port,$errno,$errstr,$timeout,STREAM_CLIENT_CONNECT,exec_get_ssl_stream_context($peer_name));
   }
   else
   {
-    $fp=@fsockopen($host,$port,$errno,$errstr,$timeout);
+    $fp=stream_socket_client("tcp://".$host.":".$port,$errno,$errstr,$timeout);
   }
   if ($fp===False)
   {
