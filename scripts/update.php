@@ -56,8 +56,59 @@ switch ($alias)
     }
     return;
   case "~delete-exec-file":
-
+    $root=realpath(__DIR__."/../")."/";
+    $skip=array(".","..",".git");
+    $list=array();
+    recurse_scandir($root,"",$list,$skip);
+    $skip=array("irc.php","irc_lib.php","exec.txt");
+    $list=array_diff($list,$skip);
+    $list=array_values($list);
+    if (in_array($trailing,$list)==False)
+    {
+      privmsg("error: invalid filename");
+      return;
+    }
+    $delfile=$root.$trailing;
+    if (file_exists($delfile)==False)
+    {
+      privmsg("error: file not found");
+      return;
+    }
+    if (unlink($delfile)==False)
+    {
+      privmsg("error: unable to delete file");
+    }
+    else
+    {
+      privmsg("successfully deleted \"$delfile\"");
+    }
     return;
+}
+
+#####################################################################################################
+
+function recurse_scandir($root,$path,&$list,$skip)
+{
+  $local=scandir($root.$path);
+  $local=array_diff($local,$skip);
+  $local=array_values($local);
+  $dirs=array();
+  for ($i=0;$i<count($local);$i++)
+  {
+    if ($path<>"")
+    {
+      $local[$i]=$path."/".$local[$i];
+    }
+    if (is_dir($root.$local[$i])==True)
+    {
+      $dirs[]=$local[$i];
+    }
+  }
+  $list=array_merge($list,$local);
+  for ($i=0;$i<count($dirs);$i++)
+  {
+    recurse_scandir($root,$dirs[$i],$list,$skip);
+  }
 }
 
 #####################################################################################################
