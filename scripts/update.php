@@ -26,10 +26,10 @@ switch ($alias)
       return;
     }
     privmsg("attempting to download https://raw.githubusercontent.com/crutchy-/exec-irc-bot/master/".$trailing);
-    $response=wget_ssl("raw.githubusercontent.com","/crutchy-/exec-irc-bot/master/".$trailing);
+    $response=wget("raw.githubusercontent.com","/crutchy-/exec-irc-bot/master/".$trailing,443);
     if ($response=="")
     {
-      privmsg("error downloading file (1)");
+      privmsg("no response from github");
       return;
     }
     $headers=exec_get_headers($response);
@@ -53,7 +53,7 @@ switch ($alias)
     }
     if (file_put_contents($outfile,$content)===False)
     {
-      privmsg("error downloading file (4)");
+      privmsg("error saving file");
     }
     else
     {
