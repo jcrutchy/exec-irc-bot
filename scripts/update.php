@@ -53,7 +53,7 @@ switch ($alias)
     }
     if (file_put_contents($outfile,$content)===False)
     {
-      privmsg("error downloading file (3)");
+      privmsg("error downloading file (4)");
     }
     else
     {
