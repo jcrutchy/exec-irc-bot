@@ -26,7 +26,7 @@ switch ($alias)
       return;
     }
     privmsg("attempting to download https://raw.githubusercontent.com/crutchy-/exec-irc-bot/master/".$trailing);
-    $response=wget("raw.githubusercontent.com","/crutchy-/exec-irc-bot/master/".$trailing,443);
+    $response=wget("raw.githubusercontent.com","/crutchy-/exec-irc-bot/master/".$trailing,443,ICEWEASEL_UA,$headers,60,"",1024,False,"www.github.com");
     if ($response=="")
     {
       privmsg("no response from github");
