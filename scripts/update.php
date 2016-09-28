@@ -46,6 +46,11 @@ switch ($alias)
     }
     $content=strip_headers($response);
     $outfile=realpath(__DIR__."/../")."/".$trailing;
+    if (file_exists($outfile)==False)
+    {
+      $path=basename($outfile);
+      mkdir($path,0777,True);
+    }
     if (file_put_contents($outfile,$content)===False)
     {
       privmsg("error downloading file (3)");
