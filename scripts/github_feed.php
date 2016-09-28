@@ -323,7 +323,7 @@ function get_api_data($uri)
   $headers=array();
   $headers["Authorization"]="token $tok";
   $headers["Accept"]="application/vnd.github.v3+json";
-  $response=wget($host,$uri,$port,ICEWEASEL_UA,$headers,60);
+  $response=wget($host,$uri,$port,ICEWEASEL_UA,$headers,60,"",1024,False,"*.github.com");
   $content=strip_headers($response);
   return json_decode($content,True);
 }
