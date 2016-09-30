@@ -655,7 +655,14 @@ function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$t
   $errstr="";
   if ($port==443)
   {
-    $fp=stream_socket_client("tls://".$host.":".$port,$errno,$errstr,$timeout,STREAM_CLIENT_CONNECT,exec_get_ssl_stream_context($peer_name));
+    if ($peer_name=="")
+    {
+      $fp=stream_socket_client("tls://".$host.":".$port,$errno,$errstr,$timeout);
+    }
+    else
+    {
+      $fp=stream_socket_client("tls://".$host.":".$port,$errno,$errstr,$timeout,STREAM_CLIENT_CONNECT,exec_get_ssl_stream_context($peer_name));
+    }
   }
   else
   {
