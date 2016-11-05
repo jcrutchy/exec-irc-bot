@@ -66,7 +66,10 @@ function sn_wiki_rewrite_page($title,$text,$summary)
         $msg[]="$key=$val";
       }
       $msg=implode(", ",$msg);
-      privmsg("*** wiki: ".$msg);
+      if ($data["edit"]["result"]<>"Success")
+      {
+        privmsg("*** wiki: ".$msg);
+      }
       sn_wiki_wget("/w/api.php?action=logout&format=php");
       if (isset($data["edit"]["spamblacklist"])==True)
       {

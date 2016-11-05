@@ -32,7 +32,15 @@ function title_privmsg($trailing,$channel,$show_rd,$show_trans)
     }
   }
   $list_https=array_values($list_https);
-  $list=array_merge($list_http,$list_https);
+  $list_tmp=array_merge($list_http,$list_https);
+  $list=array();
+  for ($i=0;$i<count($list_tmp);$i++)
+  {
+    $n=strpos($trailing,$list_tmp[$i]);
+    $list[$n]=$list_tmp[$i];
+  }
+  ksort($list);
+  $list=array_values($list);
   $out=array();
   for ($i=0;$i<min(4,count($list));$i++)
   {
