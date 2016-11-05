@@ -73,7 +73,9 @@ function upload_to_imgur($data,$type="png")
   $headers=array();
   $headers["Authorization"]="Client-ID ".$client_id;
   $headers["Content-Type"]="image/$type";
-  $data=json_decode(strip_headers(wpost("api.imgur.com","/3/image.json",443,ICEWEASEL_UA,$data,$headers,20,True)),True);
+  $headers["TE"]="";
+  $response=wpost("api.imgur.com","/3/image.json",443,ICEWEASEL_UA,$data,$headers,20,True);
+  $data=json_decode(strip_headers($response),True);
   if (isset($data["data"]["link"])==True)
   {
     return $data["data"]["link"];
@@ -610,7 +612,7 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
     term_echo($msg);
     return $msg;
   }
-  $headers="GET $uri HTTP/1.1\r\n";
+  $headers="GET $uri HTTP/1.0\r\n";
   $headers=$headers."Host: $host\r\n";
   if ($agent<>"")
   {
@@ -689,7 +691,7 @@ function wpost($host,$uri,$port,$agent=ICEWEASEL_UA,$params,$extra_headers="",$t
   {
     $content=$params;
   }
-  $headers="POST $uri HTTP/1.1\r\n";
+  $headers="POST $uri HTTP/1.0\r\n";
   $headers=$headers."Host: $host\r\n";
   $headers=$headers."User-Agent: $agent\r\n";
   if (isset($extra_headers["Content-Type"])==False)

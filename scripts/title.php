@@ -1,7 +1,5 @@
 <?php
 
-# TODO: not registering privmsg event for this script for some reason
-
 #####################################################################################################
 
 /*
@@ -56,9 +54,14 @@ if ($alias=="~title-internal")
       {
         $show_rd=True;
       }
+      $show_trans=False;
+      if (get_bucket("<exec_title_translate_$dest>")<>"")
+      {
+        $show_trans=True;
+      }
       if ($bucket=="on")
       {
-        title_privmsg($trailing,$channel,$show_rd);
+        title_privmsg($trailing,$channel,$show_rd,$show_trans);
       }
       break;
   }
@@ -144,6 +147,16 @@ elseif ($alias=="~title")
       privmsg("  titles disabled for ".chr(3)."10$dest");
     }
   }
+  elseif (strtolower($trailing)=="translate on")
+  {
+    set_bucket("<exec_title_translate_$dest>","on");
+    privmsg("  enabled translation for titles in ".chr(3)."10$dest");
+  }
+  elseif (strtolower($trailing)=="translate off")
+  {
+    unset_bucket("<exec_title_translate_$dest>");
+    privmsg("  disabled translation for titles in ".chr(3)."10$dest");
+  }
   elseif (strtolower($trailing)=="url on")
   {
     set_bucket("<exec_title_url_$dest>","on");
@@ -156,6 +169,7 @@ elseif ($alias=="~title")
   }
   else
   {
+    # "~title <url>" entered directly in irc
     $redirect_data=get_redirected_url($trailing,"","",array());
     if ($redirect_data===False)
     {
@@ -168,7 +182,7 @@ elseif ($alias=="~title")
     {
       $def=translate("auto","en",$raw);
       $msg=chr(3)."13".$raw.chr(3);
-      if ($def<>$raw)
+      if (($def<>$raw) and ($def<>""))
       {
         $msg=$msg." [".chr(3)."04".$def.chr(3)."]";
       }

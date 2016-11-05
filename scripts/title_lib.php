@@ -2,8 +2,12 @@
 
 #####################################################################################################
 
-function title_privmsg($trailing,$channel,$show_rd)
+function title_privmsg($trailing,$channel,$show_rd,$show_trans)
 {
+  if (substr($trailing,0,strlen("~title"))=="~title")
+  {
+    return;
+  }
   $list_http=explode("http://",$trailing);
   array_shift($list_http);
   for ($i=0;$i<count($list_http);$i++)
@@ -38,17 +42,12 @@ function title_privmsg($trailing,$channel,$show_rd)
       continue;
     }
     $rd_url=$redirect_data["url"];
-    # INCORPORATED THE FOLLOWING CONDITION TO ACCOMMODATE ohmibod YOUTUBE TITLES
-    if ((strpos($rd_url,"youtube")!==False) and ($channel=="##anime-japanese"))
-    {
-      continue;
-    }
     $raw=get_raw_title($redirect_data);
     if ($raw!==False)
     {
       $def=translate("auto","en",$raw);
       $msg=chr(3)."13".$raw.chr(3);
-      if (($def<>$raw) and ($def<>""))
+      if (($def<>$raw) and ($def<>"") and ($show_trans==True))
       {
         $msg=$msg." [".chr(3)."04".$def.chr(3)."]";
       }

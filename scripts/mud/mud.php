@@ -94,19 +94,19 @@ switch ($action)
 {
   case "u":
   case "up":
-    player_move($hostname,$dir_x[0],$dir_y[0],$map_data,$trailing);
+    player_move($hostname,$nick,$dir_x[0],$dir_y[0],$map_data,$trailing);
     break;
   case "r":
   case "right":
-    player_move($hostname,$dir_x[1],$dir_y[1],$map_data,$trailing);
+    player_move($hostname,$nick,$dir_x[1],$dir_y[1],$map_data,$trailing);
     break;
   case "d":
   case "down":
-    player_move($hostname,$dir_x[2],$dir_y[2],$map_data,$trailing);
+    player_move($hostname,$nick,$dir_x[2],$dir_y[2],$map_data,$trailing);
     break;
   case "l":
   case "left":
-    player_move($hostname,$dir_x[3],$dir_y[3],$map_data,$trailing);
+    player_move($hostname,$nick,$dir_x[3],$dir_y[3],$map_data,$trailing);
     break;
   case "init":
     mud_init_player($hostname,$map_data);
@@ -115,10 +115,10 @@ switch ($action)
     mud_delete_player($hostname);
     break;
   case "status":
-    player_status($hostname);
+    player_status($hostname,$nick);
     break;
   case "map":
-    player_map($hostname);
+    player_map($hostname,$nick);
     break;
   case "ranks":
   
@@ -379,7 +379,7 @@ function mud_update_player($hostname,$x,$y,$deaths,$kills,$map,$gm=0)
 
 #####################################################################################################
 
-function player_move($hostname,$dx,$dy,&$map_data,$factor="")
+function player_move($hostname,$nick,$dx,$dy,&$map_data,$factor="")
 {
   if (strlen($factor)>0)
   {
@@ -439,7 +439,7 @@ function player_move($hostname,$dx,$dy,&$map_data,$factor="")
     }
   }
   mud_update_player($hostname,$x,$y,$player["deaths"],$kills,gzcompress($map));
-  player_status($hostname);
+  player_status($hostname,$nick);
 }
 
 #####################################################################################################
@@ -486,7 +486,7 @@ function update_ranking(&$player,&$players)
 
 #####################################################################################################
 
-function player_status($hostname)
+function player_status($hostname,$nick)
 {
   global $dir_x;
   global $dir_y;
@@ -503,11 +503,6 @@ function player_status($hostname)
     return;
   }
   $i=update_ranking($player,$players);
-  $nick=users_get_nick($player["hostname"]);
-  if ($nick=="")
-  {
-    $nick=$player["hostname"];
-  }
   $x=$player["x_coord"];
   $y=$player["y_coord"];
   privmsg("mud: $nick => $x,$y [rank: $i]");
@@ -529,22 +524,18 @@ function player_status($hostname)
   }
   $open_dirs=implode(", ",$open_dirs);
   privmsg("mud: $nick => open directions: ".$open_dirs);
+  #player_map($hostname,$nick);
 }
 
 #####################################################################################################
 
-function player_map($hostname)
+function player_map($hostname,$nick)
 {
   global $map_data;
   $player=check_player($hostname);
   if ($player===False)
   {
     return;
-  }
-  $nick=users_get_nick($player["hostname"]);
-  if ($nick=="")
-  {
-    $nick=$player["hostname"];
   }
   $data=mud_map_image($map_data["coords"],$map_data["cols"],$map_data["rows"],$player);
   if ($data===False)
