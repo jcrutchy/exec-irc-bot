@@ -6,6 +6,7 @@
 exec:add ~arthur
 exec:edit ~arthur timeout 600
 exec:edit ~arthur repeat 3600
+#exec:edit ~arthur repeat 120
 exec:edit ~arthur accounts_wildcard *
 exec:edit ~arthur cmd php scripts/storybot_submit.php %%trailing%% %%dest%% %%nick%% %%alias%% %%cmd%%
 exec:enable ~arthur
@@ -23,6 +24,8 @@ $dest=$argv[2];
 $nick=$argv[3];
 $alias=$argv[4];
 $cmd=$argv[5];
+
+#pm("#crutchy","testing arthur");
 
 $allowed=array("crutchy","cmn32480","chromas","themightybuzzard","bytram");
 
@@ -93,7 +96,7 @@ if (in_array(strtolower($nick),$allowed)==True)
 }
 
 $bot_nick=get_bot_nick();
-if ($bot_nick<>"exec")
+if (($bot_nick<>"exec") and ($bot_nick<>"x"))
 {
   return;
 }

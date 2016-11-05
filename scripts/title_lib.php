@@ -103,14 +103,20 @@ function get_raw_title($redirect_data)
     term_echo("get_host_and_uri=false");
     return False;
   }
-  $breakcode="return ((strpos(strtolower(\$response),\"</title>\")!==False) or (strlen(\$response)>=10000));";
+  #$breakcode="return ((strpos(strtolower(\$response),\"</title>\")!==False) or (strlen(\$response)>=10000));";
+  $breakcode="return (((strpos(strtolower(\$response),\"</title>\")!==False) and (strpos(strtolower(\$response),\"charset=big5\")!==False)) or (strlen(\$response)>=10000));";
   #$breakcode="";
   $response=wget($host,$uri,$port,ICEWEASEL_UA,$rd_extra_headers,20,$breakcode,256);
   #var_dump($response);
   $html=strip_headers($response);
   $title=extract_raw_tag($html,"title");
+  if (strpos(strtolower($response),"big5")!==False)
+  {
+    $title=mb_convert_encoding($title,"UTF-8","BIG-5");
+  }
   $title=html_decode($title);
-  $title=trim(html_decode($title));
+  $title=html_decode($title);
+  $title=trim($title);
   if ($title=="")
   {
     term_echo("  get_raw_title: title is empty");

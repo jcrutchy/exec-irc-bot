@@ -625,6 +625,10 @@ function wget($host,$uri,$port=80,$agent=ICEWEASEL_UA,$extra_headers="",$timeout
       $headers=$headers.$key.": ".$value."\r\n";
     }
   }
+  if (isset($extra_headers["Accept"])==False)
+  {
+    $headers=$headers."Accept: text/html; charset=utf-8\r\n";
+  }
   $headers=$headers."Connection: Close\r\n\r\n";
   #$headers=$headers."Connection: keep-alive\r\n\r\n";
   #var_dump($headers);

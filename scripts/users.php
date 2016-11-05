@@ -92,7 +92,7 @@ switch ($cmd)
         privmsg("connected: no");
       }
     }
-    var_dump($user);
+    #var_dump($user);
     break;
   case "account":
     $subject_nick=strtolower(trim($trailing));
