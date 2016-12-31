@@ -23,9 +23,11 @@ run mapgen.php to generate new map file
     DEVELOPMENT TO-DO
     =================
 
+    - make a test command that takes number of players and number of turns as parameters and sets up test game with map output showing paths and stats of players (show stats box under map)
     - make so that players can leave waypoints on their maps and auto-move to them if they get lost
     - include wormholes where players can move between points on the map quickly
     - include a boundary fence that limits the playing area of the map, which can be varied on the fly based on the number of players
+    - increase player experience by different amounts (+ve & -ve) with number of moves / fights / kills / deaths / etc
 
 ****************************************************************************************************/
 
@@ -127,7 +129,7 @@ switch ($action)
   
     break;
   case "help":
-  
+    privmsg("mud: the multi-user dungeon from hell");
     break;
   case "list-gms":
   

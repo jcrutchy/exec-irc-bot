@@ -24,6 +24,7 @@ include ./scripts/translate.php
 include ./scripts/japanese.php
 include ./scripts/jisho2.php
 #include ./scripts/users.php
+include ./scripts/ny.php
 
 include ./scripts/rps.php
 
