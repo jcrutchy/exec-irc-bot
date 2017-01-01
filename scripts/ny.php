@@ -39,9 +39,10 @@ if (($sec<30) and ($sec>5))
 {
   pm($channel,chr(3)."04".$sec." seconds till new year for timezone GMT".$tz_hr);
 }
-if ($sec<=5)
+if ($sec<5)
 {
   pm($channel,rainbowize("HAPPY NEW YEAR")." FOR TIMEZONE GMT".$tz_hr." !!!");
+  pm($channel,"♪┏(°.°)┛┗(°.°)┓┗(°.°)┛┏(°.°)┓ ♪");
 }
 
 #####################################################################################################
