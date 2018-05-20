@@ -29,6 +29,10 @@ switch ($cmd)
     break;
   case "nicks":
     $channel=strtolower(trim($trailing));
+    if ($channel=="")
+    {
+      return;
+    }
     $nicks=users_get_nicks($channel);
     privmsg(implode(" ",$nicks));
     break;
@@ -44,6 +48,10 @@ switch ($cmd)
     break;
   case "count":
     $channel=strtolower(trim($trailing));
+    if ($channel=="")
+    {
+      return;
+    }
     $n=users_count_nicks($channel);
     privmsg("nicks in $channel: $n");
     break;

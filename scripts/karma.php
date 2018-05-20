@@ -19,7 +19,7 @@ $nick=$argv[3];
 $alias=$argv[4];
 $server=$argv[5];
 
-if ($server<>"banks.freenode.net")
+if ($server<>"roddenberry.freenode.net")
 {
   return;
 }

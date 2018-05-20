@@ -69,7 +69,7 @@ function finalize_socket()
   {
     rawmsg("NickServ LOGOUT");
   }
-  rawmsg("QUIT :dafuq");
+  rawmsg("QUIT :");
   fclose($socket);
 }
 
@@ -231,6 +231,7 @@ function process_exec_startups()
 function get_valid_data_cmd($allow_customs=True)
 {
   /*
+  prefix params trailing
   "000" = <command>
   "001" = <command> :<trailing>
   "010" = <command> <params>
@@ -244,18 +245,19 @@ function get_valid_data_cmd($allow_customs=True)
   */
   $result=array(
     "#"=>array("101","110","111"),
+    "USER"=>array("010","011"),
     "INVITE"=>array("111"),
-    "JOIN"=>array("110"),
+    "JOIN"=>array("010","110"),
     "KICK"=>array("110","111"),
     "KILL"=>array("101"),
     "MODE"=>array("101","110","111"),
-    "NICK"=>array("101"),
+    "NICK"=>array("010","101"),
     "NOTICE"=>array("111"),
     "PART"=>array("110","111"),
     "WHOIS"=>array("010","110"),
     "PRIVMSG"=>array("011","111"),
     "QUIT"=>array("100","101"),
-    "PONG"=>array("110","111"));
+    "PONG"=>array("001","110","111"));
   if ($allow_customs==True)
   {
     $customs=get_valid_custom_cmd();
@@ -322,7 +324,7 @@ function get_list_auth($items)
 {
   global $exec_list;
   global $reserved_aliases;
-  $msg=" ~q ~rehash ~ps ~kill ~killall ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~restart ~ignore ~unignore";
+  $msg=" ~quit ~rehash ~ps ~kill ~killall ~dest-override ~dest-clear ~buckets-dump ~buckets-save ~buckets-load ~buckets-flush ~buckets-list ~restart ~ignore ~unignore";
   privmsg($items["destination"],$items["nick"],$msg);
   $aliases=array_keys($exec_list);
   sort($aliases);
@@ -1805,390 +1807,391 @@ function handle_data($data,$is_sock=False,$auth=False,$exec=False)
     term_echo("*** auth = true");
   }
   $items=parse_data($data);
-  if ($items!==False)
+  if ($items===False)
   {
-    write_out_buffer_data($items);
-    if ($items["destination"]==DEBUG_CHAN)
+    return;
+  }
+  write_out_buffer_data($items);
+  if ($items["destination"]==DEBUG_CHAN)
+  {
+    return;
+  }
+  if (($auth==False) and ($is_sock==True))
+  {
+    log_items($items);
+  }
+  if (in_array($items["nick"],$ignore_list)==True)
+  {
+    return;
+  }
+  if ((isset($buckets[BUCKET_IGNORE_NEXT])==True) and ($items["nick"]==get_bot_nick()))
+  {
+    unset($buckets[BUCKET_IGNORE_NEXT]);
+    return;
+  }
+  if (($items["prefix"]==IRC_HOST) and (strpos(strtolower($items["trailing"]),"throttled")!==False))
+  {
+    term_echo("*** THROTTLED BY SERVER - REFUSING ALL OUTGOING MESSAGES TO SERVER FOR ".THROTTLE_LOCKOUT_TIME." SECONDS ***");
+    $throttle_time=microtime(True);
+    return;
+  }
+  if ($items["cmd"]=="330") # is logged in as
+  {
+    authenticate($items);
+  }
+  if ($items["cmd"]=="376") # RPL_ENDOFMOTD (RFC1459)
+  {
+    dojoin(INIT_CHAN_LIST);
+  }
+  if (($items["cmd"]=="NICK") and ($items["nick"]==get_bot_nick()))
+  {
+    set_bot_nick(trim($items["trailing"]));
+  }
+  if ($items["cmd"]=="432") # Erroneous Nickname
+  {
+    set_bot_nick(trim($items["params"]));
+  }
+  if ($items["cmd"]=="043") # Nick collision
+  {
+    $parts=explode(" ",trim($items["params"]));
+    set_bot_nick($parts[0]);
+  }
+  if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]==NICKSERV_IDENTIFY_PROMPT))
+  {
+    if ((file_exists(PASSWORD_FILE)==True) and (NICKSERV_IDENTIFY==="1"))
     {
-      return;
+      rawmsg("NickServ IDENTIFY ".trim(file_get_contents(PASSWORD_FILE)),True);
     }
+    startup();
+  }
+  $args=explode(" ",$items["trailing"]);
+  if ((is_operator_alias($args[0])==True) or (is_admin_alias($args[0])==True) or (has_account_list($args[0])==True))
+  {
     if (($auth==False) and ($is_sock==True))
     {
-      log_items($items);
-    }
-    if (in_array($items["nick"],$ignore_list)==True)
-    {
+      term_echo("authenticating \"".$args[0]."\"...");
+      $admin_data=$items["data"];
+      $admin_is_sock=$is_sock;
+      rawmsg("WHOIS ".$items["nick"]);
       return;
     }
-    if ((isset($buckets[BUCKET_IGNORE_NEXT])==True) and ($items["nick"]==get_bot_nick()))
-    {
-      unset($buckets[BUCKET_IGNORE_NEXT]);
-      return;
-    }
-    if (($items["prefix"]==IRC_HOST) and (strpos(strtolower($items["trailing"]),"throttled")!==False))
-    {
-      term_echo("*** THROTTLED BY SERVER - REFUSING ALL OUTGOING MESSAGES TO SERVER FOR ".THROTTLE_LOCKOUT_TIME." SECONDS ***");
-      $throttle_time=microtime(True);
-      return;
-    }
-    if ($items["cmd"]=="330") # is logged in as
-    {
-      authenticate($items);
-    }
-    if ($items["cmd"]=="376") # RPL_ENDOFMOTD (RFC1459)
-    {
-      dojoin(INIT_CHAN_LIST);
-    }
-    if (($items["cmd"]=="NICK") and ($items["nick"]==get_bot_nick()))
-    {
-      set_bot_nick(trim($items["trailing"]));
-    }
-    if ($items["cmd"]=="432") # Erroneous Nickname
-    {
-      set_bot_nick(trim($items["params"]));
-    }
-    if ($items["cmd"]=="043") # Nick collision
-    {
-      $parts=explode(" ",trim($items["params"]));
-      set_bot_nick($parts[0]);
-    }
-    if (($items["cmd"]=="NOTICE") and ($items["nick"]=="NickServ") and ($items["trailing"]==NICKSERV_IDENTIFY_PROMPT))
-    {
-      if ((file_exists(PASSWORD_FILE)==True) and (NICKSERV_IDENTIFY==="1"))
+  }
+  $alias=$args[0];
+  handle_events($items);
+  switch ($alias)
+  {
+    case ALIAS_ADMIN_NICK:
+      if (count($args)==2)
       {
-        rawmsg("NickServ IDENTIFY ".trim(file_get_contents(PASSWORD_FILE)),True);
+        rawmsg(":".get_bot_nick()." NICK :".trim($args[1]));
       }
-      startup();
-    }
-    $args=explode(" ",$items["trailing"]);
-    if ((is_operator_alias($args[0])==True) or (is_admin_alias($args[0])==True) or (has_account_list($args[0])==True))
-    {
-      if (($auth==False) and ($is_sock==True))
+      break;
+    case ALIAS_ADMIN_ALIAS_MACRO:
+      $msg="";
+      $macro=explode(" ",$items["trailing"]);
+      array_shift($macro);
+      array_values($macro);
+      $macro=implode(" ",$macro);
+      process_alias_config_macro($macro,$msg);
+      if ($msg<>"")
       {
-        term_echo("authenticating \"".$args[0]."\"...");
-        $admin_data=$items["data"];
-        $admin_is_sock=$is_sock;
-        rawmsg("WHOIS ".$items["nick"]);
-        return;
+        privmsg($items["destination"],$items["nick"],"alias config macro: $msg");
       }
-    }
-    $alias=$args[0];
-    handle_events($items);
-    switch ($alias)
-    {
-      case ALIAS_ADMIN_NICK:
-        if (count($args)==2)
-        {
-          rawmsg(":".get_bot_nick()." NICK :".trim($args[1]));
-        }
-        break;
-      case ALIAS_ADMIN_ALIAS_MACRO:
-        $msg="";
-        $macro=explode(" ",$items["trailing"]);
-        array_shift($macro);
-        array_values($macro);
-        $macro=implode(" ",$macro);
-        process_alias_config_macro($macro,$msg);
-        if ($msg<>"")
-        {
-          privmsg($items["destination"],$items["nick"],"alias config macro: $msg");
-        }
-        break;
-      case ALIAS_ADMIN_QUIT:
+      break;
+    case ALIAS_ADMIN_QUIT:
+      if (count($args)==1)
+      {
+        write_out_buffer_command($items,"quit");
+        process_scripts($items,ALIAS_QUIT);
+      }
+      break;
+    case ALIAS_ADMIN_PS:
+      if (count($args)==1)
+      {
+        write_out_buffer_command($items,"ps");
+        ps($items);
+      }
+      break;
+    case ALIAS_ADMIN_KILL:
+      if (count($args)==2)
+      {
+        write_out_buffer_command($items,"kill");
+        kill($items,$args[1]);
+      }
+      break;
+    case ALIAS_ADMIN_KILLALL:
+      if (count($args)==1)
+      {
+        write_out_buffer_command($items,"killall");
+        killall($items);
+      }
+      break;
+    case ALIAS_LIST:
+      if (check_nick($items,$alias)==True)
+      {
         if (count($args)==1)
         {
-          write_out_buffer_command($items,"quit");
-          process_scripts($items,ALIAS_QUIT);
+          write_out_buffer_command($items,"list");
+          get_list($items);
         }
-        break;
-      case ALIAS_ADMIN_PS:
+      }
+      break;
+    case ALIAS_LIST_AUTH:
+      if (check_nick($items,$alias)==True)
+      {
         if (count($args)==1)
         {
-          write_out_buffer_command($items,"ps");
-          ps($items);
+          write_out_buffer_command($items,"listauth");
+          get_list_auth($items);
         }
-        break;
-      case ALIAS_ADMIN_KILL:
+      }
+      break;
+    case ALIAS_LOCK:
+      if (check_nick($items,$alias)==True)
+      {
         if (count($args)==2)
         {
-          write_out_buffer_command($items,"kill");
-          kill($items,$args[1]);
-        }
-        break;
-      case ALIAS_ADMIN_KILLALL:
-        if (count($args)==1)
-        {
-          write_out_buffer_command($items,"killall");
-          killall($items);
-        }
-        break;
-      case ALIAS_LIST:
-        if (check_nick($items,$alias)==True)
-        {
-          if (count($args)==1)
-          {
-            write_out_buffer_command($items,"list");
-            get_list($items);
-          }
-        }
-        break;
-      case ALIAS_LIST_AUTH:
-        if (check_nick($items,$alias)==True)
-        {
-          if (count($args)==1)
-          {
-            write_out_buffer_command($items,"listauth");
-            get_list_auth($items);
-          }
-        }
-        break;
-      case ALIAS_LOCK:
-        if (check_nick($items,$alias)==True)
-        {
-          if (count($args)==2)
-          {
-            write_out_buffer_command($items,"lock");
-            $alias_locks[$items["nick"]][$items["destination"]]=$args[1];
-            privmsg($items["destination"],$items["nick"],"alias \"".$args[1]."\" locked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
-          }
-          else
-          {
-            privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_LOCK." <alias>");
-          }
-        }
-        break;
-      case ALIAS_UNLOCK:
-        if ((check_nick($items,$alias)==True) and (isset($alias_locks[$items["nick"]][$items["destination"]])==True))
-        {
-          write_out_buffer_command($items,"unlock");
-          privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]][$items["destination"]]."\" unlocked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
-          unset($alias_locks[$items["nick"]][$items["destination"]]);
-        }
-        break;
-      case ALIAS_ADMIN_DEST_OVERRIDE:
-        if (count($args)==2)
-        {
-          write_out_buffer_command($items,"dest_override");
-          privmsg($items["destination"],$items["nick"],"destination override \"".$args[1]."\" set for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
-          $dest_overrides[$items["nick"]][$items["destination"]]=$args[1];
+          write_out_buffer_command($items,"lock");
+          $alias_locks[$items["nick"]][$items["destination"]]=$args[1];
+          privmsg($items["destination"],$items["nick"],"alias \"".$args[1]."\" locked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
         }
         else
         {
-          privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_ADMIN_DEST_OVERRIDE." <dest>");
+          privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_LOCK." <alias>");
         }
-        break;
-      case ALIAS_ADMIN_DEST_CLEAR:
-        if (isset($dest_overrides[$items["nick"]][$items["destination"]])==True)
+      }
+      break;
+    case ALIAS_UNLOCK:
+      if ((check_nick($items,$alias)==True) and (isset($alias_locks[$items["nick"]][$items["destination"]])==True))
+      {
+        write_out_buffer_command($items,"unlock");
+        privmsg($items["destination"],$items["nick"],"alias \"".$alias_locks[$items["nick"]][$items["destination"]]."\" unlocked for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
+        unset($alias_locks[$items["nick"]][$items["destination"]]);
+      }
+      break;
+    case ALIAS_ADMIN_DEST_OVERRIDE:
+      if (count($args)==2)
+      {
+        write_out_buffer_command($items,"dest_override");
+        privmsg($items["destination"],$items["nick"],"destination override \"".$args[1]."\" set for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
+        $dest_overrides[$items["nick"]][$items["destination"]]=$args[1];
+      }
+      else
+      {
+        privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_ADMIN_DEST_OVERRIDE." <dest>");
+      }
+      break;
+    case ALIAS_ADMIN_DEST_CLEAR:
+      if (isset($dest_overrides[$items["nick"]][$items["destination"]])==True)
+      {
+        write_out_buffer_command($items,"dest_clear");
+        $override=$dest_overrides[$items["nick"]][$items["destination"]];
+        unset($dest_overrides[$items["nick"]][$items["destination"]]);
+        privmsg($items["destination"],$items["nick"],"destination override \"$override\" cleared for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
+      }
+      break;
+    case ALIAS_ADMIN_IGNORE:
+      if (count($args)==2)
+      {
+        if (in_array($args[1],$ignore_list)==False)
         {
-          write_out_buffer_command($items,"dest_clear");
-          $override=$dest_overrides[$items["nick"]][$items["destination"]];
-          unset($dest_overrides[$items["nick"]][$items["destination"]]);
-          privmsg($items["destination"],$items["nick"],"destination override \"$override\" cleared for nick \"".$items["nick"]."\" in \"".$items["destination"]."\"");
-        }
-        break;
-      case ALIAS_ADMIN_IGNORE:
-        if (count($args)==2)
-        {
-          if (in_array($args[1],$ignore_list)==False)
+          write_out_buffer_command($items,"ignore");
+          privmsg($items["destination"],$items["nick"],get_bot_nick()." set to ignore ".$args[1]);
+          $ignore_list[]=$args[1];
+          if (file_put_contents(IGNORE_FILE,implode("\n",$ignore_list))===False)
           {
-            write_out_buffer_command($items,"ignore");
-            privmsg($items["destination"],$items["nick"],get_bot_nick()." set to ignore ".$args[1]);
-            $ignore_list[]=$args[1];
+            privmsg($items["destination"],$items["nick"],"error saving ignore file");
+          }
+        }
+      }
+      else
+      {
+        privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_ADMIN_IGNORE." <nick>");
+      }
+      break;
+    case ALIAS_ADMIN_UNIGNORE:
+      if (count($args)==2)
+      {
+        if (in_array($args[1],$ignore_list)==True)
+        {
+          $i=array_search($args[1],$ignore_list);
+          if ($i!==False)
+          {
+            write_out_buffer_command($items,"unignore");
+            privmsg($items["destination"],$items["nick"],get_bot_nick()." set to listen to ".$args[1]);
+            unset($ignore_list[$i]);
+            $ignore_list=array_values($ignore_list);
             if (file_put_contents(IGNORE_FILE,implode("\n",$ignore_list))===False)
             {
               privmsg($items["destination"],$items["nick"],"error saving ignore file");
             }
           }
+          else
+          {
+            privmsg($items["destination"],$items["nick"],$args[1]." not found in ".get_bot_nick()." ignore list");
+          }
+        }
+      }
+      else
+      {
+        privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_ADMIN_UNIGNORE." <nick>");
+      }
+      break;
+    case ALIAS_ADMIN_LIST_IGNORE:
+      if (count($ignore_list)>0)
+      {
+        write_out_buffer_command($items,"ignorelist");
+        privmsg($items["destination"],$items["nick"],get_bot_nick()." ignore list: ".implode(", ",$ignore_list));
+      }
+      else
+      {
+        privmsg($items["destination"],$items["nick"],get_bot_nick()." isn't ignoring anyone");
+      }
+      break;
+    case ALIAS_ADMIN_REHASH:
+      if (count($args)==1)
+      {
+        if (exec_load()===False)
+        {
+          privmsg($items["destination"],$items["nick"],"error reloading exec file");
+          doquit();
         }
         else
         {
-          privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_ADMIN_IGNORE." <nick>");
-        }
-        break;
-      case ALIAS_ADMIN_UNIGNORE:
-        if (count($args)==2)
-        {
-          if (in_array($args[1],$ignore_list)==True)
+          write_out_buffer_command($items,"rehash");
+          process_exec_helps();
+          process_exec_inits();
+          process_exec_startups();
+          $users=get_users();
+          foreach ($users[get_bot_nick()]["channels"] as $channel => $timestamp)
           {
-            $i=array_search($args[1],$ignore_list);
-            if ($i!==False)
+            rawmsg("NAMES $channel");
+          }
+          privmsg($items["destination"],$items["nick"],"successfully reloaded exec file (".count($exec_list)." aliases)");
+        }
+      }
+      break;
+    case ALIAS_ADMIN_BUCKETS_DUMP:
+      if (count($args)==1)
+      {
+        write_out_buffer_command($items,"buckets_dump");
+        buckets_dump($items);
+      }
+      break;
+    case ALIAS_ADMIN_BUCKETS_SAVE:
+      if (count($args)==1)
+      {
+        write_out_buffer_command($items,"buckets_save");
+        buckets_save($items);
+      }
+      break;
+    case ALIAS_ADMIN_BUCKETS_LOAD:
+      if (count($args)==1)
+      {
+        write_out_buffer_command($items,"buckets_load");
+        buckets_load($items);
+      }
+      break;
+    case ALIAS_ADMIN_BUCKETS_FLUSH:
+      if (count($args)==1)
+      {
+        write_out_buffer_command($items,"buckets_flush");
+        buckets_flush($items);
+      }
+      break;
+    case ALIAS_ADMIN_BUCKETS_LIST:
+      if (count($args)==1)
+      {
+        write_out_buffer_command($items,"buckets_list");
+        buckets_list($items);
+      }
+      break;
+    case ALIAS_INTERNAL_RESTART:
+      if ((count($args)==1) and ($items["cmd"]==CMD_INTERNAL))
+      {
+        define("RESTART",True);
+        process_scripts($items,ALIAS_QUIT);
+      }
+      break;
+    case ALIAS_ADMIN_RESTART:
+      if (count($args)==1)
+      {
+        write_out_buffer_command($items,"restart");
+        define("RESTART",True);
+        process_scripts($items,ALIAS_QUIT);
+      }
+      break;
+    case ALIAS_ADMIN_EXEC_CONFLICTS:
+      if (count($args)==1)
+      {
+        # TODO
+      }
+      break;
+    case ALIAS_ADMIN_EXEC_LIST:
+      if (count($args)==1)
+      {
+        # TODO
+      }
+      break;
+    case ALIAS_ADMIN_EXEC_TIMERS:
+      if (count($args)==1)
+      {
+        # TODO
+      }
+      break;
+    case ALIAS_ADMIN_EXEC_ERRORS:
+      if (count($args)==1)
+      {
+        $n=count($exec_errors);
+        if ($n>0)
+        {
+          write_out_buffer_command($items,"exec_load_errors");
+          privmsg($items["destination"],$items["nick"],"exec load errors:");
+          $i=0;
+          foreach ($exec_errors as $filename => $messages)
+          {
+            if ($i==($n-1))
             {
-              write_out_buffer_command($items,"unignore");
-              privmsg($items["destination"],$items["nick"],get_bot_nick()." set to listen to ".$args[1]);
-              unset($ignore_list[$i]);
-              $ignore_list=array_values($ignore_list);
-              if (file_put_contents(IGNORE_FILE,implode("\n",$ignore_list))===False)
+              privmsg($items["destination"],$items["nick"],"  └─".$filename);
+              for ($j=0;$j<count($messages);$j++)
               {
-                privmsg($items["destination"],$items["nick"],"error saving ignore file");
+                if ($j==(count($messages)-1))
+                {
+                  privmsg($items["destination"],$items["nick"],"     └─".$messages[$j]);
+                }
+                else
+                {
+                  privmsg($items["destination"],$items["nick"],"     ├─".$messages[$j]);
+                }
               }
             }
             else
             {
-              privmsg($items["destination"],$items["nick"],$args[1]." not found in ".get_bot_nick()." ignore list");
+              privmsg($items["destination"],$items["nick"],"  ├─".$filename);
+              for ($j=0;$j<count($messages);$j++)
+              {
+                if ($j==(count($messages)-1))
+                {
+                  privmsg($items["destination"],$items["nick"],"  │  └─".$messages[$j]);
+                }
+                else
+                {
+                  privmsg($items["destination"],$items["nick"],"  │  ├─".$messages[$j]);
+                }
+              }
             }
+            $i++;
           }
         }
         else
         {
-          privmsg($items["destination"],$items["nick"],"syntax: ".ALIAS_ADMIN_UNIGNORE." <nick>");
+          privmsg($items["destination"],$items["nick"],"no errors");
         }
-        break;
-      case ALIAS_ADMIN_LIST_IGNORE:
-        if (count($ignore_list)>0)
-        {
-          write_out_buffer_command($items,"ignorelist");
-          privmsg($items["destination"],$items["nick"],get_bot_nick()." ignore list: ".implode(", ",$ignore_list));
-        }
-        else
-        {
-          privmsg($items["destination"],$items["nick"],get_bot_nick()." isn't ignoring anyone");
-        }
-        break;
-      case ALIAS_ADMIN_REHASH:
-        if (count($args)==1)
-        {
-          if (exec_load()===False)
-          {
-            privmsg($items["destination"],$items["nick"],"error reloading exec file");
-            doquit();
-          }
-          else
-          {
-            write_out_buffer_command($items,"rehash");
-            process_exec_helps();
-            process_exec_inits();
-            process_exec_startups();
-            $users=get_users();
-            foreach ($users[get_bot_nick()]["channels"] as $channel => $timestamp)
-            {
-              rawmsg("NAMES $channel");
-            }
-            privmsg($items["destination"],$items["nick"],"successfully reloaded exec file (".count($exec_list)." aliases)");
-          }
-        }
-        break;
-      case ALIAS_ADMIN_BUCKETS_DUMP:
-        if (count($args)==1)
-        {
-          write_out_buffer_command($items,"buckets_dump");
-          buckets_dump($items);
-        }
-        break;
-      case ALIAS_ADMIN_BUCKETS_SAVE:
-        if (count($args)==1)
-        {
-          write_out_buffer_command($items,"buckets_save");
-          buckets_save($items);
-        }
-        break;
-      case ALIAS_ADMIN_BUCKETS_LOAD:
-        if (count($args)==1)
-        {
-          write_out_buffer_command($items,"buckets_load");
-          buckets_load($items);
-        }
-        break;
-      case ALIAS_ADMIN_BUCKETS_FLUSH:
-        if (count($args)==1)
-        {
-          write_out_buffer_command($items,"buckets_flush");
-          buckets_flush($items);
-        }
-        break;
-      case ALIAS_ADMIN_BUCKETS_LIST:
-        if (count($args)==1)
-        {
-          write_out_buffer_command($items,"buckets_list");
-          buckets_list($items);
-        }
-        break;
-      case ALIAS_INTERNAL_RESTART:
-        if ((count($args)==1) and ($items["cmd"]==CMD_INTERNAL))
-        {
-          define("RESTART",True);
-          process_scripts($items,ALIAS_QUIT);
-        }
-        break;
-      case ALIAS_ADMIN_RESTART:
-        if (count($args)==1)
-        {
-          write_out_buffer_command($items,"restart");
-          define("RESTART",True);
-          process_scripts($items,ALIAS_QUIT);
-        }
-        break;
-      case ALIAS_ADMIN_EXEC_CONFLICTS:
-        if (count($args)==1)
-        {
-          # TODO
-        }
-        break;
-      case ALIAS_ADMIN_EXEC_LIST:
-        if (count($args)==1)
-        {
-          # TODO
-        }
-        break;
-      case ALIAS_ADMIN_EXEC_TIMERS:
-        if (count($args)==1)
-        {
-          # TODO
-        }
-        break;
-      case ALIAS_ADMIN_EXEC_ERRORS:
-        if (count($args)==1)
-        {
-          $n=count($exec_errors);
-          if ($n>0)
-          {
-            write_out_buffer_command($items,"exec_load_errors");
-            privmsg($items["destination"],$items["nick"],"exec load errors:");
-            $i=0;
-            foreach ($exec_errors as $filename => $messages)
-            {
-              if ($i==($n-1))
-              {
-                privmsg($items["destination"],$items["nick"],"  └─".$filename);
-                for ($j=0;$j<count($messages);$j++)
-                {
-                  if ($j==(count($messages)-1))
-                  {
-                    privmsg($items["destination"],$items["nick"],"     └─".$messages[$j]);
-                  }
-                  else
-                  {
-                    privmsg($items["destination"],$items["nick"],"     ├─".$messages[$j]);
-                  }
-                }
-              }
-              else
-              {
-                privmsg($items["destination"],$items["nick"],"  ├─".$filename);
-                for ($j=0;$j<count($messages);$j++)
-                {
-                  if ($j==(count($messages)-1))
-                  {
-                    privmsg($items["destination"],$items["nick"],"  │  └─".$messages[$j]);
-                  }
-                  else
-                  {
-                    privmsg($items["destination"],$items["nick"],"  │  ├─".$messages[$j]);
-                  }
-                }
-              }
-              $i++;
-            }
-          }
-          else
-          {
-            privmsg($items["destination"],$items["nick"],"no errors");
-          }
-        }
-        break;
-      default:
-        process_scripts($items,""); # execute scripts occurring for a specific alias
-        process_scripts($items,ALIAS_ALL); # process scripts occuring for every line (* alias)
-    }
+      }
+      break;
+    default:
+      process_scripts($items,""); # execute scripts occurring for a specific alias
+      process_scripts($items,ALIAS_ALL); # process scripts occuring for every line (* alias)
   }
 }
 

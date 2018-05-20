@@ -42,7 +42,8 @@ if (isset($argv[1])==False)
   define("NICKSERV_IDENTIFY","1");
   define("IFACE_ENABLE","0");
   define("SSL_PEER_NAME","*.soylentnews.org");
-  define("SSL_CA_FILE","/home/jared/git/data/soylentnews.crt"); # cafile must contain both peer cert (https://staff.soylentnews.org/~bob/wildcard.crt) and then CA cert (http://sylnt.us/SoylentNewsCA.crt) in single bundled file in order of peer, then CA
+  define("SSL_CA_FILE","/etc/ssl/certs/ca-certificates.crt");
+  #define("SSL_CA_FILE","/home/jared/git/data/soylentnews.crt"); # cafile must contain both peer cert (https://staff.soylentnews.org/~bob/wildcard.crt) and then CA cert (http://sylnt.us/SoylentNewsCA.crt) in single bundled file in order of peer, then CA
 }
 elseif (file_exists($argv[1])==True)
 {
