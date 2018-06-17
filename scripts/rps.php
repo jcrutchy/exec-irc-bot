@@ -8,41 +8,6 @@
 exec:~rps|10|0|0|1|||||php scripts/rps.php %%trailing%% %%dest%% %%nick%% %%alias%% %%params%% %%server%%
 */
 
-/*
-
-asynchronous rock/paper/scissors
-
-~rps
-Outputs syntax and online help link.
-
-~rps r
-Adds rock to your account's sequence.
-
-~rps p
-Adds paper to your account's sequence.
-
-~rps s
-Adds scissors to your account's sequence.
-
-~rps rank
-Outputs current ranking to http://ix.io/nAz
-
-You can also submit multiple turns in one command, which is useful if you're a new player. Example:
-~rps rrrrpsrpsrpssspssr
-The script will trim the sequence to the current maximum sequence length of all players, plus one (to gradually advance the available turns).
-
-There is also a random delay requirement between turns, so you can try playing with a bot but you will need to allow for this mandatory delay.
-
-You can play from any channel that 'exec' is currently in, or private message the bot to hide your sequence from prying eyes.
-
-Players are tied to NickServ accounts, so to play you must register with NickServ. This is easy to do and most IRC clients can automagically identify for you with minimal fuss. This is to keep your game from being manipulated when you're offline.
-
-Ranking is based on a handicap that balances the number of wins and losses with the number of rounds played. This is so that a new player who gets a win doesn't secure top spot just because they have a 100% win rate.
-
-inspired by https://sadale.net/RPS/
-
-*/
-
 #####################################################################################################
 
 require_once("lib.php");
@@ -109,8 +74,7 @@ if ((valid_rps_sequence($trailing)==True) and ($trailing<>""))
     return;
   }
   $ranks=update_ranking($data);
-  privmsg("rank for $account: ".$data["users"][$account]["rank"]." - http://ix.io/nAz");
-  output_ixio_paste($ranks,False);
+  privmsg("rank for $account: ".$data["users"][$account]["rank"]." - ".output_ixio_paste($ranks,False));
   return;
 }
 
@@ -128,8 +92,6 @@ if ($trailing=="ranks")
 }
 
 privmsg("syntax: ~rps [ranks|r|p|s]");
-privmsg("rankings: http://ix.io/nAz");
-privmsg("help: http://wiki.soylentnews.org/wiki/IRC:exec_aliases#.7Erps");
 
 #####################################################################################################
 
@@ -155,11 +117,13 @@ function valid_rps_sequence($trailing)
 function update_ranking(&$data)
 {
   global $server;
+  $max_sequence=0;
   foreach ($data["users"] as $account => $user_data)
   {
     $data["users"][$account]["wins"]=0;
     $data["users"][$account]["losses"]=0;
     $data["users"][$account]["ties"]=0;
+    $max_sequence=max($max_sequence,strlen($data["users"][$account]["sequence"]));
     for ($i=0;$i<strlen($data["users"][$account]["sequence"]);$i++)
     {
       foreach ($data["users"] as $sub_account => $sub_user_data)
@@ -273,7 +237,9 @@ function update_ranking(&$data)
     }
     $out=$out.$account.str_repeat(" ",$actlen-strlen($account))."\t".$data["users"][$account]["rounds"]."\t".$data["users"][$account]["wins"]."\t".$data["users"][$account]["losses"]."\t".$data["users"][$account]["ties"]."\t".sprintf("%.0f",$win_frac)."%\t".$data["users"][$account]["rank"]."\t".str_pad(sprintf("%.0f",$rankings[$account]),strlen("handicap")," ",STR_PAD_LEFT)."\n";
   }
-  $out=$out."\nhandicap = (wins-losses)*rounds for more wins than losses\nhandicap = (wins-losses)/rounds*100000 for more losses than wins\n\nhelp: http://wiki.soylentnews.org/wiki/IRC:exec_aliases#.7Erps\nsource: https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/rps.php";
+  $out=$out."\n\nmaximum sequence length: ".$max_sequence;
+  $out=$out."\n\nhandicap = (wins-losses)*rounds for more wins than losses\nhandicap = (wins-losses)/rounds*100000 for more losses than wins\n\n\n";
+  $out=$out.file_get_contents(__DIR__."/rps.help");
   return $out;
 }
 

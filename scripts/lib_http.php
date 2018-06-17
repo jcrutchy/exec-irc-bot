@@ -140,7 +140,7 @@ function get_user_localhost_ports($return_pids=False)
 
 #####################################################################################################
 
-function output_ixio_paste($data,$msg=True,$id="nAz")
+function output_ixio_paste($data,$msg=True,$id="")
 {
   $fn=tempnam("/tmp","exec_");
   $h=fopen($fn,"w");
@@ -150,22 +150,44 @@ function output_ixio_paste($data,$msg=True,$id="nAz")
   to get new id for exec:exec
   echo hello | curl -F 'f:1=<-' exec:exec@ix.io
   */
-  $out=shell_exec("cat $fn | curl -F 'f:1=<-' -F 'id:1=$id' exec:exec@ix.io 2>&1");
-  $out=clean_text($out);
-  $out=explode("curl: (",trim($out));
-  array_shift($out);
+  if ($id<>"")
+  {
+    $out=shell_exec("cat $fn | curl -F 'f:1=<-' -F 'id:1=$id' exec:exec@ix.io 2>&1");
+  }
+  else
+  {
+    $out=shell_exec("cat $fn | curl -F 'f:1=<-' exec:exec@ix.io 2>&1");
+  }
+  $out=trim($out);
+  term_echo($out);
+  $parts=clean_text($out);
+  $parts=explode("curl: (",$parts);
+  if ($id<>"")
+  {
+    $url="http://ix.io/".$id;
+  }
+  else
+  {
+    $lines=explode(PHP_EOL,$out);
+    $url=$lines[count($lines)-1];
+  }
+  if (count($parts)>1)
+  {
+    $url="error";
+  }
   if ($msg==True)
   {
-    if (count($out)==1)
+    if (count($parts)<=1)
     {
-      privmsg("curl: (".$out[0]);
+      privmsg("curl: (".$parts[1]);
     }
     else
     {
-      privmsg("http://ix.io/".$id);
+      privmsg($url);
     }
   }
   unlink($fn);
+  return $url;
 }
 
 #####################################################################################################

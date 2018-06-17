@@ -121,7 +121,7 @@ if ($alias=="~tell")
     if (file_put_contents($fn,json_encode($data,JSON_PRETTY_PRINT))===False)
     {
       pm("crutchy","error writing ~tell data file");
-      pm("#debug","error writing ~tell data file");
+      #pm("#debug","error writing ~tell data file");
     }
   }
   return;
@@ -143,7 +143,7 @@ if ($alias=="~tell-internal")
         if (file_put_contents($fn,json_encode($data,JSON_PRETTY_PRINT))===False)
         {
           pm("crutchy","error writing ~tell data file");
-          pm("#debug","error writing ~tell data file");
+          #pm("#debug","error writing ~tell data file");
         }
       }
     }

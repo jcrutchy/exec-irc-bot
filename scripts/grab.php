@@ -82,14 +82,14 @@ if ($alias=="~grab")
   }
   else
   {
-    privmsg("quote saved: <".chr(3)."05".$record["quoted"]."@".$record["channel"].chr(3)."> ".$record["quote"]);
+    privmsg("quote saved: <".$record["quoted"]."@".$record["channel"]."> ".$record["quote"]);
   }
 }
 elseif ($alias=="~quote")
 {
   if (isset($data[$trailing])==True)
   {
-    privmsg("<".chr(3)."05".$record["quoted"]."@".$record["channel"].chr(3)."> ".$record["quote"]);
+    privmsg("<".$data[$trailing]["quoted"]."> ".$data[$trailing]["quote"]);
     return;
   }
   $parts=explode(" ",$trailing);
@@ -97,22 +97,14 @@ elseif ($alias=="~quote")
   {
     return;
   }
-  $field=strtolower(array_shift($parts));
-  if (count($parts)==0)
-  {
-    return;
-  }
-  $query=implode(" ",$parts);
-  $fields=array("quoted","quoting","time","quote","channel");
-  if (in_array($field,$fields)==False)
-  {
-    privmsg("invalid query");
-    return;
-  }
   $results=array();
   for ($i=0;$i<count($data);$i++)
   {
-    if (strpos($data[$i][$field],$query)!==False)
+    if ($data[$i]["channel"]<>$dest)
+    {
+      continue;
+    }
+    if (strpos($data[$i]["quote"],$trailing)!==False)
     {
       $results[]=$i;
     }

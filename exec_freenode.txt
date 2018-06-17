@@ -4,40 +4,46 @@
 include ./scripts/about.php
 include ./scripts/quit.php
 include ./scripts/part.php
+#include ./scripts/grab.php
 include ./scripts/join.php
 #include ./scripts/admin.php
 #include ./scripts/help.php
 #include ./scripts/privmsg.php
 #include ./scripts/seen.php
 #include ./scripts/tell.php
-include ./scripts/sed.php
+#include ./scripts/sed.php
 #include ./scripts/title.php
 #include ./scripts/welcome.php
-include ./scripts/karma.php
+#include ./scripts/karma.php
 #include ./scripts/convert.php
 #include ./scripts/definitions.php
 #include ./scripts/link.php
 #include ./scripts/google.php
-include ./scripts/time.php
-include ./scripts/weather.php
+#include ./scripts/time.php
+#include ./scripts/weather.php
+#include ./scripts/tell.php
 #include ./scripts/location.php
-include ./scripts/translate.php
+#include ./scripts/translate.php
+#include ./scripts/rainbow.php
 #include ./scripts/japanese.php
 #include ./scripts/jisho2.php
 #include ./scripts/users.php
 #include ./scripts/ny.php
 
-#include ./scripts/rps.php
+include ./scripts/rps.php
 
 #help ./scripts
 
-init ./scripts
+#init ./scripts
 
 #~calc|5|0|1|1|||||/usr/bin/units -t %%trailing%%
 #help ~calc|syntax: ~calc <expression>
 #help ~calc|evaluates math expression
 
-include ./scripts/ruby/currency.rb
+#include ./scripts/ruby/currency.rb
 
 #include ./scripts/sneak/sneak_server.php
 #startup ./scripts/sneak/sneak_server.php
+
+#~deb|10|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
+#~eval|10|0|1|0|@||##anime,##exec_test||{ eval %%trailing%% ; } 2>&1
