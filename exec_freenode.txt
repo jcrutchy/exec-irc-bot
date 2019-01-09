@@ -4,8 +4,17 @@
 include ./scripts/about.php
 include ./scripts/quit.php
 include ./scripts/part.php
-#include ./scripts/grab.php
 include ./scripts/join.php
+
+include ./scripts/location.php
+include ./scripts/isup.php
+include ./scripts/rps.php
+include ./scripts/time.php
+include ./scripts/weather.php
+
+include ./scripts/c/hello.c
+
+#include ./scripts/ny.php
 #include ./scripts/admin.php
 #include ./scripts/help.php
 #include ./scripts/privmsg.php
@@ -19,21 +28,15 @@ include ./scripts/join.php
 #include ./scripts/definitions.php
 #include ./scripts/link.php
 #include ./scripts/google.php
-#include ./scripts/time.php
-#include ./scripts/weather.php
 #include ./scripts/tell.php
-#include ./scripts/location.php
 #include ./scripts/translate.php
 #include ./scripts/rainbow.php
 #include ./scripts/japanese.php
 #include ./scripts/jisho2.php
 #include ./scripts/users.php
-#include ./scripts/ny.php
-
-include ./scripts/rps.php
+#include ./scripts/grab.php
 
 #help ./scripts
-
 #init ./scripts
 
 #~calc|5|0|1|1|||||/usr/bin/units -t %%trailing%%
