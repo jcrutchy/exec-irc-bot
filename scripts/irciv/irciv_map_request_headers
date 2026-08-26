@@ -1,0 +1,7 @@
+POST %%uri%% HTTP/1.0
+Host: %%host%%
+Content-Type: multipart/form-data; boundary=%%boundary%%
+Content-Length: %%content_length%%
+User-Agent: %%game_name%%/%%game_version%%
+Connection: Close
+

@@ -1,0 +1,5 @@
+parent=
+subject_in=automated testing 3
+body_in=this is the parent comment for a bunch of tests to be automatically posted and compared with expected output 3
+subject_out=automated testing 3
+body_out=<p>this is the parent comment for a bunch of tests to be automatically posted and compared with expected output 3</p>

@@ -1,0 +1,102 @@
+# exec irc bot alias definitions file
+
+# alias|timeout|repeat|auto-privmsg|empty-trailing-allowed|account-list|cmd-list|dest-list|bucket-lock|shell-cmd
+# available templates: %%trailing%%, %%dest%%, %%nick%%, %%start%%, %%alias%%, %%cmd%%, %%data%%, %%params%%, %%timestamp%%, %%items%%, %%server%%, %%user%%, %%hostname%%, %%prefix%%
+# %%trailing%% excludes alias
+# %%items%% is a serialized array
+# aliases here must be all lower case letters
+# account, cmd and dest lists are all comma-separated
+# use "help:" in script files (similar to "exec:", "startup:" and "init:") but no colon in this file
+
+#####################################################################################################
+
+# ALIAS MACROS
+
+# reserved keys: alias, timeout, repeat, auto, empty, accounts, accounts_wildcard, cmds, dests, bucket_locks, cmd, servers, saved, line, file, help, enabled
+# reserved array keys: accounts, cmds, dests, bucket_locks, servers, help
+
+# reserved array values are comma-delimited
+# you can't delete reserved keys
+# after adding/editing, the affected alias will be disabled (enable should be last macro)
+# alias keys must not contain spaces, but can be anything
+# alias keys are accessible from scripts using buckets with index 'alias_element_%%alias%%_%%key%%'
+
+# add new alias
+# exec:add %%alias%%
+
+# delete an existing alias
+# exec:delete %%alias%%
+
+# enable an existing alias
+# exec:enable %%alias%%
+
+# disable an existing alias
+# exec:disable %%alias%%
+
+# rename an existing alias
+# exec:rename %%exist_alias%% %%new_alias%%
+
+# delete an existing alias key
+# exec:delete %%alias%% %%key%%
+
+# add a new alias key
+# exec:add %%alias%% %%key%% %%value%%
+
+# edit an existing alias key
+# exec:edit %%alias%% %%key%% %%value%%
+
+#####################################################################################################
+
+# ONLY ONE ALIAS DEFINITION ALLOWED FOR EACH RESERVED ALIAS SO ADD TO COMMANDS USING &&
+
+# RESERVED ALIAS TRIGGERED ON ALL LINES
+*|20|0|0|1|||||php scripts/cmd.php %%trailing%% %%dest%% %%nick%% %%cmd%% %%data%% %%params%%
+
+# RESERVED ALIAS TRIGGERED BEFORE IRC CONNECTION
+<init>|10|0|0|1|||||php scripts/init.php
+
+# RESERVED ALIAS TRIGGERED ON QUIT
+<quit>|10|0|0|1|||||php scripts/quit.php
+
+# RESERVED ALIAS TRIGGERED ON NICKSERV IDENTIFY
+<startup>|0|0|0|1|||||php scripts/startup.php
+
+# RESERVED ALIAS FOR LOGGING ITEMS
+#<log>|10|0|0|1|||||php scripts/log.php %%trailing%% %%dest%% %%nick%% %%timestamp%%
+
+init ./scripts
+startup ./scripts
+help ./scripts
+
+include ./scripts
+include ./interface/reader.php
+include test.php
+
+~calc|5|0|1|1|||||/usr/bin/units -t %%trailing%%
+help:~calc syntax: ~calc <expression>
+help:~calc evaluates math expression
+
+~cowsay|10|0|1|0|||||cowsay %%trailing%%
+~moo|10|0|1|1|||||apt-get moo
+~fortune|5|0|1|1|||||fortune -s
+~openthepodbaydoors|5|0|1|1|||||fortune -s -o
+
+# FOLLOWING ALIAS PERMITS GENERIC SHELL COMMANDS IN IRC (ENABLE AT OWN RISK)
+~eval|10|0|1|0|@||#soylent,#journals,#test,#||{ eval %%trailing%% ; } 2>&1
+
+~deb|10|0|1|0|*||||{ apt-cache show '%%trailing%%' | grep "Description-en" | sed 's/^.*: //' ; } 2>&1
+
+~addr|10|0|1|0|*||||{ host '%%trailing%%' | head -1 ; } 2>&1
+help ~addr syntax: ~addr <host/ip>
+help ~addr DNS lookup utility
+
+#~ping|5|0|1|0|*||||{ ping -c 1 '%%trailing%%' | head -1 ; } 2>&1
+#help:~ping syntax: ~ping <host>
+
+# http://kedar.nitty-witty.com/blog/how-to-get-stock-quote-on-linux-using-google-curl-grep-awk
+~nyse|30|0|1|0|*||||{ code='%%trailing%%' && curl --silent -X get "http://www.google.com/finance?q=nyse:$code" > /tmp/bgz && cat /tmp/bgz | grep -m1 -E 'span id="ref_' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' && sleep 2 && rm /tmp/bgz && echo "http://www.google.com/finance?q=nyse:$code" ; } 2>&1
+
+# https://www.google.com/finance/converter?a=1&from=AUD&to=USD
+# http://finance.yahoo.com/d/quotes.csv?s=GBPEUR=X&f=l1
+
+#~last|10|0|1|0|*||||{ mysql --user=public --password=public -e 'SELECT `time`,`trailing` FROM exec_irc_bot.irc_log where ((nick="%%trailing%%") and (destination="%%dest%%")) order by id desc limit 1;' | tail -1 ; } 2>&1

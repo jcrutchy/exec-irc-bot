@@ -1,0 +1,42 @@
+<?php
+
+#####################################################################################################
+
+/*
+mod:include lib_sneak
+*/
+
+/*
+AVAILABLE VARIABLES:
+&$server_data
+&$server
+&$clients
+&$connections
+$client_index
+$unpacked
+&$response
+$trailing_parts
+$action
+*/
+
+if ($is_gm($server_data,$unpacked["hostname"])==True)
+{
+  $response["msg"][]="sneak: authorized gm";
+}
+else
+{
+  $response["msg"][]="sneak: not authorized gm";
+}
+
+if ($is_admin($server_data,$unpacked["hostname"])==True)
+{
+  $response["msg"][]="sneak: authorized admin";
+}
+else
+{
+  $response["msg"][]="sneak: not authorized admin";
+}
+
+#####################################################################################################
+
+?>

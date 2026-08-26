@@ -1,0 +1,334 @@
+"'''[[User:exec|exec]]'''" is a bot that runs in a CLI that connects to the Soylent [[SoylentNews:IRC|IRC server]] (irc.sylnt.us:6697) and executes other programs and facilitates their interaction with IRC.
+
+[[File:exec.png|right]]
+
+[[IRC:exec_aliases]] | [[IRC]] | [[IRCiv]] | [[Suggestions]] | [[Test page]]
+
+==Quick start==
+
+/invite exec (must be channel op)<br />
+[[IRC:exec_aliases#.7Ejoin|~join]] #channel (don't have to be channel op)<br />
+[[IRC:exec_aliases#.7Esed|~sed]] on|off<br />
+sed syntax: [nick[:|,|>|.] ]s/pattern/replace[/[g]] (similar to SedBot)<br />
+[[IRC:exec_aliases#.7Epart|~part]] (bot leaves channel)<br />
+[[IRC:exec_aliases#.7Elist|~list]] (lists available commands)<br />
+[[IRC:exec_aliases#.7Elist-auth|~list-auth]] (lists available commands requiring NickServ account authorization)<br />
+<br />
+[[IRC:exec_aliases#.7Edefine|~define]] term<br />
+[[IRC:exec_aliases#.7Edefine-add|~define-add]] term, meaning<br />
+[[IRC:exec_aliases#.7Edefine-count|~define-count]]<br />
+[[IRC:exec_aliases#.7Edefine-delete|~define-delete]]<br />
+[[IRC:exec_aliases#.7Edefine-list|~define-list]]<br />
+[[IRC:exec_aliases#.7Edefine-sources|~define-sources]]<br />
+<br />
+[[IRC:exec_aliases#.7Eisup|~isup]] host[:port] (checks connection, returns http status if found)<br />
+[[IRC:exec_aliases#.7Eheader|~header]] &lt;header&gt; &lt;url&gt;<br />
+[[IRC:exec_aliases#.7Erainbow|~rainbow]] text<br />
+[[IRC:exec_aliases#.7Etranslate|~translate]] tolang text (auto-detects source lang, eg: ~translate en prueba)<br />
+[[IRC:exec_aliases#.7Etranslate-sl|~translate-sl]] fromlang tolang text (eg: ~translate-sl es en prueba)<br />
+[[IRC:exec_aliases#.7Etime|~time]] location<br />
+[[IRC:exec_aliases#.7Eweather|~weather]] location<br />
+[[IRC:exec_aliases#.7Eweather-add|~weather-add]] name location (enables storing a short name to refer to a longer location description when using ~weather)<br />
+[[IRC:exec_aliases#.7Equeue|~queue]] (returns number of SN submissions in the queue)<br />
+[[IRC:exec_aliases#.7Elock|~lock]] alias (treats all lines entered as being prefixed with alias, channel-specific)<br />
+[[IRC:exec_aliases#.7Eunlock|~unlock]]<br />
+<br />
+[[IRC:exec_aliases#.7Elocation|~location]] code<br />
+<br />
+[[IRC:exec_aliases#.7Ecount|~count]] &lt;nick&gt;<br />
+[[IRC:exec_aliases#.7Efirst|~first]] &lt;nick&gt;<br />
+[[IRC:exec_aliases#.7Elast|~last]] &lt;nick&gt;<br />
+[[IRC:exec_aliases#.7Efind-first|~find-first]] &lt;text&gt;<br />
+[[IRC:exec_aliases#.7Efind-last|~find-last]] &lt;text&gt;<br />
+
+==Commands requiring NickServ account authorization==
+
+~wiki login<br />
+~wiki title[|section] (gets [section] content)<br />
+~wiki edit title|section|text<br />
+~wiki edit title|section| (deletes section)<br />
+~wiki logout<br />
+<br />
+~suggest text (currently appends to a section in the SoylentNews:Sandbox page)<br />
+<br />
+~say text (say as exec with no amendments)<br />
+<br />
+~bucket <index><br />
+~bucket <index> <data><br />
+~bucket <index> unset<br />
+<br />
+~define-source-edit<br />
+~define-source-param<br />
+~define-source-delete
+
+==Administration commands==
+
+A whois command is issued to verify the account name of a user identified with NickServ for authentication purposes.
+
+These functions are restricted for use by accounts in a hardcoded admin account list.
+
+~q (bot quits, all child processes including SedBot2 are terminated)<br />
+~restart (bot process restarts, all child processes including SedBot2 are terminated)<br />
+~rehash (reloads exec configuration file)<br />
+<br />
+~ps (list process id and command for all currently running child processes)<br />
+~kill <pid> (kills child process)<br />
+~killall<br />
+<br />
+~dest-override<br />
+~dest-clear<br />
+<br />
+~buckets-dump (var_dumps bucket data to terminal)<br />
+~buckets-save (saves bucket data to file)<br />
+~buckets-load (loads bucket data from file)<br />
+~buckets-flush (clears all bucket data)<br />
+~buckets-list (lists bucket indexes in terminal)<br />
+
+~ignore<br />
+~unignore
+
+==Bot development==
+
+Developer(s): [[User:Crutchy|crutchy]]
+
+Source: https://github.com/crutchy-/exec-irc-bot
+
+Files:
+* https://github.com/crutchy-/exec-irc-bot/blob/master/exec.txt
+* https://github.com/crutchy-/exec-irc-bot/blob/master/irc.php
+* https://github.com/crutchy-/exec-irc-bot/blob/master/irc_lib.php
+
+Download above files, open a terminal and change to that directory, and run "php irc.php".
+
+Scripts may be stored anywhere that is accessible to the bot script for CLI execution. If stored in a different location, the script path must be included in the exec file line.
+
+Input to a script/program is via command line arguments only. Communication with a program through stdin is supported, but only using a similar syntax to IRC messages and currently stdin is used only to respond to bucket get messages (php scripts can use the lib.php get_bucket function).
+
+stdout of an executed script/program may be passed to an IRC channel or output to exec's stdout (terminal), depending on the value of ''auto-privmsg'' in the exec line. If ''auto-privmsg=0'', stdout from the script/program must begin with ''IRC_MSG '' or ''IRC_RAW '' for it to be sent to IRC.
+If ''auto-privmsg=1'', all stdout from the script/program is assumed to be prefixed with ''IRC_MSG '' and is sent to IRC; this is generally required for programs that can't be easily edited, such as shell binaries (''cowsay'', ''fortune'', etc).
+
+Programs executed may be anything accessible from the CLI of the machine running the exec script. They may be shell programs (such as ''cowsay'' and ''fortune''), php scripts (executed using the CLI ''php'' command) or scripts in any other language executable by their respective CLI interpreters (python, perl, haskell, etc).
+
+==Buckets==
+
+"Buckets" are a feature of exec that allow scripts to store data in a common location which is accessible from any script and is retained/persistent between script executions. Each bucket consists of an array element in the main bot program that is read, written and cleared using IRC-like commands (see below) passed through stdout/stdin pipes from/to executed scripts - buckets are filled by pipes hahaha :-P
+
+Complex data in array form may be stored using php's serialize/unserialize (or equivalent in other languages).
+
+Buckets are referenced by an index string. Index strings cannot contain spaces.
+<source lang="dot">
+:exec BUCKET_GET :index
+:exec BUCKET_SET :index data
+:exec BUCKET_UNSET :index
+</source>
+
+For PHP scripts, there are basic get_bucket, set_bucket and unset_bucket functions available, along with get_array_bucket, append_array_bucket, set_array_bucket, and bucket_list functions, which can be found here: https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/lib_buckets.php
+
+==exec.txt==
+
+The '''exec.txt''' file resides in the same directory as the bot script (irc.php) file and links aliases (triggers typed in IRC) to scripts to be executed, and contains usage parameters and restrictions.
+
+https://github.com/crutchy-/exec-irc-bot/blob/master/exec.txt
+
+===Syntax===
+
+<source lang="dot">alias|timeout|repeat|auto-privmsg|empty-trailing-allowed|account-list|cmd-list|dest-list|reserved|shell-cmd</source>
+
+===Parameters===
+
+'''alias''' is the trigger typed in IRC at the start of a message that will trigger a script to be executed.
+* All aliases should start with a common trigger character (such as ~) but can be any lowercase string without spaces.
+* Aliases must be unique, but multiple scripts may be executed per alias by separating shell commands with '''&&'''.
+* The aliases '''*''', '''<init>''', '''<startup>''', '''<quit>''' and '''<log>''' are reserved and have special meanings to the bot.
+* The '''*''' reserved alias occurs on every IRC message received. The '''exec''' bot in Soylent IRC uses a single script for this alias. '''cmd.php''' is executed on every line and contains a switch statement to dispatch internal trigger messages on various IRC events (such as numerics, PRIVMSG, NOTICE, JOIN, PART, NICK, etc). The bot then parses these internal messages to further trigger other scripts.
+* The '''<<init>>''' reserved alias is triggered on bot startup before the IRC connection is made. It is useful for initializing data buckets for particular scripts. Buckets and internal trigger messages may be called at this point, but IRC functionality is not yet available.
+* The '''<<startup>>''' reserved alias is triggered immediately after the bot sends an identify message to NickServ, but is not yet identified. It is useful for running scripts that require an IRC connection.
+* The '''<<quit>>''' reserved alias is triggered on bot shutdown and restart. IRC functionality is still available to this alias script. It is useful for saving data buckets to file so that data can persist when the bot is restarted.
+* The '''<<log>>''' reserved alias is triggered on every IRC message received (similar to *) but is executed immediately after the message is received (before other script triggers are processed) so is more stable for logging purposes due to a lower probability of messages being out of order.
+
+
+A non-zero '''timeout''' is the number of seconds a script is allowed to run for before being terminated by the bot.
+* If a script times out a message is sent to the destination from which the alias was triggered to inform the user.
+* It is always a good idea to set a timeout to prevent infinite loops in scripts from chewing up bot host resources.
+* A timeout of 5 seconds is typical except for http-enabled scripts which sometimes require more time to complete.
+
+
+A non-zero '''repeat''' is the number of seconds between each automated alias trigger.
+* Aliases with repeats may still be triggered manually.
+* The first trigger will occur after the repeat has elapsed on startup (repeat triggers don't trigger immediately on startup).
+
+
+'''auto-privmsg''' may be 0 or 1.
+* A value of 1 will automatically privmsg every line of text output to a script's stdout or stderr so must be used with caution.
+* This is useful for running programs that aren't scripted, such as compiled binaries that can't be changed (apt-get, fortune, etc).
+* A value of 0 won't privmsg stdout/stderr and is required if a script needs to triggger other commands, send customized messages to IRC or use buckets.
+
+
+'''empty-trailing-allowed''' may be 0 or 1.
+* A value of 1 will allow an alias to trigger if there is no text following the alias.
+* A value of 0 will require more text after the alias.
+* If an alias requires more text and a user enters only the alias itself with no other text, a privmsg is sent to inform the user.
+* If there is a chance that an alias may be entered without further text without intending to trigger the bot, this should be set to 0 and if need be handled silently within the triggered script.
+
+
+'''account-list''' is a comma-delimited list of NickServ account names permitted to trigger the alias.
+* If a user attempts to trigger an account-restricted alias and their account isn't listed or they aren't identified with NickServ, a message is output to the terminal but not to IRC.
+* An empty list is unrestricted.
+* A value of "*" will allow any NickServ-registered user to trigger alias.
+
+
+'''cmd-list''' is a comma-delimited list of commands that the alias may be triggered on, including IRC commands (PRIVMSG, NOTICE, NICK, etc) but also internal and bucket commands intercepted by the bot (INTERNAL, BUCKET_GET, etc).
+* Attempts to trigger a cmd-restricted alias on an unspecified cmd fail silently.
+* An empty list is unrestricted.
+
+
+'''dest-list''' is a comma-delimited list of destinations that the alias may be triggered from, including channel names and nicks.
+* Attempts to trigger a dest-restricted alias from an unspecified destination fail silently.
+* An empty list is unrestricted.
+
+
+'''reserved''' is an unused parameter reserved for future use, and may be 0 or 1.
+
+
+'''shell-cmd''' is the cli command executed in a separate process by the bot when the assocated alias is triggered and all requirements are met.
+
+===Notes===
+
+* %%trailing%% excludes alias
+* aliases here must be all lower case letters
+* cmd list and dest list is not case sensitive, but conventionally use uppercase for cmd
+* account, cmd and dest lists are all comma-separated
+* set cmd list to PRIVMSG to enable alias to only be called by PRIVMSG cmd (NOTICE etc won't trigger)
+* set dest list to #soylent to restrict triggering of alias to the #soylent channel (can also use a nick to restrict to PM)
+
+===Available exec templates===
+
+*%%trailing%% = <i>the message string visible in an IRC client</i>
+*%%dest%% = <i>the channel/pm nick where the message originated</i>
+*%%nick%% = <i>the nickname of the sender</i>
+*%%start%% = <i>microtime(True) result when bot was started</i>
+*%%alias%% = <i>the command alias that triggered the script</i>
+*%%cmd%% = <i>the IRC command (PRIVMSG,NOTICE,QUIT,PART,NICK,JOIN,numeric,etc)</i>
+*%%data%% = <i>the entire IRC line (refer below)</i>
+*%%exec%% = <i>the exec line for the trigger alias</i>
+*%%params%% = <i>the params part of the IRC line (refer below; usually same as %%dest%% except when %%cmd%% is a numeric)</i>
+
+IRC line syntax:<br>
+<source lang="dot">:<prefix> <command> <params> :<trailing></source>
+
+==Script development==
+
+===PHP script template===
+
+https://github.com/crutchy-/test/blob/master/script_template.php
+
+If anyone is interested in adding their own script, talk to crutchy (usually hangs out in #soylent and #test) who will be happy to help as best he can.
+
+===Internal commands===
+
+
+===IRC commands===
+
+IRC commands maybe manually constructed by echoing a string to stdout using the ":<prefix> <command> <params> :<trailing>" syntax, but there is also a selection of shortcuts available to make scripting easier. The following commands may be called using a "/command <trailing>" syntax.
+
+==Usage in IRC==
+
+To invoke a script in IRC client:
+<source lang="dot">alias [trailing]</source>
+Example:
+<source lang="dot">
+<crutchy> ~define atlantic ocean
+  <exec> 1 | noun | the 2nd largest ocean; separates North and South America on the west from Europe and Africa on the east\n2 | adjective | relating to or bordering the Atlantic Ocean
+</source>
+In the above example, "~define" is the alias, "atlantic ocean" is passed to the script as %%trailing%% and can be accessed in PHP scripts using the $argv global array variable.
+
+[[Feeds]]
+[[Feed sources]]
+
+==IRCiv==
+
+See [[IRCiv]].
+
+
+==Proposed IRC voting system==
+* not complete (there are some pieces in place though)
+* open to suggestions/criticism
+
+===Objectives===
+* simple to use
+* simple to access
+* simple to get help
+* secure as practicable
+* difficult to vote more than once (governed by requirement for unique email address)
+* secret ballot
+
+===Features/usage/limitations===
+* user connects to Soylent IRC and identifies with NickServ
+* user can get list of available polls using ~vote list (system will allow multiple concurrent polls)
+* optional time limit or due time for voting
+* user can get list of available preferences for a given vote id using ~vote list <vote_id>
+* user can get help on voting using ~vote, ~vote help, ~vote-help or ~vote ?
+* user registers to vote using ~vote register <vote_id> <email_address>
+* email address must be unique per vote
+* bot emails a vote key, which is only good for that user and that vote (key will be a short unique string of random characters, eg: Ar7u2y6T5koBW)
+* user votes using /msg exec ~vote <vote_id> <key> <preference>
+* if flag set by vote admin, users can suggest vote preference using /msg exec ~vote suggest <vote_id> <key> <preference>
+* creating polls by authorized staff/admins to be done via IRC commands
+* administrator can optionally set a flag to enable or disable multiple use of same key, and whether new votes replace old votes or cumulate
+* adminstrator can see results with ~vote results <vote_id>, or publish to channel with ~vote publish <vote_id>
+* bot uses secure connection to IRC, but emailing of keys will be in plain text
+* if necessary, possibly ban use of some web email hosts such as hotmail, yahoo, gmail, etc
+
+==Meeting assistant==
+
+This feature is currently under development.
+
+Proof-of-concept script for development of a tool to assist Soylent PBC Board Meeting conduct, and also possibly to assist team meetings.
+
+Intended to automate minute-taking and posting of minutes on the wiki.
+Meeting minutes will be posted automatically on the wiki on meeting close, with formatted sections for:
+* basic details such as start time, finish time, chair(s), etc
+* attendees with any notes regarding voiced/non-voiced nicks, speakers, authorized voters, admins, and anyone that joined/left partway through the meeting, etc
+* formatted IRC script
+* table of motions with vote counts, carried status, oppositions, who raised and who seconded etc
+* other data may be added as the feature is evolved
+
+<pre>
+~meeting open
+~meeting close
+~meeting chair <nick>
+~meeting motion <description>
+aye|nay
+</pre>
+
+There can only be one meeting per channel.
+Any number of meetings (in different channels) can occcur simultaneously.
+
+The bot stores a list of meeting data bucket indexes in the <<MEETING_LIST>> bucket.
+
+Meeting data buckets have indexes named <<MEETING_DATA $dest>> where $dest is the channel name.
+
+Meeting data buckets are arrays, each containing the following elements:
+
+<pre>
+channel = name of channel where meeting is being conducted
+chairs = array containing chair data
+finish = meeting close timestamp
+messages = array of privmsg data
+events = array of event data (quits/joins/kicks/nicks/etc)
+initial nicks = list of nicks at meeting open
+initial nicks complete = boolean
+final nicks = list of nicks at meeting close
+final nicks complete = boolean
+quorum = boolean
+</pre>
+
+Each chair data element contains an array with the following elements. A new chair array is added whenever the chair position is handed over.
+<pre>
+nick = NickServ account name of chair
+start = timestamp that chair commenced
+</pre>
+
+[[Category:IRC]]
+[[Category:IRC:exec]]
+

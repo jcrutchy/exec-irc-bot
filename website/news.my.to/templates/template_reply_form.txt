@@ -1,0 +1,10 @@
+<div class="reply_form">
+<div>%%preview%%</div>
+<form action="%%action%%" method="POST">
+<input type="hidden" name="parent_cid" value="%%parent_cid%%">
+<div>Nick <input type="text" name="nick" value="%%nick%%"></div>
+<div>Subject <input type="text" name="subject" value="%%subject%%"></div>
+<div><textarea class="comment" name="content">%%content%%</textarea></div>
+<div><input type="submit" name="%%submit_name%%" value="%%submit_caption%%"></div>
+</form>
+</div>

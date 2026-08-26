@@ -1,0 +1,236 @@
+[[IRC:exec]]
+
+==~==
+
+==~bot==
+
+==~bucket==
+
+==~buckets-dump==
+
+==~buckets-flush==
+
+==~buckets-list==
+
+==~buckets-load==
+
+==~buckets-save==
+
+==~chart==
+
+==~cid==
+
+==~comments==
+
+==~count==
+~count &lt;nick&gt;
+
+==~cowsay==
+
+==~define==
+~define term
+
+==~define-add==
+~define-add term, meaning
+
+==~define-count==
+
+==~define-delete==
+
+==~define-list==
+
+==~define-source-edit==
+
+==~define-source-param==
+
+==~define-sources==
+
+==~deop==
+
+==~dest-clear==
+
+==~dest-override==
+
+==~devoice==
+
+==~find-first==
+~find-first &lt;text&gt;
+
+==~find-last==
+~find-last &lt;text&gt;
+
+==~first==
+~first &lt;nick&gt;
+
+==~fortune==
+
+==~g'day==
+
+==~gday==
+
+==~header==
+~header &lt;header&gt; &lt;url&gt;<br>
+returns value of header (if found)<br>
+fails silently if error occurs or header not found
+
+==~header-login==
+
+==~help==
+
+==~ignore==
+
+==~invite==
+
+==~ircd==
+
+==~isup==
+~isup host[:port] (checks connection, returns http status if found)
+
+==~join==
+~join #channel (don't have to be channel op)
+
+==~kick==
+
+==~kill==
+
+==~killall==
+
+==~last==
+~last &lt;nick&gt;
+
+==~list==
+~list (lists available commands)
+
+==~list-auth==
+~list-auth (lists available commands requiring NickServ account authorization)
+
+==~location==
+~location code
+
+==~lock==
+~lock alias (treats all lines entered as being prefixed with alias, channel-specific)
+
+==~log==
+
+==~moo==
+
+==~op==
+
+==~part==
+~part (bot leaves channel)
+
+==~php==
+
+==~ps==
+
+==~q==
+
+==~queue==
+~queue (returns number of SN submissions in the queue)
+
+==~rainbow==
+~rainbow text
+
+==~rehash==
+
+==~remind==
+
+==~restart==
+
+==rofl==
+
+==~say==
+
+==~scramble==
+
+==~sed==
+~sed on|off<br>
+[nick[:|,|&gt;|.] ]s/pattern/replace[/[g]] (similar to SedBot)
+
+==~staff==
+syntax: ~staff meeting<br>
+displays meeting info from either the site news slashbox or the board meeting wiki page
+
+==~suggest==
+
+==~tests==
+
+==~time==
+~time location
+
+==~time-add==
+
+==~time-del==
+
+==~title==
+
+==~translate==
+~translate tolang text (auto-detects source lang, eg: ~translate en prueba)
+
+==~translate-sl==
+~translate-sl fromlang tolang text (eg: ~translate-sl es en prueba)
+
+==~unignore==
+
+==~unlock==
+Syntax:<br>
+~unlock<br>
+Related commands:<br>
+~lock<br>
+Developers:<br>
+crutchy<br>
+Sources:<br>
+https://github.com/crutchy-/exec-irc-bot/blob/master/irc_lib.php
+
+==~up==
+
+==~users==
+
+==~voice==
+
+==~weather==
+Syntax:<br>
+~weather location<br>
+weather data courtesy of the APRS Citizen Weather Observer Program (CWOP) @ http://weather.gladstonefamily.net/<br>
+Examples:<br>
+~weather JFK<br>
+~weather vostok, aq<br>
+~weather crutchy<br>
+Related commands:<br>
+~weather-add<br>
+~time-add<br>
+Developers:<br>
+crutchy<br>
+Sources:<br>
+https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/weather.php<br>
+https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/weather_lib.php
+
+==~weather-add==
+Syntax: ~weather-add name location<br>
+Developer(s): crutchy<br>
+Sources:<br>
+https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/weather.php<br>
+https://github.com/crutchy-/exec-irc-bot/blob/master/scripts/weather_lib.php<br>
+Related commands:<br>
+~weather<br>
+~time<br>
+~time-add<br>
+~location<br>
+Description:<br>
+Enables storing a short name to refer to a longer location description when using the ~weather or ~time commands.<br>
+If a name already exists, setting it again will overwrite the existing named location.<br>
+Names cannot be deleted at this stage.<br>
+A few thousand ICAO and IATA/FAA airport codes have been imported into the codes file thanks to OpenFlights.<br>
+&lt;crutchy&gt; ~weather-add crutchy melbourne australia<br>
+&lt;exec&gt; code "crutchy" set for location "melbourne australia"
+
+==~weather-del==
+
+==~welcome==
+
+==~wiki==
+
+
+[[Category:IRC]]
+[[Category:IRC:exec]]
+

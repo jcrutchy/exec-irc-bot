@@ -1,0 +1,8 @@
+hellox3
+  loop 3 sayhello sayhello
+sayhello
+  msg hello
+loop n code
+  for ($i=1;$i<=n;$i++) { code }
+msg trailing
+  privmsg(trailing);

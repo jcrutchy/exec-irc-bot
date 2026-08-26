@@ -1,0 +1,40 @@
+<?php
+
+#####################################################################################################
+
+/*if (is_gm($server_data,$unpacked["hostname"])==True)
+{
+  if (count($trailing_parts)<>1)
+  {
+    $response["msg"][]="invalid number of parameters";
+    break;
+  }
+  $subject=$trailing_parts[0];
+  $user_data=users_get_data($subject);
+  if (isset($user_data["hostname"])==False)
+  {
+    $response["msg"][]="nick \"$subject\" not found";
+  }
+  else
+  {
+    $subject=$user_data["hostname"];
+    if (isset($server_data["app_data"]["players"][$subject])==True)
+    {
+      $output=var_export($server_data["app_data"]["players"][$subject],True);
+      output_ixio_paste($output,False);
+      $response["msg"][]="player data for \"$subject\" dumped to http://ix.io/nAz";
+    }
+    else
+    {
+      $response["msg"][]="player \"$subject\" not found on the game server in this channel";
+    }
+  }
+}
+else
+{
+  $response["msg"][]="not authorized";
+}*/
+
+#####################################################################################################
+
+?>

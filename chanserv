@@ -1,0 +1,20 @@
+/cs role #comments add exec +acl-view +autovoice +invite +autoop +remove +topic +op +voice
+/cs role #github add exec +acl-view +autovoice +invite +autoop +remove +topic +op +voice
+
+/cs access #comments set exec exec
+/cs access #github set exec exec
+
+not to be set for exec:
++set
++recover
++acl-change
++successor
++founder
++banned
+
+/cs flags #feeds crutchy -O
+/cs flags #crutchy crutchy -O
+/cs flags #comments crutchy -O
+/cs flags #github crutchy -O
+/cs flags #freenode crutchy -O
+/cs flags #exec crutchy -O

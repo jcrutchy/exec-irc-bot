@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>paste.my.to</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<style type="text/css"></style>
+<script type="text/javascript"></script>
+</head>
+<body>
+<p>paste.my.to</p>
+<form action="/" method="POST">
+<textarea name="content" style="width: 93%; height: 250px; overflow: auto;" wrap="off"></textarea>
+<input type="submit" value="paste">
+</form>
+<p>paste will have a url of the form http://paste.my.to/%id%</p>
+<p>%id% is combination of two lowercase letters that increments from aa to zz (ie: aa, ab) and rolls over from zz back to aa</p>
+<p>because of the rollover, lifetime of pastes varies according to usage</p>
+<p>crutchy, 25-jan-2015</p>
+<p><a href="https://github.com/crutchy-/exec-irc-bot/blob/master/website/paste.my.to.inc">https://github.com/crutchy-/exec-irc-bot/blob/master/website/paste.my.to.inc</a></p>
+</body>
+</html>
