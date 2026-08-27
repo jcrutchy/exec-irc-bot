@@ -2,8 +2,13 @@
 
 #####################################################################################################
 
+<<<<<<< HEAD
 #define("BOT_SCHEMA","exec_irc_bot");
 #define("LOG_TABLE","irc_log");
+=======
+define("BOT_SCHEMA","exec_irc_bot");
+define("LOG_TABLE","irc_log");
+>>>>>>> master
 
 $pdo=new PDO("mysql:host=localhost","www",trim(file_get_contents("../pwd/mysql_www")));
 if ($pdo===False)

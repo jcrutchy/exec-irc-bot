@@ -7,7 +7,11 @@ ini_set("error_reporting",E_ALL);
 date_default_timezone_set("UTC");
 
 require_once("lib_buckets.php");
+<<<<<<< HEAD
 #require_once("lib_http.php");
+=======
+require_once("lib_http.php");
+>>>>>>> master
 require_once("users_lib.php");
 
 define("DATA_PATH","../data/");
