@@ -126,11 +126,7 @@ switch (strtoupper($cmd))
     break;
 }
 
-<<<<<<< HEAD
 #handle_macros($nick,$dest,$trailing);
-=======
-handle_macros($nick,$dest,$trailing);
->>>>>>> master
 
 #####################################################################################################
 
