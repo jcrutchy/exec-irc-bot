@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Compiler Value="C:\lazarus\fpc\3.2.2\bin\x86_64-win64\fpc.exe" Date="1556502373"/>
+  <Params Value="-MObjFPC -Scghi -O1 -gw3 -gl -l -vewnhibq -FiC:\dev\exec-irc-bot\pas\lib\x86_64-win64 -FuC:\dev\exec-irc-bot\pas\ -FUC:\dev\exec-irc-bot\pas\lib\x86_64-win64\ -FEC:\dev\exec-irc-bot\pas\ -oC:\dev\exec-irc-bot\pas\bot.exe bot.lpr"/>
+</CONFIG>

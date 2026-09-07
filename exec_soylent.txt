@@ -68,11 +68,11 @@
 #startup ./scripts
 #help ./scripts
 
-#include ./scripts
+include ./scripts
 #include ./interface/reader.php
 #include test.php
 
-include ./scripts/rainbow.php
+#include ./scripts/rainbow.php
 
 #~calc|5|0|1|1|||||/usr/bin/units -t %%trailing%%
 #help:~calc syntax: ~calc <expression>

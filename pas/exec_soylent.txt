@@ -1,0 +1,1 @@
+~rainbow|5|0|0|0|||||c:/php/php rainbow.php %%trailing%%
